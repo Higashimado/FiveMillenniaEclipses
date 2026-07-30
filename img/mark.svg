@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Five Millennia of Eclipses">
+  <!-- Site mark: a bare seal border, nothing inside it — the smallest bankuang
+       (page frame) on the site. Stroke, not fill, so the paper shows through.
+       The dark rule is load-bearing, not a nicety: browser tab strips are dark
+       on most systems and the zhupi vermilion sinks into them. -->
+  <style>
+    rect { fill: none; stroke: #B23A2E; stroke-width: 7.5; }
+    @media (prefers-color-scheme: dark) { rect { stroke: #E4675A; } }
+  </style>
+  <rect x="8" y="8" width="48" height="48"/>
+</svg>

@@ -1,0 +1,198 @@
+/* style.css — base reset, scrollbars, body typography, and the eclipse map-layer
+   classes (curve labels, umbra, greatest-eclipse marker, curve tooltips) that
+   js/eclipse.js attaches by className. Loaded before app.css, which owns the atlas
+   shell layout. */
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 84, 72, 0.28) transparent;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(90, 84, 72, 0.28);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(90, 84, 72, 0.45); }
+
+html, body, #map {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* font-family intentionally omitted: html,body in css/app.css (loaded last)
+     sets --font-text and wins by load order — a rule here would be dead. */
+  /* Nominal document root, NOT a step of the type scale (css/tokens.css): every
+     text node in the shell sets its own size, so nothing actually renders at 16px.
+     Left a literal so the scale keeps describing only sizes you can see on screen. */
+  font-size: 16px;
+  font-weight: 450;
+  line-height: var(--lh-base);
+  color: var(--fg-primary);
+  font-feature-settings: 'kern' 1, 'liga' 1, 'tnum' 1, 'lnum' 1;
+}
+
+/* ---- Typography utility classes ---- */
+
+/* Numeric / data values: serif (all-serif house style) with tabular lining
+   figures so columns still align — matches the rail and the eclipse list. */
+.data-value,
+.coord, .time-value, .percent,
+.magnitude, .duration, .azimuth, .altitude {
+  font-family: var(--font-text);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  letter-spacing: 0;
+}
+
+#lang-select {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  font-size: var(--fs-body);
+  width: 100%;
+}
+
+/* Data-source attribution pinned at the bottom of a celestial info card,
+   below the scrollable body. Hairline divider keeps it distinct from data. */
+.card-credits {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-hairline);
+  font-family: var(--font-text);
+  font-size: var(--fs-micro);
+  line-height: 1.4;
+  color: var(--fg-disabled);
+  user-select: text;
+}
+
+.aurora-credits a,
+.card-credits a {
+  color: inherit;
+  text-decoration: underline;
+}
+.aurora-credits a:hover,
+.card-credits a:hover { color: var(--brass); }
+
+@keyframes ec-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mapToastFade {
+  0% { opacity: 0; transform: translate(-50%, -8px); }
+  10%, 80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -4px); }
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--fs-body);
+  padding: 3px 0;
+  color: var(--text-secondary);
+}
+
+.info-row .label {
+  color: var(--text-dim);
+}
+
+.info-row .value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--accent-gold);
+}
+
+/* ---- Contact-curve overlay markers (greatest-eclipse star + lunar contact
+   labels) — drawn by Eclipse.drawContactCurves() when an event is selected. */
+/* Sizes for these three live in css/app.css (.iso-mag-label/.eclipse-edge-label
+   and .eclipse-greatest-marker) — same specificity, later file, so app.css always
+   won and the declarations that used to sit here (19px here vs 16px there; 12px
+   here vs 13px there) never rendered. Kept in one place rather than two. */
+.eclipse-greatest-marker {
+  background: transparent !important;
+  border: none !important;
+  text-align: center;
+  line-height: 16px;
+  color: var(--eclipse-visibility, #3F8378);
+  text-shadow: 0 0 4px var(--card, #F1EFE8), 0 0 2px var(--card, #F1EFE8);
+  pointer-events: none;
+}
+
+/* ---- Eclipse umbra + edge label + iso-magnitude rings (song-paper register) ---- */
+.eclipse-umbra {
+  filter: drop-shadow(0 0 2px rgba(42, 46, 51, 0.25));
+}
+
+.eclipse-edge-label {
+  font-family: var(--font-text);
+  font-style: italic;
+  color: var(--accent);
+  text-shadow: 0 0 3px var(--card, #F1EFE8);
+  white-space: nowrap;
+  pointer-events: none;
+  text-align: center;
+}
+
+.iso-mag-label {
+  font-family: var(--font-text);
+  color: var(--fg-muted);
+  text-shadow: 0 0 3px var(--card, #F1EFE8);
+  pointer-events: none;
+  text-align: center;
+}
+
+/* Iso-mag curve labels (magnitude value placed along the contour) */
+.iso-mag-curve-label {
+  background: transparent !important;
+  border: none !important;
+  font-family: var(--font-text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--eclipse-mag-50, #4E6E86);
+  text-shadow: 0 0 4px var(--card, #F1EFE8), 0 0 2px var(--card, #F1EFE8);
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Tooltip shown on eclipse curve hover — matches #tl-tip: square corners, body font, 12px */
+.eclipse-curve-tooltip {
+  background: rgba(var(--panel, 241, 239, 232), 0.95) !important;
+  color: var(--ink, #2A2E33) !important;
+  border: 0.5px solid var(--hair, #D3CFC5) !important;
+  font-family: inherit;
+  font-size: var(--fs-note);
+  padding: 2px 8px !important;
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(30, 30, 30, 0.12);
+  white-space: nowrap;
+}
+/* Cover all four Leaflet arrow directions so the tip never shows a white stub */
+.eclipse-curve-tooltip.leaflet-tooltip-top::before    { border-top-color:    rgba(var(--panel, 241,239,232), .95) !important; }
+.eclipse-curve-tooltip.leaflet-tooltip-bottom::before { border-bottom-color: rgba(var(--panel, 241,239,232), .95) !important; }
+.eclipse-curve-tooltip.leaflet-tooltip-left::before   { border-left-color:   rgba(var(--panel, 241,239,232), .95) !important; }
+.eclipse-curve-tooltip.leaflet-tooltip-right::before  { border-right-color:  rgba(var(--panel, 241,239,232), .95) !important; }
+
+/* Glossary term labels carry a native title tooltip; a help cursor signals that
+   hovering reveals an explanation. Title attributes do not block text selection. */
+.info-row .label[title],
+.tt-label[title],
+.info-block-title[title],
+.body-almanac-table th[title],
+.sat-pass-table th[title],
+.star-ids span[title],
+.ec-meta-line span[title],
+.ec-dur-line span[title],
+.ec-detail-times .et-desc[title],
+.twilight-table td.tt-time[title],
+.body-almanac-table td span[title],
+.eclipse-card [title] {
+  cursor: help;
+}
+

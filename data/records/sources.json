@@ -1,0 +1,3772 @@
+{
+  "_meta": {
+    "title": "Catalogue of the sources cited by the record corpus",
+    "scope": "Every work and every observer that a record cites: standard histories, chronicles, veritable records, classical scholarly works and, for the modern period, named astronomers. An entry gives the title in whichever languages the work actually has one, the people responsible for it, a statement of responsibility where that is not a matter of transmission, and the editions consulted. Records cite an entry by key and do not repeat the title; the chapter, leaf or year cited sits with the record, not with the title here. Where the corpus works from a translation or from a quotation in another book, the edition consulted is marked as such, following the Chicago Manual of Style, 18th edition, section 14.260.",
+    "fields": "key = source identifier. title = titles by language, with zh-Hans and zh-Hant for works that genuinely have a Chinese title, rom for the romanisation and en for the English title; omitted entirely for an entry that is an observer rather than a work (optional). author = the people responsible, each with name in its own script, rom for the romanisation, role (comp, ed, trans, annot, obs, attr), dates of life or activity, and kind set to group for an institution or collective; omitted entirely where the work is genuinely anonymous (optional). attribution = a statement of responsibility that is not a matter of transmission, such as the institution behind an observation, a corroborating witness or a description of an anonymous author (optional). editions = the editions of the work, each with kind (orig, crit, facsim for a direct citation, trans or quot for an indirect one, cite for a bare reference), consulted set to true on exactly one of them, by for the translator, editor or intermediary, title, year, url, license, and locus_url as a template for citing a single chapter (optional).",
+    "provenance": "Compiled and maintained by hand. The first version was aggregated from the bibliographic fields of an earlier form of the corpus, in which every title was already distinct, and every entry since has been edited individually.",
+    "count": {
+      "sources": 214
+    },
+    "license": "CC-BY-SA-4.0",
+    "updated": "2026-07-29",
+    "caveats": [
+      "A license is recorded on a consulted edition only where the text is known to be under one. Left empty it means the status was not established, not that the text is free of restriction; anyone reusing an edition should check its own terms.",
+      "Fifty-five entries have no editions at all. Each was checked and no freely reachable full text was found, whether because the archive requires an account or because it refuses automated access. An empty editions field is a finding, not a gap.",
+      "An edition marked trans or quot means the corpus works from a translation or from a quotation in another book. It does not mean the original is unavailable. Any further edition listed without the consulted mark is the critical edition of the original, where one is known.",
+      "No Chinese title is invented for a western work, and no French, Spanish, Italian or Japanese title is supplied for any work, since few pre-modern titles have a settled form in those languages. Only titles the work actually bears are recorded.",
+      "Only real authors are recorded as authors. Where a chronicle is genuinely anonymous, as with the Annales Castellani and the Anales Toledanos, the description of its unnamed chronicler is kept as a statement of responsibility instead. Institutions and expeditions such as the U.S. Naval Observatory or the Royal Society are treated the same way.",
+      "Modern observation entries, mostly eighteenth to twentieth century astronomers, have an observer but no work, and so carry no title.",
+      "The place where al-Battani worked is disputed between al-Raqqa and Antioch, and the records citing him divide evenly. The entry records both rather than choose."
+    ]
+  },
+  "sources": {
+    "assyrian-scribes-limmu-list": {
+      "author": [
+        {
+          "name": "Assyrian scribes",
+          "kind": "group"
+        }
+      ],
+      "attribution": "Limmu list",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "A. R. Millard",
+          "title": "The Eponyms of the Assyrian Empire 910–612 B.C. (SAAS 2)",
+          "year": "1994",
+          "url": "https://oracc.museum.upenn.edu/saao/saas2/",
+          "license": "CC-BY-SA-3.0"
+        }
+      ]
+    },
+    "mursili-ii-hittite-king": {
+      "author": [
+        {
+          "name": "Mursili II"
+        }
+      ],
+      "attribution": "Hittite king"
+    },
+    "herodotus-historiae-i-74": {
+      "title": {
+        "zh-Hans": "《历史》",
+        "zh-Hant": "《歷史》",
+        "rom": "Herodotus, Historiae"
+      },
+      "author": [
+        {
+          "name": "Herodotus"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0126:book=1:chapter=74"
+        }
+      ]
+    },
+    "pappus-comm-almagestum": {
+      "title": {
+        "zh-Hans": "《至大论注》",
+        "zh-Hant": "《至大論注》",
+        "rom": "Pappus, Comm. in Almagestum",
+        "en": "Commentary on the Almagest"
+      },
+      "author": [
+        {
+          "name": "Pappus of Alexandria"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.nyu.edu/bitstream/2451/61288/56/11.%20Carman.pdf"
+        }
+      ]
+    },
+    "hou-hanshu": {
+      "title": {
+        "zh-Hans": "《后汉书》",
+        "zh-Hant": "《後漢書》",
+        "rom": "Hou Hanshu",
+        "en": "Book of Later Han"
+      },
+      "author": [
+        {
+          "name": "Fan Ye",
+          "role": "comp"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%BE%8C%E6%BC%A2%E6%9B%B8/%E5%8D%B72",
+          "license": "CC-BY-SA-4.0"
+        }
+      ]
+    },
+    "henry-of-huntingdon-historia-anglorum": {
+      "title": {
+        "rom": "Historia Anglorum"
+      },
+      "author": [
+        {
+          "name": "Henry of Huntingdon"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "Thomas Arnold",
+          "year": "1879",
+          "url": "https://archive.org/details/henriciarchidia00unkngoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "gonzalo-de-berceo-cronica-de-cerrato": {
+      "title": {
+        "rom": "Crónica de Cerrato"
+      },
+      "author": [
+        {
+          "name": "Gonzalo de Berceo",
+          "role": "attr"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/espanasagradathe23flor",
+          "license": "PD"
+        }
+      ]
+    },
+    "ugaritic-tablet-ktu-1-78-rs-12-061": {
+      "title": {
+        "zh-Hans": "乌加里特楔文泥板",
+        "zh-Hant": "烏加里特楔文泥板",
+        "rom": "Ugaritic tablet KTU 1.78 (RS 12.061)"
+      },
+      "author": [
+        {
+          "name": "Ugaritic scribes",
+          "kind": "group"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "cite",
+          "consulted": true,
+          "url": "https://cdli.earth/search?q=RS+12.061"
+        }
+      ]
+    },
+    "archilochus-fr-122-west": {
+      "title": {
+        "zh-Hans": "《残篇》",
+        "zh-Hant": "《殘篇》",
+        "rom": "Archilochus fr. 122 West"
+      },
+      "author": [
+        {
+          "name": "Archilochus of Paros"
+        }
+      ],
+      "attribution": "fr. 74 Diehl",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0060:bekker+page=1418b"
+        }
+      ]
+    },
+    "diodorus-siculus-xx-5": {
+      "title": {
+        "zh-Hans": "《历史丛书》",
+        "zh-Hant": "《歷史叢書》",
+        "rom": "Diodorus Siculus, Bibliotheca Historica"
+      },
+      "author": [
+        {
+          "name": "Diodorus Siculus"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "url": "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Diodorus_Siculus/20A*.html",
+          "by": "C. H. Oldfather",
+          "title": "Diodorus Siculus: Library of History (Loeb Classical Library)",
+          "year": "1954"
+        }
+      ]
+    },
+    "livy-ab-urbe-condita-xxxvii-4": {
+      "title": {
+        "zh-Hans": "《建城以来》",
+        "zh-Hant": "《建城以來》",
+        "rom": "Livy, Ab Urbe Condita"
+      },
+      "author": [
+        {
+          "name": "Livy"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://www.thelatinlibrary.com/livy/liv.37.shtml"
+        }
+      ]
+    },
+    "plutarch-de-facie-in-orbe-lunae-932b": {
+      "title": {
+        "zh-Hans": "《论月面》",
+        "zh-Hant": "《論月面》",
+        "rom": "Plutarch, De facie in orbe lunae"
+      },
+      "author": [
+        {
+          "name": "Plutarch"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "url": "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Moralia/The_Face_in_the_Moon*/home.html",
+          "by": "Harold Cherniss",
+          "title": "Plutarch: Moralia Vol. XII (Loeb Classical Library)",
+          "year": "1957"
+        }
+      ]
+    },
+    "shangshu-yinzheng": {
+      "title": {
+        "zh-Hans": "《尚书·胤征》",
+        "zh-Hant": "《尚書·胤征》",
+        "rom": "Shangshu, \"Yinzheng\"",
+        "en": "Book of Documents, 'Punitive Expedition of Yin'"
+      },
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/尚書/胤征",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "shijing-xiaoya-shiyue-zhi-jiao": {
+      "title": {
+        "zh-Hans": "《诗经·小雅·十月之交》",
+        "zh-Hant": "《詩經·小雅·十月之交》",
+        "rom": "Shijing, \"Xiaoya, Shiyue zhi jiao\"",
+        "en": "Shijing, 'Minor Odes'"
+      },
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/詩經/十月之交",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "chunqiu": {
+      "title": {
+        "zh-Hans": "《春秋》",
+        "zh-Hant": "《春秋》",
+        "rom": "Chunqiu",
+        "en": "Spring and Autumn Annals"
+      },
+      "attribution": "Lu state chronicle",
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/春秋經",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "hanshu-wuxing-zhi": {
+      "title": {
+        "zh-Hans": "《汉书·五行志》",
+        "zh-Hant": "《漢書·五行志》",
+        "rom": "Hanshu, \"Wuxing zhi\"",
+        "en": "Book of Han, Treatise on the Five Phases"
+      },
+      "author": [
+        {
+          "name": "Ban Gu",
+          "role": "comp"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%BC%A2%E6%9B%B8/%E5%8D%B7027",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%BC%A2%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "hou-hanshu-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《后汉书·天文志》",
+        "zh-Hant": "《後漢書·天文志》",
+        "rom": "Hou Hanshu, \"Tianwen zhi\"",
+        "en": "Book of Later Han, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "司馬彪",
+          "role": "comp"
+        },
+        {
+          "name": "劉昭",
+          "role": "annot"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%BE%8C%E6%BC%A2%E6%9B%B8/%E5%8D%B7102",
+          "locus_url": "https://zh.wikisource.org/wiki/%E5%BE%8C%E6%BC%A2%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "jiu-tangshu-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《旧唐书·天文志》",
+        "zh-Hant": "《舊唐書·天文志》",
+        "rom": "Jiu Tangshu, \"Tianwen zhi\"",
+        "en": "Old Book of Tang, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "劉昫",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E8%88%8A%E5%94%90%E6%9B%B8/%E5%8D%B736",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E8%88%8A%E5%94%90%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "xin-tangshu-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《新唐书·天文志》",
+        "zh-Hant": "《新唐書·天文志》",
+        "rom": "Xin Tangshu, \"Tianwen zhi\"",
+        "en": "New Book of Tang, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "歐陽脩",
+          "role": "comp"
+        },
+        {
+          "name": "宋祁",
+          "role": "comp"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%96%B0%E5%94%90%E6%9B%B8/%E5%8D%B7033",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%96%B0%E5%94%90%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "ming-shilu": {
+      "title": {
+        "zh-Hans": "《明实录》",
+        "zh-Hant": "《明實錄》",
+        "rom": "Ming shilu"
+      },
+      "attribution": "明代地方志"
+    },
+    "goryeosa-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《高丽史·天文志》",
+        "zh-Hant": "《高麗史·天文志》",
+        "rom": "Goryeosa, \"Tianwen zhi\"",
+        "en": "Goryeosa, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "鄭麟趾",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "year": "1451",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E9%AB%98%E9%BA%97%E5%8F%B2/%E5%8D%B7%E5%9B%9B%E5%8D%81%E5%85%AB",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E9%AB%98%E9%BA%97%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "ibn-yunus-ibn-yunus": {
+      "author": [
+        {
+          "name": "Ibn Yunus",
+          "rom": "Ibn Yūnus",
+          "dates": "c. 950–1009 CE"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Caussin de Perceval",
+          "title": "Le Livre de la Grande Table Hakémite",
+          "year": "1804",
+          "url": "https://gallica.bnf.fr/ark:/12148/bpt6k5626201z",
+          "license": "PD"
+        }
+      ]
+    },
+    "bede-historia-ecclesiastica-iii-27": {
+      "title": {
+        "zh-Hans": "《英吉利教会史》",
+        "zh-Hant": "《英吉利教會史》",
+        "rom": "Bede, Historia Ecclesiastica"
+      },
+      "author": [
+        {
+          "name": "Bede"
+        }
+      ],
+      "year": "c. 731 CE",
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "url": "https://www.gutenberg.org/cache/epub/38326/pg38326-images.html",
+          "by": "A. M. Sellar",
+          "title": "Bede's Ecclesiastical History of England",
+          "year": "1907"
+        }
+      ]
+    },
+    "annales-bertiniani-s-a-840": {
+      "title": {
+        "zh-Hans": "《贝尔廷编年史》",
+        "zh-Hant": "《貝爾廷編年史》",
+        "rom": "Annales Bertiniani"
+      },
+      "attribution": "Annales Fuldenses s.a. 840; Nithard, Historiae I.7",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/stream/annalesbertinian00wait/annalesbertinian00wait_djvu.txt"
+        }
+      ]
+    },
+    "leo-the-deacon-historia-iv-11": {
+      "title": {
+        "zh-Hans": "《历史》",
+        "zh-Hant": "《歷史》",
+        "rom": "Leo the Deacon, Historia"
+      },
+      "author": [
+        {
+          "name": "Leo the Deacon",
+          "rom": "Leōn Diakonos"
+        }
+      ],
+      "year": "c. 992 CE",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/corpusscriptoru12unkngoog"
+        }
+      ]
+    },
+    "snorri-sturluson-heimskringla": {
+      "title": {
+        "zh-Hans": "《奥拉夫圣王传》",
+        "zh-Hant": "《奧拉夫聖王傳》",
+        "rom": "Snorri Sturluson, Heimskringla, Óláfs saga helga"
+      },
+      "author": [
+        {
+          "name": "Snorri Sturluson"
+        }
+      ],
+      "year": "c. 1230 CE",
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "url": "https://www.gutenberg.org/files/598/598-h/598-h.htm",
+          "by": "William Morris & Eiríkr Magnússon",
+          "title": "The Saga Library Vol. I: Heimskringla I",
+          "year": "1893"
+        }
+      ]
+    },
+    "hypatian-chronicle-lay-of-igor-s-host": {
+      "title": {
+        "zh-Hans": "《伊帕提耶夫编年史》",
+        "zh-Hant": "《伊帕提耶夫編年史》",
+        "rom": "Hypatian Chronicle (Ipatievskaya letopis')"
+      },
+      "attribution": "Lay of Igor's Host (Slovo o polku Igoreve)",
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://archive.org/details/Complete_Collection_of_Russian_Chronicles_1923_Vol_2_Hypatian_Chronicle",
+          "license": "PD",
+          "consulted": true
+        }
+      ]
+    },
+    "codex-telleriano-remensis-fol-40v": {
+      "title": {
+        "zh-Hans": "《特列里亚诺-雷门西斯古抄本》",
+        "zh-Hant": "《特列里亞諾-雷門西斯古抄本》",
+        "rom": "Codex Telleriano-Remensis"
+      }
+    },
+    "dresden-codex": {
+      "title": {
+        "rom": "Dresden Codex"
+      },
+      "author": [
+        {
+          "name": "Maya scribes",
+          "kind": "group"
+        }
+      ],
+      "attribution": "pre-Conquest copy of earlier text",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "by": "Ernst Förstemann",
+          "title": "Die Maya-Handschrift der Königlichen Bibliothek zu Dresden",
+          "year": "1880",
+          "url": "https://www.famsi.org/mayawriting/codices/dresden.html"
+        }
+      ]
+    },
+    "maya-scribes-dresden-codex": {
+      "title": {
+        "rom": "Dresden Codex"
+      },
+      "author": [
+        {
+          "name": "Maya scribes",
+          "kind": "group"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "by": "Ernst Förstemann",
+          "title": "Die Maya-Handschrift der Königlichen Bibliothek zu Dresden",
+          "year": "1880",
+          "url": "https://www.famsi.org/mayawriting/codices/dresden.html"
+        }
+      ]
+    },
+    "herodotus-historiae-ix-10": {
+      "title": {
+        "zh-Hans": "《历史》",
+        "zh-Hant": "《歷史》",
+        "rom": "Herodotus, Historiae"
+      },
+      "author": [
+        {
+          "name": "Herodotus"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "url": "https://en.wikisource.org/wiki/The_History_of_Herodotus_(Rawlinson)/Book_9",
+          "by": "George Rawlinson",
+          "title": "The History of Herodotus (en.wikisource.org)",
+          "year": "1858"
+        }
+      ]
+    },
+    "edmond-halley-royal-society": {
+      "author": [
+        {
+          "name": "Edmond Halley",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Royal Society",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "A Description of the Passage of the Shadow of the Moon over England (1715)",
+          "year": "1715",
+          "url": "https://archive.org/details/bim_eighteenth-century_a-description-of-the-pas_halley-edmund_1715_0",
+          "license": "PD"
+        }
+      ]
+    },
+    "f-w-dyson": {
+      "author": [
+        {
+          "name": "F. W. Dyson",
+          "role": "obs"
+        },
+        {
+          "name": "A. S. Eddington",
+          "role": "obs"
+        },
+        {
+          "name": "C. Davidson",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Royal Society / Royal Greenwich Observatory",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "F. W. Dyson, A. S. Eddington, C. Davidson",
+          "title": "A Determination of the Deflection of Light by the Sun's Gravitational Field — Phil. Trans. A 220 (1920): 291–333",
+          "year": "1920",
+          "url": "https://archive.org/details/philtrans06337895",
+          "license": "PD"
+        }
+      ]
+    },
+    "hou-hanshu-wuxing-zhi-6": {
+      "title": {
+        "zh-Hans": "《后汉书·五行志六》",
+        "zh-Hant": "《後漢書·五行志六》",
+        "rom": "Hou Hanshu, \"Wuxing zhi 6\"",
+        "en": "Book of Later Han, Treatise on the Five Phases VI"
+      },
+      "author": [
+        {
+          "name": "司馬彪",
+          "role": "comp"
+        },
+        {
+          "name": "劉昭",
+          "role": "annot"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%BE%8C%E6%BC%A2%E6%9B%B8/%E5%8D%B7108",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E5%BE%8C%E6%BC%A2%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "songshu-wuxing-zhi": {
+      "title": {
+        "zh-Hans": "《宋书·五行志》",
+        "zh-Hant": "《宋書·五行志》",
+        "rom": "Songshu, \"Wuxing zhi\"",
+        "en": "Book of Song, Treatise on the Five Phases"
+      },
+      "author": [
+        {
+          "name": "沈約",
+          "role": "comp"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E6%9B%B8/%E5%8D%B734",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "nan-qishu-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《南齐书·天文志》",
+        "zh-Hant": "《南齊書·天文志》",
+        "rom": "Nan Qishu, \"Tianwen zhi\"",
+        "en": "Book of Southern Qi, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "蕭子顯",
+          "role": "comp"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%8D%97%E9%BD%8A%E6%9B%B8/%E5%8D%B712",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E5%8D%97%E9%BD%8A%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "weishu-tianxiang-zhi": {
+      "title": {
+        "zh-Hans": "《魏书·天象志》",
+        "zh-Hant": "《魏書·天象志》",
+        "rom": "Weishu, \"Tianxiang zhi\"",
+        "en": "Book of Wei, Treatise on Celestial Phenomena"
+      },
+      "author": [
+        {
+          "name": "魏收",
+          "role": "comp"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E9%AD%8F%E6%9B%B8/%E5%8D%B7105%E4%B9%8B%E4%B8%80",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E9%AD%8F%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "suishu-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《隋书·天文志》",
+        "zh-Hant": "《隋書·天文志》",
+        "rom": "Suishu, \"Tianwen zhi\"",
+        "en": "Book of Sui, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "魏徵",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E9%9A%8B%E6%9B%B8/%E5%8D%B721",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E9%9A%8B%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "songshi-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《宋史·天文志》",
+        "zh-Hant": "《宋史·天文志》",
+        "rom": "Songshi, \"Tianwen zhi\"",
+        "en": "History of Song, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "脫脫",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "jiu-wudaishi-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《旧五代史·天文志》",
+        "zh-Hant": "《舊五代史·天文志》",
+        "rom": "Jiu Wudaishi, \"Tianwen zhi\"",
+        "en": "Old History of the Five Dynasties, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "薛居正",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E8%88%8A%E4%BA%94%E4%BB%A3%E5%8F%B2/%E5%8D%B7139",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E8%88%8A%E4%BA%94%E4%BB%A3%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "jinshi-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《金史·天文志》",
+        "zh-Hant": "《金史·天文志》",
+        "rom": "Jinshi, \"Tianwen zhi\"",
+        "en": "History of Jin, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "脫脫",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E9%87%91%E5%8F%B2/%E5%8D%B720",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E9%87%91%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "yuanshi-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《元史·天文志》",
+        "zh-Hant": "《元史·天文志》",
+        "rom": "Yuanshi, \"Tianwen zhi\"",
+        "en": "History of Yuan, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "宋濂",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%85%83%E5%8F%B2/%E5%8D%B7049",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E5%85%83%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "qingshigao-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《清史稿·天文志》",
+        "zh-Hant": "《清史稿·天文志》",
+        "rom": "Qingshigao, \"Tianwen zhi\"",
+        "en": "Draft History of Qing, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "趙爾巽",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%B8%85%E5%8F%B2%E7%A8%BF/%E5%8D%B737",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%B8%85%E5%8F%B2%E7%A8%BF/{volume}"
+        }
+      ]
+    },
+    "mingshi-benji": {
+      "title": {
+        "zh-Hans": "《明史·本纪》",
+        "zh-Hant": "《明史·本紀》",
+        "rom": "Mingshi, \"Benji\"",
+        "en": "History of Ming, Basic Annals"
+      },
+      "author": [
+        {
+          "name": "張廷玉",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%98%8E%E5%8F%B2/%E5%8D%B72",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%98%8E%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "joseon-wangjo-sillok": {
+      "title": {
+        "zh-Hans": "《朝鲜王朝实录》",
+        "zh-Hant": "《朝鮮王朝實錄》",
+        "rom": "Joseon wangjo sillok",
+        "en": "Veritable Records of the Joseon Dynasty"
+      },
+      "author": [
+        {
+          "name": "royal historiographers of the 朝鮮 court",
+          "role": "comp",
+          "dates": "1413–1865",
+          "kind": "group"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84/%E5%93%B2%E5%AE%97%E5%AF%A6%E9%8C%84/%E5%8D%81%E4%BA%8C%E5%B9%B4",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84/{reign}/{year}"
+        }
+      ]
+    },
+    "samguk-sagi": {
+      "title": {
+        "zh-Hans": "《三国史记》",
+        "zh-Hant": "《三國史記》",
+        "rom": "Samguk sagi"
+      },
+      "author": [
+        {
+          "name": "金富軾",
+          "role": "comp"
+        }
+      ],
+      "year": "1145",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E4%B8%89%E5%9C%8B%E5%8F%B2%E8%A8%98/%E5%8D%B701",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E4%B8%89%E5%9C%8B%E5%8F%B2%E8%A8%98/{volume}"
+        }
+      ]
+    },
+    "ai-viet-su-ky-toan-thu": {
+      "title": {
+        "zh-Hans": "《大越史记全书》",
+        "zh-Hant": "《大越史記全書》",
+        "rom": "Đại Việt sử ký toàn thư"
+      },
+      "author": [
+        {
+          "name": "吳士連",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "year": "1479+",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%A4%A7%E8%B6%8A%E5%8F%B2%E8%A8%98%E5%85%A8%E6%9B%B8/%E6%9C%AC%E7%B4%80%E5%8D%B7%E4%B9%8B%E4%BA%94",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E5%A4%A7%E8%B6%8A%E5%8F%B2%E8%A8%98%E5%85%A8%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "rikkokushi": {
+      "title": {
+        "zh-Hans": "《六国史》",
+        "zh-Hant": "《六國史》",
+        "rom": "Rikkokushi"
+      },
+      "attribution": "日本書紀/續日本紀/日本後紀/續日本後紀/日本文德天皇實錄/日本三代實錄",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%97%A5%E6%9C%AC%E6%9B%B8%E7%B4%80/%E5%8D%B7%E7%AC%AC%E4%B8%89%E5%8D%81",
+          "license": "CC-BY-SA-4.0"
+        }
+      ]
+    },
+    "chunqiu-2": {
+      "title": {
+        "zh-Hans": "《春秋经》",
+        "zh-Hant": "《春秋經》",
+        "rom": "Chunqiu",
+        "en": "Spring and Autumn Annals"
+      },
+      "author": [
+        {
+          "name": "魯史",
+          "kind": "group"
+        },
+        {
+          "name": "孔子",
+          "role": "attr"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%98%A5%E7%A7%8B%E7%B6%93/%E6%98%AD%E5%85%AC",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%98%A5%E7%A7%8B%E7%B6%93/{reign}"
+        }
+      ]
+    },
+    "qingshigao-benji": {
+      "title": {
+        "zh-Hans": "《清史稿·本纪》",
+        "zh-Hant": "《清史稿·本紀》",
+        "rom": "Qingshigao, \"Benji\"",
+        "en": "Draft History of Qing, Basic Annals"
+      },
+      "author": [
+        {
+          "name": "趙爾巽",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%B8%85%E5%8F%B2%E7%A8%BF/%E5%8D%B716",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%B8%85%E5%8F%B2%E7%A8%BF/{volume}"
+        }
+      ]
+    },
+    "liaoshi-benji": {
+      "title": {
+        "zh-Hans": "《辽史·本纪》",
+        "zh-Hant": "《遼史·本紀》",
+        "rom": "Liaoshi, \"Benji\"",
+        "en": "History of Liao, Basic Annals"
+      },
+      "author": [
+        {
+          "name": "脫脫",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E9%81%BC%E5%8F%B2/%E5%8D%B722",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E9%81%BC%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "fuso-ryakki-hyakurensho-azuma-kagami": {
+      "title": {
+        "zh-Hans": "《扶桑略记》《百炼抄》《吾妻镜》",
+        "zh-Hant": "《扶桑略記》《百錬抄》《吾妻鏡》",
+        "rom": "Fusō ryakki; Hyakurenshō; Azuma kagami"
+      },
+      "author": [
+        {
+          "name": "皇円"
+        },
+        {
+          "name": "鎌倉幕府",
+          "kind": "group"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%89%B6%E6%A1%91%E7%95%A5%E8%A8%98/%E7%AC%AC023",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/{work}/{volume}"
+        }
+      ]
+    },
+    "xixia-shushi": {
+      "title": {
+        "zh-Hans": "《西夏书事》",
+        "zh-Hant": "《西夏書事》",
+        "rom": "Xixia shushi",
+        "en": "Chronicle of the Tangut Xi Xia"
+      },
+      "author": [
+        {
+          "name": "吳廣成",
+          "role": "comp"
+        }
+      ],
+      "year": "1825",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E8%A5%BF%E5%A4%8F%E6%9B%B8%E4%BA%8B/29",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E8%A5%BF%E5%A4%8F%E6%9B%B8%E4%BA%8B/{volume}"
+        }
+      ]
+    },
+    "annales-castellani-antiquiores": {
+      "title": {
+        "rom": "Annales Castellani Antiquiores (Anales castellanos primeros)"
+      },
+      "attribution": "Anonymous Castilian annalist",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/espanasagradathe23flor",
+          "license": "PD"
+        }
+      ]
+    },
+    "historiarum-libri-quinque": {
+      "title": {
+        "rom": "Historiarum libri quinque"
+      },
+      "author": [
+        {
+          "name": "Rodulfus Glaber"
+        }
+      ],
+      "attribution": "composed c. 1036–1041 at Cluny / Saint-Germain d'Auxerre",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/rodulfiglabrihis0000glab",
+          "license": "PD"
+        }
+      ]
+    },
+    "gervase-canterbury-chronica": {
+      "title": {
+        "rom": "Chronica"
+      },
+      "author": [
+        {
+          "name": "Gervase of Canterbury",
+          "dates": "d. c. 1210"
+        }
+      ],
+      "attribution": "monk of Christ Church, Canterbury",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "W. Stubbs",
+          "year": "1879",
+          "url": "https://archive.org/details/thehistoricalworksofgerva1",
+          "license": "PD"
+        }
+      ]
+    },
+    "anglo-saxon-chronicle-parker": {
+      "title": {
+        "rom": "Anglo-Saxon Chronicle (Parker Chronicle, MS A)"
+      },
+      "attribution": "9th-c. core compiled at Winchester c. 890. Corroborated by Asser, De rebus gestis Aelfredi §59 (893)",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://en.wikisource.org/wiki/Anglo-Saxon_Chronicle_(A)",
+          "license": "CC-BY-SA-4.0"
+        }
+      ]
+    },
+    "william-malmesbury-historia-ii-35": {
+      "title": {
+        "rom": "Historia Novella",
+        "en": "The Recent History"
+      },
+      "author": [
+        {
+          "name": "William of Malmesbury"
+        }
+      ],
+      "attribution": "'De eclipsi solis' (composed c. 1140–1143 at Malmesbury Abbey)",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "W. Stubbs",
+          "year": "1887",
+          "url": "https://archive.org/details/stubdegestisregumanglorum1",
+          "license": "PD"
+        }
+      ]
+    },
+    "hakonar-saga-hakonarsonar": {
+      "title": {
+        "rom": "Hákonar saga Hákonarsonar",
+        "en": "Saga of Haakon Haakonsson"
+      },
+      "author": [
+        {
+          "name": "Sturla Þórðarson"
+        }
+      ],
+      "attribution": "written c. 1264–1265 in Iceland",
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "title": "Icelandic Sagas and other Historical Documents vol. 2",
+          "year": "1887",
+          "url": "https://archive.org/details/icelandicsagasot02stur",
+          "license": "PD",
+          "by": "G. W. Dasent"
+        }
+      ]
+    },
+    "thomas-walsingham-historia": {
+      "title": {
+        "rom": "Historia Anglicana"
+      },
+      "author": [
+        {
+          "name": "Thomas Walsingham"
+        }
+      ],
+      "attribution": "St Albans chronicle tradition",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "H. T. Riley",
+          "year": "1863",
+          "url": "https://archive.org/details/thomaewalsingham01wals",
+          "license": "PD"
+        }
+      ]
+    },
+    "scotichronicon": {
+      "title": {
+        "rom": "Scotichronicon"
+      },
+      "author": [
+        {
+          "name": "Walter Bower"
+        }
+      ],
+      "attribution": "written c. 1441–1447 at Inchcolm Abbey; continuation of John of Fordun",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/scotichronicon-v-1-bks-1-2",
+          "license": "PD"
+        }
+      ]
+    },
+    "annales-hildesheimenses": {
+      "title": {
+        "rom": "Annales Hildesheimenses"
+      },
+      "attribution": "Anonymous Saxon annalist",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_3/index.htm"
+        }
+      ]
+    },
+    "annales-marbacenses-dicuntur": {
+      "title": {
+        "rom": "Annales Marbacenses qui dicuntur (Cronica Hohenburgensis cum continuatione Neoburgensi)"
+      },
+      "attribution": "Anonymous",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_rer_germ_9/index.htm"
+        }
+      ]
+    },
+    "anales-toledanos-primeros-mccxxix": {
+      "title": {
+        "rom": "Anales Toledanos Primeros"
+      },
+      "attribution": "Anonymous Toledan annalist",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/espanasagradathe23flor",
+          "license": "PD"
+        }
+      ]
+    },
+    "anales-toledanos-primeros-mccxlv": {
+      "title": {
+        "rom": "Anales Toledanos Primeros"
+      },
+      "attribution": "Anonymous Toledan annalist",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/espanasagradathe23flor",
+          "license": "PD"
+        }
+      ]
+    },
+    "matthew-paris-chronica-majora-1241": {
+      "title": {
+        "rom": "Chronica Majora"
+      },
+      "author": [
+        {
+          "name": "Matthew Paris",
+          "dates": "d. 1259"
+        }
+      ],
+      "attribution": "monk of St Albans",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "H. R. Luard",
+          "year": "1872",
+          "url": "https://archive.org/details/matthiparisien04pari",
+          "license": "PD"
+        }
+      ]
+    },
+    "composizione-mondo-cascioni": {
+      "title": {
+        "rom": "La composizione del mondo colle sue cascioni"
+      },
+      "author": [
+        {
+          "name": "Ristoro d'Arezzo",
+          "role": "obs"
+        }
+      ],
+      "attribution": "eyewitness at Arezzo",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "La composizione del mondo colle sue cascioni",
+          "year": "1282",
+          "url": "https://archive.org/details/lacomposizionedelmondo",
+          "license": "PD"
+        }
+      ]
+    },
+    "salimbene-adam-cronica": {
+      "title": {
+        "rom": "Cronica"
+      },
+      "author": [
+        {
+          "name": "Salimbene de Adam",
+          "role": "obs"
+        }
+      ],
+      "attribution": "eyewitness while resident at Lucca",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_32/index.htm"
+        }
+      ]
+    },
+    "annales-placentini-gibellini": {
+      "title": {
+        "rom": "Annales Placentini Gibellini",
+        "en": "Ghibelline annals of Piacenza"
+      },
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_18/"
+        }
+      ]
+    },
+    "vavrinec-brezova-chronicon": {
+      "title": {
+        "rom": "Chronicon / Historia Hussitica"
+      },
+      "author": [
+        {
+          "name": "Vavřinec of Březová"
+        }
+      ],
+      "attribution": "Laurentius de Brzezowa",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/fontesrerumbohe00goog",
+          "license": "PD"
+        }
+      ]
+    },
+    "anglo-saxon-chronicle-peterborough": {
+      "title": {
+        "rom": "Anglo-Saxon Chronicle, Peterborough (Laud) manuscript 'E'"
+      },
+      "attribution": "the last continuator",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://en.wikisource.org/wiki/Anglo-Saxon_Chronicle_(E)",
+          "license": "CC-BY-SA-4.0"
+        }
+      ]
+    },
+    "john-worcester-chronicon": {
+      "title": {
+        "rom": "Chronicon ex chronicis"
+      },
+      "author": [
+        {
+          "name": "John of Worcester"
+        }
+      ],
+      "attribution": "Florence of Worcester",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "Benjamin Thorpe",
+          "year": "1848",
+          "url": "https://archive.org/details/florentiiwigorn00florgoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "william-malmesbury-historia-i-1133": {
+      "title": {
+        "rom": "Historia Novella"
+      },
+      "author": [
+        {
+          "name": "William of Malmesbury",
+          "role": "obs"
+        }
+      ],
+      "attribution": "first-person eyewitness ('Vidi ego')",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "W. Stubbs",
+          "year": "1887",
+          "url": "https://archive.org/details/stubdegestisregumanglorum1",
+          "license": "PD"
+        }
+      ]
+    },
+    "annalista-saxo-1133": {
+      "title": {
+        "rom": "Annalista Saxo"
+      },
+      "attribution": "Saxon imperial chronicle, compiled at Nienburg Abbey",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_6/index.htm"
+        }
+      ]
+    },
+    "chronicon-conimbricense": {
+      "title": {
+        "rom": "Chronicon Conimbricense"
+      },
+      "attribution": "eyewitness at Coimbra",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "Alexandre Herculano",
+          "year": "1856",
+          "url": "https://archive.org/details/portugaliaemonumentahistoricascrv1",
+          "license": "PD"
+        }
+      ]
+    },
+    "petit-thalamus-montpellier-annales": {
+      "title": {
+        "rom": "Le Petit Thalamus de Montpellier, Annales occitanes"
+      },
+      "attribution": "town annals",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "Thalamus parvus. Le petit Thalamus de Montpellier",
+          "year": "1836",
+          "url": "https://archive.org/details/thalamusparvusmontpellierma",
+          "license": "PD"
+        }
+      ]
+    },
+    "laurentian-chronicle": {
+      "title": {
+        "rom": "Laurentian Chronicle (Lavrent'evskaya letopis', Suzdalian continuation)"
+      },
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://archive.org/details/Complete_Collection_of_Russian_Chronicles_1926_Vol_1_Laurentian_Chronicle",
+          "license": "PD",
+          "consulted": true
+        }
+      ]
+    },
+    "novgorod-first-chronicle": {
+      "title": {
+        "rom": "Novgorod First Chronicle (Novgorodskaya pervaya letopis', younger recension)"
+      },
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Robert Michell, Nevill Forbes",
+          "title": "The Chronicle of Novgorod 1016–1471",
+          "year": "1914",
+          "url": "https://archive.org/details/chronicleofnovgo00michrich",
+          "license": "PD"
+        }
+      ]
+    },
+    "matthew-paris-chronica-majora-1230": {
+      "title": {
+        "rom": "Chronica Majora"
+      },
+      "author": [
+        {
+          "name": "Matthew Paris",
+          "dates": "d. 1259"
+        }
+      ],
+      "attribution": "continuing Roger of Wendover",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "H. R. Luard",
+          "year": "1872",
+          "url": "https://archive.org/details/matthiparisiensi03pari",
+          "license": "PD"
+        }
+      ]
+    },
+    "peter-zittau-chronicon-aulae": {
+      "title": {
+        "rom": "Chronicon Aulae Regiae",
+        "en": "Zbraslav Chronicle"
+      },
+      "author": [
+        {
+          "name": "Peter of Zittau",
+          "dates": "d. 1339"
+        }
+      ],
+      "attribution": "abbot of Aula Regia / Zbraslav",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/fontesrerumbohem04emle",
+          "license": "PD"
+        }
+      ]
+    },
+    "dopelnienie-szamotulskie-szamotuly": {
+      "title": {
+        "rom": "Dopełnienie szamotulskie / Szamotuły continuation of the Chronicle of Janko z Czarnkowa"
+      },
+      "attribution": "Anonymous Greater-Poland continuator",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/monumentapoloni00bielgoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "chronicorum-karoli-sexti": {
+      "title": {
+        "rom": "Chronicorum Karoli Sexti"
+      },
+      "author": [
+        {
+          "name": "Michel Pintoin",
+          "dates": "d. 1421"
+        }
+      ],
+      "attribution": "the Religieux de Saint-Denys",
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "M.-L. Bellaguet",
+          "title": "Chronique du religieux de Saint-Denys",
+          "year": "1839–1852",
+          "url": "https://gallica.bnf.fr/ark:/12148/bpt6k6224315z",
+          "license": "PD"
+        }
+      ]
+    },
+    "andres-bernaldez-cura-de-los-palacios": {
+      "title": {
+        "rom": "Historia de los Reyes Católicos D. Fernando y Doña Isabel"
+      },
+      "author": [
+        {
+          "name": "Andrés Bernáldez",
+          "dates": "c. 1450-1513"
+        }
+      ],
+      "attribution": "cura de Los Palacios",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "Historia de los reyes católicos D. Fernando y Doña Isabel",
+          "year": "1870",
+          "url": "https://archive.org/details/historiadelosrey00bern",
+          "license": "PD"
+        }
+      ]
+    },
+    "fra-girolamo-forli-chronicon": {
+      "title": {
+        "rom": "Chronicon Foroliviense"
+      },
+      "author": [
+        {
+          "name": "Fra Girolamo (Hieronymus) da Forlì"
+        }
+      ],
+      "attribution": "O.P.",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://archive.org/details/rerumitalicarums271mura"
+        }
+      ]
+    },
+    "christophorus-clavius": {
+      "author": [
+        {
+          "name": "Christophorus Clavius",
+          "role": "obs"
+        }
+      ],
+      "attribution": "S.J.",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "Commentarius in Sphaeram Ioannis de Sacro Bosco",
+          "year": "1570",
+          "url": "https://archive.org/details/christophoriclau00clav_1",
+          "license": "PD"
+        }
+      ]
+    },
+    "gemma-frisius-reiner-gemma-frisius": {
+      "author": [
+        {
+          "name": "Gemma Frisius",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Reiner Gemma Frisius",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "De radio astronomico et geometrico liber",
+          "year": "1545",
+          "url": "https://archive.org/details/gemmaefrisiimedi00gemm",
+          "license": "PD"
+        }
+      ]
+    },
+    "john-lamont-of-newton": {
+      "author": [
+        {
+          "name": "John Lamont of Newton",
+          "role": "obs"
+        }
+      ]
+    },
+    "john-nicoll": {
+      "author": [
+        {
+          "name": "John Nicoll",
+          "role": "obs"
+        }
+      ]
+    },
+    "alice-thornton": {
+      "author": [
+        {
+          "name": "Alice Thornton",
+          "role": "obs"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "Autobiography of Mrs. Alice Thornton (Surtees Society 1875)",
+          "year": "1875",
+          "url": "https://archive.org/details/autobiographyofm00thor",
+          "license": "PD"
+        }
+      ]
+    },
+    "john-evelyn": {
+      "author": [
+        {
+          "name": "John Evelyn",
+          "role": "obs"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "Diary of John Evelyn (J.M. Dent 1907, Vol. I)",
+          "year": "1907",
+          "url": "https://archive.org/details/in.ernet.dli.2015.272771",
+          "license": "PD"
+        }
+      ]
+    },
+    "stella-nova-naples": {
+      "title": {
+        "rom": "De Stella Nova"
+      },
+      "author": [
+        {
+          "name": "Johannes Kepler"
+        }
+      ],
+      "attribution": "Anonymous Naples relation, transmitted by Johannes Kepler",
+      "year": "1606",
+      "editions": [
+        {
+          "kind": "quot",
+          "consulted": true,
+          "by": "Johannes Kepler",
+          "title": "De Stella nova in pede serpentarii",
+          "year": "1606",
+          "url": "https://archive.org/details/10873675bsb",
+          "license": "PD"
+        }
+      ]
+    },
+    "stella-nova-flanders": {
+      "title": {
+        "rom": "De Stella Nova"
+      },
+      "author": [
+        {
+          "name": "Johannes Kepler"
+        }
+      ],
+      "attribution": "Anonymous Flanders/Antwerp relation, transmitted by Johannes Kepler",
+      "year": "1606",
+      "editions": [
+        {
+          "kind": "quot",
+          "consulted": true,
+          "by": "Johannes Kepler",
+          "title": "De Stella nova in pede serpentarii",
+          "year": "1606",
+          "url": "https://archive.org/details/10873675bsb",
+          "license": "PD"
+        }
+      ]
+    },
+    "jacob-balde-jakob-balde-s-j": {
+      "author": [
+        {
+          "name": "Jacob Balde",
+          "role": "obs"
+        }
+      ],
+      "attribution": "S.J."
+    },
+    "pierre-gassendi": {
+      "author": [
+        {
+          "name": "Pierre Gassendi"
+        }
+      ],
+      "attribution": "reporting the young Tycho Brahe (Tychonis Brahei Vita, 1654)",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "Pierre Gassendi",
+          "title": "Tychonis Brahei … Vita",
+          "year": "1654",
+          "url": "https://archive.org/details/den-kbd-pil-130018157889-001",
+          "license": "PD"
+        }
+      ]
+    },
+    "ad-vitellionem-paralipomena": {
+      "title": {
+        "rom": "Ad Vitellionem Paralipomena"
+      },
+      "author": [
+        {
+          "name": "Johannes Kepler"
+        }
+      ],
+      "year": "1604",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "Johannes Kepler",
+          "title": "Ad Vitellionem paralipomena: quibus astronomiae pars optica traditur",
+          "year": "1604",
+          "url": "https://archive.org/details/advitellionempar00kepl",
+          "license": "PD"
+        }
+      ]
+    },
+    "samuel-ani": {
+      "author": [
+        {
+          "name": "Samuel of Ani",
+          "dates": "fl. late 12th c."
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "M.-F. Brosset",
+          "title": "Collection d'historiens arméniens",
+          "year": "1874–1876",
+          "url": "https://archive.org/details/collectiondhist00arhagoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "continuation-samuel-ani-tables": {
+      "title": {
+        "rom": "Continuation of Samuel of Ani's Tables chronologiques"
+      },
+      "attribution": "14th c., via M.-F. Brosset (1876)"
+    },
+    "arakel-of-tabriz-arak-el-dawrizhec-i": {
+      "author": [
+        {
+          "name": "Arakel of Tabriz",
+          "dates": "c. 1590s–1670"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "M.-F. Brosset",
+          "title": "Collection d'historiens arméniens",
+          "year": "1874–1876",
+          "url": "https://archive.org/details/collectiondhist00arhagoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "michael-syrian": {
+      "author": [
+        {
+          "name": "Michael the Syrian",
+          "dates": "1126–1199"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "J.-B. Chabot",
+          "title": "Chronique de Michel le Syrien, patriarche jacobite d'Antioche (1166–1199)",
+          "year": "1899–1910",
+          "url": "https://archive.org/details/chroniquedemiche01mich",
+          "license": "PD"
+        }
+      ]
+    },
+    "francis-baily": {
+      "author": [
+        {
+          "name": "Francis Baily",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Vice-President, Royal Astronomical Society",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "On a Remarkable Phenomenon (Baily's Beads) — MNRAS 4 (1836): 15–19",
+          "year": "1836",
+          "url": "https://archive.org/details/paper-doi-10_1093_mnras_4_2_15",
+          "license": "PD"
+        }
+      ]
+    },
+    "unnamed-correspondent-montpellier": {
+      "attribution": "Unnamed correspondent at Montpellier (sender's name garbled in the printed text), communicated to the Académie des sciences"
+    },
+    "august-ludwig-busch": {
+      "author": [
+        {
+          "name": "August Ludwig Busch",
+          "role": "obs"
+        },
+        {
+          "name": "Berkowski",
+          "role": "obs"
+        }
+      ],
+      "attribution": "dir., Königsberg Observatory"
+    },
+    "jules-janssen-pierre-jules-cesar-janssen": {
+      "author": [
+        {
+          "name": "Jules Janssen",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Pierre Jules César Janssen"
+    },
+    "j-norman-lockyer": {
+      "author": [
+        {
+          "name": "J. Norman Lockyer",
+          "role": "obs"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "J. Norman Lockyer",
+          "title": "Contributions to Solar Physics",
+          "year": "1874",
+          "url": "https://archive.org/details/contributionsto00lockgoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "ibn-idhari-al-marrakushi-1904": {
+      "author": [
+        {
+          "name": "Ibn ʿIdhārī al-Marrākushī",
+          "dates": "fl. late 13th c."
+        }
+      ]
+    },
+    "ibn-idhari-al-marrakushi-1901": {
+      "author": [
+        {
+          "name": "Ibn ʿIdhārī al-Marrākushī",
+          "dates": "fl. late 13th c."
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "E. Fagnan",
+          "title": "Extraits inédits relatifs au Maghreb",
+          "year": "1901",
+          "url": "https://archive.org/details/bub_gb_MiyHAAAAMAAJ",
+          "license": "PD"
+        }
+      ]
+    },
+    "giacomo-filippo-maraldi": {
+      "author": [
+        {
+          "name": "Giacomo Filippo Maraldi",
+          "role": "obs"
+        },
+        {
+          "name": "Jacques Cassini",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Académie royale des sciences (Paris Observatory)"
+    },
+    "jacques-cassini": {
+      "author": [
+        {
+          "name": "Jacques Cassini",
+          "role": "obs"
+        },
+        {
+          "name": "G. F. Maraldi",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Académie royale des sciences (Paris Observatory)"
+    },
+    "samuel-dunn": {
+      "author": [
+        {
+          "name": "Samuel Dunn",
+          "role": "obs"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "Philosophical Transactions — eclipse of 16 October 1762",
+          "year": "1762",
+          "url": "https://archive.org/details/philtrans07969510",
+          "license": "PD"
+        }
+      ]
+    },
+    "james-ferguson-f-r-s": {
+      "author": [
+        {
+          "name": "James Ferguson",
+          "role": "obs"
+        }
+      ],
+      "attribution": "F.R.S.",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "Philosophical Transactions 54 (1764): 108–113",
+          "year": "1764",
+          "url": "https://archive.org/details/philtrans09200653",
+          "license": "PD"
+        }
+      ]
+    },
+    "warren-de-la-rue-f-r-s": {
+      "author": [
+        {
+          "name": "Warren De la Rue",
+          "role": "obs"
+        }
+      ],
+      "attribution": "F.R.S.",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "Warren De La Rue",
+          "title": "On the Total Solar Eclipse of July 18th, 1860 (Bakerian Lecture, Phil. Trans.)",
+          "year": "1862",
+          "url": "https://archive.org/details/ontotalsolarecli00dela",
+          "license": "PD"
+        }
+      ]
+    },
+    "charles-young": {
+      "author": [
+        {
+          "name": "Charles A. Young",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Dartmouth College (U.S. Coast Survey expedition)"
+    },
+    "w-g-adams": {
+      "author": [
+        {
+          "name": "W. G. Adams",
+          "role": "obs"
+        }
+      ],
+      "attribution": "British Government Eclipse Expedition"
+    },
+    "ralph-copeland-dun-echt-observatory": {
+      "author": [
+        {
+          "name": "Ralph Copeland",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Dun Echt Observatory"
+    },
+    "milan-r-stefanik": {
+      "author": [
+        {
+          "name": "Milan R. Štefánik",
+          "role": "obs"
+        }
+      ],
+      "attribution": "presented by Jules Janssen"
+    },
+    "c-d-crommelin": {
+      "author": [
+        {
+          "name": "A. C. D. Crommelin",
+          "role": "obs"
+        },
+        {
+          "name": "C. Davidson",
+          "role": "obs"
+        },
+        {
+          "name": "F. W. Dyson",
+          "role": "obs"
+        },
+        {
+          "name": "A. S. Eddington",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Sobral station",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "F. W. Dyson, A. S. Eddington, C. Davidson",
+          "title": "A Determination of the Deflection of Light by the Sun's Gravitational Field — Phil. Trans. A 220 (1920): 291–333",
+          "year": "1920",
+          "url": "https://archive.org/details/philtrans06337895",
+          "license": "PD"
+        }
+      ]
+    },
+    "jose-joaquin-de-ferrer": {
+      "author": [
+        {
+          "name": "José Joaquín de Ferrer",
+          "role": "obs"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "title": "Additional Observations on the Solar Eclipse of 16th June, 1806 (Trans. APS 6, 1809)",
+          "year": "1809",
+          "url": "https://archive.org/details/jstor-1004811",
+          "license": "PD"
+        }
+      ]
+    },
+    "maria-mitchell": {
+      "author": [
+        {
+          "name": "Maria Mitchell",
+          "role": "obs"
+        }
+      ]
+    },
+    "s-h-lockett": {
+      "author": [
+        {
+          "name": "S. H. Lockett",
+          "role": "obs"
+        }
+      ]
+    },
+    "herbert-c-wilson": {
+      "author": [
+        {
+          "name": "Herbert C. Wilson",
+          "role": "obs"
+        }
+      ]
+    },
+    "joaquin-gallo": {
+      "author": [
+        {
+          "name": "Joaquín Gallo",
+          "role": "obs"
+        }
+      ]
+    },
+    "joseph-adam-braun": {
+      "author": [
+        {
+          "name": "Joseph Adam Braun",
+          "role": "obs"
+        },
+        {
+          "name": "N. Popov",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Imperial Academy of Sciences, St Petersburg"
+    },
+    "stephan-rumovsky": {
+      "author": [
+        {
+          "name": "Stephan Rumovsky",
+          "role": "obs"
+        }
+      ]
+    },
+    "pyotr-inochodzov": {
+      "author": [
+        {
+          "name": "Pyotr Inochodzov",
+          "role": "obs"
+        }
+      ]
+    },
+    "robert-wheeler-willson": {
+      "author": [
+        {
+          "name": "Robert Wheeler Willson",
+          "role": "obs"
+        }
+      ],
+      "attribution": "U.S. Naval Observatory party, Fort Worth"
+    },
+    "frank-evans-seagrave": {
+      "author": [
+        {
+          "name": "Frank Evans Seagrave",
+          "role": "obs"
+        }
+      ],
+      "attribution": "U.S. Naval Observatory party, Fort Worth"
+    },
+    "william-henry-pulsifer": {
+      "author": [
+        {
+          "name": "William Henry Pulsifer",
+          "role": "obs"
+        }
+      ],
+      "attribution": "U.S. Naval Observatory party, Fort Worth"
+    },
+    "william-wallace-campbell": {
+      "author": [
+        {
+          "name": "William Wallace Campbell",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Director, Lick Observatory",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "W. W. Campbell",
+          "title": "The Crocker Eclipse Expedition of the Lick Observatory — Proc. APS 58 (1919): 241–254",
+          "year": "1919",
+          "url": "https://archive.org/details/jstor-984400",
+          "license": "PD"
+        }
+      ]
+    },
+    "j-c-hammond": {
+      "author": [
+        {
+          "name": "J. C. Hammond",
+          "role": "obs"
+        }
+      ],
+      "attribution": "U.S. Naval Observatory expedition; comm. Rear Adm. T. B. Howard"
+    },
+    "walter-sydney-adams": {
+      "author": [
+        {
+          "name": "Walter Sydney Adams",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Mount Wilson Observatory party"
+    },
+    "joel-stebbins-university-of-illinois": {
+      "author": [
+        {
+          "name": "Joel Stebbins",
+          "role": "obs"
+        }
+      ],
+      "attribution": "University of Illinois",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "Joel Stebbins",
+          "title": "Photo-Electric Photometry at the 1918 Eclipse — Proc. APS 58 (1919): 269–271",
+          "year": "1919",
+          "url": "https://archive.org/details/jstor-984404",
+          "license": "PD"
+        }
+      ]
+    },
+    "daniel-walter-morehouse": {
+      "author": [
+        {
+          "name": "Daniel Walter Morehouse",
+          "role": "obs"
+        },
+        {
+          "name": "Edison Pettit",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Drake University"
+    },
+    "mary-m-van-denman-mrs-r-l": {
+      "author": [
+        {
+          "name": "Mary M. Van Denman",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Mrs. R. L."
+    },
+    "j-h-darling-of-duluth-minnesota": {
+      "author": [
+        {
+          "name": "J. H. Darling",
+          "role": "obs"
+        }
+      ],
+      "attribution": "of Duluth, Minnesota"
+    },
+    "william-harkness": {
+      "author": [
+        {
+          "name": "William Harkness",
+          "role": "obs"
+        }
+      ],
+      "attribution": "U.S. Naval Observatory"
+    },
+    "w-s-gilman-jr": {
+      "author": [
+        {
+          "name": "W. S. Gilman, Jr.",
+          "role": "obs"
+        }
+      ]
+    },
+    "f-w-bardwell-u-s-naval-observatory": {
+      "author": [
+        {
+          "name": "F. W. Bardwell",
+          "role": "obs"
+        }
+      ],
+      "attribution": "U.S. Naval Observatory"
+    },
+    "joseph-rogers": {
+      "author": [
+        {
+          "name": "Joseph A. Rogers",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Prof. Asaph Hall's U.S. Naval party, U.S.S. Mohican"
+    },
+    "muhammad-ibn-jabir-al-battani": {
+      "author": [
+        {
+          "name": "Muḥammad ibn Jābir al-Battānī",
+          "role": "obs",
+          "dates": "c. 858–929 CE"
+        }
+      ],
+      "attribution": "al-Raqqa or Antioch; via C. A. Nallino (1899)"
+    },
+    "anna-komnene": {
+      "author": [
+        {
+          "name": "Anna Komnene",
+          "dates": "1083-1153"
+        }
+      ],
+      "attribution": "Byzantine princess and historian",
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Elizabeth A. Dawes",
+          "title": "The Alexiad of the Princess Anna Comnena",
+          "year": "1928",
+          "url": "https://en.wikisource.org/wiki/The_Alexiad",
+          "license": "CC-BY-SA-4.0"
+        }
+      ]
+    },
+    "sir-william-christie-astronomer-royal": {
+      "author": [
+        {
+          "name": "Sir William Christie",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Astronomer Royal"
+    },
+    "hugh-frank-newall-cambridge-observatory": {
+      "author": [
+        {
+          "name": "Hugh Frank Newall",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Cambridge Observatory"
+    },
+    "otago-daily-times": {
+      "title": {
+        "rom": "Otago Daily Times"
+      },
+      "attribution": "Contemporary correspondent"
+    },
+    "press-christchurch": {
+      "title": {
+        "rom": "The Press (Christchurch)"
+      },
+      "attribution": "observations by Mr. Dobson, photographs by Mr. W. H. Macey"
+    },
+    "j-norman-lockyer-solar": {
+      "author": [
+        {
+          "name": "J. Norman Lockyer",
+          "role": "obs"
+        }
+      ],
+      "attribution": "(Solar Physics Committee); expedition led by Sir George Baden-Powell"
+    },
+    "david-fabricius": {
+      "author": [
+        {
+          "name": "David Fabricius",
+          "role": "obs",
+          "dates": "1564–1617"
+        }
+      ],
+      "attribution": "East Frisian astronomer and Lutheran pastor at Osteel"
+    },
+    "shu-yuexiang-rishi": {
+      "title": {
+        "zh-Hans": "《日食》",
+        "zh-Hant": "《日食》"
+      },
+      "author": [
+        {
+          "name": "舒岳祥",
+          "rom": "Shū Yuèxiáng",
+          "dates": "1203–1285"
+        }
+      ],
+      "attribution": "閬風集"
+    },
+    "habash-al-hasib": {
+      "author": [
+        {
+          "name": "Habash al-Hasib",
+          "rom": "Ahmad ibn Abd Allah al-Marwazi",
+          "role": "obs",
+          "dates": "fl. Baghdad c. 800–870 CE"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Caussin de Perceval",
+          "title": "Le Livre de la Grande Table Hakémite",
+          "year": "1804",
+          "url": "https://gallica.bnf.fr/ark:/12148/bpt6k5626201z",
+          "license": "PD"
+        }
+      ]
+    },
+    "al-mahani-via-caussin-de-perceval-1804": {
+      "author": [
+        {
+          "name": "al-Mahani",
+          "rom": "Abu Abd Allah Muhammad ibn Isa al-Mahani",
+          "role": "obs",
+          "dates": "fl. Baghdad c. 820–880 CE"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Caussin de Perceval",
+          "title": "Le Livre de la Grande Table Hakémite",
+          "year": "1804",
+          "url": "https://gallica.bnf.fr/ark:/12148/bpt6k5626201z",
+          "license": "PD"
+        }
+      ]
+    },
+    "abu-l-hasan-ali-ibn-amajur": {
+      "author": [
+        {
+          "name": "Abu'l-Hasan Ali ibn Amajur al-Turki",
+          "role": "obs",
+          "dates": "fl. Baghdad c. 910-933 CE"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Caussin de Perceval",
+          "title": "Le Livre de la Grande Table Hakémite",
+          "year": "1804",
+          "url": "https://gallica.bnf.fr/ark:/12148/bpt6k5626201z",
+          "license": "PD"
+        }
+      ]
+    },
+    "ali-ibn-amajur-al-turki": {
+      "author": [
+        {
+          "name": "Ali ibn Amajur al-Turki",
+          "role": "obs",
+          "dates": "fl. Baghdad c. 910–933 CE"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Caussin de Perceval",
+          "title": "Le Livre de la Grande Table Hakémite",
+          "year": "1804",
+          "url": "https://gallica.bnf.fr/ark:/12148/bpt6k5626201z",
+          "license": "PD"
+        }
+      ]
+    },
+    "al-kamil-fi-al-ta-rikh": {
+      "title": {
+        "rom": "al-Kamil fi al-Ta'rikh"
+      },
+      "author": [
+        {
+          "name": "Ibn al-Athir",
+          "rom": "Izz al-Din Ibn al-Athir",
+          "dates": "1160-1233 CE"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "C. J. Tornberg",
+          "title": "Ibn-el-Athiri Chronicon quod perfectissimum inscribitur",
+          "year": "1851–1876",
+          "url": "https://archive.org/details/kamil-Tornberg",
+          "license": "PD"
+        }
+      ]
+    },
+    "plutarch-aemilius-paullus-xvii": {
+      "title": {
+        "zh-Hans": "《埃米利乌斯·保卢斯传》",
+        "zh-Hant": "《埃米利烏斯·保盧斯傳》",
+        "rom": "Aemilius Paullus"
+      },
+      "author": [
+        {
+          "name": "Plutarch"
+        }
+      ],
+      "attribution": "Livy, Ab Urbe Condita XLIV.37",
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "url": "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Lives/Aemilius*.html",
+          "by": "Bernadotte Perrin",
+          "title": "Plutarch: Lives Vol. VI (Loeb Classical Library)",
+          "year": "1918"
+        }
+      ]
+    },
+    "babylonian-astronomical-diary-182a": {
+      "title": {
+        "en": "Babylonian Astronomical Diary"
+      },
+      "author": [
+        {
+          "name": "Esagila scribes",
+          "kind": "group"
+        }
+      ],
+      "attribution": "Diary AD -182A (BM 45613 = LBAT 340)",
+      "editions": [
+        {
+          "kind": "cite",
+          "consulted": true,
+          "url": "http://oracc.museum.upenn.edu/adsd/",
+          "license": "CC-BY-SA-3.0"
+        }
+      ]
+    },
+    "babylonian-astronomical-diary-193b": {
+      "title": {
+        "en": "Babylonian Astronomical Diary"
+      },
+      "author": [
+        {
+          "name": "Esagila scribes",
+          "kind": "group"
+        }
+      ],
+      "attribution": "Diary AD -193B (BM 35331)",
+      "editions": [
+        {
+          "kind": "cite",
+          "consulted": true,
+          "url": "http://oracc.museum.upenn.edu/adsd/",
+          "license": "CC-BY-SA-3.0"
+        }
+      ]
+    },
+    "babylonian-astronomical-diary-247a": {
+      "title": {
+        "en": "Babylonian Astronomical Diary"
+      },
+      "author": [
+        {
+          "name": "Esagila scribes",
+          "kind": "group"
+        }
+      ],
+      "attribution": "Diary AD -247A (BM 45949 = LBAT 268)",
+      "editions": [
+        {
+          "kind": "cite",
+          "consulted": true,
+          "url": "http://oracc.museum.upenn.edu/adsd/",
+          "license": "CC-BY-SA-3.0"
+        }
+      ]
+    },
+    "babylonian-astronomical-diary-no-330": {
+      "title": {
+        "zh-Hans": "巴比伦天文日志",
+        "zh-Hant": "巴比倫天文日誌",
+        "rom": "Babylonian Astronomical Diary No. -330"
+      },
+      "author": [
+        {
+          "name": "Esagila scribes",
+          "kind": "group"
+        }
+      ],
+      "attribution": "also Plutarch, Alexander 31; Arrian, Anabasis III.7",
+      "editions": [
+        {
+          "kind": "quot",
+          "consulted": true,
+          "url": "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Lives/Alexander*/home.html",
+          "by": "Bernadotte Perrin",
+          "title": "Plutarch: Lives — Alexander (LacusCurtius / Loeb Classical Library)",
+          "year": "1919"
+        }
+      ]
+    },
+    "babylonian-astronomical-diary-333": {
+      "title": {
+        "rom": "Babylonian Astronomical Diary"
+      },
+      "author": [
+        {
+          "name": "Esagila scribes",
+          "kind": "group"
+        }
+      ],
+      "attribution": "Diary AD -333 (BM 37231)",
+      "editions": [
+        {
+          "kind": "cite",
+          "consulted": true,
+          "url": "http://oracc.museum.upenn.edu/adsd/",
+          "license": "CC-BY-SA-3.0"
+        }
+      ]
+    },
+    "almagest-iv-11": {
+      "title": {
+        "rom": "Almagest"
+      },
+      "author": [
+        {
+          "name": "Claudius Ptolemy"
+        }
+      ],
+      "attribution": "Recorded at Babylon",
+      "editions": [
+        {
+          "kind": "quot",
+          "consulted": true,
+          "by": "Nicolas Halma",
+          "title": "Composition mathématique de Claude Ptolémée (Almagest IV.11)",
+          "year": "1813",
+          "url": "https://archive.org/details/bub_gb_a9nvvbG-OOIC",
+          "license": "PD"
+        }
+      ]
+    },
+    "thucydides-history-vii-50": {
+      "title": {
+        "zh-Hans": "《伯罗奔尼撒战争史》",
+        "zh-Hant": "《伯羅奔尼撒戰爭史》",
+        "rom": "History",
+        "en": "History of the Peloponnesian War"
+      },
+      "author": [
+        {
+          "name": "Thucydides"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "url": "https://en.wikisource.org/wiki/History_of_the_Peloponnesian_War/Book_7",
+          "by": "Benjamin Jowett",
+          "title": "Thucydides: The Peloponnesian War (en.wikisource.org)",
+          "year": "1881"
+        }
+      ]
+    },
+    "almagest-iv-9": {
+      "title": {
+        "rom": "Almagest"
+      },
+      "author": [
+        {
+          "name": "Claudius Ptolemy"
+        }
+      ],
+      "attribution": "Recorded at Babylon",
+      "editions": [
+        {
+          "kind": "quot",
+          "consulted": true,
+          "by": "Nicolas Halma",
+          "title": "Composition mathématique de Claude Ptolémée (Almagest IV.9)",
+          "year": "1813",
+          "url": "https://archive.org/details/bub_gb_a9nvvbG-OOIC",
+          "license": "PD"
+        }
+      ]
+    },
+    "babylonian-scribes-bm-33066": {
+      "author": [
+        {
+          "name": "Babylonian scribes (tablet BM 33066 / LBAT 1477)",
+          "kind": "group"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "cite",
+          "consulted": true,
+          "url": "https://cdli.earth/search?q=BM+33066"
+        }
+      ]
+    },
+    "ptolemy-almagest-iv-6": {
+      "title": {
+        "zh-Hans": "《至大论》",
+        "zh-Hant": "《至大論》",
+        "rom": "Ptolemy, Almagest"
+      },
+      "author": [
+        {
+          "name": "Chaldean astronomers of Babylon",
+          "role": "obs",
+          "kind": "group"
+        }
+      ]
+    },
+    "babylonian-scribes-almagest-iv-6": {
+      "author": [
+        {
+          "name": "Babylonian scribes",
+          "kind": "group"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "quot",
+          "consulted": true,
+          "by": "Nicolas Halma",
+          "title": "Composition mathématique de Claude Ptolémée (Almagest IV.6)",
+          "year": "1813",
+          "url": "https://archive.org/details/bub_gb_a9nvvbG-OOIC",
+          "license": "PD"
+        }
+      ]
+    },
+    "songshu-luli-zhi": {
+      "title": {
+        "zh-Hans": "《宋书·律曆志下》",
+        "zh-Hant": "《宋書·律曆志下》",
+        "rom": "Songshu, \"Lüli zhi\""
+      },
+      "author": [
+        {
+          "name": "沈約",
+          "role": "comp",
+          "dates": "441–513"
+        }
+      ],
+      "attribution": "太史注记",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E6%9B%B8/%E5%8D%B713",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "annalista-saxo-806": {
+      "title": {
+        "rom": "Annalista Saxo (12th-century Saxon chronicle)"
+      },
+      "attribution": "citing the Royal Frankish Annals; precise zodiacal positions recorded",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_6/index.htm"
+        }
+      ]
+    },
+    "royal-frankish-annals-annales-807": {
+      "title": {
+        "rom": "Royal Frankish Annals (Annales regni Francorum)"
+      },
+      "author": [
+        {
+          "name": "court annalist",
+          "kind": "group"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://thelatinlibrary.com/annalesregnifrancorum.html",
+          "license": "PD"
+        },
+        {
+          "kind": "crit",
+          "consulted": false,
+          "url": "https://www.dmgh.de/mgh_ss_rer_germ_6/"
+        }
+      ]
+    },
+    "royal-frankish-annals-annales-810": {
+      "title": {
+        "rom": "Royal Frankish Annals (Annales regni Francorum)"
+      },
+      "author": [
+        {
+          "name": "court annalist",
+          "kind": "group"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://thelatinlibrary.com/annalesregnifrancorum.html",
+          "license": "PD"
+        },
+        {
+          "kind": "crit",
+          "consulted": false,
+          "url": "https://www.dmgh.de/mgh_ss_rer_germ_6/"
+        }
+      ]
+    },
+    "regino-prum-chronicon": {
+      "title": {
+        "rom": "Chronicon"
+      },
+      "author": [
+        {
+          "name": "Regino of Prüm",
+          "dates": "d. 915"
+        }
+      ],
+      "attribution": "abbot of Prüm Abbey; as cited in Annalista Saxo, MGH SS VI",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_rer_germ_50/"
+        }
+      ]
+    },
+    "ali-ibn-amajour-and-son": {
+      "author": [
+        {
+          "name": "Ali ibn Amajour al-Turki",
+          "role": "obs",
+          "dates": "fl. Baghdad c. 910–933 CE"
+        },
+        {
+          "name": "Abu al-Hasan Ali ibn Amajour",
+          "role": "obs"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Caussin de Perceval",
+          "title": "Le Livre de la Grande Table Hakémite",
+          "year": "1804",
+          "url": "https://gallica.bnf.fr/ark:/12148/bpt6k5626201z",
+          "license": "PD"
+        }
+      ]
+    },
+    "al-biruni": {
+      "author": [
+        {
+          "name": "al-Biruni",
+          "rom": "Abū Rayḥān al-Bīrūnī",
+          "dates": "973–1048 CE"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Eduard Sachau",
+          "title": "The Chronology of Ancient Nations (Athar al-Baqiya)",
+          "year": "1879",
+          "url": "https://archive.org/details/chronologyofanci00biru",
+          "license": "PD"
+        }
+      ]
+    },
+    "sigebert-gembloux-chronicon": {
+      "title": {
+        "rom": "Chronicon"
+      },
+      "author": [
+        {
+          "name": "Sigebert of Gembloux",
+          "dates": "c.1030–1112"
+        }
+      ],
+      "attribution": "Benedictine monk at Gembloux Abbey",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_6/index.htm"
+        }
+      ]
+    },
+    "matthew-of-edessa-matt-eos-urhayec-i": {
+      "author": [
+        {
+          "name": "Matthew of Edessa",
+          "rom": "Mattʿēos Uṛhayecʿi",
+          "dates": "c. 1070s–1136 CE"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Édouard Dulaurier",
+          "title": "Chronique de Matthieu d'Édesse (962–1136) avec la continuation de Grégoire le Prêtre jusqu'en 1162",
+          "year": "1858",
+          "url": "https://archive.org/details/bub_gb_YlkuAAAAQAAJ",
+          "license": "PD"
+        }
+      ]
+    },
+    "gregory-priest-continuation": {
+      "title": {
+        "rom": "Continuation of Matthew of Edessa"
+      },
+      "author": [
+        {
+          "name": "Gregory the Priest",
+          "rom": "Grigor Erets'"
+        }
+      ],
+      "attribution": "12th c., via É. Dulaurier (1858)",
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "Édouard Dulaurier",
+          "title": "Chronique de Matthieu d'Édesse (962–1136) avec la continuation de Grégoire le Prêtre",
+          "year": "1858",
+          "url": "https://archive.org/details/bub_gb_YlkuAAAAQAAJ",
+          "license": "PD"
+        }
+      ]
+    },
+    "romuald-guarna-chronicon": {
+      "title": {
+        "rom": "Chronicon (Romualdi Salernitani Chronicon)"
+      },
+      "author": [
+        {
+          "name": "Romuald II Guarna",
+          "dates": "d. c. 1181/82"
+        }
+      ],
+      "attribution": "Archbishop of Salerno",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_19/"
+        }
+      ]
+    },
+    "robert-of-torigny-robert-de-monte": {
+      "title": {
+        "rom": "Chronica"
+      },
+      "author": [
+        {
+          "name": "Robert of Torigny",
+          "rom": "Robert de Monte",
+          "dates": "c.1110–1186"
+        }
+      ],
+      "attribution": "abbot of Mont-Saint-Michel 1154–1186",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "url": "https://www.dmgh.de/mgh_ss_6/index.htm"
+        }
+      ]
+    },
+    "chronicon-ex-chronicis": {
+      "title": {
+        "rom": "Chronicon ex Chronicis"
+      },
+      "attribution": "continuation of Florence of Worcester, 13th-century English annalist",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "Benjamin Thorpe",
+          "year": "1848",
+          "url": "https://archive.org/details/florentiiwigorn00florgoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "florence-worcester-cont-1276": {
+      "title": {
+        "rom": "Continuation of the Chronicle of Florence of Worcester"
+      },
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "Benjamin Thorpe",
+          "year": "1848",
+          "url": "https://archive.org/details/florentiiwigorn00florgoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "florence-worcester-cont-1279": {
+      "title": {
+        "rom": "Continuation of the Chronicle of Florence of Worcester"
+      },
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "Benjamin Thorpe",
+          "year": "1848",
+          "url": "https://archive.org/details/florentiiwigorn00florgoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "florence-worcester-cont-1281": {
+      "title": {
+        "rom": "Continuation of the Chronicle of Florence of Worcester"
+      },
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "Benjamin Thorpe",
+          "year": "1848",
+          "url": "https://archive.org/details/florentiiwigorn00florgoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "giornale-dell-assedio": {
+      "title": {
+        "zh-Hans": "《君士坦丁堡围城日记》",
+        "zh-Hant": "《君士坦丁堡圍城日記》",
+        "rom": "Giornale dell'assedio di Costantinopoli"
+      },
+      "author": [
+        {
+          "name": "Nicolò Barbaro",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Venetian eyewitness",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://vec.wikisource.org/wiki/Giornale_dell%27assedio_di_Costantinopoli_1453"
+        }
+      ]
+    },
+    "makarios-chronicon-maius": {
+      "title": {
+        "rom": "Chronicon Maius"
+      },
+      "author": [
+        {
+          "name": "Makarios Melissenos",
+          "role": "attr"
+        }
+      ],
+      "attribution": "Pseudo-Sphrantzes",
+      "editions": [
+        {
+          "kind": "crit",
+          "consulted": true,
+          "by": "I. Bekker",
+          "title": "Corpus Scriptorum Historiae Byzantinae",
+          "year": "1838",
+          "license": "PD"
+        }
+      ]
+    },
+    "historie-1571": {
+      "title": {
+        "rom": "Historie (1571)"
+      },
+      "author": [
+        {
+          "name": "Ferdinand Columbus"
+        }
+      ],
+      "attribution": "after Abraham Zacuto's Almanach perpetuum"
+    },
+    "astronomiae-instauratae": {
+      "title": {
+        "rom": "Astronomiae Instauratae Progymnasmata, 1602"
+      },
+      "author": [
+        {
+          "name": "Tycho Brahe",
+          "role": "obs"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "Tycho Brahe",
+          "title": "Astronomiae instauratae progymnasmata",
+          "year": "1610",
+          "url": "https://archive.org/details/bub_gb_CVOItHLenPEC",
+          "license": "PD"
+        }
+      ]
+    },
+    "abraham-of-crete-abraham-kretatsi": {
+      "author": [
+        {
+          "name": "Abraham of Crete",
+          "rom": "Abraham Kretatsi",
+          "dates": "c. 1680s–1737"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "trans",
+          "consulted": true,
+          "by": "M.-F. Brosset",
+          "title": "Collection d'historiens arméniens",
+          "year": "1874–1876",
+          "url": "https://archive.org/details/collectiondhist00arhagoog",
+          "license": "PD"
+        }
+      ]
+    },
+    "andreas-gottlieb-heinsius": {
+      "author": [
+        {
+          "name": "Andreas Gottlieb Heinsius",
+          "role": "obs",
+          "dates": "1709–1768"
+        }
+      ],
+      "attribution": "Leipzig Observatory, via Novi Commentarii Academiae Scientiarum Imperialis Petropolitanae, Tomus I (St. Petersburg, c. 1750)"
+    },
+    "carl-ludwig-christian-rumker": {
+      "author": [
+        {
+          "name": "Carl Ludwig Christian Rümker",
+          "role": "obs",
+          "dates": "1788–1862"
+        }
+      ],
+      "attribution": "Director of Hamburg Observatory 1833–1857; known for his star catalogue and southern-sky work in Australia"
+    },
+    "j-g-galle": {
+      "author": [
+        {
+          "name": "J. G. Galle",
+          "role": "obs",
+          "dates": "1812–1910"
+        },
+        {
+          "name": "H. W. Günther",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Breslau Observatory (Königliche Universitätssternwarte Breslau)"
+    },
+    "heinrich-louis-d-arrest": {
+      "author": [
+        {
+          "name": "Heinrich Louis d'Arrest",
+          "role": "obs",
+          "dates": "1822–1875"
+        }
+      ],
+      "attribution": "Pleißenburg Observatory Leipzig"
+    },
+    "rudolf-wolf": {
+      "author": [
+        {
+          "name": "Rudolf Wolf",
+          "role": "obs",
+          "dates": "1816–1893"
+        }
+      ],
+      "attribution": "Director of Bern Observatory 1847–1855; later inventor of the Wolf sunspot number"
+    },
+    "j-m-agardh": {
+      "author": [
+        {
+          "name": "J. M. Agardh",
+          "role": "obs"
+        },
+        {
+          "name": "Th. Blomstrand",
+          "role": "obs"
+        }
+      ],
+      "attribution": "Lund Observatory"
+    },
+    "angelo-secchi": {
+      "author": [
+        {
+          "name": "Angelo Secchi SJ",
+          "role": "obs",
+          "dates": "1818–1878"
+        }
+      ],
+      "attribution": "Director of the Collegio Romano Observatory from 1849; pioneering astrophysicist (stellar spectral classification)"
+    },
+    "c-f-peters": {
+      "author": [
+        {
+          "name": "C. A. F. Peters",
+          "role": "obs",
+          "dates": "1806–1880"
+        },
+        {
+          "name": "Schumacher",
+          "role": "obs"
+        }
+      ],
+      "attribution": "astronomer at Königsberg Observatory; and an assistant named Schumacher"
+    },
+    "ernst-friedrich-klinkerfues": {
+      "author": [
+        {
+          "name": "Ernst Friedrich Wilhelm Klinkerfues",
+          "role": "obs",
+          "dates": "1827–1884"
+        },
+        {
+          "name": "J. F. Westphal",
+          "role": "obs"
+        }
+      ],
+      "attribution": "both observers at Göttingen Observatory in 1852. Report unsigned; published in AN Nr. 792"
+    },
+    "edouard-albert-lescarbault": {
+      "author": [
+        {
+          "name": "Édouard Albert Lescarbault",
+          "role": "obs",
+          "dates": "1814–1894"
+        }
+      ],
+      "attribution": "amateur astronomer, Orgères (Eure-et-Loir)"
+    },
+    "hibbert-perceval-newton": {
+      "author": [
+        {
+          "name": "Hibbert Perceval Newton",
+          "role": "obs"
+        }
+      ],
+      "attribution": "amateur astronomer, Irvine's Landing, B.C."
+    },
+    "jinshu-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《晉书·天文志》",
+        "zh-Hant": "《晉書·天文志》",
+        "rom": "Jinshu, \"Tianwen zhi\"",
+        "en": "Book of Jin, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "房玄齡",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%99%89%E6%9B%B8/%E5%8D%B7013",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%99%89%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "lu-tong-yueshi": {
+      "title": {
+        "zh-Hans": "《月蝕诗》",
+        "zh-Hant": "《月蝕詩》"
+      },
+      "author": [
+        {
+          "name": "盧仝",
+          "rom": "Lú Tóng"
+        }
+      ],
+      "attribution": "玉川子",
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/全唐詩/卷388",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "han-yu-yueshi": {
+      "title": {
+        "zh-Hans": "《月蝕诗效玉川子作》",
+        "zh-Hant": "《月蝕詩效玉川子作》"
+      },
+      "author": [
+        {
+          "name": "韓愈",
+          "rom": "Hán Yù"
+        }
+      ],
+      "attribution": "昌黎",
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/全唐詩/卷340",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "hanshu-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《汉书·天文志》",
+        "zh-Hant": "《漢書·天文志》",
+        "rom": "Hanshu, \"Tianwen zhi\"",
+        "en": "Book of Han, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "班固",
+          "rom": "Ban Gu",
+          "role": "comp"
+        }
+      ],
+      "year": "c. 111 CE",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%BC%A2%E6%9B%B8/%E5%8D%B7026",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%BC%A2%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "songshu-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《宋书·天文志》",
+        "zh-Hant": "《宋書·天文志》",
+        "rom": "Songshu, \"Tianwen zhi\"",
+        "en": "Book of Song, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "沈約",
+          "role": "comp"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E6%9B%B8/%E5%8D%B726",
+          "locus_url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E6%9B%B8/{volume}"
+        }
+      ]
+    },
+    "beiqishu": {
+      "title": {
+        "zh-Hans": "《北齐书》",
+        "zh-Hant": "《北齊書》",
+        "rom": "Bei Qi Shu"
+      },
+      "author": [
+        {
+          "name": "李百藥",
+          "rom": "Li Baiyao",
+          "role": "comp"
+        }
+      ],
+      "year": "636 CE",
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/北齊書",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "shoku-nihongi": {
+      "title": {
+        "zh-Hans": "《续日本纪》",
+        "zh-Hant": "《續日本紀》",
+        "rom": "Shoku Nihongi"
+      },
+      "author": [
+        {
+          "name": "菅野真道",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "year": "797",
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/續日本紀",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "shoku-nihon-koki": {
+      "title": {
+        "zh-Hans": "《续日本后纪》",
+        "zh-Hant": "《續日本後紀》",
+        "rom": "Shoku Nihon Koki"
+      },
+      "author": [
+        {
+          "name": "藤原良房",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "year": "869",
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/續日本後紀",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "montoku-jitsuroku": {
+      "title": {
+        "zh-Hans": "《日本文德天皇实录》",
+        "zh-Hant": "《日本文德天皇實錄》",
+        "rom": "Montoku Tenno Jitsuroku"
+      },
+      "author": [
+        {
+          "name": "藤原基経",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "year": "879",
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/日本文德天皇實錄",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "nihon-sandai-jitsuroku": {
+      "title": {
+        "zh-Hans": "《日本三代实录》",
+        "zh-Hant": "《日本三代實錄》",
+        "rom": "Nihon Sandai Jitsuroku"
+      },
+      "author": [
+        {
+          "name": "菅原道真",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "year": "901",
+      "editions": [
+        {
+          "kind": "orig",
+          "url": "https://zh.wikisource.org/wiki/日本三代實錄",
+          "license": "CC-BY-SA-4.0",
+          "consulted": true
+        }
+      ]
+    },
+    "liaoshi": {
+      "title": {
+        "zh-Hans": "《辽史》",
+        "zh-Hant": "《遼史》",
+        "rom": "Liaoshi"
+      },
+      "author": [
+        {
+          "name": "脫脫",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "year": "1344",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E9%81%BC%E5%8F%B2/%E5%8D%B722",
+          "locus_url": "https://zh.wikisource.org/wiki/%E9%81%BC%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "mingshi-tianwen-zhi": {
+      "title": {
+        "zh-Hans": "《明史·天文志》",
+        "zh-Hant": "《明史·天文志》",
+        "rom": "Mingshi, \"Tianwen zhi\"",
+        "en": "History of Ming, Treatise on Astronomy"
+      },
+      "author": [
+        {
+          "name": "張廷玉",
+          "role": "comp",
+          "et_al": true
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E6%98%8E%E5%8F%B2/%E5%8D%B726",
+          "locus_url": "https://zh.wikisource.org/wiki/%E6%98%8E%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "meigetsuki": {
+      "title": {
+        "zh-Hans": "《明月记》",
+        "zh-Hant": "《明月記》",
+        "rom": "Meigetsuki"
+      },
+      "author": [
+        {
+          "name": "藤原定家",
+          "rom": "Fujiwara no Teika",
+          "dates": "1180–1235 CE"
+        }
+      ],
+      "attribution": "citing court astronomer Abe no Yasutoshi (安倍泰俊)"
+    },
+    "zuozhuan": {
+      "title": {
+        "zh-Hans": "《左传》",
+        "zh-Hant": "《左傳》",
+        "rom": "Zuozhuan"
+      },
+      "attribution": "《春秋》",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/春秋左氏傳",
+          "license": "CC-BY-SA-4.0"
+        }
+      ]
+    },
+    "yinxu-oracle-bone": {
+      "title": {
+        "zh-Hans": "殷墟甲骨文",
+        "zh-Hant": "殷墟甲骨文",
+        "rom": "Yinxu oracle-bone inscriptions"
+      },
+      "author": [
+        {
+          "name": "Shang royal diviners",
+          "kind": "group"
+        }
+      ]
+    },
+    "nihon-shoki": {
+      "title": {
+        "zh-Hans": "《日本书纪》",
+        "zh-Hant": "《日本書紀》",
+        "rom": "Nihon shoki"
+      },
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/日本書紀",
+          "license": "CC-BY-SA-4.0"
+        }
+      ]
+    },
+    "xu-zizhi-tongjian": {
+      "title": {
+        "zh-Hans": "《续资治通鉴》",
+        "zh-Hant": "《續資治通鑑》",
+        "rom": "Xu Zizhi Tongjian",
+        "en": "Continuation of the Comprehensive Mirror to Aid in Government"
+      },
+      "author": [
+        {
+          "name": "畢沅",
+          "role": "comp"
+        }
+      ],
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/續資治通鑑",
+          "license": "CC-BY-SA-4.0"
+        }
+      ]
+    },
+    "changchun-zhenren-xiyouji": {
+      "title": {
+        "zh-Hans": "《长春真人西游记》",
+        "zh-Hant": "《長春真人西遊記》",
+        "rom": "Changchun zhenren xiyou ji",
+        "en": "Travels of the Perfected Man Changchun to the West"
+      },
+      "author": [
+        {
+          "name": "李志常",
+          "role": "comp"
+        }
+      ],
+      "attribution": "随丘处机西行的门人李志常记其行程见闻",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "url": "https://zh.wikisource.org/wiki/%E9%95%B7%E6%98%A5%E7%9C%9F%E4%BA%BA%E8%A5%BF%E9%81%8A%E8%A8%98/%E5%8D%B7%E4%B8%8A",
+          "license": "CC-BY-SA-4.0",
+          "locus_url": "https://zh.wikisource.org/wiki/%E9%95%B7%E6%98%A5%E7%9C%9F%E4%BA%BA%E8%A5%BF%E9%81%8A%E8%A8%98/{volume}"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,657 @@
+/* tokens.css — the site's colour, type and skin tokens, plus the webfont faces.
+
+   Self-hosted CJK serif — Source Han Serif CN (Adobe/Google, OFL-1.1, v2.003),
+   subset to the corpus. url() is relative to THIS file. CN owns the CJK blocks
+   via unicode-range, so it never renders Latin/digits — those fall to Spectral
+   by range, not by stack order (see --font-text below).
+
+   The two loose codepoints leading the range are ○ (U+25CB) and □ (U+25A1):
+   punctuated classical editions set them at full CJK width — ○ separating
+   entries within a treatise chapter, □ standing in for an illegible graph — but
+   Unicode files them under Geometric Shapes, outside every CJK block. Unclaimed,
+   they fell past both faces to a system serif and rendered visibly small beside
+   the hanzi they punctuate. Claimed one at a time rather than by block: the face
+   carries only 40 of Geometric Shapes' 96, so a blanket U+25A0-25FF would route
+   the rest to nothing. Any addition here needs the same codepoint added where
+   the subset's glyph set is defined, or the claim outruns the shipped glyphs. */
+@font-face {
+  font-family: 'Source Han Serif CN';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/SourceHanSerifCN-400.woff2') format('woff2');
+  unicode-range:
+    U+25A1, U+25CB,
+    U+2E80-2EFF, U+2F00-2FDF, U+3000-303F, U+3100-312F, U+31A0-31BF,
+    U+3190-319F, U+3220-324F, U+3400-4DBF, U+4E00-9FFF,
+    U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
+}
+@font-face {
+  font-family: 'Source Han Serif CN';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/SourceHanSerifCN-700.woff2') format('woff2');
+  unicode-range:
+    U+25A1, U+25CB,
+    U+2E80-2EFF, U+2F00-2FDF, U+3000-303F, U+3100-312F, U+31A0-31BF,
+    U+3190-319F, U+3220-324F, U+3400-4DBF, U+4E00-9FFF,
+    U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
+}
+
+/* Self-hosted Spectral (OFL-1.1, Google Fonts v15) — Latin/Cyrillic/Vietnamese
+   serif carrying every romanized run in the corpus. url() is relative to THIS
+   file. Per-subset unicode-range: each visitor downloads only the scripts their
+   page uses — latin + latin-ext (romanized East Asian source refs) are the
+   always-loaded pair; cyrillic/vietnamese stream in only for those records.
+   Six cuts: roman 400/500/600/700 + italic 400/600 (the weights the shell uses). */
+/* latin */
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-400.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-400-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-500.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-600.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-600-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-ext-400.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-ext-400-italic.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-ext-500.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-ext-600.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-ext-600-italic.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/Spectral-latin-ext-700.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-vietnamese-400.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-vietnamese-400-italic.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/Spectral-vietnamese-500.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-vietnamese-600.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-vietnamese-600-italic.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/Spectral-vietnamese-700.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-400.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-400-italic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-500.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-600.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-600-italic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-700.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-ext-400.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-ext-400-italic.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-ext-500.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-ext-600.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-ext-600-italic.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Spectral';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/Spectral-cyrillic-ext-700.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+/* Design tokens — Five Millennia of Eclipses, house style "Song-painting light-wash (dan-shese)" (light atlas).
+   REMAP 2026-07 (spec M0): the role-token NAMES below are unchanged (the whole
+   2.5k-line stylesheet subscribes to them via var(--role, fallback)), but the
+   VALUES are flipped from the imported AstroMeteoMap lapidary DARK skin to the
+   locked light Song pale-wash palette (zhilü accent · yanzhi spark · shengjuan ground).
+   This one edit re-grounds the entire shell light with zero consumer changes.
+   FME has no dark theme; the only chrome-colour axis is body[data-skin=…]
+   (song / azurite / sutra), and all three skins are LIGHT. */
+:root {
+  /* ---- Backgrounds (Song-painting paper) ---- */
+  --bg-deep:      #F7F3EA;   /* rail / deep panels (shengjuan card, warmed) */
+  --bg-mid:       #F7F3EA;   /* buttons / cards */
+  --bg-line:      rgba(43, 42, 38, 0.14);      /* borders / dividers (warm ink hairline) */
+  --bg-panel:     rgba(243, 239, 230, 0.90);   /* floating panels (translucent paper) */
+  --bg-overlay:   rgba(243, 239, 230, 0.92);
+
+  /* ---- Foreground / text (warm ink — banke register, never pure black) ---- */
+  --fg-primary:   #2B2A26;   /* mo (ink) --hi (warmed for Song-edition) */
+  --fg-muted:     #5A564C;   /* --mid */
+  --fg-disabled:  #8B8F8C;   /* --lo — decorative/disabled ONLY (fails as body text; use --ink-note) */
+  --text-primary:   #2B2A26; /* legacy alias (kept in sync with --fg-primary) */
+  --text-secondary: #5A564C; /* legacy alias (kept in sync with --fg-muted) */
+  --text-dim:       #8B8F8C;
+  --text-on-light:  #2B2A26;
+
+  /* ---- Accents (zhilü house accent) ---- */
+  --accent:         #4F8D74;  /* zhilü (sap-green) brightened — links / active / ribbons */
+  --accent-gold:    #4F8D74;  /* legacy alias (name kept, value re-skinned) */
+  --brass:          #4F8D74;  /* canonical accent name across the shell */
+  --accent-gold-d:  #3C6E5A;  /* accent-deep */
+
+  /* ---- Spark two-tier (zhupi now/selected — the ONE saturated note) ---- */
+  --gilt-bright: #B23A2E;   /* zhupi (vermilion) — now/selected (date readout, active) */
+  --gilt-calm:   #B5806F;   /* calm area highlight (muted rose) */
+  --gilt-edge:   #4F8D74;   /* edge = accent */
+  --accent-silver:  #565A5E;
+  --accent-blue:    #4E6E86;  /* huaqing soft indigo (night/link, sparing) */
+  --accent-violet:  #8A6E9E;
+  --danger:         #B5533F;  /* total-solar / warnings (warm red) */
+
+  /* ---- Borders / glow ---- */
+  --border-soft:      rgba(42, 46, 51, 0.12);   /* --line */
+  --border-hairline:  rgba(42, 46, 51, 0.12);   /* --line */
+  --border-mid:       rgba(42, 46, 51, 0.20);   /* --line2 */
+  --border-gold:      rgba(79, 141, 116, 0.42); /* accent-tinted border */
+  --glow-night:   0 0 12px rgba(79, 141, 116, 0.22);
+  --glow-gold:    0 0 8px rgba(178, 58, 46, 0.32);   /* zhupi spark glow */
+
+  /* ---- Shell / overlay surfaces ---- */
+  --bg-shell:     rgba(243, 239, 230, 0.90);  /* --panel */
+  --bg-rail:      #F7F3EA;                     /* --rail */
+  --map-mask:     rgba(40, 56, 82, 0.04);      /* barely-there, light figure/ground */
+  --map-sheen:    rgba(255, 255, 255, 0.02);
+
+  /* ---- Paper grain + basemap recede (spec M0) ---- */
+  --grain-opacity: 0.07;   /* feTurbulence paper wash on floating panels */
+  --map-sat:       0.80;   /* desaturate light basemap so data jumps out */
+  --map-sepia:     0.04;   /* faint warm cast toward paper */
+
+  /* ---- Eclipse family accents (data hues) ---- */
+  --solar: #C28C52;   /* zheshi (ochre) — solar */
+  --lunar: #5FA79A;   /* piaobe (celadon) — lunar */
+
+  /* ---- Atlas Shell Aliases ---- */
+  /* The shell CSS and js/atlas.js consume THESE names, not the raw palette above.
+     Song is the :root default; azurite/sutra override them in their data-skin
+     blocks. */
+  --ground: #F3EFE6;          /* zhibai paper ground (warmed, Song-edition) */
+  --paper-deep: #EDE7D9;      /* banxin / multi-select active wash */
+  --panel: 243, 239, 230;     /* RGB triplet for rgba(var(--panel), α) floating panels */
+  --card: #F7F3EA;            /* card / control fill (warmed) */
+  --ink: #2B2A26;             /* == --fg-primary (warm ink) */
+  --ink-2: #5A564C;           /* == --fg-muted */
+  --ink-note: #696353;        /* captions / sources / axis labels — ≥4.5:1 on card & selected wash (R9) */
+  --ink-3: #8B8F8C;           /* == --fg-disabled — decorative/disabled ONLY (R9) */
+  --frame: #443F33;           /* bankuang (page frame) ink rule — frame/spine/ear only (R2) */
+  --hair: #D3CFC5;            /* hairline border */
+  --hair-2: #E0DCD2;          /* softer hairline */
+  --accent-deep: #3C6E5A;     /* == --accent-gold-d (zhilü-deep) */
+  --accent-ink: #3C6E5A;      /* accent for <18px text (5.31:1 on --card, R11) */
+  --spark: #B23A2E;           /* == --gilt-bright (zhupi now/selected) */
+
+  /* ---- Text three-tier (warm ink) ---- */
+  --text-high: #2B2A26;
+  --text-mid-warm: #5A564C;
+  --text-low-warm: #8B8F8C;
+
+  /* ---- Star spectral anchors (continuous OKLab interpolation in JS) ---- */
+  --sp-W: #c0c9ff;  --sp-O: #a9cdff;  --sp-B: #bedbfc;  --sp-A: #dceaf6;
+  --sp-F: #ebece0;  --sp-G: #ece2b9;  --sp-K: #ebbe8a;  --sp-M: #e19c72;
+  --sp-M-end: #d27f66;
+  --star-core-white: #fff5e8;
+
+  /* ---- Constellation lines (engraved groove) ---- */
+  --const-line:        #dad6ca;
+  --const-line-shadow: #0e1014;
+
+  /* ---- Lapidary surface (engraved texture + chiseled bevel) ---- */
+  --engrave-hatch: repeating-linear-gradient(45deg, var(--brass) 0 0.5px, transparent 0.5px 4px);
+  --engrave-op:    0.03;
+  /* Same 45° brass hatch with the 3% opacity baked into the line color, for
+     surfaces that can't host the ::before overlay (e.g. <input> elements):
+     layer this over the element's solid background-color. */
+  --engrave-hatch-baked: repeating-linear-gradient(45deg,
+    color-mix(in srgb, var(--brass) 4%, transparent) 0 0.5px,
+    transparent 0.5px 4px);
+  --bevel-light:   rgba(255,255,255,.06);
+  --bevel-groove:  rgba(0,0,0,.38);
+
+  /* ---- Asterism (celestite overlay) ---- */
+  --asterism:       #93b1b2;
+  --asterism-label: #b3cdcc;
+
+  /* ---- Constellation boundaries ---- */
+  --const-bounds:    #9aa0b8;
+  --const-bounds-hi: var(--gilt-edge);
+  --const-hi-halo:   var(--gilt-calm);
+  --const-hi-fill:   color-mix(in oklab, var(--gilt-calm) 2.8%, transparent);
+
+  /* ---- Typography stacks ---- three faces, three jobs ----
+     Every self-hosted @font-face below carries a unicode-range, so these stacks
+     are routing tables, not priority lists: a codepoint resolves to whichever
+     face DECLARED its range, regardless of stack order. Source Han Serif CN is
+     ranged to CJK blocks only, so it can never render a Latin letter or digit;
+     Spectral owns Latin. That is why one Latin-first stack (--font-text) serves
+     every mixed CJK/Latin run — the CJK glyph still lands on Source Han Serif by
+     range, and no un-ranged system-song name is left to hijack the Latin (R5).
+
+     THE STRUT IS SPECTRAL, EVERYWHERE — and that is load-bearing for alignment.
+     A line box's strut comes from the first AVAILABLE family, and unicode-range
+     disqualifies a face from that role: Source Han Serif CN declares no U+0020,
+     so it renders every hanzi on screen yet can never set a line box. Spectral,
+     un-ranged for the strut's purposes, always does. Consequence: at
+     line-height:1 the baseline sits 0.798em down (Spectral hhea 1059/-463 per
+     1000 upem), which puts a CJK zi-shen-ge 0.082em ABOVE the line box's center.
+     Boxes that optically center CJK correct for exactly that much — see the
+     asymmetric padding on #modeseg .opt and .op-place.op-region::before in
+     css/app.css. Reorder or replace the leading family here and those corrections
+     must be re-derived. The predecessor stack's strut was 'Noto Serif SC', a
+     LOCAL font the repo never shipped, so that alignment silently differed on
+     every machine; a shipped strut is the point. */
+
+  /* Display face for the wordmark + banxin (spine) title only (KingHwa_OldSong via async
+     CDN in index.html; offline-safe fallback to Source Han Serif). R7/R15. */
+  --font-display: 'KingHwaOldSong', 'Source Han Serif CN', serif;
+  /* Body/data/UI face — Latin (Spectral) + CJK (Source Han Serif CN by range). */
+  --font-text: 'Spectral', 'Source Han Serif CN', serif;
+  /* Display face for headings that must also set Latin. KingHwaOldSong is the one
+     face here that arrives WITHOUT a unicode-range (it comes from a CDN, not from
+     the @font-face blocks above), so in --font-display it wins Latin by stack order
+     alone — and sets a word space at 7.1px against a 14px heading, wider than the
+     7px half-cell that separates two information tiers beside it. Leading with
+     Spectral restores the routing table this section describes: Latin resolves to
+     Spectral by its declared range, CJK falls through to KingHwa, and the strut is
+     Spectral either way, so no alignment constant shifts. Use this wherever a
+     heading can receive a place name, a title, or any other translated string;
+     --font-display stays correct for CJK-only marks such as .wordmark. */
+  --font-brow: 'Spectral', 'KingHwaOldSong', 'Source Han Serif CN', serif;
+  /* Multi-script historical prose (non-Han source text): Arabic / Armenian /
+     Hebrew via Noto (Google Fonts, index.html), Latin via Spectral, CJK fallback. */
+  --font-multi:
+    'Noto Serif', 'Noto Naskh Arabic', 'Noto Serif Armenian',
+    'Noto Serif Hebrew', 'Spectral', 'Source Han Serif CN', serif;
+
+  /* ---- Type scale — the ONE size system; subscribe, never hardcode ----
+     Five steps, ratified against what the shell actually renders rather than
+     against an ideal. The predecessor — --fs-title/body/sub/caption (17/15/14/13)
+     plus a parallel --text-xs..2xl set — advertised itself as having collapsed an
+     "11/11.5/12/12.5/13/14/16/17.5 sprawl", but that collapse never landed: the
+     two sets contradicted each other, neither equalled any rendered value, and
+     between them they had 5 consumers against ~98 hardcoded literals spanning 14
+     distinct sizes (8…25px). Tokens that describe nothing get ignored, so these
+     five are derived FROM the real distribution: the ~20 rules already sitting at
+     13px were conformant the day this landed. Parenthesised counts are the use
+     sites each step was drawn from.
+
+     --fs-lead is the body-copy anchor: .rc-trans (the records translation line) is
+     the site's primary reading text — see its "translation = primary" note.
+
+     Deliberately NOT steps of this scale:
+       · glyph metrics — .iconbtn/.glyph-lang b (15px), .observer-x /
+         .eclipse-greatest-marker (16px), .scrub-play (20px). These size a drawn
+         mark, not text; folding them in would drain the scale of meaning.
+       · the shixiangtu SVG type — computed against its own viewBox, so a px here
+         would not mean px on screen (js/eclipse-glyph.js renderSchematic:
+         opts.textPx carries the on-screen target instead).
+       · css/style.css's body font-size — a nominal document root nothing renders
+         at (every text node overrides it), kept a literal for that reason. */
+  --fs-mark:  25px;  /* shuming (site title) — .wordmark (1) */
+  --fs-lead:  14px;  /* body text · heading — .rc-trans/.rc-place/.ec-date/#q (9) */
+  --fs-body:  13px;  /* data rows · controls · axis labels — .opt/.slip/.tl-axis/.rc-orig (20) */
+  --fs-note:  12px;  /* jiazhu · source refs · heading notes · fine ticks — .rc-src/.ec-recs-div/.tl-fine (14) */
+  --fs-micro: 11px;  /* meiti marks · spacing labels · map micro-labels — .wordmark small/.mk-yr (7) */
+  --fw-regular: 450;
+  --fw-medium:  500;
+
+  /* ---- Line heights ---- */
+  --lh-tight: 1.25;
+  --lh-base:  1.5;
+  --lh-loose: 1.7;
+
+  /* ---- Observer compass (bone-white astrolabe) ---- */
+  --compass-ring:       #cce0df;
+  --compass-cardinal:   #cce0df;
+  --compass-cardinal-n: #cce0df;
+  --sun-trace:          var(--fg-primary);
+  --sun-label:          #c8c2b4;
+  --moon-trace:         #9fb4c4;
+  --moon-label:         #9fb4c4;
+  --annual-envelope:    #c8c2b4;
+  --dark-casing:        var(--const-line-shadow);
+
+  /* ---- Eclipse contact-curve palette (light-first, Song-painting light-wash family) ----
+     Every shipped basemap is light, so there is a single palette here. Mirrors
+     COLOR in js/eclipse.js. */
+  --eclipse-visibility:   #3F8378;   /* lunar visibility / greatest point (piaobe) */
+  --eclipse-penumbra-rim: #B5645A;   /* P1/P4 outer penumbral limit (faded terracotta) */
+  --eclipse-mag-50:       #4E6E86;   /* 50% magnitude iso-line (huaqing) */
+  --eclipse-mag-90:       #A2803F;   /* 90% magnitude iso-line (faint gold-ochre) */
+  --eclipse-ns-limit:     #3C6E5A;   /* N/S penumbral limits (zhilü) */
+  --eclipse-central:      #A8324A;   /* central / totality band (yanzhi madder) */
+  --eclipse-u-contact:    #4E948A;   /* lunar U1–U4 contact arcs (piaobe) */
+  /* Lunar visibility veil (filled moon-up hemisphere): base → red lerped by
+     lunarRedness. Mirrors COLOR.lunarVeilBase/Red in js/eclipse.js. */
+  --eclipse-lunar-veil-base: #465468; /* penumbral wash (deep diaqing, reads on paper) */
+  --eclipse-lunar-veil-red:  #C0472E; /* totality (zhusha cinnabar, echoes zhupi) */
+
+  /* ---- Eclipse disk-glyph overlays (sidebar list icons) ----
+     Lapidary mineral, lifted slightly for legibility at icon scale; harmonizes
+     with the contact-curve palette above. Owner may consolidate later. */
+  --ecl-moon-silhouette: #15161a;  /* Moon dark silhouette (solar partial/annular) */
+  --ecl-corona:          #b7c2cd;  /* total solar eclipse corona ring */
+  --ecl-corona-disk:     #15161a;  /* total solar eclipse black disk */
+  --ecl-corona-bead:     #eef1f4;  /* total solar eclipse diamond ring bead */
+  --ecl-umbra:           #a8472e;  /* partial lunar eclipse umbra copper fill */
+  --ecl-umbra-center:    #7d2e1b;  /* partial lunar eclipse umbra center hint */
+  --ecl-penumbra:        #2a221c;  /* penumbral lunar eclipse deep warm wash */
+  --ecl-bloodmoon:       #a8472e;  /* total lunar eclipse uniform blood disk */
+  --ecl-bloodmoon-rim:   #7e3320;  /* total lunar eclipse disk rim */
+
+  /* ---- Eclipse contact-trajectory schematic (shixiangtu, click-point popup) ----
+     The observation popup is always a light paper card, so a single light-tuned
+     set: shadow rings read as translucent grey discs (umbra darker than
+     penumbra); labels/axis follow the popup ink. */
+  --ecl-schem-pen:       #7b828d;  /* penumbra ring fill — translucent grey shadow */
+  --ecl-schem-pen-rim:   #626a76;  /* penumbra ring outline */
+  --ecl-schem-umb:       #3f4650;  /* umbra ring fill — darker shadow (red lives only on the moon faces) */
+  --ecl-schem-umb-rim:   #2b303a;  /* umbra ring outline */
+  --ecl-schem-path:      #6f6a5c;  /* crossing-trajectory dashed line — warm ink */
+  --ecl-schem-label:     #565a5e;  /* contact-key labels (= --ink-2) */
+  --ecl-schem-axis:      #8b8f8c;  /* × shadow centre / ecliptic / grid (= --ink-3) */
+}
+
+/* ==== Chrome-skin axis (body[data-skin]) — 3 LIGHT skins ==========================
+   song (Song-painting light-wash, dan-shese) is the canonical default and lives in :root above. The two
+   alternates below override ONLY the skin-varying role tokens (ground / accent /
+   spark / data hues / grain); everything else inherits from :root. FME has no
+   dark theme — all three skins are light. Set/persisted by Basemaps.setSkin(). */
+
+/* ---- Card state ladder: red, deep green, pale green, none ----
+   The rail's cards carry exactly four states and no fifth: red = committed (selected),
+   deep green = subject (the one card under the pointer), pale green = linkage (the other
+   records of that same eclipse), bare = unrelated.
+   Red has to stay the heaviest note, so the deep green is matched to it by MEASURED
+   LUMINANCE rather than by a matching percentage: --spark at 6% over --card reads 1.090:1,
+   and --accent needs 8% to reach 1.088:1, because the sap green departs the warm paper far
+   less than the vermilion does. Equal weight, never heavier — a deeper green would strip
+   selection of its emphasis. Pale green is half of deep, which lands the three washes on
+   even perceptual steps (1.000 / 1.043 / 1.088).
+   Declared on body, NOT in :root, and that placement is load-bearing. A custom property is
+   substituted at computed-value time on the element that DECLARES it, and the result
+   inherits already-substituted. Declared on :root these would bake in song's #B23A2E and
+   #4F8D74 for every skin, because data-skin is set on body — one element too late to be
+   seen. On body the substitution reads whatever skin is in force.
+   The percentages are per-skin for the same luminance reason: azurite's stone blue and
+   sutra's indigo are far darker than song's sap green, so 8% there would overtake the red.
+   The threads are 2px rules, not colour fields, so they take no such tuning. */
+body {
+  --wash-sel:       color-mix(in srgb, var(--spark) 6%, var(--card));
+  --wash-subject:   color-mix(in srgb, var(--accent) 8%, transparent);
+  --wash-link:      color-mix(in srgb, var(--accent) 4%, transparent);
+  --thread-sel:     var(--spark);
+  --thread-subject: var(--accent);
+  --thread-link:    color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* yi — azurite/malachite map skin (qinglü; opaque mineral pigments belong HERE,
+   never in the song-painting skin). */
+body[data-skin="azurite"] {
+  --bg-deep:     #EDEAE0;
+  --bg-mid:      #EDEAE0;
+  --bg-panel:    rgba(237, 234, 224, 0.90);
+  --bg-overlay:  rgba(237, 234, 224, 0.92);
+  --bg-shell:    rgba(237, 234, 224, 0.90);
+  --bg-rail:     #EDEAE0;
+  --accent:        #1F5A78;  /* shiqing (azurite) */
+  --accent-gold:   #1F5A78;
+  --brass:         #1F5A78;
+  --accent-gold-d: #17475E;
+  --gilt-bright:   #C6402E;  /* zhusha (cinnabar) spark */
+  --gilt-edge:     #1F5A78;
+  --gilt-calm:     #9A6A5E;
+  --border-gold:   rgba(31, 90, 120, 0.42);
+  --glow-night:    0 0 12px rgba(31, 90, 120, 0.22);
+  --glow-gold:     0 0 8px rgba(198, 64, 46, 0.32);
+  --solar:  #B0703C;
+  --lunar:  #4E8C6A;  /* shilü (malachite) */
+  --grain-opacity: 0.10;
+  --map-sat: 0.74;
+  --map-sepia: 0.06;
+  /* demo-semantic aliases (azurite) */
+  --ground: #EDE7D8; --panel: 246, 240, 225; --card: #F4EFE2;
+  --ink: #20242A; --ink-2: #55595E; --ink-3: #8A8E84;
+  --hair: #CFC9B8; --hair-2: #DED9C8;
+  --accent-deep: #12455E; --spark: #C6402E;
+  /* Shiqing is much darker than song's sap green, so 8% would outweigh the spark:
+     5.5% reads 1.083:1 against the red's 1.084:1. --accent-ink was never re-skinned
+     here, which left the hovered card's place name sap-green over an azurite wash;
+     it follows --accent-deep (8.98:1 on this --card). */
+  --wash-subject: color-mix(in srgb, var(--accent) 5.5%, transparent);
+  --wash-link:    color-mix(in srgb, var(--accent) 2.75%, transparent);
+  --accent-ink:   #12455E;
+}
+
+/* bing — sutra-paper buff + seal-red (zhumo). */
+body[data-skin="sutra"] {
+  --ground-note: "藏经纸";
+  --bg-deep:     #ECE0C8;
+  --bg-mid:      #ECE0C8;
+  --bg-panel:    rgba(236, 224, 200, 0.92);
+  --bg-overlay:  rgba(236, 224, 200, 0.94);
+  --bg-shell:    rgba(236, 224, 200, 0.92);
+  --bg-rail:     #ECE0C8;
+  --fg-primary:  #1C1A17;
+  --text-primary: #1C1A17;
+  --text-high:   #1C1A17;
+  --accent:        #3A5169;  /* huaqing */
+  --accent-gold:   #3A5169;
+  --brass:         #3A5169;
+  --accent-gold-d: #2A3E52;
+  --gilt-bright:   #B23A2E;  /* yinnizhu (seal-red) spark */
+  --gilt-edge:     #3A5169;
+  --gilt-calm:     #9A6A5A;
+  --border-gold:   rgba(58, 81, 105, 0.42);
+  --glow-night:    0 0 12px rgba(58, 81, 105, 0.22);
+  --glow-gold:     0 0 8px rgba(178, 58, 46, 0.32);
+  --solar:  #A9662F;
+  --lunar:  #5E7E74;
+  --grain-opacity: 0.13;
+  --map-sat: 0.66;
+  --map-sepia: 0.16;
+  /* demo-semantic aliases (sutra) */
+  --ground: #E7D8B8; --panel: 238, 227, 200; --card: #EFE3C8;
+  --ink: #1C1A17; --ink-2: #4A463E; --ink-3: #847B67;
+  --hair: #CDBB95; --hair-2: #DAC9A4;
+  --accent-deep: #283A4E; --spark: #B23A2E;
+  /* Huaqing runs as dark as azurite's shiqing, so it takes the same 5.5% (1.081:1
+     against the red's 1.084:1). --accent-ink follows --accent-deep (9.13:1 on this
+     --card) instead of inheriting song's green. */
+  --wash-subject: color-mix(in srgb, var(--accent) 5.5%, transparent);
+  --wash-link:    color-mix(in srgb, var(--accent) 2.75%, transparent);
+  --accent-ink:   #283A4E;
+}
+

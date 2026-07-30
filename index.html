@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Share-card metadata stays English-only in every locale: it is consumed by
+       crawlers and chat clients that never see the reader's language choice, so
+       a per-locale value would just be one arbitrary language shown to all. -->
+  <meta name="description" content="An interactive atlas of historical astronomy phenomena across 5000 years.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FiveMillenniaEclipses">
+  <meta property="og:title" content="五千年日月食 · Five Millennia of Eclipses">
+  <meta property="og:description" content="An interactive atlas of historical astronomy phenomena across 5000 years.">
+  <meta property="og:url" content="https://Higashimado.github.io/FiveMillenniaEclipses/">
+  <!-- Absolute, because a crawler resolves og:image against the sharer's URL
+       rather than against this document's base URL. Most social platforms will
+       not rasterise an SVG card; this one exists so the tab icon and the share
+       card are the same mark, and it is replaced by a PNG plate when there is one. -->
+  <meta property="og:image" content="https://Higashimado.github.io/FiveMillenniaEclipses/img/mark.svg">
+  <meta name="twitter:card" content="summary">
+  <!-- Base URL pinned to the site root, so (1) the per-language shells under
+       /en/ …/ja/ can rewrite it to "../" (see those index.html) and (2) the
+       permalink writer's history.replaceState to "/<lang>/?…" never drifts the
+       frozen baseURI off root — relative fetch('data/…') stays anchored here.
+       "./" resolves to the directory of THIS document, so it is host-agnostic
+       (works at a domain root or a project sub-path). MUST precede every
+       URL-bearing tag below (fonts, CSS, scripts).
+       Nothing earlier in this file may spell this element's own start tag, not
+       even inside a comment: the shells rewrite the FIRST regex match in the
+       document, so a mere mention gets rewritten instead of the real tag and
+       every asset then resolves one directory too deep under /en/ …/ja/. -->
+  <base href="./">
+  <title>五千年日月食 · Five Millennia of Eclipses</title>
+  <!-- The mark carries its own dark-scheme rule, so no second file and no
+       media-scoped <link> pair: one SVG answers both tab strips. -->
+  <link rel="icon" type="image/svg+xml" href="img/mark.svg">
+
+  <!-- Multi-script serifs for original texts (Greek / Arabic / Armenian / Hebrew). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,500;1,400&family=Noto+Naskh+Arabic:wght@400;500&family=Noto+Serif+Armenian:wght@400;500&family=Noto+Serif+Hebrew:wght@400&display=swap" rel="stylesheet">
+  <!-- Display face KingHwaOldSong (wordmark + banxin title only) via ZeoSeven CDN.
+       Async media-swap so it never blocks parse; offline-safe fallback to
+       Source Han Serif (a prior sync CDN script once blanked the page). -->
+  <link rel="stylesheet" href="https://fontsapi.zeoseven.com/309/main/result.css" media="print" onload="this.media='all'">
+
+  <link rel="stylesheet" href="vendor/css/leaflet-1.9.4.min.css">
+  <!-- MapLibre GL — only for the OpenHistoricalMap vector basemap (js/basemaps.js) -->
+  <link rel="stylesheet" href="vendor/css/maplibre-gl-5.24.0.css">
+  <link rel="stylesheet" href="css/tokens.css?v=1">
+  <link rel="stylesheet" href="css/style.css?v=1">
+  <link rel="stylesheet" href="css/app.css?v=1">
+</head>
+<body data-skin="song" data-lang="en">
+  <!-- Two-level bankuang (page frame): #app is the paper leaf (title band + frame area); #frame is
+       the real black-bordered container that now holds huamian·banxin·banye·dijiao, so the
+       frame encloses ALL content and the paper margin (+ topbar band) wraps it. -->
+  <div id="app">
+
+    <!-- shuming-ye (title band) register: a full-width paper title-band wrapping the bankuang from above
+         (wordmark · search · layer · language). Transparent — the paper shows through. -->
+    <div id="topbar" class="grain">
+      <!-- The shuming is a fixed bilingual mark, not UI copy: it never translates, so it
+           declares its own language instead of inheriting the reader's. lang here is load-
+           bearing, not decorative — Source Han's unicode-range carries no U+0020, so it can
+           never set this line box and the strut falls through to the generic serif, which
+           the browser resolves BY lang. Inheriting the locale therefore moved the title's
+           baseline 2px every time the reader switched language. -->
+      <!-- "FIVE MILLENNIA ECLIPSES" drops the "of" on purpose. This line is a mark, not a
+           sentence: it matches the project's own name (FiveMillenniaEclipses) and the
+           juxtaposition of 五千年日月食, which carries no connective either. Running prose
+           keeps the preposition — see <title>, og:title, and site.title/subtitle. -->
+      <div class="wordmark" lang="zh-Hans">五千年日月食<small lang="en">FIVE MILLENNIA ECLIPSES</small></div>
+      <!-- Off-site links as jiehang (ruled columns): repository · guide · companion atlas.
+           Labels are left empty here and filled by I18n.applyDOM(), so no one locale's
+           wording sits in the markup as a de-facto default.
+           The guide's href is a {lang} template rather than a fixed URL because the README
+           is per-locale and only i18n.js knows the active tag; it is written at applyDOM()
+           time and rewritten on every language switch. That README is not published yet,
+           so this link 404s until it is — nothing here changes when it lands. -->
+      <nav class="lnk-rule">
+        <a href="https://github.com/Higashimado/FiveMillenniaEclipses" target="_blank" rel="noopener" data-i18n="ui.link.repo"></a>
+        <a data-i18n-href="https://github.com/Higashimado/FiveMillenniaEclipses/blob/main/{lang}/README.md" target="_blank" rel="noopener" data-i18n="ui.link.docs"></a>
+        <a href="https://higashimado.github.io/SubstellarAtlas/" target="_blank" rel="noopener" data-i18n="ui.link.sister"></a>
+      </nav>
+      <div style="flex:1"></div>
+      <div class="searchbox">
+        <svg class="search-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="q" autocomplete="off" data-i18n-aria="atlas.search" aria-label="Search">
+      </div>
+      <div class="vr"></div>
+      <!-- Layer + language switchers share the .iconselect shell: a fixed glyph +
+           caret with a transparent native <select> laid over it. The native select
+           only commits on option-selection, so a stray top-bar click can never
+           switch it, and we get free keyboard/focus behaviour. -->
+      <label class="iconselect" data-i18n-tip="ui.layers">
+        <svg class="glyph-layer" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>
+        <svg class="caret" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        <select id="layer-select" data-i18n-aria="ui.layers" aria-label="Layers"></select>
+      </label>
+      <label class="iconselect" data-i18n-tip="ui.lang">
+        <span class="glyph-lang" aria-hidden="true"><b>文</b><i>A</i></span>
+        <svg class="caret" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        <select id="lang-select" data-i18n-aria="ui.lang" aria-label="Language"></select>
+      </label>
+    </div>
+
+    <!-- bankuang (page frame, double rule on all four sides): outer thick + inner thin rule, drawn on the container itself
+         (border + ::before{inset:3px}). Its grid holds the huamian (map) · banxin (seam) ·
+         banye (rail) · dijiao (lizhou) — every region now sits inside the black frame. -->
+    <div id="frame">
+
+      <!-- lizhou (timeline) reopen chip — shown only when the dijiao timeline is collapsed.
+           Label filled from atlas.tab.tlt at applyLang(); left empty in the markup so no
+           one locale's wording sits in the HTML as a de-facto default. -->
+      <div id="tltab" class="tab tltab" data-i18n="atlas.tab.tlt" style="display:none"></div>
+
+      <!-- huamian (map area): the Leaflet map fills #mapwrap (definite-size positioned parent so
+           Leaflet mounts cleanly); #ev-strip shu'er (ear tab) is injected here at runtime. -->
+      <main id="mapwrap">
+        <div id="map"></div>
+
+      </main>
+
+      <!-- banxin (spine seam) removed: both filters now live in the banye rail head,
+           and the shukou signature (yuwei/xiang-bi/bai-kou marks) + nian-hao era label were dropped. drawSpine() is
+           kept but self-guards (its target is gone) pending a new home for the era label. -->
+
+      <!-- Permanent right rail (right-side title column) — always resident, never collapses. -->
+      <aside id="library" class="grain">
+        <!-- Catalog heading band: two drawer rows (option zone) + the total-count tally column.
+             Row 1 jiehang ruled cells (after juzhuliri day-tables): the binary
+             records/all-events VIEW switch — it governs which renderer owns #list, so it
+             lives with the list it controls. Row 2 fuqian (collator's slips): the
+             N-way type filter as vertical-text paper slips hung from the rule
+             between the rows — the retired fore-edge shu'er slip idea moved inside
+             the leaf. Occultation/guest-star/comet slips are clickable ahead of data (empty shelf, not
+             dormant): the corpus has no such records yet, so they render the
+             .list-empty note. #modeseg/#typeseg ids kept → wireChrome() needs no
+             rewiring; applyLang() writes slip labels (typeShort abbreviations for
+             Latin locales, full names in aria-label/title). -->
+        <div class="rail-head">
+          <div class="rh-opts">
+            <div class="tg mode" id="modeseg" role="group" aria-label="Mode">
+              <button class="opt on" data-m="records" aria-pressed="true">Records</button>
+              <button class="opt" data-m="events" aria-pressed="false">Tables</button>
+            </div>
+            <div class="tg type" id="typeseg" role="group" aria-label="Type">
+              <button class="slip on" data-t="solar" aria-pressed="true">Sol.</button>
+              <button class="slip" data-t="lunar" aria-pressed="false">Lun.</button>
+              <button class="slip" data-t="occultation" aria-pressed="false">Occ.</button>
+              <button class="slip" data-t="conjunction" aria-pressed="false">Conj.</button>
+              <button class="slip" data-t="guest" aria-pressed="false">Nov.</button>
+              <button class="slip" data-t="comet" aria-pressed="false">Com.</button>
+            </div>
+          </div>
+          <div id="reccount"></div>
+        </div>
+        <!-- Load-earlier / load-later chevrons flank #list; shown only in all-events mode.
+             Chevron SVGs ported from AstroMeteoMap loadMoreBtnHtml, reskinned. -->
+        <button class="ec-load ec-load-earlier" id="ec-earlier" type="button" aria-label="加载更早" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"/></svg></button>
+        <div class="list" id="list"></div>
+        <button class="ec-load ec-load-later" id="ec-later" type="button" aria-label="加载更晚" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+      </aside>
+
+      <!-- Bottom horizontal timeline (fisheye lizhou · dijiao). Chrome stripped to just
+           the axis; the close button is a hover-only overlay so nothing but the
+           axis itself occupies space when the mouse isn't over it. -->
+      <section id="timeline" class="grain">
+        <button class="iconbtn tl-close" id="tl-close" data-i18n-tip="ui.collapse" data-i18n-aria="ui.collapse" aria-label="收起">×</button>
+        <svg id="tlsvg"></svg>
+      </section>
+
+    </div>
+
+    <!-- Transient notice shown when a requested time is redirected onto the
+         service-window boundary (−3000…1999). Wired in js/ui.js via
+         TimeState.onRangeClamp; text is pulled fresh from i18n on each show. -->
+    <div id="range-clamp-hint" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <!-- All scripts use `defer`: parallel download, in-order execution after parse. -->
+
+  <!-- Libraries (vendored locally — zero CDN dependency at runtime) -->
+  <script defer src="vendor/js/leaflet-1.9.4.min.js"></script>
+  <script defer src="vendor/js/astronomy-engine-2.1.19.browser.min.js"></script>
+  <script defer src="vendor/js/maplibre-gl-5.24.0.js"></script>
+  <script defer src="vendor/js/maplibre-gl-dates-1.3.0.js"></script>
+  <script defer src="vendor/js/leaflet-maplibre-gl-0.1.3.min.js"></script>
+
+  <!-- Reused runtime (vendored from AstroMeteoMap) — the astronomy engine -->
+  <script defer src="js/i18n.js?v=1"></script>
+  <script defer src="js/geo-utils.js?v=1"></script>
+  <script defer src="js/time.js?v=1"></script>
+  <!-- Hover hit-target widths + themed glossary-tip card (drive the shixiangtu schematic's data-gloss hovers) -->
+  <script defer src="js/hit-widths.js?v=1"></script>
+  <script defer src="js/glossary-tip.js?v=1"></script>
+  <script defer src="js/ephem-correct.js?v=1"></script>
+  <script defer src="js/eclipse-glyph.js?v=1"></script>
+  <script defer src="js/bessel-runtime.js?v=1"></script>
+  <!-- Sun/Moon disk textures at their sub-points (footprint-scaled, phase-aware) -->
+  <script defer src="js/body-markers.js?v=1"></script>
+  <script defer src="js/envelope-ring.js?v=1"></script>
+  <script defer src="js/eclipse.js?v=1"></script>
+  <!-- Lunisolar/ganzhi/Julian reckoning for the shu'er chronicle line (uses Astronomy) -->
+  <script defer src="js/calendars.js?v=1"></script>
+
+  <!-- Thin shell + layers -->
+  <script defer src="js/ui.js?v=1"></script>
+  <script defer src="js/basemaps.js?v=1"></script>
+  <script defer src="js/eclipse-loader.js?v=1"></script>
+  <!-- Click-a-point local observation popup (builds panel HTML; atlas wires the map click) -->
+  <script defer src="js/place-name.js?v=1"></script>
+  <script defer src="js/observe-popup.js?v=1"></script>
+  <!-- Atlas front-end: seals + library + fisheye lizhou (timeline) -->
+  <script defer src="js/seal.js?v=1"></script>
+  <script defer src="js/atlas.js?v=1"></script>
+  <!-- Ruled slat (jiechuan-hangan): intraday time-scrubber hung under the "Today View" shu'er (driven by atlas.js) -->
+  <script defer src="js/ev-scrub.js?v=1"></script>
+  <!-- Interactive event panel — must precede map-boot.js so its Sidebar wins
+       over the read-only shim (which stays as fallback behind a typeof guard). -->
+  <script defer src="js/event-panel.js?v=1"></script>
+  <!-- Permalink: URL⇄state sync (coords/zoom/time/selection/filters). Loads
+       after time.js so it can reference the lexical-global TimeState, and before
+       map-boot.js so boot() finds window.Permalink defined. -->
+  <script defer src="js/permalink.js?v=1"></script>
+  <script defer src="js/map-boot.js?v=1"></script>
+</body>
+</html>

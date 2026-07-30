@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "title": "Civilization names in seven languages",
+    "scope": "Display names for every civilization key used by the record corpus. Names only; the colours and ornaments a reader may see next to them are not part of this table.",
+    "fields": "key = civilization identifier. zh-Hans = Simplified Chinese. zh-Hant = Traditional Chinese. en = English display name. fr = French. es = Spanish. it = Italian. ja = Japanese.",
+    "provenance": "Hand-compiled. Names follow the usage established in historical and astronomical scholarship in each language. Japanese prefers kanji, with katakana used for Indo-European names that have no kanji form.",
+    "count": {
+      "civs": 28
+    },
+    "license": "CC-BY-SA-4.0",
+    "updated": "2026-07-27",
+    "caveats": [
+      "en is a display name and may use a conventional short form such as HRE or Syriac. It is neither a literal translation nor a romanisation.",
+      "The european key is a dormant fallback. It has been split into byzantine, italian, iberian, french, british, germanic, norse and slavic, and no record uses it.",
+      "arab names the culture rather than a religion, and the Japanese form is アラビア (civilization) rather than アラブ (people or polity)."
+    ]
+  },
+  "civs": {
+    "chinese": {"zh-Hans": "中华", "zh-Hant": "中華", "en": "China", "fr": "Chine", "es": "China", "it": "Cina", "ja": "中国"},
+    "korean": {"zh-Hans": "朝鲜", "zh-Hant": "朝鮮", "en": "Korea", "fr": "Corée", "es": "Corea", "it": "Corea", "ja": "朝鮮"},
+    "japanese": {"zh-Hans": "日本", "zh-Hant": "日本", "en": "Japan", "fr": "Japon", "es": "Japón", "it": "Giappone", "ja": "日本"},
+    "vietnamese": {"zh-Hans": "越南", "zh-Hant": "越南", "en": "Vietnam", "fr": "Viêt Nam", "es": "Vietnam", "it": "Vietnam", "ja": "ベトナム"},
+    "tangut": {"zh-Hans": "西夏", "zh-Hant": "西夏", "en": "Tangut", "fr": "Xia occidental", "es": "Tangut", "it": "Tangut", "ja": "西夏"},
+    "babylonian": {"zh-Hans": "巴比伦", "zh-Hant": "巴比倫", "en": "Babylon", "fr": "Babylone", "es": "Babilonia", "it": "Babilonia", "ja": "バビロニア"},
+    "assyrian": {"zh-Hans": "亚述", "zh-Hant": "亞述", "en": "Assyria", "fr": "Assyrie", "es": "Asiria", "it": "Assiria", "ja": "アッシリア"},
+    "hittite": {"zh-Hans": "赫梯", "zh-Hant": "赫梯", "en": "Hittite", "fr": "Hittite", "es": "Hitita", "it": "Ittita", "ja": "ヒッタイト"},
+    "arab": {"zh-Hans": "阿拉伯", "zh-Hant": "阿拉伯", "en": "Islamic", "fr": "Arabe", "es": "Árabe", "it": "Arabo", "ja": "アラビア"},
+    "armenian": {"zh-Hans": "亚美尼亚", "zh-Hant": "亞美尼亞", "en": "Armenia", "fr": "Arménie", "es": "Armenia", "it": "Armenia", "ja": "アルメニア"},
+    "syriac": {"zh-Hans": "叙利亚", "zh-Hant": "敘利亞", "en": "Syriac", "fr": "Syriaque", "es": "Siríaco", "it": "Siriaco", "ja": "シリア"},
+    "indian": {"zh-Hans": "印度", "zh-Hant": "印度", "en": "India", "fr": "Inde", "es": "India", "it": "India", "ja": "インド"},
+    "greek": {"zh-Hans": "希腊", "zh-Hant": "希臘", "en": "Greek", "fr": "Grec", "es": "Griego", "it": "Greco", "ja": "ギリシャ"},
+    "roman": {"zh-Hans": "罗马", "zh-Hant": "羅馬", "en": "Rome", "fr": "Rome", "es": "Roma", "it": "Roma", "ja": "ローマ"},
+    "byzantine": {"zh-Hans": "拜占庭", "zh-Hant": "拜占庭", "en": "Byzantium", "fr": "Byzance", "es": "Bizancio", "it": "Bisanzio", "ja": "ビザンツ"},
+    "italian": {"zh-Hans": "意大利", "zh-Hant": "意大利", "en": "Italy", "fr": "Italie", "es": "Italia", "it": "Italia", "ja": "イタリア"},
+    "iberian": {"zh-Hans": "伊比利亚", "zh-Hant": "伊比利亞", "en": "Iberia", "fr": "Ibérie", "es": "Iberia", "it": "Iberia", "ja": "イベリア"},
+    "french": {"zh-Hans": "法兰西", "zh-Hant": "法蘭西", "en": "France", "fr": "France", "es": "Francia", "it": "Francia", "ja": "フランス"},
+    "british": {"zh-Hans": "不列颠", "zh-Hant": "不列顛", "en": "Britain", "fr": "Bretagne", "es": "Bretaña", "it": "Britannia", "ja": "ブリテン"},
+    "germanic": {"zh-Hans": "神圣罗马", "zh-Hant": "神聖羅馬", "en": "HRE", "fr": "Saint-Empire", "es": "Sacro Imperio", "it": "Sacro Romano Impero", "ja": "神聖ローマ"},
+    "norse": {"zh-Hans": "北欧", "zh-Hant": "北歐", "en": "Norse", "fr": "Nordique", "es": "Nórdico", "it": "Norreno", "ja": "北欧"},
+    "slavic": {"zh-Hans": "斯拉夫", "zh-Hant": "斯拉夫", "en": "Slavic", "fr": "Slave", "es": "Eslavo", "it": "Slavo", "ja": "スラブ"},
+    "russian": {"zh-Hans": "俄罗斯", "zh-Hant": "俄羅斯", "en": "Russia", "fr": "Russie", "es": "Rusia", "it": "Russia", "ja": "ロシア"},
+    "mayan": {"zh-Hans": "玛雅", "zh-Hant": "瑪雅", "en": "Maya", "fr": "Maya", "es": "Maya", "it": "Maya", "ja": "マヤ"},
+    "aztec": {"zh-Hans": "阿兹特克", "zh-Hant": "阿茲特克", "en": "Aztec", "fr": "Aztèque", "es": "Azteca", "it": "Azteco", "ja": "アステカ"},
+    "american": {"zh-Hans": "美利坚", "zh-Hant": "美利堅", "en": "America", "fr": "Amérique", "es": "América", "it": "America", "ja": "アメリカ"},
+    "latin": {"zh-Hans": "拉丁美洲", "zh-Hant": "拉丁美洲", "en": "Latin America", "fr": "Amérique latine", "es": "América Latina", "it": "America Latina", "ja": "ラテンアメリカ"},
+    "european": {"zh-Hans": "欧洲", "zh-Hant": "歐洲", "en": "Europe", "fr": "Europe", "es": "Europa", "it": "Europa", "ja": "ヨーロッパ"}
+  }
+}

@@ -1,0 +1,14 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><script>
+/* Per-language shell (ported from AstroMeteoMap). Synchronously fetches the root
+   index.html and writes it here, rewriting the pinned <base> to "../" so every
+   relative asset + fetch('data/…') resolves back to the site root, and stamping
+   the locale onto <html lang> / <body data-lang>. Regex replaces (vs the upstream
+   byte-exact string) so a reformatted root <base …> tag still matches. */
+var r=new XMLHttpRequest();r.open('GET','../index.html',false);r.send();
+document.open();document.write(r.responseText
+  .replace(/<base[^>]*>/, '<base href="../">')
+  .replace(/<html lang="[^"]*"/, '<html lang="zh-Hans"')
+  .replace(/data-lang="[^"]*"/, 'data-lang="zh-Hans"')
+  .replace(/<title>[^<]*<\/title>/, '<title>五千年日月食 · Five Millennia of Eclipses<\/title>'));
+document.close();
+</script></body></html>

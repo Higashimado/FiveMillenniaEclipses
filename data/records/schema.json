@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fivemillenniaeclipses/records/schema.json",
+  "title": "Five Millennia of Eclipses — historical-record schema",
+  "description": "One JSON object per line (NDJSON) in data/records/<phenomenon>/<civilization>.jsonl. additionalProperties:false is the enforcement mechanism this schema exists for — a new top-level key MUST be added here (a reviewable diff) before any record may carry it. See data/records/README.md for the field-by-field prose gloss this schema does not repeat.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_id", "phenomenon", "event_date", "civilization", "confidence",
+    "date", "place", "source", "text_orig", "text"
+  ],
+  "properties": {
+    "record_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Globally unique across ALL files, enforced by the corpus validator. Convention: <source-slug>-<phenomenon>-<NN>, e.g. xintangshu-tianwen-occultation-0390."
+    },
+    "phenomenon": {
+      "enum": ["solar", "lunar", "comet", "guest", "occultation", "conjunction"],
+      "description": "Also the directory a record is routed to, one per phenomenon. solar/lunar = eclipses; comet/guest/occultation/conjunction = transients. Replaces the old dual eclipse_type/phenomenon keys. conjunction (合聚) is several bodies gathered at one place — 「太白、辰星、歲星合于張」 — which the treatises record under their own headings (五緯合聚) and which is not one body grazing another; occultation would assert a subject and a target where the source names neither."
+    },
+    "event_date": {
+      "type": "string",
+      "pattern": "^(-\\d{6}|\\d{4})(-\\d{2}(-\\d{2})?)?$",
+      "description": "Extended-ISO astronomical-year date, in astronomical years (year 0 exists). BCE years are 6-digit zero-padded with a leading minus (-000762); CE years are plain 4-digit (0638) — this asymmetry matches the build's own date writer and every event_date value actually in the corpus, verified against all three pilot tables. Trailing -MM and -MM-DD segments are omitted at year/month precision respectively; see date.precision."
+    },
+    "event_key": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "OPTIONAL hand-verified assertion that several records report ONE physical phenomenon. Records sharing an event_key are cross-highlighted together in the atlas rail and on the map. Write it only after identifying the records as the same object/apparition — it is an editorial claim, not a derived value, and nothing generates it. Solar and lunar records do not need it: their event_date is assigned from the computed eclipse catalogue, so date+phenomenon already names one event. Every other phenomenon takes its date from the source text, where it means only 'the day this chronicle claims' — two chronicles seeing one supernova date it differently (SN 1006 is 1006-04-09 in Songshi and 1006-05-01 in Meigetsuki), while unrelated sightings collide under a source-truncated date (a bare '1178' groups 96 distinct occultations). Neither case can be settled by date, which is why this key is explicit. Realistically it applies to supernovae and a few identified comet apparitions; it must NOT be used to lump occultations or conjunctions that merely share a day."
+    },
+    "civilization": {
+      "type": "string",
+      "description": "Must be a key present in data/duizhao/wenming.json. No record may carry null."
+    },
+    "confidence": {
+      "enum": ["certain", "likely", "candidate", "disputed", "legendary"],
+      "description": "certain > likely > candidate. disputed/legendary are rare, hand-flagged. 'confirmed' is NOT a valid value — normalize to certain."
+    },
+    "date": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["precision", "basis"],
+      "properties": {
+        "verbatim": {
+          "type": "string",
+          "description": "The date exactly as the source text states it (reign era + reckoning), e.g. '十二年閏二月庚辰朔'. Absent only for records with no textual date apparatus (rare western entries where event_date derives from the source's own Gregorian/Julian date)."
+        },
+        "precision": {
+          "enum": ["day", "month", "year"],
+          "description": "How far event_date can be trusted. month precision => event_date's day segment is a nominal placeholder, not attested — see lunar_month for the source's own calendar month."
+        },
+        "basis": {
+          "enum": [
+            "explicit", "sexagenary_forward_scan", "era_midpoint", "year_only",
+            "approximate", "scholarly_consensus", "reverse_match_nasa", "reverse_match_ae"
+          ],
+          "description": "How event_date/date.verbatim was converted to the calendar. explicit = source gives a directly-usable calendar date. sexagenary_forward_scan = the 干支 ganzhi cycle forward-scanned from a reign-year start (the historical-China default). era_midpoint = only 'in the Nth reign, mid-period' is known. reverse_match_nasa/ae = eclipse identified by matching the record's description against the NASA 5MCSE/5MCLE canon or an AE-computed path, not by calendrical reckoning of the record's own date — this is the ONLY basis where an eclipse record's identification depends on data/eclipses/*.json, and where observation.status=predicted_unseen most often applies (global peak was matched, not confirmed locally visible)."
+        }
+      }
+    },
+    "lunar_month": {
+      "type": "integer", "minimum": 1, "maximum": 12,
+      "description": "The source's own lunisolar-calendar month number, for month-precision transients only (date.precision=month). Lets the shu'er (ear tab) records line show '五月' without fabricating a day. Cross-checked against date.verbatim by the corpus validator."
+    },
+    "sky_position": {
+      "type": "string",
+      "description": "The lunar-lodge / asterism position phrase as the source states it, e.g. '奎九度', '軒轅第四星'. Free text; not yet linked to duizhao/xingguan.json."
+    },
+    "place": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Key into data/duizhao/diming.json .places. Present on nearly every record; a place.key value is the sole authority on display name, dynasty period, and aliases — see diming.json's `aliases` field for historical alternate names (e.g. 汴梁 for bianjing). No per-record name/i18n override exists (removed 2026-07-24 — it was 44.8% dead weight)."
+        },
+        "observed_at": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lat", "lon"],
+          "properties": { "lat": {"type": "number"}, "lon": {"type": "number"} },
+          "description": "OVERRIDE of diming.json's coordinates — a genuinely different observation point than the gazetteer's canonical site for this place.key (or the record has no place.key at all)."
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Key into data/records/sources.json .sources — the book/document this record is transcribed from."
+        },
+        "locus": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "Where inside the source this record sits. Keys come from a closed vocabulary but their values are free text, because each tradition numbers its own divisions (卷052 / 卷四十七 / XVI / 40v). Only the keys a source actually uses are present. Each key's value is percent-encoded separately and substituted into the like-named placeholder of sources.json's edition.locus_url at render time, so a multi-segment locus needs no special casing. Assigned offline, claiming a juan only when the record's text_orig is found in exactly one juan of that book — never inferred from dates.",
+          "properties": {
+            "work": {"type": "string", "description": "The individual work, when one source key bundles several (扶桑略記 / 百錬抄 / 吾妻鏡)."},
+            "volume": {"type": "string", "description": "卷 / juan / Book / Liber / Tomus, in the edition's own numbering — '卷052' for 宋史 but '卷27' for 明史, '卷四十七' for 高麗史, 'XVI' for Scotichronicon."},
+            "chapter": {"type": "string", "description": "章 / cap. / ch. / §, the division below volume."},
+            "section": {"type": "string", "description": "A named division rather than a numbered one (新羅本紀, 推古天皇紀)."},
+            "annal": {"type": "string", "description": "The year-entry of a chronicle: 's.a. 840' is stored as '840', 'era MCCXXIX' as 'MCCXXIX', 昭公二十一年 as written."},
+            "reign": {"type": "string", "description": "The reign whose records contain the entry (憲宗實錄 in 朝鮮王朝實錄; 莊公 in 春秋經)."},
+            "year": {"type": "string", "description": "The regnal year within a reign (五年), used with 'reign'."},
+            "folio": {"type": "string", "description": "Manuscript leaf, recto/verso suffix included: '40v'."},
+            "fragment": {"type": "string", "description": "Fragment number in a modern edition of a fragmentary author: '122 West'."},
+            "page": {"type": "string", "description": "Page number, only where the cited edition has stable pagination."}
+          }
+        },
+        "url": {
+          "type": "string", "format": "uri",
+          "description": "Per-record escape hatch: a link that neither edition.url nor edition.locus_url + locus can produce. Rare — most multi-volume sources are fully covered by locus. Takes priority over the locus_url template when present."
+        }
+      }
+    },
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "For occultation/comet/guest: the celestial object per data/duizhao/xingguan.json .planets (moon/mars/venus/jupiter/saturn) or a comet/nova designation. Replaces the old bloated 'identification' block (212 distinct values collapsed to this + designation)."
+        },
+        "designation": {
+          "type": "string",
+          "description": "A modern catalogue identification (comet/nova designation), where established by scholarship. Rare (18 records in the pre-migration corpus)."
+        },
+        "basis": {
+          "type": "string",
+          "description": "Free-text note on how/whether the object identification was made, ONLY when it says something beyond the phenomenon-level default (e.g. a genuine ephemeris cross-check). The boilerplate '位置可反算但本期未做星历验证' is NOT carried forward — its meaning is now the absence of this field."
+        }
+      }
+    },
+    "descriptors": {
+      "type": "object",
+      "description": "Comet-specific observational attributes as the source states them: tail_length, tail_zhang, duration_days, colour, direction. Free-form (schema does not enumerate sub-keys — see README for the vocabulary seen in the corpus)."
+    },
+    "extent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "first_seen": {"type": "string", "description": "ISO date the source gives for first appearance, when distinct from event_date."},
+        "end_text": {"type": "string", "description": "Verbatim disappearance clause, e.g. '四十日滅'."}
+      }
+    },
+    "significance": {
+      "enum": ["landmark", "notable"],
+      "description": "LOD ranking hint for the map's marker-thinning selector. Absent = ordinary record. 'minor'/'routine' (old values) are simply omitted; prose values must move to note."
+    },
+    "observation_status": {
+      "enum": ["observed", "predicted_unseen", "predicted_nonevent", "obscured", "unknown"],
+      "description": "Distinguishes eyewitness records from a predicted-but-unconfirmed astronomical-bureau ledger entry (推步 tuibu, computed rather than seen). 'obscured' is the third case: geometrically visible here, but the source itself says cloud hid it (陰雲不見). Absent = unasserted, NOT 'observed' — do not default it."
+    },
+    "text_orig": {
+      "type": "string",
+      "description": "The primary-source text verbatim, in its original script and language. The one field this whole schema exists to keep simple around."
+    },
+    "translit": {
+      "type": "string",
+      "description": "A romanization of text_orig (narrowed definition — NOT a place for source apparatus, machine boilerplate, or scholarly commentary; those belong in note). Present only for non-Latin-script originals where a romanization is meaningful and was authored."
+    },
+    "text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["zh-Hans"],
+      "properties": {
+        "zh-Hans": {"type": "string"}, "zh-Hant": {"type": "string"},
+        "en": {"type": "string"}, "fr": {"type": "string"},
+        "es": {"type": "string"}, "it": {"type": "string"}, "ja": {"type": "string"}
+      },
+      "description": "BCP-47-keyed translations, one prose rendering of text_orig per locale. zh-Hans is authoritative and required; the other 6 are filled by the multilingual build pass (the validator's completeness gate: once any record has fr, ALL must)."
+    },
+    "note": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "zh-Hans": {"type": "string"}, "zh-Hant": {"type": "string"},
+        "en": {"type": "string"}, "fr": {"type": "string"},
+        "es": {"type": "string"}, "it": {"type": "string"}, "ja": {"type": "string"}
+      },
+      "description": "Editorial annotation shown in the card's apparatus line (calendar-basis caveats, source provenance, textual cross-checks) — same locale-map shape as text, but optional and usually much shorter. Western locales must NOT fall back to zh-Hans (js/atlas.js noteLabel); they fall back to en only."
+    }
+  }
+}
