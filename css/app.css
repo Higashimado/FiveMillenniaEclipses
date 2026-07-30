@@ -15,6 +15,21 @@ body { height: 100vh; overflow: hidden; font-feature-settings: 'tnum' 1, 'lnum' 
 .num  { font-family: var(--font-text); font-feature-settings: 'tnum' 1, 'lnum' 1; }
 .multi{ font-family: var(--font-multi); }
 
+/* ---- Layout Budgets ---- */
+/* The shu'er (ear tab) width budget. Both #ev-strip and #ev-scrub are sized from it,
+   and the huamian column's floor is derived from it (see #frame), so the ear keeps its
+   full two-register width at every viewport: a narrow leaf clips the bankuang rather
+   than squeezing the ear's date/chronicle rows into an ellipsis. --ear-inset is the
+   ear's left offset plus the trailing gutter it keeps off the column edge.
+   See #ev-strip for what the 433px was measured against and how to re-measure it.
+   --huamian-min is the whole point: the map column's floor, and through #frame's
+   min-width the term that puts the ear into the leaf's overall minimum width. */
+:root {
+  --ear-w: 433px; --ear-inset: 40px;
+  --huamian-min: calc(var(--ear-w) + var(--ear-inset));
+  --rail-w: 344px; --frame-rule: 1.7px;
+}
+
 /* ---- Bankuang (Page-Frame) Container Model ---- */
 /* #app is the paper leaf, #frame the black-bordered container. Row 1 = shuming-ye
    (title band, topbar), row 2 = the frame; the 14px frame margin plus that top band
@@ -24,9 +39,18 @@ body { height: 100vh; overflow: hidden; font-feature-settings: 'tnum' 1, 'lnum' 
   display: grid; grid-template-rows: 68px 1fr;
 }
 #frame {
-  position: relative; margin: 0 14px 14px; border: 1.7px solid var(--frame, #443F33);
-  display: grid; grid-template-columns: 1fr 344px; grid-template-rows: 1fr 117px;
-  min-height: 0; min-width: 0; overflow: hidden;   /* huamian · banxin · banye / content · dijiao */
+  position: relative; margin: 0 14px 14px; border: var(--frame-rule) solid var(--frame, #443F33);
+  display: grid; grid-template-rows: 1fr 117px;
+  /* Floor the huamian column at the ear's budget rather than letting `1fr` collapse: the
+     ear measures itself off THIS column, not off the leaf, so an uncapped 1fr makes the
+     ear the first casualty of a narrow viewport. */
+  grid-template-columns: minmax(var(--huamian-min), 1fr) var(--rail-w);
+  /* State the leaf's minimum here, in the two column budgets plus the rule (border-box).
+     It cannot be inferred: overflow:hidden below zeroes a grid item's automatic minimum
+     size, so without this the frame reports a width narrower than the tracks it holds and
+     the banxin rail is silently clipped off the right edge instead of widening the leaf. */
+  min-width: calc(var(--huamian-min) + var(--rail-w) + 2 * var(--frame-rule));
+  min-height: 0; overflow: hidden;   /* huamian · banxin · banye / content · dijiao */
 }
 #frame::before {   /* inner thin rule: thick outer / thin inner (double rule, all four sides) */
   content: ""; position: absolute; inset: 3px; border: 0.7px solid var(--frame, #443F33);
@@ -596,11 +620,13 @@ mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 60
    (not eyeballed) — re-measured after ja picked up the kanji/digit spacing rule
    (req-3 below), which made ja's own BCE l1 the new widest realistic case (~253px:
    "紀元前 143 年 8 月 25 日 · 金環日食 · 食分 1.00", vs ~200px for a typical CE
-   entry like 1185 igor-1). 433px covers that with a small margin. text-overflow:
+   entry like 1185 igor-1). --ear-w covers that with a small margin. text-overflow:
    ellipsis (already in place) is the designed fallback for the rarer combinations
-   (e.g. a hybrid-type event at the corpus's deepest BCE end), not a width target. */
+   (e.g. a hybrid-type event at the corpus's deepest BCE end), not a width target.
+   The huamian column is floored at this budget (see #frame), so the min() below lands
+   on --ear-w at every viewport; the percentage arm is a guard, not the usual case. */
 #ev-strip { position: absolute; top: 0; left: 18px;
-  z-index: 1150; pointer-events: auto; width: min(433px, calc(100% - 40px));
+  z-index: 1150; pointer-events: auto; width: min(var(--ear-w), calc(100% - var(--ear-inset)));
   display: flex; align-items: stretch;
   background: var(--card, #F7F3EA); border: 1px solid var(--frame, #443F33); border-top: none;
   box-shadow: 0 1px 6px rgba(30,30,30,.08); white-space: nowrap; }
@@ -684,7 +710,7 @@ mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 60
    transparent, ear-width, left-aligned; the ⏵ sits under the "Today View" tab. `top` is
    set in js/ev-scrub.js to the ear's bottom (its height tracks the chronicle row). */
 #ev-scrub { position: absolute; left: 18px; z-index: 1150; pointer-events: auto;
-  width: min(433px, calc(100% - 40px)); background: none; }
+  width: min(var(--ear-w), calc(100% - var(--ear-inset))); background: none; }
 /* 20px sizes the ⏵ glyph itself, not text — outside the type scale by design. */
 .scrub-play { position: absolute; left: 0; top: 0; bottom: 0; z-index: 1;
   border: 0; background: none; padding: 0; margin: 0; cursor: pointer; line-height: 1;

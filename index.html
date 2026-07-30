@@ -9,7 +9,7 @@
   <meta name="description" content="An interactive atlas of historical astronomy phenomena across 5000 years.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="FiveMillenniaEclipses">
-  <meta property="og:title" content="五千年日月食 · Five Millennia of Eclipses">
+  <meta property="og:title" content="Five Millennia of Eclipses">
   <meta property="og:description" content="An interactive atlas of historical astronomy phenomena across 5000 years.">
   <meta property="og:url" content="https://Higashimado.github.io/FiveMillenniaEclipses/">
   <!-- Absolute, because a crawler resolves og:image against the sharer's URL
@@ -30,7 +30,7 @@
        document, so a mere mention gets rewritten instead of the real tag and
        every asset then resolves one directory too deep under /en/ …/ja/. -->
   <base href="./">
-  <title>五千年日月食 · Five Millennia of Eclipses</title>
+  <title>Five Millennia of Eclipses</title>
   <!-- The mark carries its own dark-scheme rule, so no second file and no
        media-scoped <link> pair: one SVG answers both tab strips. -->
   <link rel="icon" type="image/svg+xml" href="img/mark.svg">
@@ -69,7 +69,9 @@
       <!-- "FIVE MILLENNIA ECLIPSES" drops the "of" on purpose. This line is a mark, not a
            sentence: it matches the project's own name (FiveMillenniaEclipses) and the
            juxtaposition of 五千年日月食, which carries no connective either. Running prose
-           keeps the preposition — see <title>, og:title, and site.title/subtitle. -->
+           keeps the preposition — see site.title/subtitle.
+           The wordmark is also the ONLY bilingual rendering of the site name: the tab
+           title and og:title carry one language each, per shell. -->
       <div class="wordmark" lang="zh-Hans">五千年日月食<small lang="en">FIVE MILLENNIA ECLIPSES</small></div>
       <!-- Off-site links as jiehang (ruled columns): repository · guide · companion atlas.
            Labels are left empty here and filled by I18n.applyDOM(), so no one locale's

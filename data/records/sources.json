@@ -2862,7 +2862,7 @@
     },
     "songshu-luli-zhi": {
       "title": {
-        "zh-Hans": "《宋书·律曆志下》",
+        "zh-Hans": "《宋书·律历志下》",
         "zh-Hant": "《宋書·律曆志下》",
         "rom": "Songshu, \"Lüli zhi\""
       },
@@ -3392,7 +3392,7 @@
     },
     "jinshu-tianwen-zhi": {
       "title": {
-        "zh-Hans": "《晉书·天文志》",
+        "zh-Hans": "《晋书·天文志》",
         "zh-Hant": "《晉書·天文志》",
         "rom": "Jinshu, \"Tianwen zhi\"",
         "en": "Book of Jin, Treatise on Astronomy"
@@ -3416,7 +3416,7 @@
     },
     "lu-tong-yueshi": {
       "title": {
-        "zh-Hans": "《月蝕诗》",
+        "zh-Hans": "《月蚀诗》",
         "zh-Hant": "《月蝕詩》"
       },
       "author": [
@@ -3437,7 +3437,7 @@
     },
     "han-yu-yueshi": {
       "title": {
-        "zh-Hans": "《月蝕诗效玉川子作》",
+        "zh-Hans": "《月蚀诗效玉川子作》",
         "zh-Hant": "《月蝕詩效玉川子作》"
       },
       "author": [
