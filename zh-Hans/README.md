@@ -119,7 +119,7 @@
 
 | 用途 | 组件 (版本) | 作者 / 来源 | 许可 |
 |---|---|---|---|
-| 影锥几何 | AstroMeteoMap | Higashimado | GPL-3.0 |
+| 影锥几何 | [SubstellarAtlas](https://github.com/Higashimado/SubstellarAtlas) | Higashimado | GPL-3.0 |
 | 地图引擎 | [Leaflet](https://leafletjs.com/) 1.9.4 | Volodymyr Agafonkin | BSD-2-Clause |
 | 矢量渲染 | [MapLibre GL JS](https://maplibre.org/) 5.24.0 | MapLibre | BSD-3-Clause |
 | 图层桥接 | [maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet) 0.1.3 | MapLibre | ISC |

@@ -117,7 +117,7 @@ Le code propre au projet est publié sous [**GNU General Public License v3.0**](
 
 | Usage | Composant (version) | Auteur / Source | Licence |
 |---|---|---|---|
-| Géométrie d'ombre | AstroMeteoMap | Higashimado | GPL-3.0 |
+| Géométrie d'ombre | [SubstellarAtlas](https://github.com/Higashimado/SubstellarAtlas) | Higashimado | GPL-3.0 |
 | Moteur cartographique | [Leaflet](https://leafletjs.com/) 1.9.4 | Volodymyr Agafonkin | BSD-2-Clause |
 | Rendu vectoriel | [MapLibre GL JS](https://maplibre.org/) 5.24.0 | MapLibre | BSD-3-Clause |
 | Pont de couches | [maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet) 0.1.3 | MapLibre | ISC |

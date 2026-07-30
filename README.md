@@ -121,7 +121,7 @@ Five Millennia of Eclipses is a historical atlas of astronomical records. It gat
 
 | 用途 | 组件 (版本) | 作者 / 来源 | 许可 |
 |---|---|---|---|
-| 影锥几何 | AstroMeteoMap | Higashimado | GPL-3.0 |
+| 影锥几何 | [SubstellarAtlas](https://github.com/Higashimado/SubstellarAtlas) | Higashimado | GPL-3.0 |
 | 地图引擎 | [Leaflet](https://leafletjs.com/) 1.9.4 | Volodymyr Agafonkin | BSD-2-Clause |
 | 矢量渲染 | [MapLibre GL JS](https://maplibre.org/) 5.24.0 | MapLibre | BSD-3-Clause |
 | 图层桥接 | [maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet) 0.1.3 | MapLibre | ISC |
@@ -252,7 +252,7 @@ The project's own code is released under the [**GNU General Public License v3.0*
 
 | Purpose | Component (version) | Author / Source | License |
 |---|---|---|---|
-| Shadow geometry | AstroMeteoMap | Higashimado | GPL-3.0 |
+| Shadow geometry | [SubstellarAtlas](https://github.com/Higashimado/SubstellarAtlas) | Higashimado | GPL-3.0 |
 | Map engine | [Leaflet](https://leafletjs.com/) 1.9.4 | Volodymyr Agafonkin | BSD-2-Clause |
 | Vector rendering | [MapLibre GL JS](https://maplibre.org/) 5.24.0 | MapLibre | BSD-3-Clause |
 | Layer bridge | [maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet) 0.1.3 | MapLibre | ISC |

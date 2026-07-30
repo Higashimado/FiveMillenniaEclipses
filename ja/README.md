@@ -117,7 +117,7 @@
 
 | 用途 | コンポーネント（版） | 作者・出典 | ライセンス |
 |---|---|---|---|
-| 影錐幾何 | AstroMeteoMap | Higashimado | GPL-3.0 |
+| 影錐幾何 | [SubstellarAtlas](https://github.com/Higashimado/SubstellarAtlas) | Higashimado | GPL-3.0 |
 | 地図エンジン | [Leaflet](https://leafletjs.com/) 1.9.4 | Volodymyr Agafonkin | BSD-2-Clause |
 | ベクター描画 | [MapLibre GL JS](https://maplibre.org/) 5.24.0 | MapLibre | BSD-3-Clause |
 | レイヤー橋渡し | [maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet) 0.1.3 | MapLibre | ISC |
