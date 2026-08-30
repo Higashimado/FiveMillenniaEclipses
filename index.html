@@ -9,7 +9,7 @@
   <meta name="description" content="An interactive atlas of historical astronomy phenomena across 5000 years.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="FiveMillenniaEclipses">
-  <meta property="og:title" content="Five Millennia of Eclipses">
+  <meta property="og:title" content="Five Millennia Eclipses">
   <meta property="og:description" content="An interactive atlas of historical astronomy phenomena across 5000 years.">
   <meta property="og:url" content="https://Higashimado.github.io/FiveMillenniaEclipses/">
   <!-- Absolute, because a crawler resolves og:image against the sharer's URL
@@ -30,7 +30,7 @@
        document, so a mere mention gets rewritten instead of the real tag and
        every asset then resolves one directory too deep under /en/ …/ja/. -->
   <base href="./">
-  <title>Five Millennia of Eclipses</title>
+  <title>Five Millennia Eclipses</title>
   <!-- The mark carries its own dark-scheme rule, so no second file and no
        media-scoped <link> pair: one SVG answers both tab strips. -->
   <link rel="icon" type="image/svg+xml" href="img/mark.svg">
@@ -66,20 +66,21 @@
            never set this line box and the strut falls through to the generic serif, which
            the browser resolves BY lang. Inheriting the locale therefore moved the title's
            baseline 2px every time the reader switched language. -->
-      <!-- "FIVE MILLENNIA ECLIPSES" drops the "of" on purpose. This line is a mark, not a
-           sentence: it matches the project's own name (FiveMillenniaEclipses) and the
-           juxtaposition of 五千年日月食, which carries no connective either. Running prose
-           keeps the preposition — see site.title/subtitle.
-           The wordmark is also the ONLY bilingual rendering of the site name: the tab
-           title and og:title carry one language each, per shell. -->
+      <!-- "FIVE MILLENNIA ECLIPSES" carries no "of". The name is a mark, not a sentence:
+           it matches the project's own name (FiveMillenniaEclipses) and the juxtaposition
+           of 五千年日月食, which takes no connective either. site.title/subtitle spell it
+           the same way, so the wordmark, the tab and the og: card never disagree.
+           This wordmark is fixed bilingual whatever the reader's locale. The tab title
+           and the og: card are not: I18n.applyDOM() stamps both from site.title /
+           site.subtitle / site.tagline, so they follow a language switch made inside the
+           page instead of freezing on whichever shell the reader arrived through. -->
       <div class="wordmark" lang="zh-Hans">五千年日月食<small lang="en">FIVE MILLENNIA ECLIPSES</small></div>
       <!-- Off-site links as jiehang (ruled columns): repository · guide · companion atlas.
            Labels are left empty here and filled by I18n.applyDOM(), so no one locale's
            wording sits in the markup as a de-facto default.
            The guide's href is a {lang} template rather than a fixed URL because the README
            is per-locale and only i18n.js knows the active tag; it is written at applyDOM()
-           time and rewritten on every language switch. That README is not published yet,
-           so this link 404s until it is — nothing here changes when it lands. -->
+           time and rewritten on every language switch. -->
       <nav class="lnk-rule">
         <a href="https://github.com/Higashimado/FiveMillenniaEclipses" target="_blank" rel="noopener" data-i18n="ui.link.repo"></a>
         <a data-i18n-href="https://github.com/Higashimado/FiveMillenniaEclipses/blob/main/{lang}/README.md" target="_blank" rel="noopener" data-i18n="ui.link.docs"></a>
@@ -159,7 +160,7 @@
           <div id="reccount"></div>
         </div>
         <!-- Load-earlier / load-later chevrons flank #list; shown only in all-events mode.
-             Chevron SVGs ported from AstroMeteoMap loadMoreBtnHtml, reskinned. -->
+             Chevron SVGs ported from SubstellarAtlas loadMoreBtnHtml, reskinned. -->
         <button class="ec-load ec-load-earlier" id="ec-earlier" type="button" aria-label="加载更早" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"/></svg></button>
         <div class="list" id="list"></div>
         <button class="ec-load ec-load-later" id="ec-later" type="button" aria-label="加载更晚" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
@@ -190,7 +191,7 @@
   <script defer src="vendor/js/maplibre-gl-dates-1.3.0.js"></script>
   <script defer src="vendor/js/leaflet-maplibre-gl-0.1.3.min.js"></script>
 
-  <!-- Reused runtime (vendored from AstroMeteoMap) — the astronomy engine -->
+  <!-- Reused runtime (vendored from SubstellarAtlas) — the astronomy engine -->
   <script defer src="js/i18n.js?v=1"></script>
   <script defer src="js/geo-utils.js?v=1"></script>
   <script defer src="js/time.js?v=1"></script>
@@ -199,7 +200,7 @@
   <script defer src="js/glossary-tip.js?v=1"></script>
   <script defer src="js/ephem-correct.js?v=1"></script>
   <script defer src="js/eclipse-glyph.js?v=1"></script>
-  <script defer src="js/bessel-runtime.js?v=1"></script>
+  <script defer src="js/bessel-runtime.js?v=2"></script>
   <!-- Sun/Moon disk textures at their sub-points (footprint-scaled, phase-aware) -->
   <script defer src="js/body-markers.js?v=1"></script>
   <script defer src="js/envelope-ring.js?v=1"></script>

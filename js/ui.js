@@ -1,12 +1,10 @@
 /** ui.js — chrome that belongs to no single panel: the language switcher, the
  * out-of-window clamp notice, and the styled replacement for native <select>.
  *
- * NOT the time readout. This module once formatted the time bar into #tc-date /
- * #tc-time, but no such elements exist — the selected event's date is written by
- * atlas.js's shu'er strip, and astronomical → historical year conversion lives in
- * atlas.js displayYear(), which reads the atlas.year.bce/ce keys and so works in
- * all seven locales. The formatters here rendered English month names regardless
- * of locale and reached nothing.
+ * Dates belong to atlas.js, not here: the selected event's date is written by its shu'er
+ * strip, and the astronomical → historical year conversion is displayYear(), which reads
+ * the atlas.year.bce/ce keys and so speaks all seven locales. Any date formatter added
+ * here would be a second, divergent one.
  */
 
 const UI = (() => {
@@ -108,8 +106,7 @@ const UI = (() => {
           e.stopPropagation();
           sel.value = opt.value;
           sel.dispatchEvent(new Event('change', { bubbles: true }));
-          panel.hidden = true;
-          container.classList.remove('isel-open');
+          closePanel();
           panel.querySelectorAll('[aria-selected]').forEach((el) => el.removeAttribute('aria-selected'));
           li.setAttribute('aria-selected', 'true');
         });
@@ -118,7 +115,11 @@ const UI = (() => {
     }
 
     syncPanel();
+    // Re-read the options on both ways the <select> can change: repopulation (childList,
+    // e.g. OHM registering late) and a committed pick, so aria-selected keeps naming the
+    // row the control actually holds.
     new MutationObserver(syncPanel).observe(sel, { childList: true });
+    sel.addEventListener('change', syncPanel);
 
     container.addEventListener('click', (e) => {
       if (e.target === sel) return; // skip synthetic click bubbled from <label>→<select>
@@ -127,6 +128,7 @@ const UI = (() => {
         p.hidden = true;
       });
       document.querySelectorAll('.iconselect').forEach((c) => c.classList.remove('isel-open'));
+      document.querySelectorAll('.isel-cursor').forEach((li) => li.classList.remove('isel-cursor'));
       if (opening) {
         panel.hidden = false;
         container.classList.add('isel-open');
@@ -134,40 +136,51 @@ const UI = (() => {
     });
 
     document.addEventListener('click', (e) => {
-      if (!container.contains(e.target)) {
-        panel.hidden = true;
-        container.classList.remove('isel-open');
-      }
+      if (!container.contains(e.target)) closePanel();
     });
+
+    // Arrow keys move a cursor; only Enter/Space commits it. Clicking an option fires
+    // `change` AND closes the panel, so driving the arrows through click() would switch
+    // the locale or swap the basemap on every keystroke and shut the list on the first
+    // one — the reader could never browse to the row they wanted.
+    function moveCursor(dir) {
+      const items = [...panel.querySelectorAll('.isel-item')];
+      if (!items.length) return;
+      const cur = panel.querySelector('.isel-cursor') || panel.querySelector('[aria-selected="true"]');
+      const idx = cur ? items.indexOf(cur) : -1;
+      const next = dir > 0 ? items[idx + 1] || items[0] : items[idx - 1] || items[items.length - 1];
+      items.forEach((li) => li.classList.remove('isel-cursor'));
+      next.classList.add('isel-cursor');
+      next.scrollIntoView({ block: 'nearest' });
+    }
+
+    function closePanel() {
+      panel.hidden = true;
+      container.classList.remove('isel-open');
+      panel.querySelectorAll('.isel-cursor').forEach((li) => li.classList.remove('isel-cursor'));
+    }
 
     container.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        panel.hidden = true;
-        container.classList.remove('isel-open');
+        closePanel();
       } else if (e.key === 'Enter' || e.key === ' ') {
-        container.click();
+        // An open panel commits whatever the cursor is on; a closed one just opens.
+        const cur = panel.hidden ? null : panel.querySelector('.isel-cursor');
+        if (cur) cur.click();
+        else container.click();
         e.preventDefault();
       } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         if (panel.hidden) {
           panel.hidden = false;
           container.classList.add('isel-open');
         }
-        const items = [...panel.querySelectorAll('.isel-item')];
-        const cur = panel.querySelector('[aria-selected="true"]');
-        const idx = cur ? items.indexOf(cur) : -1;
-        const next = e.key === 'ArrowDown' ? items[idx + 1] || items[0] : items[idx - 1] || items[items.length - 1];
-        if (next) next.click();
+        moveCursor(e.key === 'ArrowDown' ? 1 : -1);
         e.preventDefault();
       }
     });
   }
 
   function init() {
-    try {
-      TimeState.setTimezone('UTC');
-    } catch (e) {
-      /* noop */
-    }
     _wireLang();
     if (TimeState.onRangeClamp) TimeState.onRangeClamp(_showClampHint);
     document.querySelectorAll('.iconselect').forEach(wrapIconSelect);

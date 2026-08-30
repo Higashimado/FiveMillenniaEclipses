@@ -62,7 +62,7 @@
 
   /**
    * Small-circle arc(s) for boundary rendering — ported verbatim from upstream
-   * AstroMeteoMap (see ATTRIBUTION.md). eclipse.js calls this for lunar
+   * SubstellarAtlas (see ATTRIBUTION.md). eclipse.js calls this for lunar
    * visibility hemispheres. Returns Array<Array<[lat,lng]>>; splits at the
    * antimeridian.
    */
@@ -110,8 +110,8 @@
   function buildMap() {
     const map = L.map('map', {
       worldCopyJump: false,
-      minZoom: 3, // matches AstroMeteoMap: can't zoom out past the world window
-      maxZoom: 19, // ceiling shared by AMM and every base layer's native/upsampled zoom
+      minZoom: 3, // matches SubstellarAtlas: can't zoom out past the world window
+      maxZoom: 19, // ceiling shared by SA and every base layer's native/upsampled zoom
       zoomControl: false, // default top-left paints UNDER the 68px topbar (z 1300 vs 0)
       maxBounds: [
         [-90, MAP_LNG_WEST],

@@ -2,18 +2,13 @@
   "_meta": {
     "title": "Civilization names in seven languages",
     "scope": "Display names for every civilization key used by the record corpus. Names only; the colours and ornaments a reader may see next to them are not part of this table.",
-    "fields": "key = civilization identifier. zh-Hans = Simplified Chinese. zh-Hant = Traditional Chinese. en = English display name. fr = French. es = Spanish. it = Italian. ja = Japanese.",
+    "fields": "key = civilization identifier. zh-Hans = Simplified Chinese. zh-Hant = Traditional Chinese. en = English display name. fr = French. es = Spanish. it = Italian. ja = Japanese. eras = optional list of era-specific name overrides, each carrying the same seven locale keys plus a half-open astronomical-year range [since, until); a record dated inside the range wears the override, every other record wears the row's own span name.",
     "provenance": "Hand-compiled. Names follow the usage established in historical and astronomical scholarship in each language. Japanese prefers kanji, with katakana used for Indo-European names that have no kanji form.",
     "count": {
-      "civs": 28
+      "civs": 33
     },
     "license": "CC-BY-SA-4.0",
-    "updated": "2026-07-27",
-    "caveats": [
-      "en is a display name and may use a conventional short form such as HRE or Syriac. It is neither a literal translation nor a romanisation.",
-      "The european key is a dormant fallback. It has been split into byzantine, italian, iberian, french, british, germanic, norse and slavic, and no record uses it.",
-      "arab names the culture rather than a religion, and the Japanese form is アラビア (civilization) rather than アラブ (people or polity)."
-    ]
+    "updated": "2026-08-28"
   },
   "civs": {
     "chinese": {"zh-Hans": "中华", "zh-Hant": "中華", "en": "China", "fr": "Chine", "es": "China", "it": "Cina", "ja": "中国"},
@@ -35,14 +30,19 @@
     "iberian": {"zh-Hans": "伊比利亚", "zh-Hant": "伊比利亞", "en": "Iberia", "fr": "Ibérie", "es": "Iberia", "it": "Iberia", "ja": "イベリア"},
     "french": {"zh-Hans": "法兰西", "zh-Hant": "法蘭西", "en": "France", "fr": "France", "es": "Francia", "it": "Francia", "ja": "フランス"},
     "british": {"zh-Hans": "不列颠", "zh-Hant": "不列顛", "en": "Britain", "fr": "Bretagne", "es": "Bretaña", "it": "Britannia", "ja": "ブリテン"},
+    "netherlandish": {"zh-Hans": "尼德兰", "zh-Hant": "尼德蘭", "en": "Low Countries", "fr": "Pays-Bas", "es": "Países Bajos", "it": "Paesi Bassi", "ja": "ネーデルラント"},
     "germanic": {"zh-Hans": "神圣罗马", "zh-Hant": "神聖羅馬", "en": "HRE", "fr": "Saint-Empire", "es": "Sacro Imperio", "it": "Sacro Romano Impero", "ja": "神聖ローマ"},
-    "norse": {"zh-Hans": "北欧", "zh-Hant": "北歐", "en": "Norse", "fr": "Nordique", "es": "Nórdico", "it": "Norreno", "ja": "北欧"},
+    "german": {"zh-Hans": "德意志", "zh-Hant": "德意志", "en": "Germany", "fr": "Allemagne", "es": "Alemania", "it": "Germania", "ja": "ドイツ"},
+    "austrian": {"zh-Hans": "奥地利", "zh-Hant": "奧地利", "en": "Austria", "fr": "Autriche", "es": "Austria", "it": "Austria", "ja": "オーストリア"},
+    "swiss": {"zh-Hans": "瑞士", "zh-Hant": "瑞士", "en": "Switzerland", "fr": "Suisse", "es": "Suiza", "it": "Svizzera", "ja": "スイス"},
+    "hungarian": {"zh-Hans": "匈牙利", "zh-Hant": "匈牙利", "en": "Hungary", "fr": "Hongrie", "es": "Hungría", "it": "Ungheria", "ja": "ハンガリー"},
+    "polish": {"zh-Hans": "波兰", "zh-Hant": "波蘭", "en": "Poland", "fr": "Pologne", "es": "Polonia", "it": "Polonia", "ja": "ポーランド"},
+    "norse": {"zh-Hans": "北欧", "zh-Hant": "北歐", "en": "Nordic", "fr": "Nordique", "es": "Nórdico", "it": "Nordico", "ja": "北欧", "eras": [{"until": 1500, "zh-Hans": "古北欧", "zh-Hant": "古北歐", "en": "Norse", "fr": "Norrois", "es": "Nórdico antiguo", "it": "Norreno", "ja": "古ノルド"}]},
     "slavic": {"zh-Hans": "斯拉夫", "zh-Hant": "斯拉夫", "en": "Slavic", "fr": "Slave", "es": "Eslavo", "it": "Slavo", "ja": "スラブ"},
-    "russian": {"zh-Hans": "俄罗斯", "zh-Hant": "俄羅斯", "en": "Russia", "fr": "Russie", "es": "Rusia", "it": "Russia", "ja": "ロシア"},
     "mayan": {"zh-Hans": "玛雅", "zh-Hant": "瑪雅", "en": "Maya", "fr": "Maya", "es": "Maya", "it": "Maya", "ja": "マヤ"},
     "aztec": {"zh-Hans": "阿兹特克", "zh-Hant": "阿茲特克", "en": "Aztec", "fr": "Aztèque", "es": "Azteca", "it": "Azteco", "ja": "アステカ"},
     "american": {"zh-Hans": "美利坚", "zh-Hant": "美利堅", "en": "America", "fr": "Amérique", "es": "América", "it": "America", "ja": "アメリカ"},
-    "latin": {"zh-Hans": "拉丁美洲", "zh-Hant": "拉丁美洲", "en": "Latin America", "fr": "Amérique latine", "es": "América Latina", "it": "America Latina", "ja": "ラテンアメリカ"},
-    "european": {"zh-Hans": "欧洲", "zh-Hant": "歐洲", "en": "Europe", "fr": "Europe", "es": "Europa", "it": "Europa", "ja": "ヨーロッパ"}
+    "canadian": {"zh-Hans": "加拿大", "zh-Hant": "加拿大", "en": "Canada", "fr": "Canada", "es": "Canadá", "it": "Canada", "ja": "カナダ"},
+    "latin-american": {"zh-Hans": "拉丁美洲", "zh-Hant": "拉丁美洲", "en": "Latin America", "fr": "Amérique latine", "es": "América Latina", "it": "America Latina", "ja": "ラテンアメリカ"}
   }
 }

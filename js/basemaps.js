@@ -1,17 +1,16 @@
-/** basemaps.js — light-first base tile layers + topbar layer switcher (NEW).
+/** basemaps.js — the light base tile layers and the topbar layer switcher.
  *
- * Builds the basemap group and drives the topbar layer <select> (#layer-select
- * in index.html) via selectBase(). We switch layers programmatically (no on-map
- * L.control.layers), so selectBase() owns the whole swap itself rather than
- * relying on Leaflet's `baselayerchange` event (which only fires from a
- * layers-control input).
+ * Builds the basemap group and drives the topbar layer <select> (#layer-select in
+ * index.html) through selectBase(). Layers are switched programmatically and there is no
+ * on-map L.control.layers, so selectBase() must own the whole swap itself: Leaflet fires
+ * `baselayerchange` only from a layers-control input, and nothing here would hear it.
  *
- * Default basemap is OpenHistoricalMap — a TIME-AWARE VECTOR basemap (MapLibre
- * GL), bound via maplibre-gl-leaflet (L.maplibreGL). The user asked for
- * "OpenHistoryMap"; openhistorymap.org publishes no clean style URL, whereas the
- * sibling OpenHistoricalMap ships a canonical, CDN-hosted MapLibre style + CC0
- * vector tiles — so we use that. If the MapLibre stack or the style fails to
- * load, OHM is dropped / falls back to Carto Positron so the map is never blank.
+ * The default is OpenHistoricalMap, a TIME-AWARE VECTOR basemap (MapLibre GL) bound via
+ * maplibre-gl-leaflet (L.maplibreGL) and sliced to the timeline's year. It is the only
+ * basemap whose borders and place names track the date the reader is looking at. Its
+ * stack loads async, so it is usually absent at init and is promoted late; whenever the
+ * stack or the style fails, the layer is dropped for Carto Positron so the map is never
+ * blank.
  *
  * Public API:
  *   Basemaps.init(map) -> { selectBase, chooseBase, getBase }
@@ -25,6 +24,15 @@ const Basemaps = (() => {
 
   const ATTR_OSM = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
   const ATTR_CARTO = ATTR_OSM + ' © <a href="https://carto.com/">CARTO</a>';
+  // Carto's raster basemaps are keyed now, and served from ONE host — the a/b/c/d
+  // sharded subdomains the old URLs used are gone, so `{s}` must not appear here.
+  // This is a client-side basemap key: it ships in the page and is meant to, the way
+  // every web-map tile key does. Rotating it is a one-line change because both styles
+  // are built from _carto() rather than each carrying their own copy of the URL.
+  // {r} is kept — the keyed endpoint serves @2x, so hi-DPI screens still get real
+  // retina tiles rather than upscaled ones.
+  const CARTO_KEY = 'cb1_29kp_1_aeab4d954a96fb23556da6bb';
+  const _carto = (style) => 'https://basemaps.cartocdn.com/' + style + '/{z}/{x}/{y}{r}.png?key=' + CARTO_KEY;
   // OHM's dataset is its own CC0-licensed fork, independently edited since the
   // split — it doesn't track upstream OSM copyright, so crediting OSM alongside
   // it would be misleading; OHM's own contributors are the correct credit.
@@ -34,26 +42,59 @@ const Basemaps = (() => {
   // ---- OHM time-slice filtering ----
   // OHM's "main" style draws every historical period at once. The
   // maplibre-gl-dates plugin patches maplibregl.Map with filterByDate(date),
-  // hiding features whose start_decdate/end_decdate don't bracket the date. We
-  // drive it from TimeState.current so the basemap follows the timeline; the
+  // hiding features whose start_decdate/end_decdate don't bracket the date. The
   // plugin accepts a Date object and supports negative (BCE) years directly.
+  //
+  // Two clocks feed it, and which one is authoritative depends on the selection:
+  //   event selected → TimeState.current, the intraday instant that also drives the
+  //                    shadow geometry, so basemap and umbra agree.
+  //   nothing selected → the lizhou needle's year (Atlas.focusYear). TimeState then
+  //                    holds the LIVE WALL CLOCK, which is meaningless for a
+  //                    -3000…1999 atlas: the needle at -762 would still be read
+  //                    against 21st-century borders.
+  // Coverage note, not a defect: OHM carries very little before ~1500, so deep
+  // antiquity slices down to the undated features (water, coastline) alone.
   let _dateDebounce = null;
+  let _lastOhmDate = null;
 
   function _currentDate() {
+    const sel = window.EclipseLoader && EclipseLoader.selected && EclipseLoader.selected();
+    if (!sel && window.Atlas && Atlas.focusYear) {
+      // Build the instant by mutating an epoch Date: Date.UTC(y, …) remaps years
+      // 0–99 into 1900–1999, which would silently misdate a third of the atlas.
+      // Mid-year, so the slice never straddles a year boundary.
+      const d = new Date(0);
+      d.setUTCFullYear(Atlas.focusYear(), 6, 1);
+      return d;
+    }
     return typeof TimeState !== 'undefined' && TimeState ? TimeState.current : null;
   }
 
   // Apply the current timeline date to one GL map. No-op (guarded) if the
   // plugin didn't load or the date is unavailable.
+  //
+  // Idempotence is load-bearing, not tidiness: filterByDate walks every style layer
+  // and setFilter()s each one, while the notifications arriving here fire on every
+  // marker redraw and every pointermove of a needle drag. Skipping an unchanged
+  // slice makes over-notification free, so no caller has to judge which of its
+  // state changes is "worth" a refilter.
   function _applyOhmDate(gl) {
     if (!gl || typeof gl.filterByDate !== 'function') return;
     const d = _currentDate();
     if (!d) return;
+    const stamp = d.getTime();
+    if (stamp === _lastOhmDate) return;
     try {
       gl.filterByDate(d);
     } catch (e) {
-      /* style not ready / no dated layers */
+      // Stamp ONLY on success. A throw here (style layers not queryable yet) must
+      // stay retryable: a cold load applies the slice exactly once, from a single
+      // style.load, and the needle then sits still — so a stamp written ahead of
+      // the call would latch the failure for the whole session and leave every
+      // OHM period drawn at once.
+      return;
     }
+    _lastOhmDate = stamp;
   }
 
   // Grab OHM's inner GL map and apply the current date once its style is loaded.
@@ -65,18 +106,32 @@ const Basemaps = (() => {
   function _bindOhmDate(ohm) {
     const gl = ohm && ohm.getMaplibreMap && ohm.getMaplibreMap();
     if (!gl) return;
+    // This is the fresh-GL-map entry point, and a fresh map carries no filters —
+    // so the idempotence stamp has to be dropped here or the re-added layer would
+    // be skipped as "already at that date" and render unsliced.
+    _lastOhmDate = null;
     if (gl.isStyleLoaded && gl.isStyleLoaded()) {
       _applyOhmDate(gl);
     } else {
       gl.once('style.load', () => _applyOhmDate(gl));
     }
+    // Second, later shot at the same slice. `idle` follows the first complete
+    // render, by which point the layer list is certainly queryable; if style.load
+    // already succeeded the stamp makes this free. Without it the cold-load slice
+    // rests on one event firing at exactly the right moment.
+    if (gl.once) gl.once('idle', () => _applyOhmDate(gl));
   }
 
-  // ---- Chrome-skin axis (spec M0) ----
-  // The three LIGHT skins (song / azurite / sutra) are selected via
-  // body[data-skin] (css/tokens.css) — the only chrome-colour axis FME has (no
-  // dark theme). Persisted to localStorage; restored on boot. 'song'
-  // (Song-painting light-wash, dan-shese) is the default.
+  // ---- Chrome-skin axis ----
+  // The three LIGHT skins (song / azurite / sutra) are selected via body[data-skin]
+  // (css/tokens.css) — the only chrome-colour axis this atlas has, and not a dark theme:
+  // all three are light. Persisted to localStorage and restored on boot, with 'song'
+  // (Song-painting light-wash, dan-shese) as the default.
+  //
+  // setSkin/getSkin/SKINS are exported but NOTHING in the page calls them: there is no
+  // skin control in the chrome, by design, so the switch is Basemaps.setSkin('azurite')
+  // from the console and the reader's choice is whatever localStorage already holds.
+  // Do not read the exports as evidence of a control that got lost — none was built.
   const SKINS = ['song', 'azurite', 'sutra'];
   const SKIN_KEY = 'fme.skin';
 
@@ -131,13 +186,11 @@ const Basemaps = (() => {
   function init(map) {
     initSkin(); // restore/default the chrome skin before any skin-coloured draw
 
-    const positron = _raster('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd',
+    const positron = _raster(_carto('light_all'), {
       maxZoom: 20,
       attribution: ATTR_CARTO,
     });
-    const voyager = _raster('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd',
+    const voyager = _raster(_carto('rastertiles/voyager'), {
       maxZoom: 20,
       attribution: ATTR_CARTO,
     });
@@ -234,7 +287,13 @@ const Basemaps = (() => {
         console.warn('[Basemaps] OpenHistoricalMap failed; fell back to Carto Positron.');
         selectBase('positron');
       };
-      map.whenReady(() => {
+
+      // Bind on the layer's own `add`, not on map.whenReady: the map is already
+      // ready by the time init runs (buildMap setView's it), so whenReady fires
+      // synchronously — before this layer is ever added — and getMaplibreMap()
+      // would hand back nothing, silently dropping both the GL error fallback and
+      // the first time-slice filter.
+      const onAdd = () => {
         try {
           const gl = layer.getMaplibreMap && layer.getMaplibreMap();
           if (gl && gl.on) gl.on('error', fallback);
@@ -242,19 +301,24 @@ const Basemaps = (() => {
           /* ignore — fallback also covers construct issues */
         }
         _bindOhmDate(layer); // initial time-slice filter
-      });
+      };
+      layer.on('add', onAdd);
+      if (map.hasLayer(layer)) onAdd();
 
-      // Re-filter when the timeline moves. Debounced — the slider fires fast and
-      // filterByDate walks every style layer. Only runs while OHM is shown.
-      if (typeof TimeState !== 'undefined' && TimeState.subscribe) {
-        TimeState.subscribe(() => {
-          if (!map.hasLayer(layer)) return;
-          if (_dateDebounce) clearTimeout(_dateDebounce);
-          _dateDebounce = setTimeout(() => {
-            _applyOhmDate(layer.getMaplibreMap && layer.getMaplibreMap());
-          }, 180);
-        });
-      }
+      // Re-filter when either clock moves. Debounced — the scrubber and the needle
+      // drag both fire fast and filterByDate walks every style layer. Only runs
+      // while OHM is shown. Both subscriptions share ONE debounce: they feed the
+      // same slice, and _currentDate re-reads which clock is authoritative at fire
+      // time, so whichever fired last is irrelevant.
+      const scheduleDate = () => {
+        if (!map.hasLayer(layer)) return;
+        if (_dateDebounce) clearTimeout(_dateDebounce);
+        _dateDebounce = setTimeout(() => {
+          _applyOhmDate(layer.getMaplibreMap && layer.getMaplibreMap());
+        }, 180);
+      };
+      if (typeof TimeState !== 'undefined' && TimeState.subscribe) TimeState.subscribe(scheduleDate);
+      if (window.Atlas && Atlas.subscribeFocus) Atlas.subscribeFocus(scheduleDate);
     }
 
     if (ohm) _wireOhmRuntime(ohm);

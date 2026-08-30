@@ -39,7 +39,7 @@ const Eclipse = (() => {
   // frozen: finer steps only insert invisible collinear vertices, so a zoomend
   // beyond Z_CAP that changes neither the instant nor zEff can be skipped by
   // redrawShadow's zoom-reuse gate. Module-scoped so renderSolarShadow and the
-  // gate share the one constant. (See AstroMeteoMap eclipse.js:38.)
+  // gate share the one constant. (Shared with the companion atlas.)
   const Z_CAP = 9;
   // Per-instant memo of the marching-squares iso/penumbra chains: a function of the
   // Bessel elements (b), so a zoom-only redraw of the same instant + ephemeris
@@ -78,10 +78,10 @@ const Eclipse = (() => {
 
   // ---- Data loading ----
 
-  // Adopt EclipseLoader's catalog once it is populated. besselPolys stays lazily
-  // filled per event from events/<date>.json (see loadCurvesFor) — the old eager
-  // data/eclipses/bessel-poly.json (4 events, no writer, a 2.9 MB liability at full
-  // coverage) is retired; every event now carries its NASA elements in its own file.
+  // Adopt EclipseLoader's catalog once it is populated. besselPolys stays lazily filled
+  // per event from events/<date>.json (see loadCurvesFor): every event carries its own
+  // NASA elements, so there is no shared elements blob to load up front and none should
+  // be reintroduced — at full coverage it would be megabytes fetched to read one event.
   function loadData(cb) {
     if (_loaded) {
       cb && cb();
@@ -202,7 +202,7 @@ const Eclipse = (() => {
     return null;
   }
 
-  // ---- Local circumstances & forecast (ported verbatim from AstroMeteoMap) ----
+  // ---- Local circumstances & forecast (ported verbatim from SubstellarAtlas) ----
   //
   // Per-observer geometry for the click-a-point observation popup: which phase a
   // location would witness (classifySolar / classifyLunar), the observer's own
@@ -1307,8 +1307,8 @@ const Eclipse = (() => {
   // those bounds — otherwise the eclipse only shows in one of the wraps.
   // ±360° is enough since the span is just under 2 full worlds.
   function addPolyline(pts, opts, layer, tooltip) {
-    // Route event polylines through eclipse-curves(z=628) by default; shadow
-    // callers override with pane:'eclipse-shadow'(z=629) so the real-time wash
+    // Route event polylines through eclipse-curves(z=593) by default; shadow
+    // callers override with pane:'eclipse-shadow'(z=594) so the real-time wash
     // sits above the historical contact curves.
     // smoothFactor:0 — keep every vertex we computed; the default Leaflet value
     // of 1 would apply Douglas-Peucker with a 1px on-screen tolerance and silently
@@ -1369,7 +1369,7 @@ const Eclipse = (() => {
       const shifted = w === 0 ? norm : norm.map((p) => (p == null || p[1] == null ? p : [p[0], p[1] + w * 360]));
       const segments = splitAtAntimeridian(shifted);
       for (const seg of segments) {
-        // Casing: a solid paper ribbon in the dedicated underlay pane (z=627,
+        // Casing: a solid paper ribbon in the dedicated underlay pane (z=592,
         // one below eclipse-curves) so ALL halos sit under ALL colored strokes
         // — same-pane interleaving would let a later curve's halo overpaint an
         // earlier curve's stroke where they cross. Solid even under dashed
@@ -1884,18 +1884,20 @@ const Eclipse = (() => {
   function init(map) {
     _map = map; // expose for addPolyline's viewport-wrap culling
     // Create eclipse panes eagerly so drawSolarContactCurves can always use them.
-    // z-order: eclipse-curves-halo(627) < eclipse-curves(628) < eclipse-shadow(629) < eclipse-markers(630) < eclipse-labels(631)
+    // z-order: eclipse-curves-halo(592) < eclipse-curves(593) < eclipse-shadow(594) < eclipse-markers(595) < eclipse-labels(596).
+    // The whole block sits BELOW Leaflet's markerPane(600): record seals must be
+    // clickable and never buried under a contact curve or a shadow wash.
     if (!map.getPane('eclipse-shadow')) {
       // One of the highest eclipse panes: real-time shadow fills (penumbra
       // gradient, iso-mag rings, umbra polygon) sit above the cached contact
       // curves so the live shadow wash is never buried under the historical path.
       map.createPane('eclipse-shadow');
-      map.getPane('eclipse-shadow').style.zIndex = 629;
+      map.getPane('eclipse-shadow').style.zIndex = 594;
       map.getPane('eclipse-shadow').style.pointerEvents = 'none';
     }
     if (!map.getPane('eclipse-curves')) {
       map.createPane('eclipse-curves');
-      map.getPane('eclipse-curves').style.zIndex = 628; // above twilight-mask(612) + coord grids
+      map.getPane('eclipse-curves').style.zIndex = 593;
       // Curves are added with interactive:false; keep the pane itself click-
       // through too (it floats above grids/UI) so it never steals pointer events.
       map.getPane('eclipse-curves').style.pointerEvents = 'none';
@@ -1904,21 +1906,21 @@ const Eclipse = (() => {
       // Underlay pane for curve casings + the umbral band wash: one z below the
       // strokes so every halo/fill stays beneath every colored line.
       map.createPane('eclipse-curves-halo');
-      map.getPane('eclipse-curves-halo').style.zIndex = 627;
+      map.getPane('eclipse-curves-halo').style.zIndex = 592;
       map.getPane('eclipse-curves-halo').style.pointerEvents = 'none';
     }
     if (!map.getPane('eclipse-markers')) {
       // Point markers (greatest-eclipse ✶) must sit above shadow fills and curve strokes.
       map.createPane('eclipse-markers');
-      map.getPane('eclipse-markers').style.zIndex = 630;
+      map.getPane('eclipse-markers').style.zIndex = 595;
       map.getPane('eclipse-markers').style.pointerEvents = 'none';
     }
     if (!map.getPane('eclipse-labels')) {
       // Text labels (iso-mag contour values, edge labels) must sit above every line
       // type and point marker so they are never painted over by geometry added later
-      // in the same pane. Pane z=631 beats eclipse-markers(630) and eclipse-curves(629).
+      // in the same pane. Pane z=596 beats eclipse-markers(595) and eclipse-shadow(594).
       map.createPane('eclipse-labels');
-      map.getPane('eclipse-labels').style.zIndex = 631;
+      map.getPane('eclipse-labels').style.zIndex = 596;
       map.getPane('eclipse-labels').style.pointerEvents = 'none';
     }
 
@@ -1949,7 +1951,7 @@ const Eclipse = (() => {
     // Sun/Moon disk textures at their sub-points (js/body-markers.js). Own group
     // so it lives independently of _shadowGroup's solar/zoom gate — the disks must
     // repaint on BOTH time and zoom (their px size follows zoom), for solar AND
-    // lunar events alike. Markers land in the eclipse-markers pane (z 630), above
+    // lunar events alike. Markers land in the eclipse-markers pane (z 595), above
     // the shadow band, so paint order is fine regardless of layer-add order.
     let _bodyGroup = null;
 

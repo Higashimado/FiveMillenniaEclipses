@@ -8,7 +8,7 @@
  * eclipse of each kind visible from that point.
  *
  * All geometry is delegated to EclipseCtl (classifySolar / solarLocalContacts /
- * classifyLunar / nextVisible — ported from AstroMeteoMap), which runs the SAME
+ * classifyLunar / nextVisible — ported from SubstellarAtlas), which runs the SAME
  * Besselian evaluator as the drawn footprint. This file is presentation only.
  *
  * Forecast rows carry data-ecl-date / data-ecl-kind; the map wires them to

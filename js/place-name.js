@@ -114,7 +114,10 @@ window.PlaceName = (function () {
       return {
         tier: 'site',
         name: I18n.pick(site.e.name, loc),
-        modern: I18n.pick(site.e.modern, loc),
+        // pickDistinct, not pick: a locale in which the place was never renamed
+        // resolves `modern` back to the historical name, and the caller would then
+        // print the name twice.
+        modern: I18n.pickDistinct(site.e.modern, site.e.name, loc),
       };
     }
     const reg = nearest(_regions, lat, lng);

@@ -8,13 +8,7 @@
       "anchors": 124
     },
     "license": "CC-BY-SA-4.0",
-    "updated": "2026-07-27",
-    "caveats": [
-      "Naming is approximate by design, and no boundary is implied.",
-      "since is inclusive and given in astronomical years: a year below since resolves to before.name, any other year to the main name.",
-      "Long-lived geographic and cultural names such as Persia, Egypt, India, Greece, Italy and Iberia carry no timeline.",
-      "Where a timeline is present, the cutoff year is a conventional round figure rather than a documented date."
-    ]
+    "updated": "2026-07-27"
   },
   "anchors": [
     {"name": {"zh-Hans": "蒙古高原", "zh-Hant": "蒙古高原", "en": "Mongolian Plateau", "fr": "Plateau mongol", "es": "Meseta de Mongolia", "it": "Altopiano mongolo", "ja": "モンゴル高原"}, "lat": 47, "lon": 105},

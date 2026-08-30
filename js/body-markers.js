@@ -1,7 +1,7 @@
 /**
  * body-markers.js — Sun & Moon disk textures at their sub-points.
  *
- * Ported from AstroMeteoMap (see ATTRIBUTION.md): the footprint-sized disk
+ * Ported from SubstellarAtlas (see ATTRIBUTION.md): the footprint-sized disk
  * markers, the phase-aware moon disk, and the sun's large↔xlarge level-of-detail
  * swap. The glow/glare canvas, day-mode bloom and distance z-sort are deliberately
  * NOT ported — they belong to a luminosity model this project does not have.

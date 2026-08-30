@@ -28,22 +28,38 @@ const Atlas = (() => {
     SPAN = Y1 - Y0;
   const normYear = (y) => (y - Y0) / SPAN;
 
-  // ---- Dynamic LOD: cap on-map markers by importance × viewport × time-span ----
+  // ---- Dynamic LOD: thin on-map markers by importance × zoom, never by viewport ----
   // Pure render-layer selection — the corpus is never thinned at curation
   // (see yingshoujinshou (collect all available) data philosophy); density is solved here, at draw time.
-  const MARKER_BUDGET = 240; // hard cap on simultaneous map markers (tune for perf)
-  const VIEW_MARGIN = 0.25; // pad viewport bounds by this fraction before culling
-  // zoom → { cell: screen-grid cell size px, k: max markers kept per cell }
-  const LOD = (z) =>
-    z <= 4
-      ? { cell: 64, k: 1 }
-      : z === 5
-        ? { cell: 56, k: 1 }
-        : z === 6
-          ? { cell: 52, k: 2 }
-          : z === 7
-            ? { cell: 48, k: 2 }
-            : { cell: 44, k: 3 };
+  //
+  // The kept set is a function of (filters, time range, zoom) ALONE. Nothing about
+  // where the view happens to sit may enter it: a reader panning east must not see
+  // Europe's seals thin out because East Asia's dense capitals came into frame.
+  // The viewport is applied afterwards, and only as a draw-time clip — plus the one
+  // rule that is viewport-scoped by nature, rescueCivs, which only ever adds.
+  //
+  // CELL is a CONSTANT number of world pixels at every zoom, and that constant is
+  // the whole reason zooming in never removes a seal: one zoom step doubles world
+  // pixel coordinates, so the same constant-pixel grid at z+1 is an exact 2x2
+  // refinement of the grid at z. A cell's members at z are the union of its four
+  // sub-cells' members at z+1, so the cell's representative is still first in its
+  // own sub-cell. Keep LOD_K non-decreasing in z and the kept set can only grow.
+  // Never make the cell size vary with zoom — that breaks the refinement and makes
+  // seals vanish on the way in.
+  // CELL is also the minimum screen gap between two seals. A seal is 22px and its
+  // count badge overhangs to roughly a 30px box, so 32 is the floor: go lower and
+  // neighbouring seals start covering each other's badges.
+  const CELL = 32; // world-pixel grid cell (constant across zoom — see above)
+  const LOD_K = (z) => (z <= 4 ? 1 : z <= 6 ? 2 : z <= 8 ? 3 : 5); // sites kept per cell
+  // Two-box hysteresis. A marker is BUILT once its site is within VIEW_MARGIN of the
+  // view and DESTROYED only once it leaves EVICT_MARGIN, so a pan that crosses the
+  // admit edge and comes back reuses the DOM instead of rebuilding every seal's
+  // inline SVG. Both are fractions of the view's own width/height, per side.
+  const VIEW_MARGIN = 0.6;
+  const EVICT_MARGIN = 1.2;
+  // A seal fades out over this long before its marker is removed; the same duration
+  // is set on .rec-mk in css/app.css and the two must stay in step.
+  const FADE_MS = 200;
   // importance weights — `significance` is sparse (38/1302), so derive a
   // composite that also protects rare civs (geographic diversity) and rewards
   // multi-vantage events (yishi-duozheng (one event, multiple witnesses)), the project's core value.
@@ -66,6 +82,12 @@ const Atlas = (() => {
     const corrob = Math.min((vantage - 1) * 25, 100);
     return (SIG_W[r.sig] || 0) + (CONF_W[r.conf] || 0) + rarityW(civCount) + corrob + jitter(r.id);
   }
+
+  // Stack depth as a coarse tier, not a raw count, and it feeds the LOD ranking
+  // ONLY. A deep site outranks a one-record neighbour inside its own cell and
+  // nowhere else: depth decides whether a place is drawn, never how many other
+  // places are. Capped below SIG_W.landmark so it can never outweigh significance.
+  const depthW = (n) => Math.min(Math.floor(Math.log2(Math.max(1, n))) * 80, 320);
 
   // ---- i18n: locale-scoped era ribbons (one family per UI language) ----
   const RIBBONS = {
@@ -210,6 +232,66 @@ const Atlas = (() => {
   const _gloss = (slug) => (typeof I18n !== 'undefined' && I18n.glossAttr ? I18n.glossAttr(slug) : '');
   const highlightPhrase = (s) => _esc(s).replace(ECLIPSE_RE, (m) => '<mark class="hl">' + m + '</mark>');
   const _hasCJK = (s) => /[㐀-鿿぀-ヿ가-힣]/.test(String(s || ''));
+
+  // Paragraph breaks in a source are the source's own: a newspaper report keeps the
+  // paper's paragraphing, and a reader needs to see where one paragraph ends. Give each
+  // its own block so the gap between paragraphs can be set wider than the gap between
+  // lines. Left in one text node the browser folds the break into a space and the report
+  // comes out as a single wall of type. Split before rendering, never after: the phrase
+  // highlighter emits markup, and splitting markup on a newline can cut a tag in half.
+  // A row of a table the source itself set: cells parted by a pipe, as the transcription
+  // of ruled column work renders them. Two pipes minimum, so a sentence that happens to
+  // carry one is never mistaken for tabular matter.
+  const _isRow = (s) => (s.match(/[|\uff5c]/g) || []).length >= 2;
+  const _cells = (s) => s.split(/\s*[|\uff5c]\s*/).map((c) => c.trim());
+
+  // A meteorological register read out as running prose is unreadable — the columns are
+  // the whole point of it. Set a run of pipe rows as a real table instead. The run's first
+  // row is column heads when it carries no digit at all: heads are words, readings are
+  // numbers, and every table in the corpus parts cleanly on that.
+  const tableHtml = (rows, render) => {
+    const head = /[0-9]/.test(rows[0].join('')) ? null : rows.shift();
+    const tr = (cs, tag) => '<tr>' + cs.map((c) => '<' + tag + '>' + render(c) + '</' + tag + '>').join('') + '</tr>';
+    return (
+      '<div class="rec-tabwrap"><table class="rec-tab">' +
+      (head ? '<thead>' + tr(head, 'th') + '</thead>' : '') +
+      '<tbody>' +
+      rows.map((r) => tr(r, 'td')).join('') +
+      '</tbody>' +
+      '</table></div>'
+    );
+  };
+
+  // Paragraph breaks in a source are the source's own: a newspaper report keeps the
+  // paper's paragraphing, and a reader needs to see where one paragraph ends. Give each
+  // its own block so the gap between paragraphs can be set wider than the gap between
+  // lines. Left in one text node the browser folds the break into a space and the report
+  // comes out as a single wall of type. Split before rendering, never after: the phrase
+  // highlighter emits markup, and splitting markup on a newline can cut a tag in half.
+  function paraHtml(text, render) {
+    const lines = String(text || '')
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const out = [];
+    let run = [];
+    // A lone pipe line is a sentence, not a table: only a run of two or more becomes one.
+    const flush = () => {
+      if (run.length >= 2) out.push(tableHtml(run.map(_cells), render));
+      else run.forEach((s) => out.push('<p>' + render(s) + '</p>'));
+      run = [];
+    };
+    for (const line of lines) {
+      if (_isRow(line)) run.push(line);
+      else {
+        flush();
+        out.push('<p>' + render(line) + '</p>');
+      }
+    }
+    flush();
+    return out.join('');
+  }
+
   // A record whose eclipse was never actually witnessed at this place: reckoned but unseen,
   // reckoned and absent, or seen off by cloud.
   const _unwitnessed = (rec) =>
@@ -341,7 +423,11 @@ const Atlas = (() => {
   // ISO form, which the reform-date rule (js/atlas.js:303) reserves for post-reform
   // dates only. No BCE/CE marker is added for a plain CE year — only the pre-1000
   // ambiguous case (negative or 3-digit) needs displayYear's "公元前/BCE" prefix.
-  function _gregEquivReadable(dateStr, lang) {
+  // `tr` names the dictionary the month comes out of, which is not always the reader's:
+  // a citation of a western serial keeps its western date on a Chinese page, and then the
+  // month has to be Apr rather than 4 月.
+  function _gregEquivReadable(dateStr, lang, tr) {
+    const tt = tr || T;
     const ymd = _ymdFromStr(dateStr);
     if (!ymd) return dateStr;
     const parts = (dateStr[0] === '-' ? dateStr.slice(1) : dateStr).split('-').length;
@@ -353,7 +439,7 @@ const Atlas = (() => {
       return s;
     }
     const yr = ymd.y <= 0 || ymd.y < 1000 ? displayYear(ymd.y) : String(ymd.y);
-    const mon = T('julian.month.' + ymd.m);
+    const mon = tt('julian.month.' + ymd.m);
     if (parts >= 3) return ymd.d + ' ' + mon + ' ' + yr;
     return parts >= 2 ? mon + ' ' + yr : yr;
   }
@@ -415,11 +501,20 @@ const Atlas = (() => {
   // instant — transient records carry none.
   function _bjCivilYmd(dateStr, peakIso) {
     const ymd = _ymdFromStr(dateStr);
-    if (!ymd || !peakIso) return ymd;
+    if (!ymd) return ymd;
+    // hasDay says whether the DAY is real or _ymdFromStr's ||1 filler, counted off the
+    // stored string the way _sciDate counts it. event_date is truncated to what the
+    // reckoning RESOLVED, which is a different question from what the source STATES:
+    // a Hanshu transient can name a ganzhi day that was never pinned to a date, and a
+    // Goryeosa eclipse can name one with no month at all. Both are day-level by
+    // precision/kind, and neither has a day here to reckon from.
+    ymd.hasDay = (dateStr[0] === '-' ? dateStr.slice(1) : dateStr).split('-').length >= 3;
+    if (!peakIso) return ymd;
     const t = new Date(peakIso);
     if (isNaN(t.getTime())) return ymd;
     t.setUTCHours(t.getUTCHours() + 8);
-    return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() };
+    // A computed instant resolves the civil day outright, whatever the string carried.
+    return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate(), hasDay: true };
   }
 
   // ---- Chronicle line for the shu'er (shilu): a Tianwenzhi-style, localized dating ----
@@ -437,8 +532,12 @@ const Atlas = (() => {
     // source doesn't support. Eclipses are always day-precise; a transient (kexing/huibo) may be
     // month/year. Day → reckon lunisolar day + ganzhi from the full date. Month → the source-recorded
     // lunisolar month recorded on the record itself, no ganzhi day. Year → reign-year only.
+    // Reckon a ganzhi day only where a day was actually resolved. Gating on precision
+    // (or on kind) alone reads the SOURCE's claim, not the date on hand, and printed the
+    // ganzhi of the 1st as if it were the source's own — a different day from the one the
+    // record quotes, on nine records.
     const dayLevel = kind === 'solar' || kind === 'lunar' || precision === 'day';
-    const hasCal = ymd && dayLevel && sino;
+    const hasCal = ymd && ymd.hasDay && dayLevel && sino;
     if (isZh(lang) || lang === 'ja') {
       // zh: Chinese nianhao (duizhao/nianhao.json). ja: nengō (duizhao/nengo.json) — Japan has kept a
       // continuous nengō system since 645 Taika (645), so it gets the same reign-year
@@ -462,17 +561,20 @@ const Atlas = (() => {
         }
         return _esc(prefix) + (body ? _esc(body) + '日' : '');
       }
-      // Month precision: season + lunisolar month name from the recorded month (no ganzhi day, no syzygy tail).
-      // event_date's Gregorian month ≠ the lunisolar month, so this must come off lunarMonth,
-      // never a reckoning of the coarse date. e.g. 隋大业十二年夏六月.
-      if (sino && precision === 'month' && lunarMonth) {
+      // No resolved day: season + lunisolar month name from the RECORDED month (no ganzhi
+      // day, no syzygy tail). event_date's Gregorian month is not the lunisolar month, so
+      // this must come off lunarMonth, never a reckoning of the coarse date. e.g.
+      // 隋大业十二年夏六月. Keyed on lunarMonth alone rather than precision === 'month':
+      // a record whose source names a day the reckoning never pinned still has its month
+      // recorded, and it is owed that much. No year-precision record carries lunarMonth,
+      // so this cannot over-assert a month the source never gave.
+      if (sino && lunarMonth) {
         return _esc(prefix + SinoCal.seasonLabel(lunarMonth) + SinoCal.monthName(lunarMonth));
       }
       return _esc(prefix); // year precision (or no recorded month): reign-year only
     }
-    // Western: cultural period + year. The Julian-calendar day used to be spelled out
-    // here as an Old-Style counterpart to a Gregorian l1; l1 is itself Julian now, so
-    // repeating it would print the same date twice.
+    // Western: cultural period + year, and no day. l1 already carries the Julian-calendar
+    // day, so spelling one out here would print the same date twice.
     return _esc(yearLabel(lang, y));
   }
 
@@ -501,13 +603,44 @@ const Atlas = (() => {
     );
   }
 
+  // ---- Focus year (the celadon lizhou needle) ----
+  // focusN is stored normalised over [Y0, Y1] because the fisheye lens works in that
+  // space; every consumer that wants a YEAR goes through focusYear() rather than
+  // re-deriving the mapping. Two sites deliberately keep the unrounded float instead
+  // (the fine-tick walk and the list window seek) — they step from the needle's exact
+  // position, and rounding there would nudge the first tick and the first list row.
+  //
+  // Subscribers are notified with the needle's TARGET year, not the eased value:
+  // focusStep runs every animation frame while the ease settles, but the target is
+  // what the reader means. During a drag that is one notification per pointermove
+  // sample, which is why every subscriber must coalesce (basemaps debounces 180ms).
+  const _focusSubs = [];
+
+  function focusYear() {
+    return Math.round(Y0 + state.focusN * SPAN);
+  }
+
+  function subscribeFocus(fn) {
+    if (typeof fn === 'function') _focusSubs.push(fn);
+  }
+
+  function _notifyFocus() {
+    for (const fn of _focusSubs) {
+      try {
+        fn(focusYear());
+      } catch (e) {
+        /* one bad subscriber must not stall the needle */
+      }
+    }
+  }
+
   // Focus era: the RIBBONS entry [name,start,end] covering the "current" year — the
   // selected record's year if one is selected, else the fisheye focus year (the
   // celadon needle). Mirrors drawSpine's sel-else-focus precedent; null when this
   // locale's periodization has no band over that year (pre-Antiquity, table gaps).
   function focusEra() {
     const sel = state.sel ? RECS.find((r) => r.id === state.sel) : null;
-    const yr = sel ? sel.year : Math.round(Y0 + state.focusN * SPAN);
+    const yr = sel ? sel.year : focusYear();
     const es = (RIBBONS[state.lang] || RIBBONS.en).eras;
     for (const e of es) {
       if (yr >= e[1] && yr < e[2]) return e;
@@ -543,18 +676,6 @@ const Atlas = (() => {
         '</span>' +
         (eraStr ? '<span class="rc-era">' + _esc(eraStr) + '</span>' : '')
       : '<span class="rc-total">' + _esc(T('atlas.none')) + '</span>';
-    // active site scope (spiderfy overflow) → dismissible chip below the count
-    if (state.site) {
-      const first = RECS.find((r) => r.lat != null && siteKey(r) === state.site);
-      const chip = document.createElement('span');
-      chip.className = 'chip sitechip';
-      chip.innerHTML = '<span>×</span><span>' + (first ? placeLabel(first, state.lang) : _esc(state.site)) + '</span>';
-      chip.onclick = () => {
-        state.site = null;
-        renderAll();
-      };
-      cnt.appendChild(chip);
-    }
   }
 
   // ---- CJK numeral helpers ----
@@ -696,7 +817,7 @@ const Atlas = (() => {
   function transLine(rec, lang, cls) {
     const t = transText(rec, lang);
     if (!t || _sameText(t, rec.orig || '')) return '';
-    return '<div class="' + cls + '">' + _esc(t) + '</div>';
+    return '<div class="' + cls + '">' + paraHtml(t, _esc) + '</div>';
   }
 
   // The translation to show, or the original when this locale has none — a card
@@ -720,14 +841,16 @@ const Atlas = (() => {
 
   // A place is shown by its historical name, with the modern name as a parenthetical
   // gloss where the two differ. Both blocks are BCP-47-keyed, so both go through the
-  // one ladder: only 37 of 164 places carry a modern name, and only a handful of those
-  // record a per-locale exonym (Beijing vs Pékin/Pekín/Pechino), so most locales
-  // resolve down the chain rather than to a field of their own.
+  // one ladder. Only a small minority of places carry a modern name at all, and fewer
+  // still record a per-locale exonym (Beijing vs Pékin/Pekín/Pechino), so most locales
+  // resolve down the chain rather than to a field of their own. Take the gloss through
+  // pickDistinct, never pick: a locale in which the name never changed resolves the
+  // gloss to the name itself, and "Bogor (now Bogor)" is what a bare pick renders.
   function placeLabel(rec, lang) {
     const p = rec.placeI18n;
     if (!p) return _esc(rec.place);
     let html = _esc(I18n.pick(p.name, lang));
-    const modern = I18n.pick(p.modern, lang);
+    const modern = I18n.pickDistinct(p.modern, p.name, lang);
     // CJK locales: no space before the parenthetical gloss (their punctuation supplies it).
     // Non-CJK: one space inside the span, before the text — matches the pre-existing markup.
     if (modern)
@@ -826,6 +949,184 @@ const Atlas = (() => {
     return missing ? null : url;
   }
 
+  // ---- Citation locus (which sheet of which division of which work) ----
+  // Print the locus in the order a citation reads: the work, then where inside it, then
+  // which sheet. The same object also carries the facsimile URL, and reading it for that
+  // URL alone leaves a card citing 宋史 with no juan and a newspaper with no issue or
+  // page — the locus is what identifies the passage, not just what links to it.
+  const LOCUS_ORDER = [
+    'work',
+    'volume',
+    'number',
+    'chapter',
+    'section',
+    'annal',
+    'reign',
+    'year',
+    'folio',
+    'fragment',
+    'issue',
+    'page',
+  ];
+
+  // Three registers, and the key decides which: a title is quoted, a leaf number is
+  // labelled, everything else prints bare. A value written in Han that names its own
+  // division (英祖實錄, 十三年) is already a whole citation segment in its own tradition
+  // and takes neither.
+  const LOCUS_TITLE = { work: 1, section: 1 };
+  const LOCUS_NUMBERED = { volume: 1, number: 1, chapter: 1, folio: 1, fragment: 1, page: 1, annal: 1 };
+
+  // Nearly every volume value is written 卷052 / 卷四十七 — the unit sits inside the
+  // value, and a label in front of one of those reads 卷 卷052. A western edition does the
+  // same when its own division is not the one the key names: a column reference stored as
+  // the page reads p. col. 231–232 unless the value's abbreviation is taken as its unit.
+  // Test the value, never assume the key supplies the unit.
+  const _selfLabelled = (v) => /^[卷冊册頁页葉叶第]/.test(v) || /^[A-Za-z]{1,5}\.\s*\d/.test(v);
+
+  // A half-width space parts a Han character from the Latin letters or Arabic numerals
+  // beside it, and only from those — 第 2 页 but 第七页, and the 宋會要 leaves are numbered
+  // 七 / 一○. This is the site's own typographic habit, shared with ja and applied
+  // everywhere else on the page; no national standard asks for it, so do not go looking
+  // for one. The Latin labels carry their own space already, so the CJK patterns are the
+  // ones written without.
+  const _locusPad = (v, lang) => ((isZh(lang) || lang === 'ja') && /^[ -~]/.test(v) ? ' ' + v + ' ' : v);
+
+  // ---- Which apparatus a citation is set in ----
+  // It follows the SOURCE, not the reader — the rule the Chinese history journals set for
+  // themselves: 引证外文文献，原则上使用该语种通行的引证标注方式. The test is the source's
+  // own displayed name: if it comes out in Han for this reader, the whole citation is set
+  // the Chinese way; otherwise it keeps its western frame, on a Chinese page included.
+  // A western locale always has a western frame of its own; a CJK locale has none, so
+  // English stands in — hence I18n.ten rather than a fourth western locale.
+  const TEN = (k, p) => (typeof I18n !== 'undefined' && I18n.ten ? I18n.ten(k, p) : k);
+
+  // The closing mark a hoisted headline ends with, in the locales whose punctuation goes
+  // inside it. Empty for every other locale, which is the same as saying "leave it alone".
+  const COMMA_INSIDE_QUOTE = { en: '”' };
+
+  // The Chinese apparatus runs its parts together — 《史記》卷二十八《封禪書》 — because each
+  // is self-delimiting; only where the script changes does a boundary have to be drawn.
+  const _scriptGap = (left, right) => (/[!-~]$/.test(left) !== /^[!-~]/.test(right) && left && right ? ' ' : '');
+
+  // ---- Juan: one number, two archives that write it differently ----
+  // The stored value is the archive's own page name, so 宋史 arrives as 卷053 and 高麗史 as
+  // 卷四十八 for what a citation calls juan 53 and juan 48. Read the number out and set it
+  // afresh: the Chinese history journals number a juan in positional Han (卷一〇, 卷六九,
+  // 卷一一四), and a reader of a western locale is owed Arabic digits over a Han string.
+  const _HAN_DIGITS = '〇一二三四五六七八九';
+  // ○ is U+25CB, the circle the 宋會要 leaf numbers are set with; 〇 is the ideographic
+  // zero. Readers see one glyph, so both have to read as zero here.
+  const _HAN_VALUE = { 〇: 0, '○': 0, 零: 0, 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+  const _HAN_SCALE = { 十: 10, 百: 100, 千: 1000 };
+
+  const _hanPositional = (n) => String(n).replace(/\d/g, (d) => _HAN_DIGITS[+d]);
+
+  // The unit word belongs to the book's tradition, not to the reader's language: the same
+  // graph is juan in a Chinese history, gwon in a Korean one, kan in a Japanese one. The
+  // romanisations are the ones the source catalogue already uses (Goryeosa, Joseon wangjo
+  // sillok), so a citation romanises consistently across the whole card.
+  const JUAN_UNIT = { chinese: 'juan', tangut: 'juan', korean: 'gwon', japanese: 'kan', vietnamese: 'quyển' };
+
+  function _hanToInt(s) {
+    if (/^\d+$/.test(s)) return +s;
+    // No scale character means the digits are positional: 一〇五 is 105, not 1 + 0 + 5.
+    if (!/[十百千]/.test(s)) {
+      let n = 0;
+      for (const ch of s) {
+        if (!(ch in _HAN_VALUE)) return null;
+        n = n * 10 + _HAN_VALUE[ch];
+      }
+      return n;
+    }
+    let total = 0;
+    let cur = 0;
+    for (const ch of s) {
+      if (ch in _HAN_VALUE) cur = _HAN_VALUE[ch];
+      else if (ch in _HAN_SCALE) {
+        total += (cur || 1) * _HAN_SCALE[ch];
+        cur = 0;
+      } else return null;
+    }
+    return total + cur;
+  }
+
+  // Null for anything whose juan is not a number to be read: 卷上 (the upper of two
+  // fascicles), the Vietnamese 本紀卷之一, a western volume set in Roman numerals. Those keep
+  // whatever the edition calls them, which is the only name that identifies them.
+  function _juanSegment(v, lang, tt, civ) {
+    const m = /^卷(\d+|[〇零一二三四五六七八九十百千]+)(.*)$/.exec(v);
+    if (!m) return null;
+    const n = _hanToInt(m[1]);
+    if (n === null) return null;
+    const cjk = _cjkLang(lang);
+    // 魏書 splits one juan into parts and the archive writes the part as 之二. Han keeps it;
+    // a western citation reads the same thing as the decimal 105.2.
+    const tail = cjk ? m[2] : m[2].replace(/^之(.+)$/, (_, t) => '.' + (_hanToInt(t) === null ? t : _hanToInt(t)));
+    const unit = cjk ? (lang === 'ja' ? '巻' : '卷') : JUAN_UNIT[civ] || 'juan';
+    return tt('atlas.locus.juan', { u: unit, v: (cjk ? _hanPositional(n) : n) + tail });
+  }
+
+  // The 宋會要 numbers its leaves in Han (七, 一○), which a western citation has no way to
+  // read. Same treatment as the juan: take the number out and set it in the reader's digits.
+  // Null for a page written any other way, ranges and column references included.
+  const _hanLeaf = (v) => (/^[〇零○一二三四五六七八九十百千]+$/.test(v) ? _hanToInt(v) : null);
+
+  // A journal or a book is cited by an italic title in the western manner and by its own
+  // brackets in CJK; the locale pattern supplies the brackets where a script has them.
+  function _workTitle(v, lang, tt) {
+    const t = tt('atlas.locus.work', { v: _esc(v) });
+    return _cjkLang(lang) ? t : '<i>' + t + '</i>';
+  }
+
+  // A serial's headline is the title of the piece and precedes the paper that carried it —
+  // the order CMOS sets for a newspaper, and the order the Chinese history journals set for
+  // one too. A classical work's division name is not a headline: 天文二 belongs after the
+  // juan, where its own tradition puts it. The dated issue is what tells the two apart.
+  // Hence two pieces returned, since one of them prints before the source's own name.
+  // `cite` is the locale the citation is SET in and `tt` the dictionary it is set from.
+  // Both follow the source, not the reader, and differ from the reader's locale only for
+  // a western work read on a CJK page.
+  // `absorbed` names the one key the caller has already set inside the source's title.
+  function locusLabel(rec, cite, tt, absorbed) {
+    const lo = rec.locus;
+    if (!lo) return { head: '', tail: '' };
+    const han = _cjkLang(cite);
+    const headline = lo.issue && lo.section ? lo.section : '';
+    const out = [];
+    for (const k of LOCUS_ORDER) {
+      const v = lo[k];
+      if (!v || k === absorbed || (k === 'section' && headline)) continue;
+      let s;
+      // The issue is a stored Gregorian date, so it is written the way every other date
+      // on the site is written rather than left as the dashed ISO string.
+      if (k === 'issue') s = _esc(_gregEquivReadable(v, cite, tt));
+      else if (k === 'work') s = _workTitle(v, cite, tt);
+      else if (k === 'volume' && _juanSegment(v, cite, tt, rec.civ)) s = _juanSegment(v, cite, tt, rec.civ);
+      else if (k === 'page' && _hanLeaf(v) !== null)
+        s = tt('atlas.locus.page', { v: han ? _hanPositional(_hanLeaf(v)) : _hanLeaf(v) });
+      // A section that is only a number is a numbered subdivision, not a title: quoting
+      // Plutarch's seventh paragraph as “7” makes a heading out of a count.
+      else if (LOCUS_TITLE[k] && !/^\d+$/.test(v)) s = tt('atlas.locus.' + k, { v: _esc(v) });
+      else if (LOCUS_NUMBERED[k] && !_selfLabelled(v))
+        s = tt('atlas.locus.' + k, { v: _locusPad(_esc(v), cite) }).trim();
+      else s = _esc(v);
+      out.push({ k, s });
+    }
+    let s = '';
+    for (const p of out) {
+      if (!s) s = p.s;
+      else if (!han) s += tt('atlas.locus.sep') + p.s;
+      // The leaf reference closes a Chinese citation and takes the comma that stands
+      // before it (《史記》卷二十八《封禪書》，第 1394 頁); everything above it runs on.
+      else if (p.k === 'page' || p.k === 'folio') s += tt('atlas.locus.sep_leaf') + p.s;
+      else s += _scriptGap(s, p.s) + p.s;
+    }
+    // The credit line arrives parenthesised, as the page printed it, so it trails the
+    // citation on a space: a comma in front of a parenthesis reads as one more list item.
+    if (lo.byline) s += (s ? ' ' : '') + _esc(lo.byline);
+    return { head: headline ? tt('atlas.locus.section', { v: _esc(headline) }) : '', tail: s };
+  }
+
   function sourceLabel(rec, lang) {
     const s = rec.sref;
     // A source is cited by its title; an entry with no title (18th-20th c. observers, who
@@ -837,21 +1138,45 @@ const Atlas = (() => {
     // No entry at all means source.key names something sources.json does not define —
     // a data error. Show the bare key rather than an empty citation, so it is visible.
     const txt = s ? sourceTitle(s, lang) || sourceAuthors(s, lang) || s.attribution || '' : rec.srcKey;
+    // The apparatus follows the source: a name that came out in Han can carry a Chinese
+    // citation, a name that stayed Latin cannot and takes the western one instead.
+    const cite = _cjkLang(lang) && !_hasCJK(txt) ? 'en' : lang;
+    const tt = cite === lang ? T : TEN;
+    // A reign names a division of the work itself, not a place inside it, so the Chinese
+    // apparatus sets it within the title's own brackets on the interpunct compound titles
+    // already use — 《春秋經·莊公》, 《朝鮮王朝實錄·燕山君日記》 — rather than letting it run
+    // on after them. It leaves the locus when it does, or it would be cited twice.
+    const inTitle = _cjkLang(cite) && rec.locus && rec.locus.reign && /[》』]$/.test(txt);
+    const name = inTitle ? txt.slice(0, -1) + '·' + rec.locus.reign + txt.slice(-1) : txt;
     const body = rec.srcUrl
-      ? '<a class="src-link" href="' + _esc(rec.srcUrl) + '" target="_blank" rel="noopener">' + _esc(txt) + '</a>'
-      : _esc(txt);
+      ? '<a class="src-link" href="' + _esc(rec.srcUrl) + '" target="_blank" rel="noopener">' + _esc(name) + '</a>'
+      : _esc(name);
     // Show transmission kind so readers know when they are reading a translation or
     // a passage preserved only via another work (CMOS 18e §14.260 visibility principle).
     const editions = (s && s.editions) || [];
     const cons = editions.find((e) => e && e.consulted === true) || editions[0] || {};
     const kind = cons.kind;
+    const loc = locusLabel(rec, cite, tt, inTitle ? 'reign' : '');
     let suffix = '';
     if (kind === 'trans' && cons.by)
       suffix = '<span class="src-via">' + T('atlas.src_via_trans', { by: cons.by }) + '</span>';
     else if (kind === 'quot' && cons.by)
       suffix = '<span class="src-via">' + T('atlas.src_apud', { by: cons.by }) + '</span>';
     else if (kind === 'cite') suffix = '<span class="src-via">' + T('atlas.src_catalog') + '</span>';
-    return T('atlas.src') + body + suffix;
+    // The deep link stays on the publication's own name: it resolves to that issue or that
+    // juan, not to the piece, so hanging it on the headline would promise more than it gives.
+    const sep = tt('atlas.locus.sep');
+    let head = loc.head ? loc.head + sep : '';
+    // CMOS 6.9 tucks the comma inside the closing quotation mark, and American practice is
+    // alone in that: the French guillemets and the CJK brackets take it outside. Keyed to
+    // the locale that asks for it rather than applied to every quoted headline.
+    const inside = COMMA_INSIDE_QUOTE[cite];
+    if (inside && loc.head.endsWith(inside) && sep[0] === ',')
+      head = loc.head.slice(0, -inside.length) + ',' + inside + sep.slice(1);
+    // 《宋史·天文志》卷五三 carries no comma between the book and the juan, so the joint
+    // between the source's name and its locus obeys the apparatus too.
+    const join = _cjkLang(cite) ? _scriptGap(name, loc.tail) : sep;
+    return T('atlas.src') + head + body + (loc.tail ? join + loc.tail : '') + suffix;
   }
 
   // ---- Card note (editorial annotation, per-locale) ----
@@ -865,26 +1190,44 @@ const Atlas = (() => {
   }
 
   // ---- State (ORBIS single source) ----
-  // Default view = Eurasia (map center/zoom in map-boot.js) framed by three
-  // historically load-bearing eclipses: −762 Assyrian Bur-Sagale (chronology
-  // keystone) → 1187 four-continent multi-vantage total [korean/italian/
-  // british/syriac] (fisheye focus — widest civ-span single event in corpus,
-  // "same sky, four continents") → 1919 Eddington relativity test.
+  // Default view = Eurasia (map center/zoom in map-boot.js), framed by:
+  //   range[0]  −762 Assyrian Bur-Sagale — the corpus's chronology keystone.
+  //   focusN     1919 Eddington relativity test — the fisheye focus. Also the
+  //              basemap's own default: with no event selected, OHM reads the
+  //              needle's year (js/basemaps.js), so a cold load without this
+  //              would render every OHM-dated feature stacked at once rather
+  //              than one legible slice.
+  //   range[1]  1931 — not an eclipse; a rolling public-domain wall (current
+  //             year − 95, US rule) for the modern-era newspaper corpus. The
+  //             batch runs well past 1919 now (Delpher etc.), so pinning the
+  //             right edge to the Eddington event would hide most of it by
+  //             default. Recompute when the wall next moves — it isn't pinned
+  //             to a source the way the other two bounds are.
   // civ filter is single-select: null = all civilizations, or one civ key.
   // site: a same-coordinate scope set by a spiderfy overflow chip (null = off).
   // mode: 'records' (curated records cards) | 'events' (all-events — all eclipse events,
   // paged). selEv: selected event key "date|kind" in all-events mode.
+  // The cold-open filter state, named so it can be exported. js/permalink.js omits any
+  // param still equal to its default, so it needs these exact values; when they lived in
+  // both files a change had to land twice, and missing one put a spurious f= / yr= on
+  // every URL. Frozen because the exported copy must not drift when state does.
+  const DEFAULTS = Object.freeze({
+    Y0,
+    Y1,
+    focusYear: 1919,
+    range: Object.freeze([-762, 1931]),
+  });
+
   const state = {
     lang: 'en',
     civ: null,
     type: 'solar',
     q: '',
     sel: null,
-    site: null,
     mode: 'records',
     selEv: null,
-    focusN: normYear(1187),
-    range: [-762, 1919],
+    focusN: normYear(DEFAULTS.focusYear),
+    range: [DEFAULTS.range[0], DEFAULTS.range[1]],
   };
 
   // Shared list pager (BOTH records and all-events — only one renders into #list at a
@@ -892,11 +1235,17 @@ const Atlas = (() => {
   // caches that array's length for the pager/wheel. winSeedKey remembers what the
   // window was seeded for so a plain re-render preserves it (for load-more), while
   // any filter change re-seeds it centered on the lizhou focus year. Constants mirror
-  // AstroMeteoMap's makeListController.
+  // SubstellarAtlas's makeListController.
   let winStart = 0,
     winEnd = 0,
     winLen = 0,
     winSeedKey = '';
+  // Row (window-relative) the next render must park at the top of #list, or -1.
+  // A freshly seeded window straddles the focus, so without this the list opens
+  // scrolled to INITIAL_BEFORE rows BEFORE the year the reader is looking at.
+  let winFocusRow = -1;
+  // Cards left visible above the focus card when a window opens on it.
+  const FOCUS_LEAD_IN = 2;
   const INITIAL_BEFORE = 10,
     INITIAL_AFTER = 10,
     PAGE_SIZE = 20,
@@ -910,6 +1259,8 @@ const Atlas = (() => {
   let _solarByDate = null; // lazy Map(date → solar event) for records-mode lookup
   const _bandCache = new Map(); // date → Promise<band ring | null> (see drawBands)
   let _bandToken = 0; // guards against stale async band draws
+  let _viewFrom = 0,
+    _viewTo = 0; // last measured on-screen card slice (see viewSlice)
   let RECS = []; // mapped records within the service window
   let MANIFEST = null; // data/records/manifest.json (file list + per-file counts)
   const _loadedPh = new Set(); // phenomena whose shards are already in RECS
@@ -924,17 +1275,19 @@ const Atlas = (() => {
   // record inlines only when it OVERRIDES — the build strips inline place names
   // out of the records, and _map below inverts that strip at read time.
 
+  // Flatten rather than take Object.values: a civ row may nest an `eras` array of
+  // era-name overrides, and a reader who searches Norse must still reach the saga
+  // records whose span name is Nordic.
   function _civHay(civ) {
     const row = CIV_NAMES[(civ || '').toLowerCase()];
-    return row ? Object.values(row).join(' ') : civ || '';
+    return row ? _flattenHay(row).join(' ') : civ || '';
   }
 
   // ---- Corpus loading (phenomenon-scoped) ----
-  // The corpus is 14.4 MB across 51 NDJSON shards, and 10.3 MB of that is
-  // occultation alone — a register most readers never open. Loading it all before
-  // first paint made the reader wait on 12,035 records to see the ~1,270 solar ones
-  // the default view shows. Shards are fetched per phenomenon instead: the active
-  // one blocks first paint, the rest stream in behind it.
+  // Fetch shards per phenomenon, never the whole corpus: occultation alone is over half
+  // its bytes and is a register most readers never open, so loading everything up front
+  // makes the reader wait on it to see the solar records the default view shows. The
+  // active phenomenon blocks first paint; the rest stream in behind it.
   function _shardsFor(ph) {
     return ((MANIFEST && MANIFEST.files) || []).filter((f) => f.phenomenon === ph);
   }
@@ -942,6 +1295,13 @@ const Atlas = (() => {
   // Fetch + project one phenomenon's shards into RECS. Idempotent, and concurrent
   // callers share one in-flight promise — setType() and the background sweep can
   // both ask for the same phenomenon in the same tick.
+  //
+  // NEVER rejects, and a failure NEVER latches: resolve false and drop the _phLoading
+  // entry so the next ask retries from scratch. A rejected promise left in that cache
+  // makes one bad projection permanent for the whole session, and every caller reads
+  // the result as a plain boolean — boot awaits it before building markerLayer, and the
+  // background sweep chains one phenomenon onto the next — so a throw would take the
+  // map down rather than one register.
   function loadPhenomenon(ph) {
     if (_loadedPh.has(ph)) return Promise.resolve(false);
     if (_phLoading.has(ph)) return _phLoading.get(ph);
@@ -957,17 +1317,23 @@ const Atlas = (() => {
           )
           .catch(() => [])
       )
-    ).then((parts) => {
-      const mapped = parts
-        .flat()
-        .map(_map)
-        .filter((r) => r.year != null && r.year >= Y0 && r.year <= Y1);
-      RECS = RECS.concat(mapped);
-      _loadedPh.add(ph);
-      _phLoading.delete(ph);
-      _rescoreImportance();
-      return true;
-    });
+    )
+      .then((parts) => {
+        const mapped = parts
+          .flat()
+          .map(_map)
+          .filter((r) => r.year != null && r.year >= Y0 && r.year <= Y1);
+        RECS = RECS.concat(mapped);
+        _loadedPh.add(ph);
+        _phLoading.delete(ph);
+        _rescoreImportance();
+        return true;
+      })
+      .catch((e) => {
+        _phLoading.delete(ph);
+        console.warn('[atlas] register failed to load; next ask retries:', ph, e);
+        return false;
+      });
     _phLoading.set(ph, job);
     return job;
   }
@@ -1025,6 +1391,11 @@ const Atlas = (() => {
           sk,
         ].join(' ')
       : sk || '';
+    // A serial's column heading belongs to the CITATION, not to text_orig, so the citation
+    // haystack is what has to carry it. Leave it out and searching "Jardin des Plantes"
+    // silently stops reaching the records headed that way.
+    const locus = r.source.locus || null;
+    const locusHay = locus ? Object.values(locus).join(' ') : '';
 
     const textMap = r.text || null; // BCP-47 locale map
     const translit = r.translit || ''; // romanization of text_orig, where authored
@@ -1050,7 +1421,8 @@ const Atlas = (() => {
       sref: se || null,
       srcKey: sk || '', // shown only when the key resolves to no sources.json entry
       srcUrl,
-      srcHay,
+      locus,
+      srcHay: srcHay + ' ' + locusHay,
       sig: r.significance || null,
       conf: r.confidence || null,
       obsStatus: r.observation_status || null,
@@ -1083,7 +1455,6 @@ const Atlas = (() => {
     return (
       (state.civ == null || r.civ === state.civ) &&
       r.type === state.type &&
-      (state.site == null || (r.lat != null && siteKey(r) === state.site)) &&
       (!q ||
         [r.id, r.place, r.placeHay, r.srcHay, r.orig, r.textHay, r.translit, r.noteHay, r.civHay]
           .join(' ')
@@ -1096,13 +1467,16 @@ const Atlas = (() => {
   const timelineRecords = () => RECS.filter(passFilters); // lizhou: full density, never budgeted
   const visibleRecords = () => RECS.filter((r) => passFilters(r) && inRange(r));
 
-  // ---- Dynamic LOD selection for the MAP layer (viewport × time-span × importance) ----
-  // Cull to the padded viewport, then, if still over budget, keep the most
-  // important records spread across a screen-space grid so no region dominates.
-  function inViewport(map, r) {
+  // ---- Dynamic LOD selection for the MAP layer (zoom × time-span × importance) ----
+  // Rank sites in a world-anchored grid, then clip the survivors to the padded
+  // viewport. Selection first, clipping second — never the other way round.
+  // margin is a fraction of the view's own span, per side; the caller picks
+  // VIEW_MARGIN to admit a marker or EVICT_MARGIN to decide it may be destroyed.
+  function inViewport(map, r, margin) {
     const b = map.getBounds();
-    const latPad = (b.getNorth() - b.getSouth()) * VIEW_MARGIN;
-    const lngPad = (b.getEast() - b.getWest()) * VIEW_MARGIN;
+    const m = margin == null ? VIEW_MARGIN : margin;
+    const latPad = (b.getNorth() - b.getSouth()) * m;
+    const lngPad = (b.getEast() - b.getWest()) * m;
     if (r.lat < b.getSouth() - latPad || r.lat > b.getNorth() + latPad) return false;
     const w = b.getWest() - lngPad,
       e = b.getEast() + lngPad;
@@ -1114,48 +1488,107 @@ const Atlas = (() => {
     return false;
   }
 
-  function thinToBudget(cand, map, budget) {
-    // 1. landmark records are always shown — reserve budget for them first.
-    const keep = cand.filter((r) => r.sig === 'landmark').slice(0, budget);
-    let budget2 = budget - keep.length;
-    if (budget2 <= 0) return keep;
-    const rest = cand.filter((r) => r.sig !== 'landmark');
-    // 2. bucket into screen-grid cells; narrow time windows earn +1 detail/cell.
-    const lod = LOD(map.getZoom());
-    const perCellK = lod.k + (state.range[1] - state.range[0] <= 200 ? 1 : 0);
+  // Longitude offsets at which one record must be drawn. The map window is 720°
+  // wide (−200…520), so a seal placed only at its true lon leaves every other
+  // world copy bare — and inViewport above already ADMITS a record whose only
+  // visible copy is a wrapped one, which without this would be drawn off-screen.
+  // Restricted to the padded viewport so the DOM cost stays flat: extra copies
+  // are built only while they are actually on screen.
+  function wrapOffsetsFor(lon) {
+    const offs = GeoUtils.wrapOffsets(lon, lon);
+    if (!map) return offs;
+    const b = map.getBounds();
+    const lngPad = (b.getEast() - b.getWest()) * VIEW_MARGIN;
+    const w = b.getWest() - lngPad,
+      e = b.getEast() + lngPad;
+    const vis = offs.filter((dx) => lon + dx >= w && lon + dx <= e);
+    return vis.length ? vis : offs.slice(0, 1);
+  }
+
+  // The one world copy a record's marker "is" right now: the copy nearest the
+  // view centre. Every consumer that has to name a single longitude for a record
+  // — the popup claim after a rebuild, select()'s flyTo — must go through here,
+  // or a click on the +360 copy answers a world away from the gesture.
+  function nearestDx(lon, offs, ref) {
+    const list = offs || wrapOffsetsFor(lon);
+    if (!map) return list[0] || 0;
+    const c = ref == null ? map.getCenter().lng : ref;
+    return list.reduce((best, dx) => (Math.abs(lon + dx - c) < Math.abs(lon + best - c) ? dx : best), list[0] || 0);
+  }
+
+  // ref: a longitude the answer must stay beside — the clicked marker's own lng
+  // when there is one (a fan member sits a few pixels off its site, never a world
+  // off), otherwise the view centre.
+  function nearestLon(lon, ref) {
+    return lon + nearestDx(lon, GeoUtils.wrapOffsets(lon, lon), ref);
+  }
+
+  // lodSites: the sites this zoom is allowed to draw, world-wide.
+  // Bin by WORLD pixels (map.project at an explicit zoom), never by container
+  // pixels: a container-pixel grid re-phases on every pan, so half a cell of
+  // drag swaps each cell's representative under the reader and the map reads as
+  // if seals were vanishing. World pixels move only with zoom.
+  // A cell's slots are contested by that cell's own sites and by nobody else,
+  // which is what keeps a 99-record capital from costing a lone European chronicle
+  // its seal: they are never in the same cell.
+  function lodSites(all, map) {
+    const z = map.getZoom();
+    // A narrow time window earns +1 site per cell: the reader has already said
+    // which two centuries they care about, so the map can afford more detail.
+    const k = LOD_K(z) + (state.range[1] - state.range[0] <= 200 ? 1 : 0);
+    const keep = [];
     const cells = new Map();
-    rest.forEach((r) => {
-      const p = map.latLngToContainerPoint([r.lat, r.lon]);
-      const key = Math.floor(p.x / lod.cell) + '|' + Math.floor(p.y / lod.cell);
+    all.forEach((s) => {
+      // Landmark sites bypass the grid entirely rather than winning a slot in it,
+      // so a landmark never costs its cell the representative it would otherwise show.
+      if (s.sig === 'landmark') {
+        keep.push(s);
+        return;
+      }
+      const p = map.project([s.lat, s.lon], z);
+      const key = Math.floor(p.x / CELL) + '|' + Math.floor(p.y / CELL);
       let arr = cells.get(key);
       if (!arr) {
         arr = [];
         cells.set(key, arr);
       }
-      arr.push(r);
+      arr.push(s);
     });
-    // 3. within a cell, rank by importance; emit round-robin (every cell's #1,
-    //    then every cell's #2 …) so geographic spread wins before local density.
-    const ranked = [];
     cells.forEach((arr) => {
-      arr.sort((a, b) => b.imp - a.imp);
-      arr.slice(0, perCellK).forEach((r, i) => ranked.push({ r, rank: i }));
+      arr.sort((a, b) => b.w - a.w);
+      for (let i = 0; i < arr.length && i < k; i++) keep.push(arr[i]);
     });
-    ranked.sort((a, b) => a.rank - b.rank || b.r.imp - a.r.imp);
-    for (const x of ranked) {
-      if (budget2 <= 0) break;
-      keep.push(x.r);
-      budget2--;
-    }
     return keep;
+  }
+
+  // rescueCivs: every civilization on screen keeps at least one seal, however
+  // lightly attested. The grid ranks SITES, so a tradition holding one thin site
+  // in a cell full of capitals drops off the map altogether — and the map exists to
+  // say that tradition was watching the same sky. Rescue restores the civ's own
+  // highest-ranked site in view; it only ever ADDS, so it cannot cost another
+  // civilization its seal.
+  // Presence is judged by the seal a site would paint (its top record's civ), which
+  // is the same thing the reader is counting.
+  // This is the one viewport-scoped rule in the selection. Ranking by w (a global,
+  // pan-invariant score) rather than by anything about the current frame keeps the
+  // chosen representative steady: it changes only when it leaves the view itself.
+  function rescueCivs(all, admitted, map) {
+    const shown = new Set(admitted.map((s) => s.top.civ));
+    const best = new Map();
+    all.forEach((s) => {
+      const civ = s.top.civ;
+      if (shown.has(civ) || !inViewport(map, s, VIEW_MARGIN)) return;
+      const cur = best.get(civ);
+      if (!cur || s.w > cur.w) best.set(civ, s);
+    });
+    return [...best.values()];
   }
 
   // ---- Site stacks: records sharing one coordinate render as ONE marker ----
   // The corpus concentrates hard (北京 179 / 开封 163 / 长安 143 records on one
   // point each), so coincident seals were mutually unreachable on the map. A
   // stack shows its top seal + a count badge; clicking fans the members out
-  // (spiderfy) with year labels — the era is readable at a glance — and stacks
-  // too deep for a fan overflow into the library via the state.site scope.
+  // (spiderfy) with year labels — the era is readable at a glance.
   function siteKey(r) {
     return r.lat.toFixed(4) + ',' + r.lon.toFixed(4);
   }
@@ -1177,9 +1610,15 @@ const Atlas = (() => {
       s.imp = s.top.imp;
       // a landmark member makes the whole stack landmark (keeps the LOD reserve)
       s.sig = s.recs.some((r) => r.sig === 'landmark') ? 'landmark' : s.top.sig;
+      // w ranks the site against its cell neighbours; imp stays the record-level
+      // score that markerZ() stacks by. Keep them separate: folding depth into imp
+      // would push deep capitals above everything else in the paint order too.
+      s.w = s.imp + depthW(s.recs.length);
     });
     return [...sites.values()];
   }
+
+  let _sitesMemo = { sig: null, sites: [] };
 
   function selectForView() {
     const withGeo = (r) => r.lat != null && r.lon != null;
@@ -1195,18 +1634,41 @@ const Atlas = (() => {
     } else {
       base = RECS.filter((r) => withGeo(r) && passFilters(r) && inRange(r));
     }
-    const cand = groupBySite(map ? base.filter((r) => inViewport(map, r)) : base);
-    let out = !map || cand.length <= MARKER_BUDGET ? cand : thinToBudget(cand, map, MARKER_BUDGET);
+    // Group the WHOLE filtered corpus, not just what is on screen: the LOD verdict
+    // must not depend on where the view sits. Grouping walks every held record of
+    // the register (occultation alone is ~9.4k), so memoise it — a pan changes
+    // neither the filters nor the stacks, and must not pay for a regroup.
+    const sig = [
+      state.selEv,
+      state.sel,
+      state.civ,
+      state.type,
+      state.q,
+      state.range[0],
+      state.range[1],
+      RECS.length,
+    ].join('|');
+    if (_sitesMemo.sig !== sig) _sitesMemo = { sig, sites: groupBySite(base) };
+    let keep = map ? lodSites(_sitesMemo.sites, map) : _sitesMemo.sites;
     // Always keep the selected record's stack alive so a list-click can open
     // its popup even when LOD/viewport would otherwise thin it out.
-    if (state.sel && !out.some((s) => s.recs.some((r) => r.id === state.sel))) {
+    if (state.sel && !keep.some((s) => s.recs.some((r) => r.id === state.sel))) {
       const sel = RECS.find((r) => r.id === state.sel);
       if (sel && withGeo(sel)) {
         const own = base.filter((r) => siteKey(r) === siteKey(sel));
-        out = out.concat(groupBySite(own.length ? own : [sel]));
+        keep = keep.concat(groupBySite(own.length ? own : [sel]));
       }
     }
-    return out;
+    // keep is what this zoom may draw anywhere; admit is what it draws now. Only
+    // the second one looks at the viewport, and drawMarkers needs both: a marker
+    // outside admit but still inside keep is off-screen, not gone, and is retained
+    // rather than rebuilt the moment the reader pans back.
+    if (!map) return { keep, admit: keep };
+    const admit = keep.filter((s) => inViewport(map, s, VIEW_MARGIN));
+    const rescued = rescueCivs(_sitesMemo.sites, admit, map);
+    // Rescued sites join keep as well as admit, or the ledger would read them as
+    // strangers and rebuild their markers on the next pan instead of retaining them.
+    return rescued.length ? { keep: keep.concat(rescued), admit: admit.concat(rescued) } : { keep, admit };
   }
 
   // ---- Map markers ----
@@ -1215,7 +1677,7 @@ const Atlas = (() => {
     return (
       '<div class="rp">' +
       '<div class="rp-head">' +
-      Seal.svg(rec.civ, 16) +
+      Seal.svg(rec.civ, 16, Seal.name(rec.civ, state.lang, rec.year)) +
       '<span class="rp-place">' +
       placeLabel(rec, state.lang) +
       '</span>' +
@@ -1228,7 +1690,7 @@ const Atlas = (() => {
       '<div class="rp-orig ' +
       (rec.cjk ? '' : 'multi') +
       '">' +
-      highlightPhrase(rec.orig) +
+      paraHtml(rec.orig, highlightPhrase) +
       '</div>' +
       '<div class="rp-src">' +
       sourceLabel(rec, state.lang) +
@@ -1252,6 +1714,30 @@ const Atlas = (() => {
     else m.bindPopup(popupHtml(rec), POPUP_OPTS);
     m.openPopup();
     _popupRecId = id;
+  }
+
+  // ---- Marker stacking order ----
+  // Leaflet stacks markers by latitude alone (southern over northern), which puts
+  // whichever seal happens to sit lower on screen on top of the one the reader
+  // came for. Every record marker therefore names its own band, and the bands are
+  // 100k apart so no latitude term can ever bridge two of them:
+  //   observer > hovered > selected > open fan > multi-record stack > lone record
+  // Inside a band the order is importance first, age second — the same imp score
+  // the LOD thinning ranks by (significance, confidence, civ rarity, corroborating
+  // vantages), then older over younger, because the scarce ancient record is the
+  // one that must not end up under a 20th-century one at the same site.
+  const Z = { site: 0, stack: 100000, fan: 300000, sel: 500000, hover: 800000, observer: 900000 };
+
+  // Age bonus, coarse on purpose: it only ever breaks ties between records of
+  // equal importance, so four eras are enough resolution.
+  function ageZ(year) {
+    return year < 0 ? 3 : year < 1000 ? 2 : year < 1800 ? 1 : 0;
+  }
+
+  // markerZ: imp is multiplied so the age bonus lands strictly below it — an
+  // importance step must always outrank an era step.
+  function markerZ(band, rec, imp) {
+    return band + Math.round(Math.min(imp || 0, 2000)) * 4 + ageZ(rec ? rec.year : 0);
   }
 
   // Seal divIcon + count badge (mirrors Seal.icon's wrapper so selected pulse
@@ -1294,11 +1780,13 @@ const Atlas = (() => {
 
   // ---- Spiderfy (self-implemented, no vendor dep) ----
   // ≤8 members fan on a circle, more on an Archimedean spiral (constant arc
-  // spacing), capped at SPIDER_MAX with a "+N ▸" overflow leg into the library.
+  // spacing), capped at SPIDER_MAX. A stack deeper than that fans its most important
+  // SPIDER_MAX members; the rest stay reachable through the record list, which is
+  // never thinned.
   // The fan is rebuilt (respiderfy) on every drawMarkers pass so zoom, filter
   // and selection changes keep it live instead of snapping it shut.
   const SPIDER_MAX = 24;
-  let spider = null; // { key, layer } — at most one site fanned at a time
+  let spider = null; // { key, dx, layer } — at most one site fanned at a time
   function spiderOffsets(n) {
     const pts = [];
     if (n <= 8) {
@@ -1325,24 +1813,26 @@ const Atlas = (() => {
     spider = null;
   }
 
-  function spiderfy(stack) {
+  // dx: the world-copy offset of the stack marker that was clicked. A fan drawn
+  // at the record's true lon while the reader clicked its +360 copy would open a
+  // screen away from the gesture.
+  function spiderfy(stack, dx) {
     unspiderfy();
     if (!map) return;
     const layer = L.layerGroup().addTo(map);
-    spider = { key: stack.key, layer };
+    spider = { key: stack.key, dx: dx || 0, layer };
     // keep the most important members, but LAY OUT chronologically — the fan
     // then reads as a clock of eras around the site.
     const shown = stack.recs
       .slice(0, SPIDER_MAX)
       .slice()
       .sort((a, b) => a.year - b.year);
-    const overflow = stack.recs.length - shown.length;
-    const nodes = shown.length + (overflow > 0 ? 1 : 0);
-    const c = map.latLngToContainerPoint([stack.lat, stack.lon]);
+    const nodes = shown.length;
+    const c = map.latLngToContainerPoint([stack.lat, stack.lon + spider.dx]);
     const offs = spiderOffsets(nodes);
     const ink = cssvar('--ink-3') || '#8B8F8C';
     const legTo = (ll) =>
-      L.polyline([[stack.lat, stack.lon], ll], {
+      L.polyline([[stack.lat, stack.lon + spider.dx], ll], {
         color: ink,
         weight: 1,
         dashArray: '2 3',
@@ -1352,33 +1842,18 @@ const Atlas = (() => {
     shown.forEach((r, i) => {
       const ll = map.containerPointToLatLng(L.point(c.x + offs[i][0], c.y + offs[i][1]));
       legTo(ll);
-      const m = L.marker(ll, { icon: spiderIcon(r, state.sel === r.id), riseOnHover: true });
+      const m = L.marker(ll, {
+        icon: spiderIcon(r, state.sel === r.id),
+        riseOnHover: true,
+        riseOffset: Z.hover,
+        zIndexOffset: markerZ(state.sel === r.id ? Z.sel : Z.fan, r, r.imp),
+      });
       m.bindTooltip(placeLabel(r, state.lang), { sticky: true, className: 'eclipse-curve-tooltip', offset: [0, -8] });
       m.bindPopup(popupHtml(r), POPUP_OPTS);
       m.on('click', () => select(r.id));
       layer.addLayer(m);
       markerById[r.id] = m; // select() opens popups on the fanned marker
     });
-    if (overflow > 0) {
-      const o = offs[nodes - 1];
-      const ll = map.containerPointToLatLng(L.point(c.x + o[0], c.y + o[1]));
-      legTo(ll);
-      const m = L.marker(ll, {
-        icon: L.divIcon({
-          className: 'rec-mk',
-          html: '<span class="mk-more num">+' + overflow + ' ▸</span>',
-          iconSize: [44, 20],
-          iconAnchor: [22, 10],
-        }),
-        title: '',
-      });
-      m.on('click', () => {
-        state.site = stack.key;
-        unspiderfy();
-        renderAll(); // rail is permanent — renderAll surfaces the site scope
-      });
-      layer.addLayer(m);
-    }
   }
 
   // Rebuild against the stacks this pass actually DREW, not against a re-filtered
@@ -1393,56 +1868,177 @@ const Atlas = (() => {
       unspiderfy();
       return;
     }
-    spiderfy(stack);
+    spiderfy(stack, spider.dx);
+  }
+
+  // ---- Incremental marker ledger ----
+  // Keyed "siteKey@dx" — one entry per site per drawn world copy. A pass reconciles
+  // this ledger against the LOD verdict instead of tearing the layer down: a seal
+  // the reader can already see keeps its DOM node, its open popup and its fan, and
+  // only genuine arrivals and departures animate.
+  let _drawn = new Map();
+
+  // Everything about an entry that the icon, tooltip, popup and paint order read.
+  // Rebuild those only when this string changes — setIcon() replaces the element,
+  // which would restart a fade and drop the band-hover class mid-hover.
+  function markerSig(stack, top, selRec) {
+    return [top.civ, stack.recs.length, selRec ? 1 : 0, top.id, state.lang].join('|');
+  }
+
+  // data-site survives every setIcon, and is the handle the pan/zoom invariants are
+  // checked through: it names the site and world copy, not a DOM position.
+  function stampMarker(entry) {
+    const el = entry.m.getElement && entry.m.getElement();
+    if (!el) return;
+    el.dataset.site = entry.key;
+    el.classList.remove('mk-out');
+  }
+
+  function fadeIn(entry) {
+    const el = entry.m.getElement && entry.m.getElement();
+    if (!el) return;
+    el.classList.add('mk-in');
+    requestAnimationFrame(() => el.classList.remove('mk-in'));
+  }
+
+  // Departure is deferred by FADE_MS so the seal dissolves instead of blinking out.
+  // A marker re-admitted during that window cancels the timer and keeps its node,
+  // which is the whole point of the evict box: a pan that overshoots and comes back
+  // must not pay to rebuild every seal it crossed.
+  function fadeOut(entry) {
+    if (entry.fade) return;
+    const el = entry.m.getElement && entry.m.getElement();
+    if (el) el.classList.add('mk-out');
+    entry.fade = setTimeout(() => {
+      markerLayer.removeLayer(entry.m);
+      _drawn.delete(entry.key);
+    }, FADE_MS);
+  }
+
+  function cancelFade(entry) {
+    if (!entry.fade) return;
+    clearTimeout(entry.fade);
+    entry.fade = null;
+    const el = entry.m.getElement && entry.m.getElement();
+    if (el) el.classList.remove('mk-out');
+  }
+
+  // One marker, bound once. Both handlers read entry.stack rather than closing over
+  // the stack object, so a later pass can repoint the entry at a fresh stack without
+  // detaching and re-attaching listeners on every pan.
+  function makeMarker(entry) {
+    const m = L.marker([entry.stack.lat, entry.stack.lon + entry.dx], { riseOnHover: true, riseOffset: Z.hover });
+    entry.m = m;
+    m.on('click', () => {
+      const st = entry.stack;
+      st.recs.forEach((r) => (markerById[r.id] = m));
+      if (st.recs.length > 1) {
+        if (m.closePopup) m.closePopup();
+        if (spider && spider.key === st.key) unspiderfy();
+        else spiderfy(st, entry.dx);
+      } else {
+        select(st.top.id);
+      }
+    });
+    return entry;
+  }
+
+  // Repaint an entry to match its stack's current state — icon, tooltip, paint band,
+  // and whether it carries a popup of its own (a multi-record stack does not: its
+  // click opens the fan instead).
+  function dressMarker(entry) {
+    const stack = entry.stack;
+    const selRec = state.sel ? stack.recs.find((r) => r.id === state.sel) : null;
+    const top = selRec || stack.top;
+    const sig = markerSig(stack, top, selRec);
+    if (entry.sig === sig) return;
+    entry.sig = sig;
+    const multi = stack.recs.length > 1;
+    entry.m.setIcon(stackIcon(top.civ, stack.recs.length, !!selRec));
+    entry.m.setZIndexOffset(markerZ(selRec ? Z.sel : multi ? Z.stack : Z.site, top, stack.imp));
+    entry.m.unbindTooltip();
+    entry.m.bindTooltip(placeLabel(top, state.lang), {
+      sticky: true,
+      className: 'eclipse-curve-tooltip',
+      offset: [0, -8],
+    });
+    if (multi) entry.m.unbindPopup();
+    else entry.m.bindPopup(popupHtml(top), POPUP_OPTS);
+    stampMarker(entry); // setIcon built a new element — re-stamp it
   }
 
   function drawMarkers() {
     if (!markerLayer) return;
-    // Leaflet's bindPopup installs a `remove → closePopup` hook, so clearLayers()
-    // below silently closes any open record popup. Capture which record it was
-    // BEFORE the teardown (clearLayers synchronously fires popupclose, which nulls
-    // the module-level _popupRecId), then reopen it after the rebuild — otherwise
-    // any viewport change (pan/zoom → the debounced drawMarkers) drops the popup.
+    // A marker whose popup this pass rebuilds fires popupclose, which nulls the
+    // module-level _popupRecId; capture it first and reopen afterwards.
     const reopen = _popupRecId;
-    markerLayer.clearLayers();
     markerById = {};
-    const stacks = selectForView();
-    stacks.forEach((stack) => {
-      const selRec = state.sel ? stack.recs.find((r) => r.id === state.sel) : null;
-      const top = selRec || stack.top;
-      const multi = stack.recs.length > 1;
-      const m = L.marker([stack.lat, stack.lon], {
-        icon: stackIcon(top.civ, stack.recs.length, !!selRec),
-        riseOnHover: true,
+    const { keep, admit } = selectForView();
+    const keepByKey = new Map(keep.map((s) => [s.key, s]));
+    const want = new Set();
+    admit.forEach((stack) => {
+      // One seal per visible world copy. Clicking a copy points markerById at THAT
+      // copy; a rebuild resets that, so the default claim goes to the copy nearest
+      // the view centre — never to whichever copy happened to be built first, which
+      // would reopen the popup a world away from the gesture.
+      const offs = wrapOffsetsFor(stack.lon);
+      const home = nearestDx(stack.lon, offs);
+      offs.forEach((dx) => {
+        const key = stack.key + '@' + dx;
+        want.add(key);
+        let entry = _drawn.get(key);
+        const fresh = !entry;
+        if (entry) cancelFade(entry);
+        else entry = makeMarker({ key, stack, dx, sig: null, fade: null });
+        entry.stack = stack;
+        // Dress BEFORE the layer add on a fresh marker, or Leaflet's default pin
+        // flashes for a frame in place of the seal.
+        dressMarker(entry);
+        if (fresh) {
+          markerLayer.addLayer(entry.m);
+          _drawn.set(key, entry);
+          stampMarker(entry);
+          fadeIn(entry);
+        }
+        if (dx === home) stack.recs.forEach((r) => (markerById[r.id] = entry.m));
       });
-      m.bindTooltip(placeLabel(top, state.lang), { sticky: true, className: 'eclipse-curve-tooltip', offset: [0, -8] });
-      if (!multi) {
-        m.bindPopup(popupHtml(top), POPUP_OPTS);
-        m.on('click', () => select(top.id));
-      } else {
-        // no popup on the stack itself — click toggles the fan
-        m.on('click', () => {
-          m.closePopup && m.closePopup();
-          if (spider && spider.key === stack.key) unspiderfy();
-          else spiderfy(stack);
-        });
+    });
+    // Retain, don't rebuild: an entry this zoom still allows and that has not left
+    // the evict box is merely off-screen. Anything else — thinned out by a filter,
+    // by zoom, or dragged clean out of the evict box — fades and goes.
+    _drawn.forEach((entry) => {
+      if (want.has(entry.key)) return;
+      const live = keepByKey.get(entry.stack.key);
+      const held = live && map && inViewport(map, entry.stack, EVICT_MARGIN);
+      if (held && !entry.fade) {
+        entry.stack = live;
+        return;
       }
-      markerLayer.addLayer(m);
-      stack.recs.forEach((r) => {
-        markerById[r.id] = m;
+      if (entry.m.isPopupOpen && entry.m.isPopupOpen()) return; // never yank an open card
+      fadeOut(entry);
+    });
+    // Off-screen retained markers answer for their records too, but only where an
+    // on-screen copy has not already claimed them.
+    _drawn.forEach((entry) => {
+      if (entry.fade) return;
+      entry.stack.recs.forEach((r) => {
+        if (!markerById[r.id]) markerById[r.id] = entry.m;
       });
     });
     // rebuild an active fan against the fresh markers/zoom/filters
-    respiderfy(stacks);
-    // Reopen the record popup the teardown above closed — AFTER respiderfy so a
-    // fanned marker exists in markerById. If LOD dropped it (record scrolled out
-    // of the viewport), markerById[reopen] is undefined → no reopen, which is the
-    // right thing (its marker is genuinely gone).
+    respiderfy(admit);
+    // Reopen the record popup a repaint closed — AFTER respiderfy so a fanned marker
+    // exists in markerById. If LOD dropped it, markerById[reopen] is undefined → no
+    // reopen, which is the right thing (its marker is genuinely gone).
     if (reopen && markerById[reopen]) openRecPopup(reopen);
     // Permalink sync chokepoint: drawMarkers runs after nearly every state
     // change (civ/type/q filters, record/event select+clear, map move/zoom), so
     // one touch() here keeps the shareable URL current for all of them.
     if (window.Permalink) Permalink.touch();
+    // Selecting or clearing an event switches WHICH clock downstream readers follow
+    // (the event's instant vs. the needle's year), and a clear moves neither the
+    // needle nor TimeState — so the same chokepoint has to announce it.
+    _notifyFocus();
   }
 
   // ---- Click-a-point local observation popup ----
@@ -1474,7 +2070,12 @@ const Atlas = (() => {
     const lng = ((latlng.lng + 540) % 360) - 180; // wrap world-copy lng into −180…180 for geometry
     const html = ObservePanel.htmlFor(sel, sel._kind, lat, lng);
     if (!_obsMarker) {
-      _obsMarker = L.marker(latlng, { icon: observerIcon(), interactive: true, zIndexOffset: 1200, keyboard: false });
+      _obsMarker = L.marker(latlng, {
+        icon: observerIcon(),
+        interactive: true,
+        zIndexOffset: Z.observer,
+        keyboard: false,
+      });
       _obsMarker.addTo(map);
       _obsMarker.on('popupopen', (ev) => wireForecast(ev.popup));
       // Dismissing the card by its × leaves the marker in place, so drawMarkers
@@ -1650,8 +2251,8 @@ const Atlas = (() => {
     return f + q.wr + invFxSB(v, q.dR) * q.nR;
   }
 
-  // Layout: one merged full-height band (shoujuan timeline) replaces the old three-strip
-  // ruler. Top-register text (range yrs / millennium / fine ticks) shares ONE
+  // Layout: one merged full-height band (shoujuan timeline), not a stack of strips.
+  // Top-register text (range yrs / millennium / fine ticks) shares ONE
   // row above the band, collision-guarded by MEASURED width (interval ledger
   // in drawTimeline — dynamic range labels win, fixed ticks yield). Event
   // seals fan UPWARD from dotY; a dividerY rule marks the seal/dynasty-name
@@ -2204,6 +2805,7 @@ const Atlas = (() => {
       focusLastT = 0;
       focusRAF = requestAnimationFrame(focusStep);
     }
+    _notifyFocus();
   }
 
   function focusStep(ts) {
@@ -2422,7 +3024,7 @@ const Atlas = (() => {
   function seedKeyNow() {
     return state.mode === 'events'
       ? 'ev|' + state.type + '|' + state.q
-      : 'rec|' + state.type + '|' + state.civ + '|' + state.q + '|' + state.range.join(',') + '|' + state.site;
+      : 'rec|' + state.type + '|' + state.civ + '|' + state.q + '|' + state.range.join(',');
   }
 
   function seedWindow(arr) {
@@ -2463,6 +3065,9 @@ const Atlas = (() => {
       winStart = Math.max(0, cur - INITIAL_BEFORE);
       winEnd = Math.min(len, cur + INITIAL_AFTER);
       winSeedKey = key;
+      // Park the render on the focus row rather than on the window's first row:
+      // the earlier half is context to scroll back into, not the opening view.
+      winFocusRow = cur - winStart;
     } else {
       winEnd = Math.min(winEnd, len);
       winStart = Math.min(winStart, winEnd); // clamp a stale window
@@ -2471,7 +3076,7 @@ const Atlas = (() => {
 
   // Load-earlier prepends (list grows upward) → restore scrollTop by the height
   // delta or the viewport jumps. Load-later appends — no fixup. Both trim the far
-  // edge to hold the window at MAX_WINDOW, mirroring AstroMeteoMap's controller.
+  // edge to hold the window at MAX_WINDOW, mirroring SubstellarAtlas's controller.
   function pageEarlier() {
     if (winStart <= 0) return;
     const list = document.getElementById('list');
@@ -2480,6 +3085,9 @@ const Atlas = (() => {
     if (winEnd - winStart > MAX_WINDOW) winEnd = winStart + MAX_WINDOW;
     renderList();
     if (list) list.scrollTop += list.scrollHeight - h0;
+    // renderList already drew the bands, but it measured the rail before this
+    // scrollTop restore — redraw against the position the reader ends up at.
+    drawBands();
   }
 
   function pageLater() {
@@ -2549,6 +3157,20 @@ const Atlas = (() => {
     );
   }
 
+  // Consume a pending focus row: scroll #list so the seeded card tops the view.
+  // Called after appendChild — an unattached row measures 0 — and it clears the
+  // request, so wheel paging and load-more re-renders never yank the reader back.
+  function applyFocusScroll(list) {
+    const row = winFocusRow;
+    winFocusRow = -1;
+    if (row <= 0) return;
+    // Two rows of lead-in above the focus card, not zero: a list that opens flush
+    // on its target reads as the beginning of the corpus, hiding the fact that
+    // earlier records exist and that scrolling up reaches them.
+    const card = list.children[Math.max(0, row - FOCUS_LEAD_IN)];
+    if (card) list.scrollTop = card.offsetTop - list.clientTop;
+  }
+
   function renderList() {
     // all-events mode owns #list too — branch here so every renderList() caller
     // (renderAll, type toggle, heavyRefresh, search, locale change) routes right.
@@ -2563,7 +3185,7 @@ const Atlas = (() => {
     seedWindow(recs);
     updateReccount();
     // Empty shelf (a type not yet collected, or filters/search matching nothing):
-    // a quiet centered note instead of the old blank leaf. Loop below no-ops.
+    // a quiet centered note rather than a blank leaf. Loop below no-ops.
     if (!recs.length) list.innerHTML = '<div class="list-empty">' + _esc(T('atlas.empty')) + '</div>';
     for (let i = winStart; i < winEnd; i++) {
       const rec = recs[i];
@@ -2576,7 +3198,7 @@ const Atlas = (() => {
       const trans = transLine(rec, state.lang, 'rc-trans');
       card.innerHTML =
         '<div class="rc-top">' +
-        Seal.svg(rec.civ, 18, Seal.name(rec.civ, state.lang)) +
+        Seal.svg(rec.civ, 18, Seal.name(rec.civ, state.lang, rec.year)) +
         '<span class="rc-place">' +
         placeLabel(rec, state.lang) +
         '</span>' +
@@ -2593,7 +3215,7 @@ const Atlas = (() => {
         // `solo` lets it stand in for the missing preview, set in the translation's style.
         (trans ? '' : ' solo') +
         '">' +
-        highlightPhrase(rec.orig) +
+        paraHtml(rec.orig, highlightPhrase) +
         '</div>' +
         '<div class="rc-src">' +
         sourceLabel(rec, state.lang) +
@@ -2618,6 +3240,7 @@ const Atlas = (() => {
       list.appendChild(card);
     }
     updateLoadBtns(recs.length);
+    applyFocusScroll(list);
     fitPlaceLabels(list); // must follow appendChild — an unattached row measures 0
     drawBands(); // central-band shadows for the visible records' solar events
     applyEventFocus();
@@ -2626,7 +3249,7 @@ const Atlas = (() => {
   // ---- All-events (all eclipse events, paged) ----
   // A chronological running-log of EVERY eclipse of the selected kind — with or
   // without a curated record — windowed around the lizhou focus and paged by the
-  // load-earlier / load-later chevrons (ported windowing from AstroMeteoMap's
+  // load-earlier / load-later chevrons (ported windowing from SubstellarAtlas's
   // makeListController, reskinned to the Song card chrome).
   const evKey = (dateStr, kind) => dateStr + '|' + kind;
   // Kinds with a checked-in event catalogue (solar.json / lunar.json). The other
@@ -2790,7 +3413,7 @@ const Atlas = (() => {
           ? '<span class="ec-seals">' +
             civs
               .map((c) => {
-                const lbl = Seal.name(c, typeof I18n !== 'undefined' ? I18n.getLocale() : 'en');
+                const lbl = Seal.name(c, typeof I18n !== 'undefined' ? I18n.getLocale() : 'en', _eventYear(e.date));
                 return Seal.svg(c, 15, lbl);
               })
               .join('') +
@@ -2851,6 +3474,7 @@ const Atlas = (() => {
       list.appendChild(card);
     }
     updateLoadBtns(all.length);
+    applyFocusScroll(list);
     drawBands(); // central-band shadows for the visible solar events
     applyEventFocus();
   }
@@ -2989,8 +3613,8 @@ const Atlas = (() => {
     );
     // shu'er label: CJK/ja keep the upright vertical jingguan; Western get a short spine label
     // (ear.now.short) so long words (fr "Maintenant") can't overflow the tab.
-    // ear.now.short is deliberately a Latin-script-only key — reading it on the CJK
-    // branch is what forced the old `!== 'ear.now.short'` echo guard here.
+    // ear.now.short is deliberately a Latin-script-only key: never read it on the CJK
+    // branch, where it resolves to nothing and the tab would echo the key itself.
     const tabLabel = isZh(state.lang) || state.lang === 'ja' ? T('ear.now') : T('ear.now.short');
     const canPrev = !!stepSelection(-1, { peek: true });
     const canNext = !!stepSelection(1, { peek: true });
@@ -3258,8 +3882,8 @@ const Atlas = (() => {
   }
 
   // ---- Central-band shadow overlay (total/annular eclipse path) ----
-  // Draw the totality/annularity band of every central solar eclipse currently
-  // loaded in the right rail as a translucent wash, interactive: hover cross-
+  // Draw the totality/annularity band of every central solar eclipse whose card is
+  // on screen in the right rail as a translucent wash, interactive: hover cross-
   // highlights the card + related record markers, click jumps to the event.
   const CENTRAL_KINDS = { Total: 1, Annular: 1, Hybrid: 1 };
   function solarByDate(date) {
@@ -3275,16 +3899,77 @@ const Atlas = (() => {
     return (_solarByDate && _solarByDate.get(date)) || null;
   }
 
-  // The central solar events whose bands should show = the ones backing the
-  // right rail's currently visible window (events: the slice; records: the
-  // visible records' distinct solar events).
+  // The cards intersecting #list's scroll viewport, as absolute indices into the
+  // current mode's sorted array. Slice the bands by THIS, never by the pager's
+  // [winStart, winEnd): that window carries up to MAX_WINDOW cards while the rail
+  // shows a handful, and it moves only on a page, so the map would wash events the
+  // reader has scrolled past and hold them there. Compare rects, never offsetTop —
+  // a card's offsetParent is not guaranteed to be #list.
+  function viewSlice() {
+    const list = document.getElementById('list');
+    // No layout yet (collapsed rail, pre-paint boot) — fall back to the paged
+    // window so the very first draw is not empty.
+    if (!list || !list.clientHeight) {
+      _viewFrom = winStart;
+      _viewTo = winEnd;
+      return [_viewFrom, _viewTo];
+    }
+    const box = list.getBoundingClientRect();
+    let k = -1,
+      from = -1,
+      to = -1;
+    for (const el of list.children) {
+      // Count only cards: the empty/loading shelves are children too, and the
+      // k-th card is index winStart + k in the sorted array (both renderers
+      // append in that order).
+      if (!el.classList.contains('reccard') && !el.classList.contains('evcard')) continue;
+      k++;
+      const r = el.getBoundingClientRect();
+      if (r.bottom <= box.top || r.top >= box.bottom) continue;
+      if (from < 0) from = k;
+      to = k;
+    }
+    _viewFrom = from < 0 ? winStart : winStart + from;
+    _viewTo = from < 0 ? _viewFrom : winStart + to + 1;
+    return [_viewFrom, _viewTo];
+  }
+
+  // Redraw when — and only when — the on-screen slice actually shifts. One
+  // listener on the persistent #list survives every innerHTML rebuild (same
+  // reason wireWheelAutoload binds there). rAF-coalesced: a fling would otherwise
+  // rebuild every polygon each frame.
+  let _bandScrollRaf = 0;
+  function wireBandScrollSync() {
+    const list = document.getElementById('list');
+    if (!list) return;
+    list.addEventListener(
+      'scroll',
+      () => {
+        // Cancel-and-reschedule, never a "pending" boolean: a hidden tab holds its
+        // rAF callbacks, and a flag raised there would latch scrolling off for good.
+        cancelAnimationFrame(_bandScrollRaf);
+        _bandScrollRaf = requestAnimationFrame(() => {
+          const a = _viewFrom,
+            b = _viewTo;
+          const [from, to] = viewSlice();
+          if (from !== a || to !== b) drawBands();
+        });
+      },
+      { passive: true }
+    );
+  }
+
+  // The central solar events whose bands should show = the ones backing the cards
+  // on screen in the right rail (events: the slice; records: the on-screen
+  // records' distinct solar events).
   function visibleCentralEvents() {
     if (state.type !== 'solar') return [];
+    const [from, to] = viewSlice();
     let evs;
     if (state.mode === 'events') {
-      evs = evAll().slice(winStart, winEnd);
+      evs = evAll().slice(from, to);
     } else {
-      const recs = recsSorted().slice(winStart, winEnd);
+      const recs = recsSorted().slice(from, to);
       const seen = new Set();
       evs = [];
       for (const r of recs) {
@@ -3539,7 +4224,8 @@ const Atlas = (() => {
           openRecPopup(id);
         });
       }
-      map.flyTo([rec.lat, rec.lon], Math.max(map.getZoom(), 4));
+      const mk = markerById[id];
+      map.flyTo([rec.lat, nearestLon(rec.lon, mk ? mk.getLatLng().lng : null)], Math.max(map.getZoom(), 4));
     }
     // Real geometry: select the matching eclipse so the engine draws its contact
     // curves; baseline TimeState on that event's PEAK so the (now static) umbra
@@ -3689,6 +4375,7 @@ const Atlas = (() => {
     const lb = document.getElementById('ec-later');
     if (lb) lb.onclick = pageLater;
     wireWheelAutoload();
+    wireBandScrollSync();
     // search
     const q = document.getElementById('q');
     if (q)
@@ -3724,8 +4411,8 @@ const Atlas = (() => {
         if (_obsMarker && _obsMarker.isPopupOpen()) showObservation(_obsMarker.getLatLng());
       });
     }
-    // Grid layout: the map cell resizes with the window, so Leaflet must
-    // re-measure too (the old absolute inset resized the map via CSS alone).
+    // Grid layout: the map cell resizes with the window, and CSS alone never tells Leaflet
+    // its container changed — it must be told to re-measure or the tiles grey out.
     window.addEventListener('resize', () => {
       drawTimeline();
       fitPlaceLabels();
@@ -3824,17 +4511,39 @@ const Atlas = (() => {
     markerLayer = L.layerGroup().addTo(map);
     // Central-band overlay: a low pane (z 350) so the washes read as shadows on
     // the map — above tiles (200), below record markers (600) and the selected
-    // event's own richer curves (628/629). Its own layerGroup, refreshed from the
+    // event's own richer curves (593/594). Its own layerGroup, refreshed from the
     // list render funnel (drawBands).
     map.createPane('atlas-bands');
     map.getPane('atlas-bands').style.zIndex = 350;
     bandLayer = L.layerGroup().addTo(map);
     // Viewport coupling: re-run the LOD selection when the view changes.
-    // Debounced so a pan/zoom gesture rebuilds markers once, on settle.
+    // Debounced so a pan/zoom gesture reconciles markers once, on settle.
     let _mvTimer;
     map.on('moveend zoomend', () => {
       clearTimeout(_mvTimer);
       _mvTimer = setTimeout(drawMarkers, 120);
+    });
+    // Mid-gesture top-up. VIEW_MARGIN pre-builds the seals just off each edge, so a
+    // short drag reveals markers that already exist; a drag longer than the margin
+    // would otherwise expose bare map until the finger lifts. Watch for the visible
+    // bounds leaving the box the last pass drew for, and reconcile then — rAF-gated,
+    // so a settled map costs nothing.
+    let _topUp = 0,
+      _drawnBounds = null;
+    map.on('move', () => {
+      if (_topUp) return;
+      _topUp = requestAnimationFrame(() => {
+        _topUp = 0;
+        const b = map.getBounds();
+        if (_drawnBounds && _drawnBounds.contains(b)) return;
+        const latPad = (b.getNorth() - b.getSouth()) * VIEW_MARGIN;
+        const lngPad = (b.getEast() - b.getWest()) * VIEW_MARGIN;
+        _drawnBounds = L.latLngBounds(
+          [b.getSouth() - latPad, b.getWest() - lngPad],
+          [b.getNorth() + latPad, b.getEast() + lngPad]
+        );
+        drawMarkers();
+      });
     });
     // Forget the reopen-target when a popup closes for ANY reason other than our
     // own rebuild — a reader clicking the × or the observe popup superseding it —
@@ -3974,6 +4683,9 @@ const Atlas = (() => {
     refresh: renderAll,
     state,
     recordsForEvent,
+    focusYear,
+    DEFAULTS,
+    subscribeFocus,
     yearLabel,
     placeLabel,
     stepEvent,

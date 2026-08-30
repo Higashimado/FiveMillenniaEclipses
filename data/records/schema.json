@@ -52,10 +52,10 @@
         },
         "basis": {
           "enum": [
-            "explicit", "sexagenary_forward_scan", "era_midpoint", "year_only",
+            "explicit", "sexagenary_forward_scan", "civil_day_number", "era_midpoint", "year_only",
             "approximate", "scholarly_consensus", "reverse_match_nasa", "reverse_match_ae"
           ],
-          "description": "How event_date/date.verbatim was converted to the calendar. explicit = source gives a directly-usable calendar date. sexagenary_forward_scan = the 干支 ganzhi cycle forward-scanned from a reign-year start (the historical-China default). era_midpoint = only 'in the Nth reign, mid-period' is known. reverse_match_nasa/ae = eclipse identified by matching the record's description against the NASA 5MCSE/5MCLE canon or an AE-computed path, not by calendrical reckoning of the record's own date — this is the ONLY basis where an eclipse record's identification depends on data/eclipses/*.json, and where observation.status=predicted_unseen most often applies (global peak was matched, not confirmed locally visible)."
+          "description": "How event_date/date.verbatim was converted to the calendar. explicit = source gives a directly-usable calendar date. sexagenary_forward_scan = the 干支 ganzhi cycle forward-scanned from a reign-year start (the historical-China default). civil_day_number = the source numbers the day within its lunar month (七月二十二日) instead of naming it by ganzhi, so the day is counted from the month start rather than scanned for; administrative paperwork dates this way where annalistic histories do not. era_midpoint = only 'in the Nth reign, mid-period' is known. reverse_match_nasa/ae = eclipse identified by matching the record's description against the NASA 5MCSE/5MCLE canon or an AE-computed path, not by calendrical reckoning of the record's own date — this is the ONLY basis where an eclipse record's identification depends on data/eclipses/*.json, and where observation.status=predicted_unseen most often applies (global peak was matched, not confirmed locally visible)."
         }
       }
     },
@@ -99,16 +99,26 @@
           "minProperties": 1,
           "description": "Where inside the source this record sits. Keys come from a closed vocabulary but their values are free text, because each tradition numbers its own divisions (卷052 / 卷四十七 / XVI / 40v). Only the keys a source actually uses are present. Each key's value is percent-encoded separately and substituted into the like-named placeholder of sources.json's edition.locus_url at render time, so a multi-segment locus needs no special casing. Assigned offline, claiming a juan only when the record's text_orig is found in exactly one juan of that book — never inferred from dates.",
           "properties": {
-            "work": {"type": "string", "description": "The individual work, when one source key bundles several (扶桑略記 / 百錬抄 / 吾妻鏡)."},
+            "work": {"type": "string", "description": "The CONTAINER: the individual work, when one source key bundles several (扶桑略記 / 百錬抄 / 吾妻鏡), or the periodical a communication ran in (Astronomische Nachrichten, Monthly Notices of the Royal Astronomical Society) where the source key names only its observer. The title of the piece inside it is `section`, never here — a citation sets the container and the piece in different positions, and one key holding both cannot be typeset as either. Verbatim, never translated."},
             "volume": {"type": "string", "description": "卷 / juan / Book / Liber / Tomus, in the edition's own numbering — '卷052' for 宋史 but '卷27' for 明史, '卷四十七' for 高麗史, 'XVI' for Scotichronicon."},
+            "number": {"type": "string", "description": "The serial's own issue NUMBER, where it numbers its issues instead of (or as well as) dating them — Astronomische Nachrichten 33, Nr. 782. Bare digits: the unit word is the reader's, supplied per locale, because the German Nr. and the French n° name the same thing. `issue` cannot hold it (that field is an ISO date by pattern) and `chapter` would misname it, so a numbered serial had no home at all before this key."},
             "chapter": {"type": "string", "description": "章 / cap. / ch. / §, the division below volume."},
-            "section": {"type": "string", "description": "A named division rather than a numbered one (新羅本紀, 推古天皇紀)."},
+            "section": {"type": "string", "description": "The TITLED PIECE inside the container, or a division named rather than numbered: a classical work's part (新羅本紀, 推古天皇紀), a newspaper's column heading, the title of a paper in a periodical (Beobachtung der totalen Mondfinsterniß 1852 Januar 6 auf der Breslauer Sternwarte). A column heading belongs HERE, not at the head of text_orig: one heading covers several records (EN PROVINCE runs over six Le Gaulois dispatches), which is what a locus is for, and a heading left in text_orig becomes the whole of the record's collapsed preview. Two decks of one heading join with an em dash. Verbatim, never translated — a citation does not translate the title it cites."},
             "annal": {"type": "string", "description": "The year-entry of a chronicle: 's.a. 840' is stored as '840', 'era MCCXXIX' as 'MCCXXIX', 昭公二十一年 as written."},
             "reign": {"type": "string", "description": "The reign whose records contain the entry (憲宗實錄 in 朝鮮王朝實錄; 莊公 in 春秋經)."},
             "year": {"type": "string", "description": "The regnal year within a reign (五年), used with 'reign'."},
             "folio": {"type": "string", "description": "Manuscript leaf, recto/verso suffix included: '40v'."},
             "fragment": {"type": "string", "description": "Fragment number in a modern edition of a fragmentary author: '122 West'."},
-            "page": {"type": "string", "description": "Page number, only where the cited edition has stable pagination."}
+            "page": {"type": "string", "description": "Page number, only where the cited edition has stable pagination."},
+            "issue": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "The dated issue of a serial, as extended-ISO. A newspaper's issue date is NOT the record's event_date: the eclipse falls on event_date and the report appears in the issue of one to fourteen days later, so the two must be storable separately. Present only on serial sources; a book uses volume/chapter."
+            },
+            "byline": {
+              "type": "string",
+              "description": "The credit line printed in an article's head matter, above the report itself: the correspondent's byline ((De nos envoyés spéciaux.)), an agency credit, or a continuation notice ((Vervolg van Pag. 1.)). Head matter, like the heading it sits with, so it is cited rather than transcribed. Verbatim, never translated."
+            }
           }
         },
         "url": {
@@ -146,6 +156,17 @@
       "properties": {
         "first_seen": {"type": "string", "description": "ISO date the source gives for first appearance, when distinct from event_date."},
         "end_text": {"type": "string", "description": "Verbatim disappearance clause, e.g. '四十日滅'."}
+      }
+    },
+    "separation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deg", "uncertainty_deg", "ruler"],
+      "description": "How close the body actually came to the place the record names — COMPUTED, not recorded. Present only on occultation records dated to the day whose subject is settled and whose sky position the concordance can place; absent everywhere else, and absence never means far. It depends on the date, the subject and the sky position all having been read right, so it must never be used to revise object or event_date, which are where that evidence comes from.",
+      "properties": {
+        "deg": {"type": "number", "minimum": 0, "maximum": 180, "description": "True angular separation in degrees, at noon UT on event_date."},
+        "uncertainty_deg": {"type": "number", "minimum": 0, "description": "How much of that is ignorance: half the body's own daily motion, since the record gives a day and no hour, plus parallax where it matters. For the Moon this reaches some 4 degrees and routinely exceeds deg itself — a lunar reading below it says nothing about how close the body came, and a consumer must compare the two before treating deg as a measurement."},
+        "ruler": {"enum": ["named-star", "member-star"], "description": "What it was measured to: the single star the record names, or the nearest member of the group it names."}
       }
     },
     "significance": {

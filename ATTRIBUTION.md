@@ -6,24 +6,28 @@ under CC-BY-SA 4.0. Everything below is somebody else's, with its full license
 text under [`licenses/`](licenses/).
 
 ## Code
-- **Eclipse rendering & Besselian geometry** — vendored from **AstroMeteoMap**
-  (sibling project): `js/eclipse.js`, `js/bessel-runtime.js`,
-  `js/eclipse-glyph.js`, `js/body-markers.js`, `js/time.js`, `js/i18n.js`,
-  `css/tokens.css`, `tools/build-bessel-curves.mjs`, `tools/lib/*.mjs`. Upstream
-  is the source of truth; re-sync manually when it changes. The shipped comments
-  no longer cite upstream file:line positions — those drift as upstream moves,
-  and this file is the durable record.
+- **Eclipse rendering & Besselian geometry** — vendored from **SubstellarAtlas**
+  (sibling project, https://github.com/Higashimado/SubstellarAtlas):
+  `js/eclipse.js`, `js/bessel-runtime.js`, `js/eclipse-glyph.js`,
+  `js/body-markers.js`, `js/time.js`, `js/i18n.js`, `css/tokens.css`, and the
+  offline Besselian curve builder. Upstream is the source of truth; re-sync
+  manually when it changes. Two of those are not findable upstream under the
+  same name: `js/body-markers.js` was split out here, and the curve builder is a
+  build script SubstellarAtlas does not publish. The shipped comments no longer
+  cite upstream file:line positions — those drift as upstream moves, and this
+  file is the durable record.
 
 ## Artwork
-- **Civilization seals** (`js/seal.js`) — 28 emblems drawn as SVG primitives, the
-  project's own, except the `french` motif (fleur-de-lis), which is hand-traced
-  from a reference photo at heraldic scale — the shape itself (three lily petals
-  over a tie-band) is a centuries-old heraldic charge, not anyone's copyrightable
+- **Civilization seals** (`js/seal.js`) — 33 emblems drawn as SVG primitives, the
+  project's own, except four traced motifs. `french` (fleur-de-lis) is hand-traced
+  from a reference photo at heraldic scale; `polish` (crowned eagle), `roman`
+  (laurel wreath) and `canadian` (maple leaf) are traced from public-domain
+  renderings. All four are long-established devices, not anyone's copyrightable
   expression.
 - **Comet & guest-star icons** (`img/comet_icon.svg`, `img/supernova_icon.svg`) —
   the project's own, drawn in an engraving style.
 - **Sun & Moon disk textures** (`img/{sun,moon}-{large,xlarge}.svg`) — from
-  AstroMeteoMap, with the renderer that places them (`js/body-markers.js`).
+  SubstellarAtlas, with the renderer that places them (`js/body-markers.js`).
 
 Internal design notes, handover documents and visual reference material are kept
 in `files/`, which is untracked (see `.gitignore`) and is not part of the
@@ -67,7 +71,7 @@ exact version shipped, so a re-vendor that changes terms shows up as a rename.
   `data/records/` on the same terms. The attribution chain is below; the
   per-table field gloss lives in the database's own README, still being written.
   - `xingguan.json` — 星官/宿/恒星 names, 7-locale glosses and modern
-    authentications are mechanically extracted from **AstroMeteoMap**
+    authentications are mechanically extracted from **SubstellarAtlas**
     (sibling project, `data/sky/`), whose upstreams are Wikipedia/Wikidata
     (CC-BY-SA), Stellarium's `constellations.cn` lineage, and HYG/SIMBAD star
     data. CC-BY-SA is inherited from that chain — hence the whole bundle's terms.

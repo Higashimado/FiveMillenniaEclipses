@@ -16,14 +16,29 @@ const I18n = (() => {
   // computed values (e.g. a contact's actual clock interval) the same way UI strings do.
   function _interp(str, params) {
     if (!params) return str;
-    for (const k of Object.keys(params)) {
-      str = str.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
-    }
-    return str;
+    // Substitute through a CALLBACK, never a replacement string: $& / $` / $' inside a
+    // VALUE would otherwise be read as a substitution pattern and splice the surrounding
+    // text back in. Values here are data — record text, place names, citation fragments —
+    // and glossAttr inlines the result straight into an HTML attribute. One pass over the
+    // string also replaces the old per-key loop, which built a fresh RegExp per parameter.
+    // A placeholder the caller did not supply is left standing, as it always was.
+    return str.replace(/\{(\w+)\}/g, (m, k) => (k in params ? params[k] : m));
   }
 
   function t(key, params) {
     const str = _dict[key] ?? _fallbackDict[key];
+    if (str == null) return key;
+    return _interp(str, params);
+  }
+
+  // The English form of a key whatever the active locale is. For citing a work in a
+  // language the reader's locale has no apparatus for: a Dutch newspaper read on a
+  // Chinese page keeps a western citation rather than being fitted with 年月日 and 版,
+  // which is what the Chinese history journals themselves prescribe for a
+  // foreign-language source. English stands in as the western frame; a locale that has
+  // its own western frame never calls this.
+  function ten(key, params) {
+    const str = _fallbackDict[key] ?? _dict[key];
     if (str == null) return key;
     return _interp(str, params);
   }
@@ -103,10 +118,10 @@ const I18n = (() => {
     });
   }
 
-  // Publish the active locale to the document. The full BCP-47 tag, script subtag
-  // included: 'zh-Hans' and 'zh-Hant' are what let a browser pick the right Han
-  // glyph variants, and collapsing both to bare 'zh' threw that away for Chinese
-  // alone while every other locale kept its own tag.
+  // Publish the active locale to the document. Stamp the FULL BCP-47 tag, script subtag
+  // included: 'zh-Hans' and 'zh-Hant' are what let a browser pick the right Han glyph
+  // variants, so collapsing either to a bare 'zh' costs Chinese the one distinction every
+  // other locale keeps for free.
   function _stampLang() {
     document.documentElement.lang = _locale;
     document.body.dataset.lang = _locale;
@@ -128,8 +143,33 @@ const I18n = (() => {
     _subs.push(fn);
   }
 
+  // The document's own name and blurb, in the reader's language. The per-language
+  // shells under /en/ …/ja/ each stamp a <title> as they write the root document, but
+  // that is a one-shot at load: a switch made inside the page would otherwise leave the
+  // tab (and every og: card a reader shares from it) speaking whichever shell they
+  // arrived through. Written here so the name follows the locale like every other string.
+  //
+  // og:title takes the prose form, which for a non-Latin locale is bilingual — the same
+  // pairing the README's own heading uses. site.subtitle IS that Latin prose form, so a
+  // locale whose title already equals it (en) prints one name, not the same name twice.
+  function _stampDocumentName() {
+    const title = t('site.title');
+    const latin = t('site.subtitle');
+    const tagline = t('site.tagline');
+    document.title = title;
+    const og = title === latin ? title : title + ' · ' + latin;
+    const meta = (sel, v) => {
+      const el = document.head && document.head.querySelector(sel);
+      if (el && v) el.setAttribute('content', v);
+    };
+    meta('meta[property="og:title"]', og);
+    meta('meta[property="og:description"]', tagline);
+    meta('meta[name="description"]', tagline);
+  }
+
   function applyDOM() {
     _stampLang();
+    _stampDocumentName();
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       el.textContent = t(el.dataset.i18n);
     });
@@ -224,6 +264,26 @@ const I18n = (() => {
     return '';
   }
 
+  /**
+   * Resolve a secondary block only where it says something the primary does not.
+   * @param {Object} map     the secondary block (a modern name, a later title).
+   * @param {Object} headMap the primary block it would be shown beside.
+   * @param {string} [lang]  active locale; defaults to the live one.
+   * @param {{rom?:boolean, zh?:boolean}} [opts] passed through to pick.
+   * @returns {string} '' when the two resolve to the same string.
+   *
+   * A locale carrying no secondary value of its own inherits one down the chain, so
+   * a name that never changed IN THAT LOCALE comes back as its own restatement —
+   * "Bogor (now Bogor)". The data cannot pre-empt this by omitting the key: omission
+   * is what sends the ladder to the next locale, which for zh-Hans ends at en and
+   * puts Latin script inside a Chinese label. The equality therefore has to be
+   * tested after resolution, which is here, beside the ladder that causes it.
+   */
+  function pickDistinct(map, headMap, lang, opts) {
+    const val = pick(map, lang, opts);
+    return val && val !== pick(headMap, lang, opts) ? val : '';
+  }
+
   function detectLocale() {
     // Language-in-path (highest priority): a per-language shell under /en/ …/ja/
     // serves this app at /<lang>/, and the permalink writer stamps that segment.
@@ -256,7 +316,9 @@ const I18n = (() => {
 
   return {
     t,
+    ten,
     pick,
+    pickDistinct,
     gloss,
     glossAttr,
     init,

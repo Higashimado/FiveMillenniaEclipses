@@ -190,6 +190,41 @@ const BesselRT = (() => {
     return { lat, lng, zeta };
   }
 
+  // Same WGS-84 ellipsoid inverse as fundamentalToGeo, but never null: past the
+  // ellipsoid horizon (zsq < 0) ζ clamps to 0, landing the point on the terminator.
+  // Inside the horizon the clamp never fires, so the two are pixel-identical wherever
+  // fundamentalToGeo is defined — which is what lets one contour use this the whole way
+  // round and stay tangent to the cached limits into the graze. fundamentalToGeoSphere
+  // cannot: it is a different (spherical) inverse and departs from the ellipsoid by
+  // ~10 km (up to ~40 km at a grazing cusp) well before the horizon. Verbatim port of
+  // the builder's function of the same name.
+  function fundamentalToGeoClamped(xi, eta, bessel) {
+    const F = FLATTENING_FACTOR;
+    const F2 = F * F;
+    const sinD = Math.sin(bessel.d_rad),
+      cosD = Math.cos(bessel.d_rad);
+    let rho_sq = 1;
+    let lat = 0,
+      lng = 0,
+      zeta = 0;
+    for (let iter = 0; iter < 8; iter++) {
+      let zsq = rho_sq - xi * xi - eta * eta;
+      if (zsq < 0) zsq = 0;
+      zeta = Math.sqrt(zsq);
+      const rho_sin_phi_p = eta * cosD + zeta * sinD;
+      const c = zeta * cosD - eta * sinD;
+      const rho_cos_phi_p = Math.sqrt(xi * xi + c * c);
+      const tan_phi_p = rho_sin_phi_p / rho_cos_phi_p;
+      lat = Math.atan(tan_phi_p / F2) * RAD2DEG;
+      const H = Math.atan2(xi, c);
+      lng = (H - bessel.mu_rad) * RAD2DEG;
+      lng = ((lng + 540) % 360) - 180;
+      const u = Math.atan(F * Math.tan(lat * DEG2RAD));
+      rho_sq = Math.cos(u) ** 2 + F2 * Math.sin(u) ** 2;
+    }
+    return { lat, lng, zeta };
+  }
+
   // Closed-form SPHERICAL inverse of the fundamental plane: ζ=√(1−ρ²) (clamped to
   // 0 for ρ≥1, giving the limb/terminator), with the F2 geographic-latitude
   // correction. Used for the partial-visibility contours INSTEAD of the ellipsoid
@@ -590,7 +625,7 @@ const BesselRT = (() => {
   // roots) and close any grazing lens along the terminator — the same
   // disc-clip + limb-close discipline the iso-magnitude lenses use. Returns a
   // closed ring, or null when the shadow misses Earth entirely.
-  function shadowLensGeo(b, radiusL, tanF, nAz, maxMercDeg, forFill) {
+  function shadowLensGeo(b, radiusL, tanF, nAz, maxMercDeg, forFill, clampedGraze) {
     nAz = nAz || 256;
     const TWO_PI = 2 * Math.PI;
     const rSeed = Math.abs(radiusL); // shadow radius at the limb (ζ=0), and fixed-point seed
@@ -626,18 +661,25 @@ const BesselRT = (() => {
     // ONE inverse per lens, never mixed within a contour. Near the terminator the ellipsoid
     // and spherical inverses sit the same ~perpendicular distance from the true curve but up
     // to a few degrees apart ALONG it, so alternating them per vertex makes the boundary
-    // double back into 180° spikes. A deep on-disc umbra (well inside ρ=0.997, where the
+    // double back into 180° spikes. A deep on-disc lens (well inside ρ=0.997, where the
     // ellipsoid is both defined and tangent to the cached limits to ~metres) takes the
-    // ellipsoid; anything grazing the limb takes the spherical inverse throughout — smooth
-    // and defined everywhere on ρ=1, exactly as the iso-magnitude lenses do.
+    // ellipsoid; anything grazing the limb takes one inverse that is defined everywhere.
+    //
+    // Which one is the caller's to say, because the two lens families answer to different
+    // curves. The umbra/antumbra edge must stay tangent to the cached umbral limits, which
+    // are ellipsoid geometry, so it grazes on the CLAMPED ellipsoid — the spherical inverse
+    // bulges the drawn totality edge outward by ~10 km, ~40 km at a grazing cusp, which is
+    // how a shadow came to cross Madrid that never did. The iso-magnitude lenses answer to
+    // the marching-squares contours, which are themselves spherical, and keep that inverse.
     const useEllipsoid = !anyOff && maxRho2 <= 0.997 * 0.997;
+    const grazeInverse = clampedGraze ? fundamentalToGeoClamped : fundamentalToGeoSphere;
     const proj = useEllipsoid
       ? (p) => {
           const g = fundamentalToGeo(p[0], p[1], b);
           return [g.lat, g.lng];
         }
       : (p) => {
-          const g = fundamentalToGeoSphere(p[0], p[1], b);
+          const g = grazeInverse(p[0], p[1], b);
           return [g.lat, g.lng];
         };
 
@@ -708,8 +750,8 @@ const BesselRT = (() => {
     const ccwInside = Math.hypot(b.x - Math.cos(mid), b.y - Math.sin(mid)) < rSeed;
     const thB = ccwInside ? thA + dccw : thA + dccw - TWO_PI;
 
-    // Densify the limb arc in angle with the same (spherical, in this grazing branch)
-    // inverse the shadow arc uses, so the lens closes with zero seam at the junction.
+    // Densify the limb arc in angle through `proj` — the same inverse the shadow arc just
+    // used — so the lens closes with zero seam at the junction whichever one that was.
     const projTh = (th) => proj([Math.cos(th), Math.sin(th)]);
     const limb = [projTh(thA)];
     (function rec(ta, pa, tb, pb, depth) {
@@ -730,10 +772,12 @@ const BesselRT = (() => {
     return densifyXY(arc).concat(limb.slice(1));
   }
 
-  // Live umbra/antumbra outline (m=|L2'| circle → ground lens). Thin wrapper over
-  // the shared projector with the umbral cone (L2, tan f2).
+  // Live umbra/antumbra outline (m=|L2'| circle → ground lens). Thin wrapper over the
+  // shared projector with the umbral cone (L2, tan f2), and the one lens family that
+  // grazes on the CLAMPED ELLIPSOID: this boundary is drawn over the cached umbral
+  // limits and has to stay tangent to them right into the graze.
   function umbraLensGeo(b, nAz, maxMercDeg) {
-    return shadowLensGeo(b, b.l2, b.tan_f2, nAz, maxMercDeg);
+    return shadowLensGeo(b, b.l2, b.tan_f2, nAz, maxMercDeg, false, true);
   }
 
   // Iso-magnitude m=k ground lens: the mag=k contour is the circle of fundamental-plane
@@ -911,6 +955,7 @@ const BesselRT = (() => {
     coreBesselAE,
     fundamentalToGeo,
     fundamentalToGeoSphere,
+    fundamentalToGeoClamped,
     geoToFundamental,
     localCircumstances,
     projectAzimuth,

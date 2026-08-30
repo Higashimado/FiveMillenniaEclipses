@@ -2,22 +2,13 @@
   "_meta": {
     "title": "Catalogue of the sources cited by the record corpus",
     "scope": "Every work and every observer that a record cites: standard histories, chronicles, veritable records, classical scholarly works and, for the modern period, named astronomers. An entry gives the title in whichever languages the work actually has one, the people responsible for it, a statement of responsibility where that is not a matter of transmission, and the editions consulted. Records cite an entry by key and do not repeat the title; the chapter, leaf or year cited sits with the record, not with the title here. Where the corpus works from a translation or from a quotation in another book, the edition consulted is marked as such, following the Chicago Manual of Style, 18th edition, section 14.260.",
-    "fields": "key = source identifier. title = titles by language, with zh-Hans and zh-Hant for works that genuinely have a Chinese title, rom for the romanisation and en for the English title; omitted entirely for an entry that is an observer rather than a work (optional). author = the people responsible, each with name in its own script, rom for the romanisation, role (comp, ed, trans, annot, obs, attr), dates of life or activity, and kind set to group for an institution or collective; omitted entirely where the work is genuinely anonymous (optional). attribution = a statement of responsibility that is not a matter of transmission, such as the institution behind an observation, a corroborating witness or a description of an anonymous author (optional). editions = the editions of the work, each with kind (orig, crit, facsim for a direct citation, trans or quot for an indirect one, cite for a bare reference), consulted set to true on exactly one of them, by for the translator, editor or intermediary, title, year, url, license, and locus_url as a template for citing a single chapter (optional).",
+    "fields": "key = source identifier. title = titles by language, with zh-Hans and zh-Hant for works that genuinely have a Chinese title, rom for the romanisation and en for the English title; omitted entirely for an entry that is an observer rather than a work (optional). author = the people responsible, each with name in its own script, rom for the romanisation, role (comp, ed, trans, annot, obs, attr), dates of life or activity, and kind set to group for an institution or collective; omitted entirely where the work is genuinely anonymous (optional). attribution = a statement of responsibility that is not a matter of transmission, such as the institution behind an observation, a corroborating witness or a description of an anonymous author (optional). editions = the editions of the work, each with kind (orig, crit, facsim for a direct citation, trans or quot for an indirect one, cite for a bare reference), consulted set to true on exactly one of them, by for the translator, editor or intermediary, title, year, url, license, and locus_url as a template for citing a single chapter (optional). genre = the kind of publication, where that decides how the corpus reads it; only 'newspaper' is used today, and it is what tells the Chinese translation to keep the newspaper register and Han numerals rather than the scholarly register of a journal or a chronicle (optional).",
     "provenance": "Compiled and maintained by hand. The first version was aggregated from the bibliographic fields of an earlier form of the corpus, in which every title was already distinct, and every entry since has been edited individually.",
     "count": {
-      "sources": 214
+      "sources": 322
     },
     "license": "CC-BY-SA-4.0",
-    "updated": "2026-07-29",
-    "caveats": [
-      "A license is recorded on a consulted edition only where the text is known to be under one. Left empty it means the status was not established, not that the text is free of restriction; anyone reusing an edition should check its own terms.",
-      "Fifty-five entries have no editions at all. Each was checked and no freely reachable full text was found, whether because the archive requires an account or because it refuses automated access. An empty editions field is a finding, not a gap.",
-      "An edition marked trans or quot means the corpus works from a translation or from a quotation in another book. It does not mean the original is unavailable. Any further edition listed without the consulted mark is the critical edition of the original, where one is known.",
-      "No Chinese title is invented for a western work, and no French, Spanish, Italian or Japanese title is supplied for any work, since few pre-modern titles have a settled form in those languages. Only titles the work actually bears are recorded.",
-      "Only real authors are recorded as authors. Where a chronicle is genuinely anonymous, as with the Annales Castellani and the Anales Toledanos, the description of its unnamed chronicler is kept as a statement of responsibility instead. Institutions and expeditions such as the U.S. Naval Observatory or the Royal Society are treated the same way.",
-      "Modern observation entries, mostly eighteenth to twentieth century astronomers, have an observer but no work, and so carry no title.",
-      "The place where al-Battani worked is disputed between al-Raqqa and Antioch, and the records citing him divide evenly. The entry records both rather than choose."
-    ]
+    "updated": "2026-08-29"
   },
   "sources": {
     "assyrian-scribes-limmu-list": {
@@ -37,6 +28,22 @@
           "year": "1994",
           "url": "https://oracc.museum.upenn.edu/saao/saas2/",
           "license": "CC-BY-SA-3.0"
+        }
+      ]
+    },
+    "limburger-koerier": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Limburger koerier"
+      },
+      "attribution": "Daily of Limburg, published at Heerlen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
         }
       ]
     },
@@ -811,6 +818,32 @@
           "url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053",
           "license": "CC-BY-SA-4.0",
           "locus_url": "https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/{volume}"
+        }
+      ]
+    },
+    "songhuiyao-ruiyi": {
+      "title": {
+        "zh-Hans": "《宋会要辑稿·瑞异》",
+        "zh-Hant": "《宋會要輯稿·瑞異》",
+        "rom": "Song huiyao jigao, \"Ruiyi\"",
+        "en": "Draft of the Collected Statutes of Song, \"Auspicious and Anomalous Phenomena\""
+      },
+      "author": [
+        {
+          "name": "徐松",
+          "rom": "Xu Song",
+          "role": "comp",
+          "dates": "1781–1848"
+        }
+      ],
+      "attribution": "宋朝官修會要之文，清嘉慶間徐松自《永樂大典》輯出；瑞異門所收為司天監奏報、臣僚章疏與詔敕原件",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "國立臺灣大學臺灣歷史數位圖書館",
+          "title": "宋會要輯稿 v0.9",
+          "url": "http://thdl.ntu.edu.tw/L303_SongHuiYao/RetrieveDocs.php"
         }
       ]
     },
@@ -3705,6 +3738,16 @@
           "name": "Shang royal diviners",
           "kind": "group"
         }
+      ],
+      "editions": [
+        {
+          "kind": "quot",
+          "consulted": true,
+          "by": "Xu Zhen-tao, F. R. Stephenson, Jiang Yao-tiao",
+          "title": "Astronomy on Oracle Bone Inscriptions, Quarterly Journal of the Royal Astronomical Society 36",
+          "year": "1995",
+          "url": "https://adsabs.harvard.edu/full/1995QJRAS..36..397Z"
+        }
       ]
     },
     "nihon-shoki": {
@@ -3766,6 +3809,1712 @@
           "license": "CC-BY-SA-4.0",
           "locus_url": "https://zh.wikisource.org/wiki/%E9%95%B7%E6%98%A5%E7%9C%9F%E4%BA%BA%E8%A5%BF%E9%81%8A%E8%A8%98/{volume}"
         }
+      ]
+    },
+    "songhuiyao-yunli": {
+      "title": {
+        "zh-Hans": "《宋会要辑稿·运历》",
+        "zh-Hant": "《宋會要輯稿·運曆》",
+        "rom": "Song huiyao jigao, \"Yunli\"",
+        "en": "Draft of the Collected Statutes of Song, \"Calendrical Reckoning\""
+      },
+      "author": [
+        {
+          "name": "徐松",
+          "rom": "Xu Song",
+          "role": "comp",
+          "dates": "1781–1848"
+        }
+      ],
+      "attribution": "宋朝官修會要之文，清嘉慶間徐松自《永樂大典》輯出；運曆門所收為改曆奏議、曆序與司天監課驗文書",
+      "editions": [
+        {
+          "kind": "orig",
+          "consulted": true,
+          "by": "國立臺灣大學臺灣歷史數位圖書館",
+          "title": "宋會要輯稿 v0.9",
+          "url": "http://thdl.ntu.edu.tw/L303_SongHuiYao/RetrieveDocs.php"
+        }
+      ]
+    },
+    "dagblad-van-zuidholland-en-s-gravenhage": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Dagblad van Zuidholland en 's Gravenhage"
+      },
+      "attribution": "Daily of South Holland, published at The Hague",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuw-amsterdamsch-handelsblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuw Amsterdamsch handels- en effectenblad"
+      },
+      "attribution": "Trade and stock-exchange daily, published at Amsterdam",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "bredasche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Bredasche courant"
+      },
+      "attribution": "Local daily of Breda, North Brabant",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwsblad-van-het-noorden": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwsblad van het Noorden"
+      },
+      "attribution": "Daily of Groningen and the northern provinces",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-provinciale-groninger-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe provinciale Groninger courant"
+      },
+      "attribution": "Provincial daily of Groningen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-gooi-en-eemlander": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Gooi- en Eemlander"
+      },
+      "attribution": "News and advertising paper of Hilversum and the Gooi",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "groninger-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Groninger courant"
+      },
+      "attribution": "Provincial daily of Groningen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "hoornsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Hoornsche courant"
+      },
+      "attribution": "Local paper of Hoorn, North Holland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "provinciale-drentsche-en-asser-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Provinciale Drentsche en Asser courant"
+      },
+      "attribution": "Provincial paper of Drenthe, published at Assen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "opregte-haarlemsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Opregte Haarlemsche Courant"
+      },
+      "attribution": "Daily of Haarlem, North Holland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "overijsselsch-dagblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Overijsselsch dagblad"
+      },
+      "attribution": "Daily of Overijssel, published at Zwolle",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "provinciale-overijsselsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Provinciale Overijsselsche en Zwolsche courant"
+      },
+      "attribution": "Provincial paper of Overijssel, published at Zwolle",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "rotterdamsch-nieuwsblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Rotterdamsch nieuwsblad"
+      },
+      "attribution": "Daily of Rotterdam",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "apeldoornsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Apeldoornsche courant"
+      },
+      "attribution": "Weekly of Apeldoorn and the Veluwe",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "het-volksdagblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Het volksdagblad"
+      },
+      "attribution": "Amsterdam daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "zutphensche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Zutphensche courant"
+      },
+      "attribution": "Daily of Zutphen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "arnhemsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Arnhemsche courant"
+      },
+      "attribution": "Daily of Arnhem",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-volksvriend": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Volksvriend"
+      },
+      "attribution": "Dutch-language weekly of Orange City, Iowa",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-groninger-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Groninger courant"
+      },
+      "attribution": "Daily of Groningen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "het-vaderland": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Het vaderland"
+      },
+      "attribution": "Evening daily of The Hague",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-haarlemsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Haarlemsche courant"
+      },
+      "attribution": "Daily of Haarlem",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-graafschap-bode": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Graafschap-bode"
+      },
+      "attribution": "News and advertisement paper for Doetinchem and the Achterhoek",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-tilburgsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Tilburgsche courant"
+      },
+      "attribution": "Daily of Tilburg",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "delftsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Delftsche courant"
+      },
+      "attribution": "Daily of Delft",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "le-temps": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Le Temps"
+      },
+      "attribution": "Paris daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Gallica (Bibliothèque nationale de France)",
+          "url": "https://gallica.bnf.fr/",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "journal-des-debats": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Journal des débats politiques et littéraires"
+      },
+      "attribution": "Paris daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Gallica (Bibliothèque nationale de France)",
+          "url": "https://gallica.bnf.fr/",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "la-croix": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "La Croix"
+      },
+      "attribution": "Paris Catholic daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Gallica (Bibliothèque nationale de France)",
+          "url": "https://gallica.bnf.fr/",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "le-gaulois": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Le Gaulois"
+      },
+      "attribution": "Paris daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Gallica (Bibliothèque nationale de France)",
+          "url": "https://gallica.bnf.fr/",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "le-journal": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Le Journal"
+      },
+      "attribution": "Paris daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Gallica (Bibliothèque nationale de France)",
+          "url": "https://gallica.bnf.fr/",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "le-figaro": {
+      "genre": "newspaper",
+    "title": {
+      "rom": "Le Figaro"
+    },
+    "attribution": "Paris daily",
+    "editions": [
+      {
+        "kind": "facsim",
+        "consulted": true,
+        "title": "Gallica (Bibliothèque nationale de France)",
+        "url": "https://gallica.bnf.fr/",
+        "license": "public-domain"
+      }
+    ]
+  },
+  "le-matin": {
+    "genre": "newspaper",
+      "title": {
+        "rom": "Le Matin"
+      },
+      "attribution": "Paris daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Gallica (Bibliothèque nationale de France)",
+          "url": "https://gallica.bnf.fr/",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "le-petit-journal": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Le Petit Journal"
+      },
+      "attribution": "Paris daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Gallica (Bibliothèque nationale de France)",
+          "url": "https://gallica.bnf.fr/",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "le-petit-parisien": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Le Petit Parisien"
+      },
+      "attribution": "Paris daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Gallica (Bibliothèque nationale de France)",
+          "url": "https://gallica.bnf.fr/",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-telegraaf": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Telegraaf"
+      },
+      "attribution": "Amsterdam daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-standaard": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De standaard"
+      },
+      "attribution": "Amsterdam daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "twentsch-dagblad-tubantia": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Twentsch dagblad Tubantia"
+      },
+      "attribution": "Daily of Enschede and Twente",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-zuid-willemsvaart": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Zuid-Willemsvaart"
+      },
+      "attribution": "Daily of Helmond and eastern Brabant",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "aaltensche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Aaltensche courant"
+      },
+      "attribution": "Weekly of Aalten and the Achterhoek",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "emmer-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Emmer courant"
+      },
+      "attribution": "Local paper of Emmen and southeastern Drenthe",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De courant"
+      },
+      "attribution": "Amsterdam penny daily, the popular edition of Het nieuws van den dag",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-nieuwe-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De nieuwe courant"
+      },
+      "attribution": "Daily of The Hague",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "provinciale-geldersche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Provinciale Geldersche en Nijmeegsche courant"
+      },
+      "attribution": "Daily of Nijmegen and Gelderland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "haagsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Haagsche courant"
+      },
+      "attribution": "Popular daily of The Hague",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuws-van-den-dag-voor-ned-indie": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Het nieuws van den dag voor Nederlandsch-Indië"
+      },
+      "attribution": "Daily of Batavia, Netherlands East Indies",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-graafschapper": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Graafschapper"
+      },
+      "attribution": "Paper of Doetinchem and the Graafschap, eastern Gelderland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "winschoter-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Winschoter courant"
+      },
+      "attribution": "Paper of Winschoten and eastern Groningen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "franeker-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Franeker courant"
+      },
+      "attribution": "Weekly of Franeker, Friesland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwsblad-van-friesland": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwsblad van Friesland : Hepkema's courant"
+      },
+      "attribution": "Frisian regional paper of Heerenveen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuws-van-den-dag-kleine-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Het nieuws van den dag : kleine courant"
+      },
+      "attribution": "Amsterdam daily, the cheap edition of Het nieuws van den dag",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "ons-noorden": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Ons Noorden"
+      },
+      "attribution": "Roman Catholic daily of Groningen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "provinciale-noordbrabantsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Provinciale Noordbrabantsche en 's Hertogenbossche courant"
+      },
+      "attribution": "Provincial daily of North Brabant, published at 's-Hertogenbosch",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "dragtster-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Dragtster courant"
+      },
+      "attribution": "Local paper of Drachten, Friesland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "voorwaarts-rotterdam": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Voorwaarts : sociaal-democratisch dagblad"
+      },
+      "attribution": "Social-democratic daily published at Rotterdam",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-zaanlander": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Zaanlander"
+      },
+      "attribution": "Daily of Wormerveer, for the Zaan district",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "onze-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Onze courant"
+      },
+      "attribution": "Daily of Hoorn, for the North Holland Noorderkwartier",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "opregte-steenwijker-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Opregte Steenwijker courant"
+      },
+      "attribution": "Local paper of Steenwijk, Overijssel",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwsblad-van-het-zuiden": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwsblad van het Zuiden"
+      },
+      "attribution": "Daily published at Tilburg",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-venlosche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Venlosche courant"
+      },
+      "attribution": "Daily of Venlo, Limburg",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-amsterdammer-dagblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Amsterdammer"
+      },
+      "attribution": "Protestant daily published at Amsterdam",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "westlandsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Westlandsche courant"
+      },
+      "attribution": "Regional paper of the Westland, South Holland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "het-nieuws-van-den-dag": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Het nieuws van den dag"
+      },
+      "attribution": "Amsterdam daily",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-maasbode": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Maasbode"
+      },
+      "attribution": "Roman Catholic daily published at Rotterdam",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "dagblad-van-noord-brabant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Dagblad van Noord-Brabant"
+      },
+      "attribution": "Daily published at Breda",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-amstelbode": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Amstelbode"
+      },
+      "attribution": "Catholic daily of Amsterdam",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "rk-dagblad-het-huisgezin": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "RK dagblad het huisgezin"
+      },
+      "attribution": "Catholic daily of 's-Hertogenbosch",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-apeldoornsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Apeldoornsche courant"
+      },
+      "attribution": "Local daily of Apeldoorn",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-vlaardingsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Vlaardingsche courant"
+      },
+      "attribution": "Local daily of Vlaardingen",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-stichtsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Stichtsche courant"
+      },
+      "attribution": "Daily of Utrecht",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "het-centrum": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Het Centrum"
+      },
+      "attribution": "Catholic daily of Utrecht",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-grondwet": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De grondwet"
+      },
+      "attribution": "Daily of Roosendaal",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-hengelosche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Hengelosche Courant"
+      },
+      "attribution": "Twice-weekly of Hengelo",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-winterswijksche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Winterswijksche Courant"
+      },
+      "attribution": "Local paper of Winterswijk",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-veendammer-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Veendammer Courant"
+      },
+      "attribution": "Local paper of Wildervank and Veendam",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "rotterdamsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Rotterdamsche courant"
+      },
+      "attribution": "Daily of Rotterdam, South Holland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "nieuwe-rotterdamsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Nieuwe Rotterdamsche courant"
+      },
+      "attribution": "Daily of Rotterdam, South Holland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "utrechtsche-provinciale-en-stads-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Utrechtsche provinciale en stads-courant"
+      },
+      "attribution": "Provincial and city daily of Utrecht",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "utrechtsch-stedelijk-dagblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Utrechtsch provinciaal en stedelijk dagblad"
+      },
+      "attribution": "Provincial and city daily of Utrecht",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "utrechtsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Utrechtsche courant"
+      },
+      "attribution": "Daily of Utrecht",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "middelburgsche-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Middelburgsche courant"
+      },
+      "attribution": "Daily of Middelburg, Zeeland",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "leeuwarder-nieuwsblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Leeuwarder nieuwsblad"
+      },
+      "attribution": "Leeuwarden advertising daily",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "leeuwarder-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Leeuwarder courant"
+      },
+      "attribution": "Provincial daily of Friesland, published at Leeuwarden",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-tribune": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De tribune: soc. dem. weekblad"
+      },
+      "attribution": "Communist daily of Amsterdam, formerly the social-democratic weekly",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-tijd": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Tijd: godsdienstig-staatkundig dagblad"
+      },
+      "attribution": "Catholic daily, published at 's-Hertogenbosch and Amsterdam",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "het-volk": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Het volk: dagblad voor de arbeiderspartij"
+      },
+      "attribution": "Daily of the Dutch social-democratic workers' party, Amsterdam",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "de-avondpost": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De avondpost"
+      },
+      "attribution": "Evening daily published at The Hague",
+      "editions": [
+        {
+          "kind": "facsim",
+          "consulted": true,
+          "title": "Delpher (Koninklijke Bibliotheek)",
+          "url": "https://www.delpher.nl/nl/kranten",
+          "license": "public-domain"
+        }
+      ]
+    },
+    "algemeen-handelsblad-indie": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Algemeen handelsblad voor Nederlandsch-Indië"
+      },
+      "attribution": "Daily of Semarang, Netherlands Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "algemeen-handelsblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Algemeen Handelsblad"
+      },
+      "attribution": "Amsterdam daily; in this period its issues were dated a day ahead of printing",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "amigoe-di-curacao": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Amigoe di Curaçao : weekblad voor de Curaçaosche eilanden"
+      },
+      "attribution": "Dutch-language weekly published at Willemstad, Curaçao",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-west-indier": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De West-Indiër : dagblad toegewijd aan de belangen van Nederlandsch Guyana"
+      },
+      "attribution": "Dutch-language daily published at Paramaribo, Suriname",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-volksstem": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Volksstem"
+      },
+      "attribution": "Dutch-language weekly of De Pere, Wisconsin",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-surinamer": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Surinamer : nieuws- en advertentieblad"
+      },
+      "attribution": "Dutch-language news and advertisement paper published at Paramaribo, Suriname",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-west": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De West : nieuwsblad uit en voor Suriname"
+      },
+      "attribution": "Dutch-language newspaper published at Paramaribo, Suriname",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "suriname-koloniaal": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Suriname : koloniaal nieuws- en advertentieblad"
+      },
+      "attribution": "Colonial news and advertisement paper published at Paramaribo, Suriname",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "bataviaasch-handelsblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Bataviaasch handelsblad"
+      },
+      "attribution": "Daily of Batavia, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "bataviaasch-nieuwsblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Bataviaasch nieuwsblad"
+      },
+      "attribution": "Daily of Batavia, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "java-bode": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Java-bode"
+      },
+      "attribution": "Daily of Batavia, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-locomotief": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De locomotief"
+      },
+      "attribution": "Daily of Semarang, Java, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-preanger-bode": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Preanger-bode"
+      },
+      "attribution": "Daily of Bandoeng (Bandung), Java, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-nieuwe-vorstenlanden": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De nieuwe vorstenlanden"
+      },
+      "attribution": "Daily of Soerakarta (Surakarta), Java, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-expres": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De expres"
+      },
+      "attribution": "Daily of Semarang, Java, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-indische-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Indische courant"
+      },
+      "attribution": "Daily of Soerabaia, Java, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "soerabaijasch-handelsblad": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Soerabaijasch handelsblad"
+      },
+      "attribution": "Daily of Soerabaia, Java, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "de-sumatra-post": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "De Sumatra post"
+      },
+      "attribution": "Daily of Medan, Sumatra, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "deli-courant": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Deli courant"
+      },
+      "attribution": "Daily of Medan, Sumatra, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
+      ]
+    },
+    "sumatra-bode": {
+      "genre": "newspaper",
+      "title": {
+        "rom": "Sumatra-bode"
+      },
+      "attribution": "Daily of Padang, Sumatra, Netherlands East Indies",
+      "editions": [
+        {
+            "kind": "facsim",
+            "consulted": true,
+            "title": "Delpher (Koninklijke Bibliotheek)",
+            "url": "https://www.delpher.nl/nl/kranten",
+            "license": "public-domain"
+          }
       ]
     }
   }

@@ -294,7 +294,7 @@
 /* Design tokens — Five Millennia of Eclipses, house style "Song-painting light-wash (dan-shese)" (light atlas).
    REMAP 2026-07 (spec M0): the role-token NAMES below are unchanged (the whole
    2.5k-line stylesheet subscribes to them via var(--role, fallback)), but the
-   VALUES are flipped from the imported AstroMeteoMap lapidary DARK skin to the
+   VALUES are flipped from the imported SubstellarAtlas lapidary DARK skin to the
    locked light Song pale-wash palette (zhilü accent · yanzhi spark · shengjuan ground).
    This one edit re-grounds the entire shell light with zero consumer changes.
    FME has no dark theme; the only chrome-colour axis is body[data-skin=…]

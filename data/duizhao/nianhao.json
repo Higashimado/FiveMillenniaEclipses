@@ -8,13 +8,7 @@
     "provenance": "Compiled and checked by hand against the standard Chinese calendar concordances. Historical chronology is not itself copyrightable; the choice of a single line of succession, the field design and the transcription are original to this project.",
     "count": {"eras": 330},
     "license": "CC-BY-SA-4.0",
-    "updated": "2026-07-17",
-    "caveats": [
-      "An era rarely changed at the turn of the year, so one calendar year often spans two era names. The table gives the one in principal use that year, which leaves a known error of one year at the boundary: 220 is entered as Huangchu rather than Yankang, 684 as Guangzhai, 700 as Jiushi.",
-      "The table does not distinguish an era counted from the year of accession from one counted from the year after. Year y is always the first year of its era.",
-      "The Wu Zhou interval, 690 to 704, is carried under the dynasty Zhou.",
-      "Entries are in ascending order of y, and each applies until the year given by the next entry."
-    ]
+    "updated": "2026-07-17"
   },
   "eras": [
     {"y":-139,"d":"汉","dt":"漢","n":"建元","nt":"建元"},

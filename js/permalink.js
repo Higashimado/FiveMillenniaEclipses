@@ -1,6 +1,6 @@
 /** permalink.js — shareable URL ⇄ app-state sync (NEW).
  *
- * Ported/adapted from AstroMeteoMap's js/state.js (AppState). Continuously
+ * Ported/adapted from SubstellarAtlas's js/state.js (AppState). Continuously
  * mirrors map view, timeline instant, selection, filters and basemap into the
  * query string via history.replaceState (500ms leading throttle), and restores
  * them once at boot. The URL shape is  <base>/<lang>/?<params>  — the language
@@ -18,14 +18,20 @@
 const Permalink = (() => {
   'use strict';
 
-  // lizhou normalisation constants — mirror js/atlas.js (normYear: (y−Y0)/SPAN) and
-  // its state defaults, so a permalink omits filter params that equal the app's
-  // cold-open state and round-trips focus/range in human-readable YEARS.
-  const Y0 = -3000,
-    Y1 = 1999,
-    SPAN = Y1 - Y0; // 4999
-  const DEFAULT_RANGE = [-762, 1919];
-  const DEFAULT_FOCUS_YEAR = 1187;
+  // lizhou normalisation (normYear: (y − Y0) / SPAN), so focus and range round-trip as
+  // human-readable YEARS while the app holds focus normalised over the domain.
+  //
+  // Read the domain and the cold-open defaults from Atlas rather than restating them: a
+  // permalink omits any param still equal to a default, so a value that drifts on one side
+  // only puts a spurious f= / yr= on every URL. The literals below are a boot-order
+  // fallback for the window in which Atlas has not defined itself yet, and are the only
+  // copy that has to be kept in step by hand.
+  const _AD = (window.Atlas && Atlas.DEFAULTS) || {};
+  const Y0 = _AD.Y0 != null ? _AD.Y0 : -3000,
+    Y1 = _AD.Y1 != null ? _AD.Y1 : 1999,
+    SPAN = Y1 - Y0;
+  const DEFAULT_RANGE = _AD.range || [-762, 1931];
+  const DEFAULT_FOCUS_YEAR = _AD.focusYear != null ? _AD.focusYear : 1919;
 
   // Trailing language segment(s), longest-first; (?:…)+ self-heals nested paths
   // like /it/it/ → /. Legacy zh / zh-CN are stripped too (they map to zh-Hans).
@@ -40,10 +46,11 @@ const Permalink = (() => {
   const _I18n = () => (typeof I18n !== 'undefined' ? I18n : null);
 
   // ---- BCE-safe UTC time (de)serialization ----
-  // TimeState.formatISO/parseISO use \d{4} + Intl and cannot handle negative /
-  // 0–99 years — the atlas's core domain. Format via getUTC* into a signed,
-  // zero-padded-6 extended-ISO year (matches the data's date filenames); parse
-  // via setUTCFullYear (NOT Date.UTC / Date.parse, which remap 0–99 to 1900s).
+  // Serialize through getUTC* into a signed, zero-padded-6 extended-ISO year, the same
+  // form the data's date filenames take; parse with setUTCFullYear. Never Date.UTC or
+  // Date.parse for a variable year: both remap 0–99 into the 1900s, and an Intl-based
+  // formatter reports a BCE year as a positive era-relative number. Either one silently
+  // relocates a third of this atlas.
 
   function fmtTimeUTC(d) {
     const y = d.getUTCFullYear();
@@ -298,10 +305,16 @@ const Permalink = (() => {
     // the closing _writeURL would then stamp a URL with the r= dropped out of it.
     const wanted = params.get('r');
     if (wanted && A && A.select && A.ensureRecord) {
-      A.ensureRecord(wanted).then(() => {
+      // Both arms run the SAME continuation: finish() is what clears _restoring, and a
+      // restore that never clears it silently kills URL writing for the rest of the
+      // session (_scheduleWrite returns early forever) while dropping the t=/o=/v=
+      // steps below. A register that failed to arrive costs the reader its selection,
+      // never the shared framing.
+      const done = () => {
         attempt(() => A.select(wanted));
         finish();
-      });
+      };
+      A.ensureRecord(wanted).then(done, done);
       return;
     }
 

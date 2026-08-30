@@ -664,7 +664,7 @@ window.EclipseGlyph = (function () {
     );
   }
 
-  // ---- Contact-Trajectory Schematic (eclipse phase diagram, shixiangtu, ported from AstroMeteoMap) ----
+  // ---- Contact-Trajectory Schematic (eclipse phase diagram, shixiangtu, ported from SubstellarAtlas) ----
   // A larger diagram than the list glyph: the occulting body drawn at every
   // contact instant strung along its crossing trajectory, each contact labelled.
   // Lunar is a single global figure (Moon crossing Earth's penumbra+umbra rings);
@@ -714,9 +714,10 @@ window.EclipseGlyph = (function () {
 
   // Transparent fat hit-casing for a thin schematic line, carrying its gloss so
   // the whole comfortable band — not the 1px visible stroke — triggers the
-  // definition card. HitWidths.MIN is a screen-px floor, so it needs the same
-  // colPx round-trip as type: at 240px the old hardcoded /316 silently narrowed
-  // every band to ~76% of the intended target.
+  // definition card. HitWidths.MIN is a screen-px floor, so it needs the same colPx
+  // round-trip as type: divide by the ACTUAL column width, never a design-time constant,
+  // or every band narrows in proportion as the column does — silently, since a hit area
+  // has nothing visible to look wrong.
   const HIT_MIN = () => (typeof HitWidths !== 'undefined' ? HitWidths.MIN : 12);
   const hitW = (W, colPx) => f((HIT_MIN() * W) / (colPx || DESIGN_PX));
   function hitCasing(x1, y1, x2, y2, W, gloss, colPx) {

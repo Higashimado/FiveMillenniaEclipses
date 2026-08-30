@@ -27,9 +27,9 @@
  * ~81 faint penumbral lunar eclipses NASA does not catalog — their `saros`
  * renders '—' and the `gamma`/duration entries drop out of the strip.
  *
- * Dates and times stay raw ISO/UTC — computed science, not localized prose;
- * the folded era-year subtitle (removed from the card head in this redesign)
- * was the one bridge to the historical register and is intentionally gone.
+ * Dates and times stay raw ISO/UTC — computed science, not localized prose. The card head
+ * carries no era-year subtitle: this panel is the computed register, and the bridge to the
+ * historical one is the linked-records row at its foot.
  */
 (function () {
   'use strict';
@@ -284,6 +284,9 @@
   // the .ep-rec class (+ data-id/role/tabindex) so atlas.js's existing
   // fillEventDetail click/keyboard binding (`.ep-rec` selector) still finds it.
   // No linked records → the whole block is omitted, not shown empty.
+  // The seal is sized under the contact table it sits beneath, not over it: 14px
+  // seal against the 12px place name keeps this row quieter than the 13px timestamp
+  // rows above, which is the reading order the card is built on.
   function recordsHtml(e, domain) {
     if (!window.Atlas || !Atlas.recordsForEvent) return '';
     const lang =
@@ -299,7 +302,7 @@
         '<span class="ep-rec-icon ep-rec" data-id="' +
         esc(r.id) +
         '" role="button" tabindex="0">' +
-        (window.Seal ? Seal.svg(r.civ, 18) : '') +
+        (window.Seal ? Seal.svg(r.civ, 14) : '') +
         '<span class="ep-rec-place">' +
         Atlas.placeLabel(r, lang) +
         '</span></span>';
