@@ -1,29 +1,19 @@
 /**
  * bessel-runtime.js — Besselian-element geometry for the real-time shadow.
  *
- * A verbatim port of the offline curve builder's evaluator, so the live eclipse
- * shadow (js/eclipse.js) is drawn with identical math to the cached contact
- * curves and therefore stays tangent to them. Every function here that names a
- * builder counterpart must stay identical to it.
+ * A verbatim port of the offline curve builder's evaluator: every function here
+ * that names a builder counterpart must stay identical to it, so the live shadow
+ * (js/eclipse.js) draws tangent to the cached contact curves.
  *
- * Two evaluators:
- *   • evalBessel(poly, date)      — NASA 5MCSE polynomials, loaded per event from
- *                                   its own events/<date>.json bessel block on
- *                                   selection (js/eclipse.js loadCurvesFor). Every
- *                                   solar event ships them; the shadow snaps onto
- *                                   these the moment the curve file lands.
- *   • coreBesselAE(AE, date)      — direct from Astronomy Engine, the transient
- *                                   fallback used only for the one frame before a
- *                                   selected event's NASA elements arrive. AE is
- *                                   pinned to 2.1.19 on both the build side and
- *                                   the browser copy.
- *
- * No time-derivatives are ported: the instantaneous footprint marches azimuth and
- * needs only the static elements.
+ * evalBessel(poly, date) reads the selected event's own NASA 5MCSE polynomials;
+ * coreBesselAE(AE, date) is the Astronomy Engine fallback for the one frame before
+ * those elements arrive. No time-derivatives are ported: the instantaneous
+ * footprint marches azimuth and needs only the static elements.
  */
 const BesselRT = (() => {
   const DEG2RAD = Math.PI / 180;
   const RAD2DEG = 180 / Math.PI;
+
   // sqrt(1 − e²), WGS-84 — same constant the builder uses.
   const FLATTENING_FACTOR = 0.99664719;
   const R_EARTH_EQ_KM = 6378.137;
@@ -45,11 +35,10 @@ const BesselRT = (() => {
   // Evaluate static Besselian elements from cached polynomials at TDT-hours t.
   function evalBesselAtT(eclipse, t) {
     const p = eclipse.polynomials;
-    // μ is the EPHEMERIS hour angle, reckoned from the ephemeris meridian
-    // (1.002738·ΔT east of Greenwich). Reduce it to a Greenwich hour angle at
-    // the sidereal rate. Shifting μ's time argument by ΔT/3600 instead — the
-    // old form — rolls Earth back at the polynomial's own ~15.0°/h and leaves
-    // (15.0411 − μ̇)·ΔT/3600 behind: negligible now, 21 km at −762.
+
+    // μ is the EPHEMERIS hour angle from the ephemeris meridian. Reduce it to a
+    // Greenwich hour angle at the sidereal rate, never by shifting μ's time
+    // argument: that drifts by (15.0411 − μ̇)·ΔT/3600°, worsening into deep BCE.
     const muDeg = polyval(p.mu, t) - EPHEM_MERIDIAN_DEG_PER_SEC * eclipse.delta_t_seconds;
     const mu_rad = (((muDeg % 360) + 360) % 360) * DEG2RAD;
     return {
@@ -68,6 +57,7 @@ const BesselRT = (() => {
   function evalBessel(eclipse, utcDate) {
     const tdtMs = utcDate.getTime() + eclipse.delta_t_seconds * 1000;
     const tdtDate = new Date(tdtMs);
+
     // Date.UTC(y,...) maps y∈[0,99] to 1900-1999, so build the midnight anchor
     // with setUTCFullYear instead. The builder's evalBessel does the same.
     const mdDate = new Date(0);
@@ -76,11 +66,10 @@ const BesselRT = (() => {
     const midnightMs = mdDate.getTime();
     const tdtHoursOfDay = (tdtMs - midnightMs) / 3600000;
     let t = tdtHoursOfDay - eclipse.t0_tdt_hours;
+
     // Re-anchor when this instant and t0 straddle TDT midnight — otherwise the
-    // midnight anchor above jumps a day and t is off by ±24 h, evaluating the
-    // cubic far out of range. The builder's evalBessel re-anchors identically, so
-    // the live shadow and the cached curves stay tangent. (0194-08-02 straddles;
-    // about one event in six does.)
+    // midnight anchor jumps a day and t is off by ±24h. The offline curve builder
+    // re-anchors identically, keeping the live shadow tangent to the cached curves.
     if (t > 12) t -= 24;
     else if (t < -12) t += 24;
     return evalBesselAtT(eclipse, t);
@@ -191,13 +180,8 @@ const BesselRT = (() => {
   }
 
   // Same WGS-84 ellipsoid inverse as fundamentalToGeo, but never null: past the
-  // ellipsoid horizon (zsq < 0) ζ clamps to 0, landing the point on the terminator.
-  // Inside the horizon the clamp never fires, so the two are pixel-identical wherever
-  // fundamentalToGeo is defined — which is what lets one contour use this the whole way
-  // round and stay tangent to the cached limits into the graze. fundamentalToGeoSphere
-  // cannot: it is a different (spherical) inverse and departs from the ellipsoid by
-  // ~10 km (up to ~40 km at a grazing cusp) well before the horizon. Verbatim port of
-  // the builder's function of the same name.
+  // horizon (zsq < 0) ζ clamps to 0, staying pixel-identical to fundamentalToGeo
+  // up to the graze. fundamentalToGeoSphere is a different (spherical) inverse.
   function fundamentalToGeoClamped(xi, eta, bessel) {
     const F = FLATTENING_FACTOR;
     const F2 = F * F;
@@ -225,12 +209,9 @@ const BesselRT = (() => {
     return { lat, lng, zeta };
   }
 
-  // Closed-form SPHERICAL inverse of the fundamental plane: ζ=√(1−ρ²) (clamped to
-  // 0 for ρ≥1, giving the limb/terminator), with the F2 geographic-latitude
-  // correction. Used for the partial-visibility contours INSTEAD of the ellipsoid
-  // fundamentalToGeo because it is defined and smooth EVERYWHERE on the disc and
-  // never returns null, so contours stay connected; residual ≈20 km. The umbra
-  // ring keeps fundamentalToGeo.
+  // Closed-form SPHERICAL inverse of the fundamental plane: ζ=√(1−ρ²), clamped to
+  // 0 for ρ≥1 (limb/terminator). Used for partial-visibility contours, which need
+  // it defined everywhere on the disc; the umbra ring keeps fundamentalToGeo instead.
   function fundamentalToGeoSphere(xi, eta, bessel) {
     const F2 = FLATTENING_FACTOR * FLATTENING_FACTOR;
     const rho2 = xi * xi + eta * eta;
@@ -267,10 +248,8 @@ const BesselRT = (() => {
   }
 
   // Local circumstances at a geographic point — eclipse magnitude and phase plus
-  // the intermediate (m, L1', L2', ζ) values. Verbatim port of the builder's
-  // function of the same name. phase ∈ {below_horizon, no_eclipse, partial, total,
-  // annular}. magnitude is the fraction of the Sun's diameter covered (>1 inside
-  // umbra). `bessel` is whatever coreBesselAE / evalBessel returns.
+  // the intermediate (m, L1', L2', ζ) values. phase ∈ {below_horizon, no_eclipse,
+  // partial, total, annular}; magnitude is the Sun-diameter fraction covered (>1 inside umbra).
   function localCircumstances(latDeg, lngDeg, bessel) {
     const { xi, eta, zeta } = geoToFundamental(latDeg, lngDeg, bessel);
     const u = bessel.x - xi;
@@ -287,17 +266,9 @@ const BesselRT = (() => {
     return { magnitude, phase, m, L1p, L2p, xi, eta, zeta, u, v };
   }
 
-  // Single-azimuth ring solver — the per-vertex primitive. Place the trial point
-  // at (ξ,η) = (b.x + r·cosθ, b.y + r·sinθ) so the axis distance m ≡ r exactly,
-  // then binary-search r to the ring boundary defined by insideTest(m,L1p,L2p,mag).
-  // Each accepted (ξ,η) is projected to (lat,lng) via fundamentalToGeo on the
-  // ellipsoid — identical to the builder's offset-curve construction, hence
-  // tangent to the cached limits. Returns [lat,lng] or null (limb-clipped / no
-  // intersect).
-  //
-  // Exposed so the Mercator densifier can re-solve at arbitrary midpoint
-  // azimuths. Re-solve, don't interpolate: that keeps every inserted vertex
-  // exactly on the true ring.
+  // Single-azimuth ring solver — the per-vertex primitive. Binary-searches r along
+  // (ξ,η) = (b.x + r·cosθ, b.y + r·sinθ) to the boundary insideTest(m,L1p,L2p,mag), then
+  // projects to (lat,lng). Exposed so the Mercator densifier can re-solve, never interpolate.
   function projectAzimuth(b, insideTest, theta) {
     const ct = Math.cos(theta),
       st = Math.sin(theta);
@@ -337,10 +308,8 @@ const BesselRT = (() => {
   }
 
   // ---- Web-Mercator Helpers ----
-  // Leaflet renders in Web Mercator, so on-screen smoothness is governed by chord
-  // distance in (lng, mercatorY) space — NOT ground km. Near the poles dy/dφ =
-  // sec φ blows up, so a short polar ground segment can still be a long visible
-  // chord. The cached rise/set curves are densified against the same metric.
+  // On-screen smoothness is governed by chord distance in (lng, mercatorY) space, not
+  // ground km — near the poles a short polar segment can still be a long visible chord.
   function mercatorY(lat) {
     const p = Math.max(-89.9, Math.min(89.9, lat));
     return RAD2DEG * Math.log(Math.tan(Math.PI / 4 + (p * DEG2RAD) / 2));
@@ -353,13 +322,9 @@ const BesselRT = (() => {
     return Math.hypot(dLng, mercatorY(latB) - mercatorY(latA));
   }
 
-  // Adaptive ring densification on Web-Mercator. Walks adjacent seed pairs and
-  // recursively bisects in AZIMUTH wherever the on-map chord exceeds maxMercDeg,
-  // re-solving each midpoint through projectAzimuth so inserted vertices land
-  // exactly on the true ring (no chord interpolation). Pairs with a null endpoint
-  // are limb breaks → skipped (the renderer's addPolyline/splitAtAntimeridian
-  // still cuts the segment). Mirrors the builder's rise/set densifier 1:1, with
-  // time→azimuth and distance→Mercator chord.
+  // Adaptive ring densification on Web-Mercator. Recursively bisects in AZIMUTH
+  // wherever the on-map chord exceeds maxMercDeg, re-solving each midpoint through
+  // projectAzimuth so vertices land exactly on the true ring, never interpolated.
   function densifyRingMercator(b, insideTest, seedThetas, seedPts, opts) {
     opts = opts || {};
     const maxMercDeg = opts.maxMercDeg;
@@ -380,7 +345,8 @@ const BesselRT = (() => {
           const tM = 0.5 * (taA + taB);
           const pm = projectAzimuth(b, insideTest, tM);
           if (!pm) return; // midpoint off-limb: keep parent segment
-          // cusp guard: both sub-chords already sub-pixel → stop (avoids polar singularity overspend)
+
+          // cusp guard: both sub-chords already sub-pixel, stop to avoid overspend
           if (
             mercatorChordDeg(paA[0], paA[1], pm[0], pm[1]) < minMercDeg &&
             mercatorChordDeg(pm[0], pm[1], paB[0], paB[1]) < minMercDeg
@@ -402,25 +368,12 @@ const BesselRT = (() => {
   const insideMag = (target) => (m, L1p, L2p, mag) => mag > target;
 
   // ---- Instantaneous Magnitude Field ----
-  // The radial ring projector (projectRing) returns only the single outermost
-  // intersection per azimuth, so for partial eclipses (axis off Earth, γ>1) it
-  // captures the iso-magnitude arc but DROPS the rise/set terminator segment of
-  // the visibility lens. Instead, build the instantaneous eclipse-magnitude field
-  // on the FUNDAMENTAL PLANE (ξ,η) — naturally bounded by Earth's disc ξ²+η²≤1 —
-  // and run marching squares, the same method the cached contours use. Each iso
-  // level then comes out as a single connected contour that already includes its
-  // terminator segment. Magnitude is purely geometric at a fixed instant, so only
-  // the static Besselian elements are needed.
+  // projectRing drops the rise/set terminator segment for a partial eclipse (axis off
+  // Earth, γ>1); marching squares over the fundamental plane (ξ,η) includes it.
 
-  // Build the (ξ,η) magnitude field. mag[i*nX + j] is the eclipse magnitude at
-  // (ξ = x0 + j·step, η = y0 + i·step). On the disc (ρ²≤1) the sunlit root is
-  // ζ=√(1−ρ²); OFF the disc ζ is CLAMPED to 0, so the field is C0-continuous
-  // across the limb (off-disc it equals the ζ=0 offset-shadow-circle magnitude).
-  // Do NOT write a +Infinity sentinel off-disc: that makes marchingSquares skip
-  // the limb-straddling cells, and the contour then terminates ~half a cell INSIDE
-  // ρ=1. With a continuous field the iso contour crosses ρ=1 inside a real cell,
-  // and clipChainToDisc cuts it at the EXACT ρ=1 root, where it meets
-  // terminatorArcs with zero seam.
+  // Build the (ξ,η) magnitude field. mag[i*nX + j] is the eclipse magnitude at (ξ = x0
+  // + j·step, η = y0 + i·step); off-disc (ρ²>1) ζ clamps to 0 rather than a +Infinity
+  // sentinel, keeping the field continuous so clipChainToDisc cuts it at the exact ρ=1 root.
   function computeMagFieldFundamental(b, opts) {
     opts = opts || {};
     const step = opts.step || 0.004;
@@ -455,19 +408,14 @@ const BesselRT = (() => {
     return { x0, y0, step, nX, nY, mag };
   }
 
-  // Clip a marching-squares chain (array of [ξ,η] vertices) to Earth's disc
-  // ρ²=ξ²+η²≤1, returning the visible sub-chains. Each segment crossing ρ=1 is
-  // cut at the EXACT root of |p + t·(q−p)|² = 1 (a quadratic in t∈[0,1]); the
-  // crossing point lies on ρ=1 where mag=k ⟺ limbMagnitude=k, so it coincides
-  // exactly with the analytic terminatorArcs endpoint — no seam, no snap. Spans
-  // wholly outside the disc (the off-disc offset-circle part of the contour) are
-  // dropped. A chain fully inside the disc passes through unchanged (one sub).
-  // The real-time analogue of the builder's visibility clip, except the boundary
-  // here is a closed-form circle, so the crossing is exact rather than sampled.
+  // Clip a marching-squares chain ([ξ,η] vertices) to Earth's disc ρ²=ξ²+η²≤1,
+  // returning the visible sub-chains. Each crossing is cut at the exact root of
+  // |p + t·(q−p)|² = 1, coinciding with the analytic terminatorArcs endpoint (no seam).
   function clipChainToDisc(chain) {
     const subs = [];
     let cur = [];
     const inside = (p) => p[0] * p[0] + p[1] * p[1] <= 1;
+
     // Roots of |p + t(q−p)|² = 1 in (0,1), ascending.
     const rootsOnSeg = (p, q) => {
       const dx = q[0] - p[0],
@@ -521,11 +469,9 @@ const BesselRT = (() => {
     return (b.l1 - m) / (b.l1 + b.l2);
   }
 
-  // Boundary angles on the limb circle (ρ=1) where limbMagnitude(θ) == k — i.e.
-  // the analytic cusps where a partial-visibility lens of level k meets the rise/
-  // set horizon. Coarse scan + 30-iter bisection. Returns {theta,xi,eta} (sorted,
-  // ascending in [0,2π)). Used as terminatorArcs' DEFAULT boundaries when the
-  // caller has no interior clip angles to supply (e.g. a fully-interior level).
+  // Boundary angles on the limb circle (ρ=1) where limbMagnitude(θ) == k — the
+  // cusps where a partial-visibility lens of level k meets the rise/set horizon.
+  // Returns {theta,xi,eta} sorted ascending; terminatorArcs' default boundaries.
   function limbCrossings(b, k) {
     const TWO_PI = 2 * Math.PI;
     const N = 1440;
@@ -549,25 +495,16 @@ const BesselRT = (() => {
         cross.push({ theta, xi: Math.cos(theta), eta: Math.sin(theta) });
       }
     }
+
     // v[0] flag lets terminatorArcs know whether the gap-free limb is wholly
     // above or below k when there are no crossings.
     cross.wholeAboveK = v[0] >= 0;
     return cross;
   }
 
-  // Analytic rise/set terminator arcs for magnitude level k: the portions of the
-  // limb circle (ρ=1) where limbMagnitude(θ) ≥ k. These are the segments that
-  // close each partial-visibility lens at the horizon. Returns an array of
-  // [lat,lng] polylines, each Web-Mercator-densified in θ by re-projecting every
-  // inserted vertex, never interpolating. Every vertex is an EXACT circle point
-  // projected through fundamentalToGeoSphere, so the arc is smooth — no grid, no
-  // inverse-projection limb singularity.
-  //   `boundaryThetas` (optional): explicit limb angles to span between, instead
-  // of the analytic limbCrossings. renderSolarShadow passes the angles where the
-  // INTERIOR marching-squares arc actually crossed ρ=1, so the terminator endpoint
-  // is grown from that angle and therefore coincides with the interior arc's clip
-  // point — zero seam, and no spike, because nothing is snapped. These differ from
-  // the true cusps only by the interior contour's O(step²) linearization.
+  // Analytic rise/set terminator arcs for magnitude level k: the portions of the limb
+  // circle (ρ=1) where limbMagnitude(θ) ≥ k, closing each partial-visibility lens at the
+  // horizon. `boundaryThetas` (optional): renderSolarShadow's interior clip angles, for zero seam.
   function terminatorArcs(b, k, maxMercDeg, boundaryThetas) {
     const TWO_PI = 2 * Math.PI;
     const proj = (th) => {
@@ -614,24 +551,17 @@ const BesselRT = (() => {
     return arcs;
   }
 
-  // Live shadow outline (umbra/antumbra OR penumbra) as a fillable [lat,lng] ring.
-  // Shared core: the boundary is m = |L'(ζ)| in the fundamental plane — a circle of
-  // radius |L'| about the axis (b.x, b.y), |L'| = |radiusL − ζ·tanF| (pass l2/tan_f2
-  // for the umbra, l1/tan_f1 for the penumbra). Parametrise that circle by ANGLE,
-  // never by a radial search: an angle is defined for every azimuth, whereas
-  // projectAzimuth's r∈[0,2] bisection assumes the shadow is the interval
-  // [0, r_edge], which holds only while the axis sits on the disc. Build the
-  // analytic (ξ,η) circle, clip it to Earth's disc (clipChainToDisc, exact ρ=1
-  // roots) and close any grazing lens along the terminator — the same
-  // disc-clip + limb-close discipline the iso-magnitude lenses use. Returns a
-  // closed ring, or null when the shadow misses Earth entirely.
+  // Live shadow outline (umbra/antumbra OR penumbra) as a fillable [lat,lng] ring. The
+  // boundary m = |L'(ζ)|, |L'| = |radiusL − ζ·tanF| (l2/tan_f2 umbra, l1/tan_f1 penumbra), is
+  // parametrised by ANGLE, not projectAzimuth's radial search, which needs the axis on the disc.
   function shadowLensGeo(b, radiusL, tanF, nAz, maxMercDeg, forFill, clampedGraze) {
     nAz = nAz || 256;
     const TWO_PI = 2 * Math.PI;
     const rSeed = Math.abs(radiusL); // shadow radius at the limb (ζ=0), and fixed-point seed
 
-    // Analytic boundary circle in (ξ,η): the shadow edge is m = |L'(ζ)|, solved by 4
-    // fixed-point passes (|L'| moves <1% across the shadow, so it converges immediately).
+    // Analytic boundary circle in (ξ,η): the shadow edge is m = |L'(ζ)|, solved by four
+    // fixed-point passes — |L'| barely moves across the shadow, so the iteration is
+    // converged well inside that count.
     const xy = new Array(nAz);
     let anyOn = false,
       anyOff = false,
@@ -658,19 +588,9 @@ const BesselRT = (() => {
     }
     if (!anyOn) return null; // shadow wholly off Earth (partial phase / no landfall)
 
-    // ONE inverse per lens, never mixed within a contour. Near the terminator the ellipsoid
-    // and spherical inverses sit the same ~perpendicular distance from the true curve but up
-    // to a few degrees apart ALONG it, so alternating them per vertex makes the boundary
-    // double back into 180° spikes. A deep on-disc lens (well inside ρ=0.997, where the
-    // ellipsoid is both defined and tangent to the cached limits to ~metres) takes the
-    // ellipsoid; anything grazing the limb takes one inverse that is defined everywhere.
-    //
-    // Which one is the caller's to say, because the two lens families answer to different
-    // curves. The umbra/antumbra edge must stay tangent to the cached umbral limits, which
-    // are ellipsoid geometry, so it grazes on the CLAMPED ellipsoid — the spherical inverse
-    // bulges the drawn totality edge outward by ~10 km, ~40 km at a grazing cusp, which is
-    // how a shadow came to cross Madrid that never did. The iso-magnitude lenses answer to
-    // the marching-squares contours, which are themselves spherical, and keep that inverse.
+    // ONE inverse per lens, never mixed: alternating per vertex causes 180° spikes. The
+    // caller picks: umbra/antumbra grazes the CLAMPED ellipsoid (tangent to cached limits);
+    // iso-magnitude lenses keep the spherical inverse, matching their spherical contours.
     const useEllipsoid = !anyOff && maxRho2 <= 0.997 * 0.997;
     const grazeInverse = clampedGraze ? fundamentalToGeoClamped : fundamentalToGeoSphere;
     const proj = useEllipsoid
@@ -683,11 +603,9 @@ const BesselRT = (() => {
           return [g.lat, g.lng];
         };
 
-    // Densification predicate. Stroke consumers (default) keep the antimeridian ABORT —
-    // addPolyline re-splits there, so densifying across ±180° is wasted. A FILL needs one
-    // continuous ring, so forFill measures the on-map chord with the antimeridian-unwrapped
-    // Δlng: a segment that merely straddles ±180° gets its TRUE (small) chord and stops (one
-    // clean crossing) instead of aborting into a map-wide slash.
+    // Densification predicate. Stroke consumers (default) abort at the antimeridian, since
+    // addPolyline re-splits there. A FILL needs one continuous ring, so forFill measures the
+    // chord with antimeridian-unwrapped Δlng instead of aborting into a map-wide slash.
     const _w180 = (d) => ((d + 540) % 360) - 180;
     const chordDeg = forFill
       ? (a, c) => mercatorChordDeg(a[0], a[1], c[0], a[1] + _w180(c[1] - a[1]))
@@ -772,21 +690,16 @@ const BesselRT = (() => {
     return densifyXY(arc).concat(limb.slice(1));
   }
 
-  // Live umbra/antumbra outline (m=|L2'| circle → ground lens). Thin wrapper over the
-  // shared projector with the umbral cone (L2, tan f2), and the one lens family that
-  // grazes on the CLAMPED ELLIPSOID: this boundary is drawn over the cached umbral
-  // limits and has to stay tangent to them right into the graze.
+  // Live umbra/antumbra outline (m=|L2'| circle → ground lens), on the umbral cone
+  // (L2, tan f2), grazing the CLAMPED ellipsoid to stay tangent to the cached
+  // umbral limits right into the graze.
   function umbraLensGeo(b, nAz, maxMercDeg) {
     return shadowLensGeo(b, b.l2, b.tan_f2, nAz, maxMercDeg, false, true);
   }
 
-  // Iso-magnitude m=k ground lens: the mag=k contour is the circle of fundamental-plane
-  // radius ρ = (l1 − k(l1+l2)) − ζ(tan f1 − k(tan f1+tan f2)) about the axis — the same
-  // (L1'−m)/(L1'+L2')=k locus the dashed marching-squares lines use, so filled bands built
-  // from these rings hug the dashed iso-mag lines by construction. forFill on (fill-ready:
-  // the terminator closure densifies across the antimeridian instead of chording over it).
-  // k=0 → penumbra edge (mag 0); k=1 → umbra/antumbra edge. Verified: localCircumstances
-  // magnitude == k at every on-disc vertex.
+  // Iso-magnitude m=k ground lens: the mag=k contour, same (L1'−m)/(L1'+L2')=k locus
+  // the dashed marching-squares lines use, so filled bands hug them by construction.
+  // k=0 → penumbra edge; k=1 → umbra/antumbra edge. Rendered fill-ready (forFill).
   function isoMagLensGeo(b, k, nAz, maxMercDeg) {
     return shadowLensGeo(b, b.l1 - k * (b.l1 + b.l2), b.tan_f1 - k * (b.tan_f1 + b.tan_f2), nAz, maxMercDeg, true);
   }
@@ -797,11 +710,9 @@ const BesselRT = (() => {
     return isoMagLensGeo(b, 0, nAz, maxMercDeg);
   }
 
-  // Marching squares on a generic uniform grid {x0,y0,step,nX,nY}. Returns an
-  // array of [x1,y1,x2,y2] cell-edge segments at the iso `target`. Ported from the
-  // builder's function of the same name (lat/lng → generic x/y). Cells with any
-  // non-finite corner are skipped (NaN guard; the −1 sentinel is finite so limb
-  // cells survive). Saddle (4-edge) cells emit two segments, naive B↔T / L↔R.
+  // Marching squares on a generic uniform grid {x0,y0,step,nX,nY}. Returns an array
+  // of [x1,y1,x2,y2] cell-edge segments at the iso `target`. Cells with any non-finite
+  // corner are skipped; saddle (4-edge) cells emit two segments, naive B↔T / L↔R.
   function marchingSquares(grid, field, target) {
     const { x0, y0, step, nX, nY } = grid;
     const segs = [];
@@ -885,9 +796,8 @@ const BesselRT = (() => {
   }
 
   // ---- Runtime quality control ----
-  // Port of the offline curve-audit metrics, so the rendered shadow can be checked
-  // numerically rather than by eye in a screenshot. A sawtooth shows up as a high
-  // maxTurnDeg; a break shows up as a large maxGapKm.
+  // Lets the rendered shadow be checked numerically instead of by eye: a sawtooth
+  // shows up as a high maxTurnDeg, a break as a large maxGapKm.
   function _havKm(a, b) {
     const R = 6371;
     const dLat = (b[0] - a[0]) * DEG2RAD;
@@ -910,10 +820,9 @@ const BesselRT = (() => {
     return Math.atan2(y, x) * RAD2DEG;
   }
 
-  // Max turn angle (deg) over a [lat,lng] polyline. Mirrors maxTurn in
-  // check-limit-nesting.mjs: skip the poles (|lat|>88), skip antimeridian jumps
-  // (|Δlng|>180), and ignore turns whose adjacent legs are shorter than
-  // MIN_SEG_KM (3 km) so sub-resolution wobble isn't counted as a kink.
+  // Max turn angle (deg) over a [lat,lng] polyline. Skips the poles (|lat|>88) and
+  // antimeridian jumps (|Δlng|>180), and ignores turns whose adjacent legs are
+  // shorter than MIN_SEG_KM so sub-resolution wobble isn't counted as a kink.
   function maxTurnDeg(poly, minSegKm) {
     const MIN_SEG_KM = minSegKm != null ? minSegKm : 3;
     let m = 0;

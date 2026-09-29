@@ -2,7 +2,7 @@
  * eclipse-glyph.js — inline-SVG eclipse disk glyphs for the sidebar list.
  *
  * Six variants computed from the real greatest-eclipse geometry carried on
- * `event.glyph`, which the build backfills onto each event. Five layer a shadow
+ * `event.glyph`, baked onto each event offline. Five layer a shadow
  * onto the project's Sun/Moon disk art (img/sun-large.svg, img/moon-large.svg —
  * each a disk filling its viewBox, embedded at 28×28 to land exactly at R=14
  * about (20,20)); total solar eclipse replaces the disk with a fixed corona glyph.
@@ -23,9 +23,9 @@ window.EclipseGlyph = (function () {
   const f = (x) => (+x).toFixed(3);
   const isNum = (x) => typeof x === 'number' && isFinite(x);
 
-  // ---- Runtime fallback geometry (only used if event.glyph is missing) ----
-  // Mirrors the build-time glyph geometry using the browser-global Astronomy
-  // engine, so a missing `event.glyph` degrades instead of blanking the card.
+  // ---- Runtime Fallback Geometry ----
+  // Used only when event.glyph is missing; yields the same fields a populated
+  // event.glyph carries, computed from the browser-global Astronomy engine.
   const R_SUN_KM = 695700.0,
     R_MOON_KM = 1737.4,
     R_EARTH_KM = 6378.137,
@@ -65,12 +65,9 @@ window.EclipseGlyph = (function () {
     return { sep: Math.hypot(dRAx, dDec), pa: norm2Pi(Math.atan2(dRAx, dDec)) };
   }
 
-  // The bite depth is inverted OUT of the catalog magnitude, not measured from the
-  // ephemeris. A solar eclipse's magnitude is topocentric — a ground-total eclipse
-  // is not total seen from Earth's centre — so the geocentric Sun↔Moon separation
-  // is far too large: a 0.93 partial would render as a barely-there nibble.
-  // Inverting mag = (sd_sun + sd_moon − sep) / 2·sd_sun makes the glyph's bite
-  // agree with the magnitude printed on the same card.
+  // Bite depth is inverted out of the catalog magnitude, not the geocentric Sun-Moon
+  // separation: a solar eclipse's magnitude is topocentric, so the geocentric separation
+  // is far too large and would render a deep partial as a barely-there nibble.
   function runtimeSolar(peakIso, event) {
     const sun = eqAtPeak(Astronomy.Body.Sun, peakIso),
       moon = eqAtPeak(Astronomy.Body.Moon, peakIso);
@@ -85,11 +82,9 @@ window.EclipseGlyph = (function () {
     };
   }
 
-  // Lunar bite depth is geocentric — the same shadowed Moon is seen identically
-  // across the whole night hemisphere — so take `sep` from the real Moon↔antisolar
-  // separation. Going through the catalog magnitude the way the solar path does
-  // would be worse than useless here: penumbralMag is unreliably 0, which pushes
-  // the penumbra ring tangent to the disk and renders a blank glyph.
+  // Lunar bite depth is geocentric (the same shadowed Moon is seen identically across
+  // the whole night hemisphere), so `sep` comes from the real Moon-antisolar separation,
+  // never the catalog magnitude: penumbralMag is unreliably 0, which blanks the glyph.
   function runtimeLunar(peakIso, _event) {
     const sun = eqAtPeak(Astronomy.Body.Sun, peakIso),
       moon = eqAtPeak(Astronomy.Body.Moon, peakIso);
@@ -117,11 +112,9 @@ window.EclipseGlyph = (function () {
     return (ring + g.sd_primary - g.sep) / (2 * g.sd_primary);
   }
 
-  // Real-time Earth-shadow geometry at an arbitrary instant (reuses the same
-  // runtimeLunar math as the sidebar card). Returns the glyph fields plus the
-  // moon's umbral & penumbral immersion magnitudes (>0 = in contact, ≥1 = the
-  // moon is fully inside that shadow). null when the engine is unavailable.
-  // Used by the map moon-disk renderer to paint a live red shadow bite.
+  // Real-time Earth-shadow geometry at an arbitrary instant. Returns the glyph fields
+  // plus umbral/penumbral immersion magnitudes (>0 = in contact, ≥1 = fully inside);
+  // null when the engine is unavailable.
   function lunarShadowAt(date) {
     if (typeof Astronomy === 'undefined' || !Astronomy.GeoVector) return null;
     try {
@@ -153,6 +146,7 @@ window.EclipseGlyph = (function () {
   }
 
   // ---- SVG fragment builders ----
+
   const svgOpen = (size) => `<svg viewBox="0 0 40 40" width="${size}" height="${size}" aria-hidden="true">`;
   const sunDisk = (base) => `<image href="${base}img/sun-large.svg"  x="6" y="6" width="28" height="28"/>`;
   const moonDisk = (base) => `<image href="${base}img/moon-large.svg" x="6" y="6" width="28" height="28"/>`;
@@ -162,6 +156,7 @@ window.EclipseGlyph = (function () {
     const r_moon = R * (g.sd_occluder / g.sd_primary);
     const amp = R * (g.sep / g.sd_primary);
     const { dx, dy } = skyOffset(amp, g.pa);
+
     // Clip to a circle just outside the sun disk (R+2) so the sun is never
     // truncated while the moon silhouette is cleanly bounded.
     return (
@@ -219,9 +214,9 @@ window.EclipseGlyph = (function () {
     );
   }
 
-  // 3.3.6 — total lunar eclipse: uniform blood disk over the Moon texture, no asymmetry
-  // (owner directive). Like lunarUmbra/lunarPenumbra, the moon disk is drawn
-  // underneath so the texture shows through the semi-transparent blood red.
+  // Total lunar eclipse: a uniform blood disk over the Moon texture, with no asymmetry
+  // — the glyph does not model the umbra's offset here. Like lunarUmbra/lunarPenumbra,
+  // the moon disk is drawn underneath so the texture shows through the blood red.
   function lunarTotal(size, base, cid) {
     return (
       svgOpen(size) +
@@ -256,13 +251,14 @@ window.EclipseGlyph = (function () {
     const isSolar = event._kind === 'solar';
     const kind = event.kind || '';
 
-    // total solar eclipse / hybrid solar eclipse (total+annular) — fixed replacement, no geometry needed.
+    // Total/Hybrid solar eclipse: fixed replacement, no geometry needed.
     if (isSolar && (kind === 'Total' || kind === 'Hybrid')) return solarTotal(size);
 
     const g = ensureGlyph(event);
-    // A glyph object may exist but be partially populated (older build, curve-
-    // only record). Validate the fields each builder dereferences so we degrade
-    // to a plain disk instead of emitting <circle r="NaN"> (an invisible bite).
+
+    // A glyph object may exist and still be partially populated, so validate EVERY
+    // field the chosen builder dereferences: an unchecked one emits <circle r="NaN">,
+    // which renders as an invisible bite rather than failing. Degrade to a plain disk.
     const baseOk = g && isNum(g.sd_primary) && g.sd_primary > 0 && isNum(g.sep) && isNum(g.pa);
 
     if (isSolar) {
@@ -277,12 +273,9 @@ window.EclipseGlyph = (function () {
     return isNum(g.rho_umbra) ? lunarUmbra(g, size, base, cid) : plainDisk(false, size, base); // Partial
   }
 
-  // Per-observer eclipse glyph for the click-a-point observation popup: a solar
-  // bite sized to the LOCAL magnitude at the clicked point, reusing the same disk
-  // builders as the event card so the figure shows what that location actually
-  // sees rather than the greatest-eclipse view. Lunar magnitude is global (only
-  // moon-up/down varies by location), so lunar defers to render(). opts carries
-  // { maxPhase, maxMag, size, idPrefix, assetBase }. Degrades to render() on any gap.
+  // Per-observer eclipse glyph for the observation popup: a solar bite sized to the
+  // LOCAL magnitude at the clicked point. Lunar magnitude is global (only moon-up/down
+  // varies by location), so lunar defers to render(). Degrades to render() on any gap.
   function renderLocal(event, opts) {
     opts = opts || {};
     const size = opts.size || 64;
@@ -290,6 +283,7 @@ window.EclipseGlyph = (function () {
     try {
       if (event._kind !== 'solar') return render(event, opts);
       if (opts.maxPhase === 'total') return solarTotal(size);
+
       // Synthetic per-point glyph: sd_sun/sd_moon/pa from the event peak geometry,
       // sep inverted from the local magnitude (same relation as runtimeSolar).
       const peakIso = event.peak && event.peak.time;
@@ -310,23 +304,22 @@ window.EclipseGlyph = (function () {
     }
   }
 
-  // ---- kexing / huibo / yanfan emblem ----
-  // A non-eclipse transient has no shadow geometry; this draws a small mark so the
-  // jingguan strip's glyph slot is filled at the same 30px size as an eclipse figure.
-  // Comet and guest-star kinds use the engraving-style icons in img/; the viewBox
-  // crops each source SVG to its focal region (nucleus+tail / central burst).
-  // Occultation renders body-specific glyphs depending on the record:
-  //   • Moon-only: phase-correct disk (Astronomy.Illumination + bright-limb PA)
-  //   • Moon + named planet: phase disk with planet dot upper-left
-  //   • Planet-only: ink-on-paper glow dot with wuxing (Five-Elements) color
+  // ---- Transient Emblem (Comet, Guest Star, Occultation) ----
+  // A non-eclipse transient has no shadow geometry; draws a small mark at eclipse-figure
+  // size. Occultation renders a phase-correct Moon disk, a planet dot, or both.
 
-  // Chinese traditional planet names → modern key (歲星/熒惑/鎮星/太白/辰星)
+  // Chinese planet names → modern key, both scripts (e.g. 岁星/歲星 (jupiter)): a record's
+  // sky_position is verbatim from its own source, and sources disagree on script. A name
+  // missing here falls back silently to a plain lunar phase with no planet dot.
   const _ZH_PLANET = {
     歲星: 'jupiter',
+    岁星: 'jupiter',
     木星: 'jupiter',
     熒惑: 'mars',
+    荧惑: 'mars',
     火星: 'mars',
     鎮星: 'saturn',
+    镇星: 'saturn',
     填星: 'saturn',
     土星: 'saturn',
     太白: 'venus',
@@ -335,9 +328,9 @@ window.EclipseGlyph = (function () {
     水星: 'mercury',
   };
 
-  // Planet ink tints for light-mode paper (#F3EFE6). The conventional screen tints
-  // for these five are tuned for a dark sky and wash out on a pale ground, so each is
-  // darkened ~30% to hold contrast as ink.
+  // Planet ink tints for light-mode paper (#F3EFE6). The conventional screen tints for
+  // these five are tuned for a dark sky and wash out on a pale ground, so each is
+  // darkened to hold its contrast as ink.
   const _PLANET_INK = {
     jupiter: '#B86010', // orange
     mars: '#C03428', // red
@@ -382,16 +375,14 @@ window.EclipseGlyph = (function () {
     try {
       const date = _parseDateForAstro(dateStr);
       if (date && typeof Astronomy !== 'undefined') {
-        // Illumination is deliberately left uncorrected while the surrounding
-        // positions are not. It supplies the phase ANGLE, and the ancient
-        // ephemeris error of 1.9 deg perturbs that by the same amount — which at
-        // an eclipse, where the Moon is within a degree of new or full, moves the
-        // illuminated fraction by 0.03 % of the disc. The bright-limb orientation,
-        // which would be visible, comes from bodyPosition below and is corrected.
+        // Illumination is left uncorrected: it supplies only the phase ANGLE, and near an
+        // eclipse the ancient-ephemeris error moves the illuminated fraction by less than
+        // the disc can show. The bright-limb orientation IS visible, so it is corrected below.
         const illum = Astronomy.Illumination('Moon', date);
         phaseAngle = illum.phase_angle * (Math.PI / 180);
-        // Position angle of Sun from Moon — determines which limb is lit.
-        // Observer(0,0,0) is geocentric to within < 0.01° for phase purposes.
+
+        // Position angle of Sun from Moon determines which limb is lit; a null
+        // observer gives the geocentric bright-limb angle used here.
         const obs = new Astronomy.Observer(0, 0, 0);
         const moonEq = EphemCorrect.equator('Moon', date, obs);
         const sunEq = EphemCorrect.equator('Sun', date, obs);
@@ -468,6 +459,7 @@ window.EclipseGlyph = (function () {
     const lit = _moonLitPath(14, pp.phaseAngle);
     const mid = cid + 'm';
     const pc = _PLANET_INK[planetKey] || '#5A5040';
+
     // (11,11) in 40×40 viewBox = (-9,-9) from center (20,20): upper-left, inside R=14 disk
     return (
       svgOpen(size) +
@@ -546,13 +538,13 @@ window.EclipseGlyph = (function () {
     );
   }
 
-  // A gathering: one dot per body, clustered. The bodies come off object.key, which for a
-  // conjunction names all of them (venus_and_mercury_and_jupiter), so the mark carries the
-  // same information the sentence does — how many gathered, and which. Laid out on a small
-  // circle rather than a row: a gathering has no order, and a row would read as a sequence.
+  // A gathering: one dot per body, clustered on a small circle rather than a row, since
+  // a gathering has no order and a row would read as a sequence. Bodies come off
+  // object.key (venus_and_mercury_and_jupiter).
   function _conjunctionGlyph(size, rec) {
     const key = (rec && rec.ident && rec.ident.key) || '';
     let keys = key.split('_and_').filter((k) => _PLANET_INK[k]);
+
     // the_five_planets, or a body with no ink of its own — draw five neutral dots for the
     // five, else fall back to a pair so the mark still reads as "more than one".
     if (!keys.length) keys = key === 'the_five_planets' ? Object.keys(_PLANET_INK) : ['', ''];
@@ -562,8 +554,8 @@ window.EclipseGlyph = (function () {
     const n = keys.length;
     let dots = '';
     for (let i = 0; i < n; i++) {
-      // Single ring, starting at 12 o'clock. Two bodies land opposite each other, which is
-      // what 「太白與歲星合」 looks like; more spread evenly around.
+      // Single ring, starting at 12 o'clock. Two bodies land opposite each other, as
+      // 太白與歲星合 (Venus and Jupiter in conjunction) would; more spread evenly around.
       const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
       const cx = (C + spread * Math.cos(a)).toFixed(1);
       const cy = (C + spread * Math.sin(a)).toFixed(1);
@@ -631,8 +623,9 @@ window.EclipseGlyph = (function () {
         '</svg>'
       );
     }
-    // occultation: dispatch on the body pair carried in the record.
-    // rec is the _map()-projected card: ident = raw r.object, skyPos = r.sky_position, date = r.event_date.
+
+    // Occultation: dispatch on the body pair carried in the record (rec is the
+    // _map()-projected card).
     if (rec) {
       const objKey = rec.ident && rec.ident.key;
       const skyPos = rec.skyPos || '';
@@ -646,6 +639,7 @@ window.EclipseGlyph = (function () {
       }
       if (_PLANET_INK[objKey]) return _planetDotSvg(objKey, s);
     }
+
     // Fallback (no record or unrecognised body): geometric two-circle mark.
     // occulted body (ring) drawn first, then the occulting body (disk) on top of its
     // left edge — one body passing over/near the other.
@@ -664,13 +658,9 @@ window.EclipseGlyph = (function () {
     );
   }
 
-  // ---- Contact-Trajectory Schematic (eclipse phase diagram, shixiangtu, ported from SubstellarAtlas) ----
-  // A larger diagram than the list glyph: the occulting body drawn at every
-  // contact instant strung along its crossing trajectory, each contact labelled.
-  // Lunar is a single global figure (Moon crossing Earth's penumbra+umbra rings);
-  // solar is location-specific (Sun's diurnal arc with Sun∪Moon coverage glyphs
-  // at each contact's real alt/az). Shown in the click-a-point observation popup.
-  // Reuses the geometry core above (skyOffset/eqAtPeak/skyVec/ensureGlyph/…).
+  // ---- Contact-Trajectory Schematic ----
+  // Eclipse phase diagram (shixiangtu), shown in the observation popup: the occulting
+  // body drawn at every contact instant along its crossing trajectory.
 
   // Apparent (refraction-corrected) alt/az of a body in degrees — mirrors the
   // popup's bodyAltAz (observe-popup.js) so the sky-path matches the horizon gate.
@@ -687,37 +677,27 @@ window.EclipseGlyph = (function () {
   }
 
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
   // Attribute-safe escape (for inlining gloss text into a data-gloss attribute).
   const escAttr = (s) => esc(s).replace(/"/g, '&quot;');
+
   // ` data-gloss="…"` fragment for an SVG element, or '' when no text given.
   const glossAttr = (s) => (s ? ` data-gloss="${escAttr(s)}"` : '');
 
-  // ---- On-screen sizing vs. viewBox ----
-  // These schematics ship `width="100%"`, so the browser scales the whole viewBox
-  // to whatever the column gives it: anything authored at N user units lands at
-  // N × (colPx / VBW) CSS px. That is right for geometry — shrink the column and
-  // the diagram shrinks with it — but wrong for type and for hit targets, which
-  // must hold a constant screen size to stay legible/clickable. Both fall out of
-  // one factor: author them at (target × VBW / colPx) and the scaling cancels.
-  //
-  // colPx is the figure column's real CSS width, supplied by the caller (it is a
-  // layout fact this module cannot read). It defaults to DESIGN_PX, the width these
-  // diagrams were drawn against, so callers that pass nothing keep today's output.
+  // ---- On-Screen Sizing vs. ViewBox ----
+  // width="100%" scales N user units to N × (colPx / VBW) CSS px; type and hit targets
+  // instead author at (target × VBW / colPx) to hold a constant screen size.
   const DESIGN_PX = 320;
   const colOf = (opts) => (+opts.colPx > 0 ? +opts.colPx : DESIGN_PX);
-  // Author-side multiplier that pins type at opts.textPx CSS px on screen. The 12
-  // divisor is the size the diagrams were drawn at, so tk = 1 (a no-op) whenever
-  // the caller asks for 12px in a DESIGN_PX-wide column. Gutters reserved FOR type
-  // (padL under the altitude labels, padB under the azimuth row) must be scaled by
-  // this too, or the labels grow into the plot.
+
+  // Author-side multiplier that pins type at opts.textPx CSS px on screen; tk = 1 is a
+  // no-op for 12px type in a DESIGN_PX-wide column. Gutters reserved FOR type must be
+  // scaled by this too, or the labels grow into the plot.
   const textScale = (opts, VBW) => ((+opts.textPx > 0 ? +opts.textPx : 12) / 12) * (VBW / colOf(opts));
 
-  // Transparent fat hit-casing for a thin schematic line, carrying its gloss so
-  // the whole comfortable band — not the 1px visible stroke — triggers the
-  // definition card. HitWidths.MIN is a screen-px floor, so it needs the same colPx
-  // round-trip as type: divide by the ACTUAL column width, never a design-time constant,
-  // or every band narrows in proportion as the column does — silently, since a hit area
-  // has nothing visible to look wrong.
+  // Transparent fat hit-casing for a thin schematic line, so the whole comfortable band,
+  // not the 1px visible stroke, triggers the definition card. HitWidths.MIN is a
+  // screen-px floor divided by the ACTUAL column width, never DESIGN_PX.
   const HIT_MIN = () => (typeof HitWidths !== 'undefined' ? HitWidths.MIN : 12);
   const hitW = (W, colPx) => f((HIT_MIN() * W) / (colPx || DESIGN_PX));
   function hitCasing(x1, y1, x2, y2, W, gloss, colPx) {
@@ -748,10 +728,8 @@ window.EclipseGlyph = (function () {
     );
   }
 
-  // A body disc drawn with the project's Sun/Moon disk art (a disk filling its own
-  // viewBox, transparent outside) instead of a flat fill, with an optional
-  // translucent depth tint and an optional rim stroke. Lets the moon/sun faces
-  // show real texture in the schematics.
+  // A body disc drawn with the project's Sun/Moon disk art instead of a flat fill, with
+  // an optional translucent depth tint and rim stroke, so the schematics show real texture.
   function texturedDisc(href, cx, cy, r, tintColor, tintOpacity, rim) {
     const d = 2 * r;
     let out = `<image href="${href}" x="${f(cx - r)}" y="${f(cy - r)}" width="${f(d)}" height="${f(d)}"/>`;
@@ -775,9 +753,8 @@ window.EclipseGlyph = (function () {
 
   /**
    * EclipseWise-style summary stats for a lunar eclipse's schematic corner readout.
-   * Returns { umbralMag, penumbralMag, gamma, partialMin, totalMin } — any field
-   * null when it can't be derived. gamma = least distance of the Moon's centre from
-   * the shadow axis in Earth-radii, north positive.
+   * gamma = least distance of the Moon's centre from the shadow axis in Earth-radii,
+   * north positive; any field null when it can't be derived.
    */
   function lunarStats(event) {
     const g = ensureGlyph(event);
@@ -800,8 +777,10 @@ window.EclipseGlyph = (function () {
         /* leave gamma null */
       }
     }
-    // Only a positive stored value overrides geometry: the build bakes umbralMag/
-    // penumbralMag=0 for penumbral events, which would clobber the correct value.
+
+    // Only a POSITIVE stored value may override geometry: umbralMag/penumbralMag are
+    // baked as 0 for penumbral events, and a 0 taken as authoritative clobbers the
+    // value derived here.
     if (isNum(event.umbralMag) && event.umbralMag > 0) out.umbralMag = event.umbralMag;
     if (isNum(event.penumbralMag) && event.penumbralMag > 0) out.penumbralMag = event.penumbralMag;
     const durSec = (a, b) => (a && b ? (Date.parse(b) - Date.parse(a)) / 1000 : null);
@@ -813,10 +792,8 @@ window.EclipseGlyph = (function () {
   }
 
   // Lunar: the Moon strung along its real crossing trajectory through Earth's
-  // concentric penumbra/umbra shadow. Celestial north up, east left (sky view).
-  // Each Moon sits at its true sky offset from the antisolar point (= shadow
-  // centre) at that contact, so the path tilt is real and the red umbral bite
-  // falls on the geometrically correct side. gloss supplies hover text.
+  // concentric penumbra/umbra shadow (celestial north up, east left). Each Moon sits at
+  // its true sky offset from the antisolar point (= shadow centre) at that contact.
   function lunarSchematic(event, opts) {
     opts = opts || {};
     const base = opts.assetBase || '';
@@ -905,12 +882,12 @@ window.EclipseGlyph = (function () {
       maxX = Math.max(...xs),
       minY = Math.min(...ys),
       maxY = Math.max(...ys);
-    // Unlike the solar diagram's fixed 320-unit frame, W here is whatever the
-    // geometry needs, so type must be authored against W to land at textPx on
-    // screen. The old `12 * max(1, W/320)` only compensated for an over-wide
-    // viewBox and still assumed a ~320px column; this holds for any column.
+
+    // Unlike the solar diagram's fixed 320-unit frame, W here is whatever the geometry
+    // needs, so type is scaled by W/colPx, never by the viewBox width alone.
     const W = (maxX - minX) * S + 2 * pad;
     const labelFS = ((+opts.textPx > 0 ? +opts.textPx : 12) * W) / colPx;
+
     // The contact-key row hangs below the geometry. Both offsets were authored
     // against a 12-unit label (baseline 13 down, row 18 tall), so keep them as
     // ratios of labelFS or the row collides with the Moon discs once type grows.
@@ -930,10 +907,12 @@ window.EclipseGlyph = (function () {
 
     let s = `<svg viewBox="0 0 ${f(W)} ${f(H)}" width="100%" class="ecl-schematic" role="img" font-family="var(--font-text)">`;
     s += arrowMarker(`arr-${uid}`);
+
     // Background shadow rings — neutral dark shadows (no red; red lives only on
     // the shadowed Moon faces below, matching the list-card glyph effect).
     s += `<circle cx="${X(0)}" cy="${Y(0)}" r="${f(rPenPx)}" fill="var(--ecl-schem-pen, #353b47)" opacity="0.5" stroke="var(--ecl-schem-pen-rim, #5a6373)" stroke-width="1"${glossAttr(gloss.penumbra)}/>`;
     s += `<circle cx="${X(0)}" cy="${Y(0)}" r="${f(rUmPx)}" fill="var(--ecl-schem-umb, #23262d)" opacity="0.85" stroke="var(--ecl-schem-umb-rim, #3a3f49)" stroke-width="1"${glossAttr(gloss.umbra)}/>`;
+
     // Ecliptic (solid, faint) and × at the shadow centre.
     if (ecl0) {
       s += `<line x1="${X(ecl0.x)}" y1="${Y(ecl0.y)}" x2="${X(ecl1.x)}" y2="${Y(ecl1.y)}" stroke="var(--ecl-schem-axis, #6f7787)" stroke-width="1" opacity="0.7" pointer-events="none"/>`;
@@ -944,17 +923,21 @@ window.EclipseGlyph = (function () {
       `<g stroke="var(--ecl-schem-axis, #6f7787)" stroke-width="1.1" opacity="0.9" pointer-events="none">` +
       `<line x1="${f(cx0 - xr)}" y1="${f(cy0 - xr)}" x2="${f(cx0 + xr)}" y2="${f(cy0 + xr)}"/>` +
       `<line x1="${f(cx0 - xr)}" y1="${f(cy0 + xr)}" x2="${f(cx0 + xr)}" y2="${f(cy0 - xr)}"/></g>`;
+
     // Shadow-centre hit target (transparent, above ring fills but below the discs).
     const xHitR = hitW(W, colPx);
     s += `<circle cx="${f(cx0)}" cy="${f(cy0)}" r="${xHitR}" fill="transparent" pointer-events="all"${glossAttr(gloss.shadowcenter)}/>`;
+
     // Moon path (dashed, arrow at the egress end) + transparent hoverable casing.
     s += `<line x1="${X(path0.x)}" y1="${Y(path0.y)}" x2="${X(path1.x)}" y2="${Y(path1.y)}" stroke="var(--ecl-schem-path, #8a93a3)" stroke-width="1" stroke-dasharray="3 3" opacity="0.85" marker-end="url(#arr-${uid})" pointer-events="none"/>`;
     s += hitCasing(X(path0.x), Y(path0.y), X(path1.x), Y(path1.y), W, gloss.moonpath, colPx);
+
     // Contact labels first so the Moon disks (drawn next) occlude them on overlap.
     const labelY = f((maxY - minY) * S + pad + labelDrop);
     for (const p of pts) {
       s += `<text x="${X(p.x)}" y="${labelY}" text-anchor="middle" font-size="${f(labelFS)}" fill="var(--ecl-schem-label, #9aa4b2)"${glossAttr(cg[p.key])}>${esc(p.key)}</text>`;
     }
+
     // Moon at each contact: disk art + penumbra/umbra washes clipped to the disk,
     // so each shadow wash covers exactly the Moon ∩ shadow overlap.
     for (let i = 0; i < pts.length; i++) {
@@ -976,12 +959,9 @@ window.EclipseGlyph = (function () {
     return s;
   }
 
-  // Solar: altitude-azimuth "sky-position" diagram — the Sun's diurnal arc as seen
-  // from the observer, with Sun+Moon coverage glyphs at each contact's real sky
-  // position. x = windowed azimuth (P1→P4 left→right in time); y = altitude
-  // 0°(horizon, bottom) to 90°(zenith, top). opts = { assetBase, observer:{lat,lng},
-  // contacts:{c1,maxTime,c4,c1AtHorizon,c4AtHorizon,maxPhase}, gloss, labels,
-  // colPx, textPx }.
+  // Solar: altitude-azimuth "sky-position" diagram — the Sun's diurnal arc as seen from
+  // the observer, with Sun+Moon coverage glyphs at each contact's real sky position.
+  // x = windowed azimuth (P1→P4 left→right in time); y = altitude 0°(horizon) to 90°(zenith).
   function solarSkyPath(event, opts) {
     if (typeof Astronomy === 'undefined' || !Astronomy.Horizon) return '';
     const base = opts.assetBase || '';
@@ -1052,12 +1032,10 @@ window.EclipseGlyph = (function () {
 
     const VBW = 320,
       VBH = 210;
-    // Type holds at opts.textPx on screen for any column width (see textScale);
-    // only the two gutters that actually carry type scale with it — padL sits
-    // under the right-anchored altitude labels, padB under the azimuth row. padR
-    // and padT are bare margins, so scaling them would just eat the plot.
-    // Geometry (rPx, the grid, the arc) stays in raw units and so keeps shrinking
-    // with the column — which is the point: the figure gets smaller, the type does not.
+
+    // Type holds at opts.textPx on screen for any column width (see textScale); only
+    // padL/padB, which carry type, scale with it. Geometry (rPx, the grid, the arc)
+    // stays in raw units, so the figure gets smaller while the type does not.
     const tk = textScale(opts, VBW);
     const colPx = colOf(opts);
     const FS = 12 * tk;
@@ -1267,13 +1245,9 @@ window.EclipseGlyph = (function () {
     return s;
   }
 
-  // Public: contact-trajectory schematic for the observation popup. Returns ''
-  // when geometry is unavailable so the caller can omit the figure.
-  //
-  // opts.colPx / opts.textPx decouple type size from figure size: pass the figure
-  // column's CSS width and the on-screen px you want the labels to hold, and the
-  // diagram scales while the type does not. Omit both to get the historical
-  // behaviour (drawn for a 320px column at 12px type).
+  // Public: contact-trajectory schematic for the observation popup. Returns '' when
+  // geometry is unavailable. opts.colPx/opts.textPx decouple type size from figure
+  // size; omit both to author for a DESIGN_PX-wide column at 12px type.
   function renderSchematic(event, opts) {
     opts = opts || {};
     try {

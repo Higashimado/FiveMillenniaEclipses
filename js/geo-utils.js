@@ -2,23 +2,23 @@
  * geo-utils.js — the two shared helpers the map draws with: world-copy offsets and
  * colour interpolation.
  *
- * Public API:
- *   GeoUtils.wrapOffsets(minLon, maxLon) -> [longitude offsets, in degrees]
- *   GeoUtils.lerpHex(c0, c1, t)          -> "#rrggbb"
+ * Public API: GeoUtils.wrapOffsets(minLon, maxLon) -> offsets in degrees;
+ * GeoUtils.lerpHex(c0, c1, t) -> "#rrggbb".
+ *
+ * bessel-runtime.js and envelope-ring.js MUST NOT depend on this module: both are
+ * loaded standalone outside the browser by the offline curve harnesses, where a bare
+ * GeoUtils reference is an uncaught ReferenceError. Their inlined longitude wrap and
+ * Earth radius stay inlined for that reason.
  */
 const GeoUtils = (() => {
-  // Which world copies a shape spanning [minLon, maxLon] falls into. The map's longitude
-  // range is -200…+520, so one shape can be visible in more than one copy at once and
-  // anything drawn only at k = 0 vanishes as the reader pans past a seam. Return the
-  // offsets rather than the translated geometry: callers hold markers, polylines and
-  // rings alike, and each knows how to shift its own kind.
+  // Which world copies a shape spanning [minLon, maxLon] falls into, within the map's
+  // -200…+520 range. Returns offsets rather than translated geometry: each caller
+  // (marker, polyline, ring) knows how to shift its own kind.
   function wrapOffsets(minLon, maxLon) {
     const offsets = [];
-    for (let k = -1; k <= 2; k++) {
-      const lo = k * 360 + minLon;
-      const hi = k * 360 + maxLon;
-      if (hi >= -200 && lo <= 520) offsets.push(k * 360);
-    }
+    const kMin = Math.ceil((-200 - maxLon) / 360);
+    const kMax = Math.floor((520 - minLon) / 360);
+    for (let k = kMin; k <= kMax; k++) offsets.push(k * 360);
     return offsets;
   }
 

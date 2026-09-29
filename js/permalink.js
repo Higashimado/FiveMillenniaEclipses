@@ -1,31 +1,20 @@
-/** permalink.js — shareable URL ⇄ app-state sync (NEW).
+/** permalink.js — shareable URL ⇄ app-state sync.
  *
- * Ported/adapted from SubstellarAtlas's js/state.js (AppState). Continuously
- * mirrors map view, timeline instant, selection, filters and basemap into the
- * query string via history.replaceState (500ms leading throttle), and restores
- * them once at boot. The URL shape is  <base>/<lang>/?<params>  — the language
- * lives in the PATH segment (served by the per-language shells under /en/ …/ja/;
- * detected in i18n.js), so it is NOT a query param here.
+ * Continuously mirrors map view, timeline instant, selection, filters and basemap
+ * into the query string via history.replaceState (500ms leading throttle), and
+ * restores them once at boot. The URL shape is <base>/<lang>/?<params> — the
+ * language lives in the PATH segment, so it is NOT a query param here.
  *
  * Params (all omitted at their default): v=lat,lng,zoom · t=UTC ISO astronomical
  * year · r=record_id · date+k=event · o=lat,lng of the open observation card ·
- * type · civ · mode · base · q · yr=lo,hi · f=focus-year. Backward compatible
- * with the legacy ?date= / ?lang= deep-links.
- *
- * TimeState is a LEXICAL global (js/time.js does not attach it to window), so it
- * is referenced by bareword with a typeof guard — never window.TimeState.
+ * type · civ · mode · base · q · yr=lo,hi · f=focus-year.
  */
 const Permalink = (() => {
   'use strict';
 
-  // lizhou normalisation (normYear: (y − Y0) / SPAN), so focus and range round-trip as
-  // human-readable YEARS while the app holds focus normalised over the domain.
-  //
-  // Read the domain and the cold-open defaults from Atlas rather than restating them: a
-  // permalink omits any param still equal to a default, so a value that drifts on one side
-  // only puts a spurious f= / yr= on every URL. The literals below are a boot-order
-  // fallback for the window in which Atlas has not defined itself yet, and are the only
-  // copy that has to be kept in step by hand.
+  // lizhou normalisation (normYear: (y − Y0) / SPAN), so focus and range round-trip
+  // as human-readable YEARS. Read the domain and cold-open defaults from Atlas rather
+  // than restating them; the literals below are only a boot-order fallback.
   const _AD = (window.Atlas && Atlas.DEFAULTS) || {};
   const Y0 = _AD.Y0 != null ? _AD.Y0 : -3000,
     Y1 = _AD.Y1 != null ? _AD.Y1 : 1999,
@@ -45,13 +34,9 @@ const Permalink = (() => {
   const _TS = () => (typeof TimeState !== 'undefined' ? TimeState : null);
   const _I18n = () => (typeof I18n !== 'undefined' ? I18n : null);
 
-  // ---- BCE-safe UTC time (de)serialization ----
-  // Serialize through getUTC* into a signed, zero-padded-6 extended-ISO year, the same
-  // form the data's date filenames take; parse with setUTCFullYear. Never Date.UTC or
-  // Date.parse for a variable year: both remap 0–99 into the 1900s, and an Intl-based
-  // formatter reports a BCE year as a positive era-relative number. Either one silently
-  // relocates a third of this atlas.
-
+  // ---- BCE-Safe UTC Time Serialization ----
+  // Never Date.UTC or Date.parse for a variable year: both remap 0–99 into the 1900s,
+  // silently relocating a third of this atlas. Use getUTC*/setUTCFullYear instead.
   function fmtTimeUTC(d) {
     const y = d.getUTCFullYear();
     const p2 = (n) => String(n).padStart(2, '0');
@@ -99,7 +84,7 @@ const Permalink = (() => {
     history.replaceState(null, '', url);
   }
 
-  // ---- serialize: live state → query string (omit defaults) ----
+  // ---- Serialize: Live State To Query String ----
 
   function serialize() {
     const p = new URLSearchParams();
@@ -159,18 +144,18 @@ const Permalink = (() => {
       }
     }
 
-    // basemap — omit the preferred default 'ohm'
-    const base = window.BasemapsCtl && BasemapsCtl.getBase && BasemapsCtl.getBase();
+    // basemap — the id someone explicitly picked, never the one merely on screen: a
+    // base the app settled on by itself must not be pinned into a shared link.
+    // 'ohm' is omitted as the preferred default.
+    const base = window.BasemapsCtl && BasemapsCtl.getPick && BasemapsCtl.getPick();
     if (base && base !== 'ohm') p.set('base', base);
 
     return p.toString();
   }
 
-  // ---- write scheduling (leading throttle; reads live state at fire time) ----
-  // A zoom fires many events and playback fires every frame, so we coalesce: the
-  // first touch arms a 500ms timer, further touches within it are dropped, and
-  // the eventual _writeURL reads whatever the final state is.
-
+  // ---- Write Scheduling ----
+  // A zoom fires many events and playback fires every frame, so this coalesces: the
+  // first touch arms a 500ms timer, and _writeURL reads whatever the final state is.
   function _scheduleWrite() {
     if (_restoring || _timer) return;
     _timer = setTimeout(() => {
@@ -179,8 +164,8 @@ const Permalink = (() => {
     }, 500);
   }
 
-  // ---- restore: query string → app state (ordered; each step fault-isolated) ----
-
+  // ---- Restore: Query String To App State ----
+  // Ordered; each step fault-isolated.
   function _syncSeg(sel, attr, val) {
     document.querySelectorAll(sel + ' button').forEach((b) => {
       const on = b.getAttribute(attr) === String(val);
@@ -202,6 +187,15 @@ const Permalink = (() => {
         console.warn('[permalink] restore step failed', e);
       }
     };
+
+    // Basemap first, and outside the Atlas block below: the base layer is a
+    // property of the map, not of Atlas state, so a link must restore it even on a
+    // boot where Atlas never came up.
+    attempt(() => {
+      if (params.has('base') && window.BasemapsCtl && BasemapsCtl.chooseBase) {
+        BasemapsCtl.chooseBase(params.get('base'));
+      }
+    });
 
     // 1. filters BEFORE selection (so the list/markers are in the right mode).
     if (A && A.state) {
@@ -225,6 +219,7 @@ const Permalink = (() => {
       attempt(() => {
         if (params.has('yr')) {
           const yr = params.get('yr').split(',').map(Number);
+
           // Clamp both handles into the year domain [Y0, Y1] and keep lo ≤ hi —
           // a crafted URL must not push a filter handle off the axis.
           if (yr.length === 2 && yr.every((n) => !isNaN(n))) {
@@ -237,21 +232,18 @@ const Permalink = (() => {
       attempt(() => {
         if (params.has('f')) {
           const fy = Number(params.get('f'));
+
           // Clamp the focus year to the domain so focusN stays within [0, 1].
           if (!isNaN(fy)) S.focusN = (Math.max(Y0, Math.min(Y1, fy)) - Y0) / SPAN;
         }
       });
+
       // Static segmented controls aren't re-rendered by refresh() — sync them.
       attempt(() => {
         _syncSeg('#typeseg', 'data-t', S.type);
       });
       attempt(() => {
         _syncSeg('#modeseg', 'data-m', S.mode);
-      });
-      attempt(() => {
-        if (params.has('base') && window.BasemapsCtl && BasemapsCtl.chooseBase) {
-          BasemapsCtl.chooseBase(params.get('base'));
-        }
       });
       attempt(() => {
         if (A.refresh) A.refresh();
@@ -275,6 +267,7 @@ const Permalink = (() => {
       attempt(() => {
         if (params.has('o') && A && A.showObservation) {
           const o = params.get('o').split(',').map(Number);
+
           // Clamp lat into the sphere; lng is left alone, world copies included,
           // so the pin lands in the same copy the v= framing shares.
           if (o.length === 2 && o.every((n) => !isNaN(n))) {
@@ -287,6 +280,7 @@ const Permalink = (() => {
       attempt(() => {
         if (params.has('v') && map) {
           const parts = params.get('v').split(',').map(Number);
+
           // animate:false — an animated setView on restore can be interrupted by the
           // selection's redraws / curve loads and snap back to the origin.
           if (parts.length === 3 && parts.every((n) => !isNaN(n)))
@@ -298,18 +292,14 @@ const Permalink = (() => {
       _writeURL(); // stamp the canonical /<lang>/?… form (adds the language path)
     };
 
-    // 2. selection: record r (cascades to event+time) > bare event date+k.
-    // Only the register on screen is fetched before first paint; the rest stream in
-    // behind it. So a permalink into a register still in flight has to wait for its
-    // shards — Atlas.select is a silent no-op on a record it does not hold yet, and
-    // the closing _writeURL would then stamp a URL with the r= dropped out of it.
+    // 2. selection: record r (cascades to event+time) > bare event date+k. Only the
+    // register on screen is fetched before first paint, so a permalink into one still
+    // in flight has to wait: Atlas.select is a silent no-op on a record not held yet.
     const wanted = params.get('r');
     if (wanted && A && A.select && A.ensureRecord) {
-      // Both arms run the SAME continuation: finish() is what clears _restoring, and a
-      // restore that never clears it silently kills URL writing for the rest of the
-      // session (_scheduleWrite returns early forever) while dropping the t=/o=/v=
-      // steps below. A register that failed to arrive costs the reader its selection,
-      // never the shared framing.
+      // Both arms run the SAME continuation: finish() clears _restoring, and a restore
+      // that never clears it silently kills URL writing for the rest of the session.
+      // A register that failed to arrive costs the reader its selection, never the framing.
       const done = () => {
         attempt(() => A.select(wanted));
         finish();
@@ -329,7 +319,7 @@ const Permalink = (() => {
     finish();
   }
 
-  // ---- watch: state → URL ----
+  // ---- Watch: State To URL ----
 
   function startWatching(ctx) {
     const map = (ctx && ctx.map) || window.appMap;

@@ -1,37 +1,27 @@
 /** calendars.js — Sinocentric calendar reckoning for the shu'er chronicle line.
 
-   Turns a proleptic-Gregorian civil date into:
-     - the day ganzhi (sexagenary cycle), authoritative & calendar-system-free;
-     - the Chinese lunisolar month (dingshuo + dingqi + no-zhongqi intercalation), a *reckoned* reconstruction;
-     - the proleptic Julian calendar date (the calendar a pre-1582 European
-       chronicler actually used), for Western "cultural equivalent" localization.
-
-   The lunisolar rule mirrors Shouxingli astronomical calendar (sxwnl, lunar.js): months are numbered from the
-   month (yue) that contains dongzhi (= 11th month, jianyin/xiazhen (Xia calendar)); a sui (solstice-to-solstice year) holding 13
-   new-moon months takes the first zhongqi-less month as its intercalary month (run-yue), shifting later months
-   back one. All qi-shuo (solar-term/new-moon) boundaries are judged on the East-8 (UT+8) civil day, per sxwnl,
-   so results line up with the historical historical calendar (guli). Unlike sxwnl we take exact dingshuo/dingqi (fixed-new-moon/astronomical-solar-term)
-   from astronomy-engine (window.Astronomy, MIT) rather than its bundled eph.js.
-
-   Fidelity notes:
-     - Day ganzhi is exact: a continuous, never-broken 60-day count, with K=49
-       calibrated against curated Chunqiu (Spring and Autumn Annals) records.
-     - The month is computation (tuisuan), not a source quotation. It assumes Xia calendar system (jianyin)
-       for all years; pre-104 BCE government-issued calendar month-establishment shifts (Qin jianhài system, extra-ninth-month…)
-       are NOT modelled — a documented limitation of the reckoned display.
+   Turns a proleptic-Gregorian civil date into the day ganzhi (exact, calendar-system-
+   free), the reckoned Chinese lunisolar month (dingshuo + dingqi + no-zhongqi
+   intercalation, Shouxingli-style as in sxwnl/lunar.js but evaluated from astronomy-
+   engine), and the proleptic Julian date a pre-1582 European chronicler used. Assumes
+   the Xia calendar system for every year; does not model pre-104 BCE month-
+   establishment shifts.
 */
 const SinoCal = (() => {
   'use strict';
 
-  // ---- constants ----
+  // ---- Constants ----
+
   const STEMS = '甲乙丙丁戊己庚辛壬癸';
   const BRANCHES = '子丑寅卯辰巳午未申酉戌亥';
-  const GANZHI_K = 49; // ganzhi_index = (JDN + 49) % 60, 0 == 甲子
+  const GANZHI_K = 49; // ganzhi_index = (JDN + 49) % 60, 0 == 甲子 (jiazi)
   const J2000_JD = 2451545.0; // Julian Date of the J2000.0 epoch (astronomy-engine .ut = 0)
   const CST = 8 / 24; // East-8 civil-time offset (Shouxingli convention)
+
   // Month names by yue-jian (month establishment) index (jianyin), matching YMC below:
   // 0 is the 11th month, 1 the 12th, 2 the 1st (zhengyue), and so on round to 11 = the 10th.
   const YMC = ['十一', '十二', '正', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+
   // JDN of the Gregorian reform: dates before this were recorded in the Julian calendar.
   const GREGORIAN_REFORM_JDN = 2299161; // 1582-10-15 (proleptic Gregorian)
   const _lsCache = new Map(); // memo: the strip re-renders the same event often
@@ -46,7 +36,7 @@ const SinoCal = (() => {
     return A;
   }
 
-  // ---- pure day arithmetic ----
+  // ---- Pure Day Arithmetic ----
 
   // Julian Day Number of a proleptic-Gregorian date (astronomical year numbering,
   // so year 0 == 1 BCE). Floor division → valid for BCE. Ported verbatim from the
@@ -99,7 +89,7 @@ const SinoCal = (() => {
     return jd;
   }
 
-  // ---- astronomy-engine helpers ----
+  // ---- Astronomy-Engine Helpers ----
 
   // BCE-safe AstroTime for a UT instant. `new Date(0)` + setUTCFullYear avoids the
   // 0–99 → 1900–1999 remap that Date.UTC applies, as everywhere else here.
@@ -110,7 +100,7 @@ const SinoCal = (() => {
     return ae().MakeTime(dt);
   }
 
-  // East-8 civil-day integer of an AstroTime (all qi-shuo (solar-term/new-moon)/target comparisons use this).
+  // East-8 civil-day integer of an AstroTime; all qi-shuo/target comparisons use this.
   function bjDay(t) {
     return Math.floor(t.ut + J2000_JD + CST + 0.5);
   }
@@ -131,13 +121,12 @@ const SinoCal = (() => {
     return nm;
   }
 
-  // ---- lunisolar month reckoning ----
+  // ---- Lunisolar Month Reckoning ----
 
   /**
    * Chinese lunisolar month of a proleptic-Gregorian date.
    * @returns {{monthNum:number, isLeap:boolean, season:string, label:string}|null}
-   *   monthNum 1..12 (xiazhen (Xia calendar)), isLeap true for a intercalary month (run-yue), season one of chun/xia/qiu/dong (spring/summer/autumn/winter),
-   *   label e.g. "夏四月" / "闰四月". null if astronomy-engine is unavailable.
+   *   isLeap true for an intercalary month (run-yue); null if astronomy-engine is unavailable.
    */
   function lunisolar(year, month, day) {
     let A;
@@ -152,7 +141,7 @@ const SinoCal = (() => {
     const tgt = mkTime(year, month, day, 4); // 04 UT == Beijing noon (mid-civil-day)
     const tgtDay = bjDay(tgt);
 
-    // Anchoring dongzhi (opening of the sui/year-cycle): the winter solstice with dongzhi ≤ target < next dongzhi.
+    // The dongzhi opening the sui (year-cycle) such that dongzhi ≤ target < next dongzhi.
     const wsCurr = A.SearchSunLongitude(270, mkTime(year, 11, 1, 4), 90); // ~Dec of `year`
     const wsPrev = A.SearchSunLongitude(270, mkTime(year - 1, 11, 1, 4), 90); // ~Dec of `year-1`
     const anchor = tgtDay >= bjDay(wsCurr) ? wsCurr : wsPrev;
@@ -209,16 +198,15 @@ const SinoCal = (() => {
     return result;
   }
 
-  // ---- label helpers ----
+  // ---- Label Helpers ----
 
   function seasonLabel(monthNum) {
     return monthNum <= 3 ? '春' : monthNum <= 6 ? '夏' : monthNum <= 9 ? '秋' : '冬';
   }
 
-  // lunisolar month name (xiazhen (Xia calendar)) for a 1..12 month number — no day needed: 1→正月 … 12→十二月.
-  // Reuses the YMC yue-jian (month establishment) table (monthNum → YMC index = (monthNum + 1) % 12) so a month-
-  // precision record renders the same month name (yue-ming) as day-precise lunisolar().label, minus any leap
-  // mark (a coarse date carries no leap information to place a intercalary month (run-yue)).
+  // Lunisolar month name for a 1..12 month number, no day needed. Reuses the YMC table
+  // so a month-precision record names the same month as day-precise lunisolar().label,
+  // minus any leap mark (a coarse date carries no leap information).
   function monthName(monthNum) {
     return YMC[(monthNum + 1) % 12] + '月';
   }

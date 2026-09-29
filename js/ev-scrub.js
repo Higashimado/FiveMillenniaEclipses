@@ -2,7 +2,7 @@
  * ev-scrub.js — intraday time scrubber (jiechi/carpenter-rule ledge).
  *
  * Hangs a slim ruled slat under the jingguan shu'er (#ev-strip); the zhupi
- * playhead drives TimeState across the event's [P1, P4] window so the umbra
+ * playhead drives TimeState across the event's global [P1, P4] window so the umbra
  * redraws frame-by-frame without touching geometry code.
  */
 const EvScrub = (() => {
@@ -10,11 +10,10 @@ const EvScrub = (() => {
 
   const NS = 'http://www.w3.org/2000/svg';
   const YUWEI = 'M-5 0 L0 2.5 L5 0 L0 8 Z'; // banxinyuwei (shared with js/atlas.js)
-  // Slat viewBox; VBY = bleed above y=0. VBW deliberately tracks the slat's CSS
-  // width (#ev-scrub is min(433px, …)), so user units ≈ CSS px at design size and
-  // the --fs-* tokens on the <text> below mean what they say on screen. The
-  // schematic in js/eclipse-glyph.js needs a compensation factor precisely because
-  // its viewBox does NOT track its column; this one does. Keep them equal.
+
+  // Slat viewBox; VBY = bleed above y=0. VBW MUST track the slat's CSS width
+  // (#ev-scrub is min(433px, …)) so the --fs-* tokens on the <text> below mean
+  // what they say on screen.
   const VBW = 434,
     VBH = 54,
     AXIS_Y = 28,
@@ -23,7 +22,8 @@ const EvScrub = (() => {
     PADR = 14; // .ev-strip-tab width; right nav gutter (× button half-width)
   const SWEEP_MS = 12000; // wall-clock duration of a full ⏵ sweep
 
-  // ---- DOM + per-selection state ----
+  // ---- DOM And Per-Selection State ----
+
   let _el = null,
     _svg = null,
     _play = null;
@@ -45,10 +45,10 @@ const EvScrub = (() => {
   // Contact key → glossary slug: hovering a scrubber label shows the same tooltip
   // the event card / schematic carry for that contact. Missing key → no attribute.
   const CONTACT_GLOSS = {
-    'eclipse.contact.solar_c1.label': 'ecl_c_p1_solar',
-    'eclipse.contact.solar_c2.label': 'ecl_c_p2_solar',
-    'eclipse.contact.solar_c3.label': 'ecl_c_p3_solar',
-    'eclipse.contact.solar_c4.label': 'ecl_c_p4_solar',
+    'eclipse.contact.solar_gp1.label': 'ecl_c_gp1',
+    'eclipse.contact.solar_gu1.label': 'ecl_c_gu1',
+    'eclipse.contact.solar_gu4.label': 'ecl_c_gu4',
+    'eclipse.contact.solar_gp4.label': 'ecl_c_gp4',
     'eclipse.contact.greatest.label': 'ecl_c_greatest',
     'eclipse.contact.lunar_p1.label': 'ecl_c_p1_lunar',
     'eclipse.contact.lunar_u1.label': 'ecl_c_u1',
@@ -62,29 +62,23 @@ const EvScrub = (() => {
     return s ? ' data-gloss="' + s.replace(/"/g, '&quot;') + '"' : '';
   };
 
-  // ---- Label collision avoidance ----
-  // Short events squeeze second/third contact within a couple of minutes of greatest,
-  // so their ticks land within a few user units of each other and the labels smear
-  // into an unreadable blot. Rather than nudge or stagger (both cost vertical room
-  // the slat does not have, and both break the label→tick correspondence), drop the
-  // lower-ranked label outright: the tick stays, only its name goes.
-  const LABEL_GAP = 2.5; // half the min clear space between two label boxes, in user units
-  // Range endpoints as \u escapes, not literal characters. Two endpoints this class
-  // needs (U+FAFF, U+FF00) are unassigned codepoints, so spelled out they are invisible
-  // in an editor — and the font subsetter, which scans js/ as shipped text, read all
-  // eight endpoints as glyphs the corpus needs. No face can supply an unassigned
-  // codepoint, so the font coverage guard could never go green while they sat here.
+  // ---- Label Collision Avoidance ----
+  // On a clash, drop the lower-ranked label outright and keep its tick: the slat has
+  // no vertical room to stagger into.
+  const LABEL_GAP = 2.5; // half the min clear space between two labels, user units
+
+  // \u escapes only: U+FAFF and U+FF00 are unassigned codepoints, invisible if typed literally.
   const CJK_RE = /[\u2E80-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFF60]/;
 
-  // Rank decides who survives a clash: greatest eclipse > first/fourth contact > the rest.
+  // Rank decides who survives a clash: greatest eclipse > the major contacts (solar
+  // P1/U1/U4/P4, lunar U1/U4) > the rest.
   function labelRank(p) {
     if (p.key === 'eclipse.contact.greatest.label') return 2;
     return p.major ? 1 : 0;
   }
 
-  // Advance-width estimate at --fs-body. Exact measurement would need getComputedTextLength
-  // on a laid-out node (two reflows per frame during playback); the labels are short and
-  // this only has to be good enough to decide "do these two boxes touch".
+  // Advance-width estimate at --fs-body, not getComputedTextLength: that needs a
+  // laid-out node, which is two reflows per frame during playback.
   function labelWidth(text) {
     let w = 0;
     for (const ch of String(text)) w += CJK_RE.test(ch) ? 13.5 : 7.4;
@@ -107,6 +101,7 @@ const EvScrub = (() => {
   }
 
   // ---- Axis ↔ time mapping (single source of truth = TimeState.current) ----
+
   const tOfMs = (ms) => clamp01((ms - _from) / (_to - _from || 1));
   const xOfT = (t) => _padL + t * (VBW - _padL - PADR);
   const msOfT = (t) => _from + clamp01(t) * (_to - _from);
@@ -125,6 +120,7 @@ const EvScrub = (() => {
   //      existing eclipse.contact.* i18n keys, so all 7 locales are covered. ----
   function contactsFor(e, kind) {
     const pts = [];
+
     // short = western abbreviation; cjkShow = show full label in CJK even when cap=true.
     const add = (iso, key, major, cap, short, cjkShow) => {
       if (!iso) return;
@@ -132,16 +128,13 @@ const EvScrub = (() => {
       if (isFinite(ms)) pts.push({ ms, key, major: !!major, cap: !!cap, short: short || '', cjkShow: !!cjkShow });
     };
     if (kind === 'solar') {
-      // All ticks on ONE axis — the observer at the greatest-eclipse point — so
-      // the P-keys match the event card exactly and the second contact→third contact band lines up:
-      // c1/c2/peak/c3/c4 all local (peakLocal). Fall back to the global p1..p4 +
-      // geocentric peak for index entries built before peakLocal carried them.
-      const pl = e.peakLocal || {};
-      add(pl.c1 || e.p1, 'eclipse.contact.solar_c1.label', true, false, 'P1');
-      add(pl.c2 || e.p2, 'eclipse.contact.solar_c2.label', false, true, 'P2');
-      add(pl.peak || (e.peak && e.peak.time), 'eclipse.contact.greatest.label', true, false, 'G');
-      add(pl.c3 || e.p3, 'eclipse.contact.solar_c3.label', false, true, 'P3');
-      add(pl.c4 || e.p4, 'eclipse.contact.solar_c4.label', true, false, 'P4');
+      // Global contacts in NASA's naming: the shadow cones against Earth as a whole,
+      // never one observer's C1..C4. The index stores U1/U4 in the fields named p2/p3.
+      add(e.p1, 'eclipse.contact.solar_gp1.label', true, false, 'P1');
+      add(e.p2, 'eclipse.contact.solar_gu1.label', true, false, 'U1');
+      add(e.peak && e.peak.time, 'eclipse.contact.greatest.label', true, false, 'GE');
+      add(e.p3, 'eclipse.contact.solar_gu4.label', true, false, 'U4');
+      add(e.p4, 'eclipse.contact.solar_gp4.label', true, false, 'P4');
     } else {
       const t = e.times || {};
       add(t.p1, 'eclipse.contact.lunar_p1.label', false, true, 'P1', true); // penumbra-start (CJK label)
@@ -157,6 +150,7 @@ const EvScrub = (() => {
   }
 
   // ---- Lazy DOM (reused across selections; only ever hidden on detach) ----
+
   function ensureEl(parent) {
     if (_el && _el.parentNode === parent) return;
     if (_el) _el.remove();
@@ -174,6 +168,7 @@ const EvScrub = (() => {
     _el.appendChild(_play);
     _el.appendChild(_svg);
     parent.appendChild(_el);
+
     // The slat lives inside the Leaflet container; stop pointer/scroll from
     // bubbling into the map's own drag/zoom handlers (same fix the strip uses).
     if (window.L && L.DomEvent) {
@@ -226,6 +221,7 @@ const EvScrub = (() => {
   function position() {
     if (!_el) return;
     const strip = document.getElementById('ev-strip');
+
     // Bail while the ear is hidden / not laid out (offsetHeight 0) — a ResizeObserver
     // tick can fire mid-teardown; repositioning then would glue the slat to y≈0.
     if (!strip || !strip.offsetHeight) return;
@@ -242,8 +238,22 @@ const EvScrub = (() => {
     if (!_el || !_svg || !_pts) return;
     const curMs = nowMs(),
       px = xOfT(tOfMs(curMs));
-    let s = '';
-    // Lunar totality band (second contact→third contact); solar's internal tangency span is a ~2-min sliver → omitted.
+
+    // The slat has no ground of its own, so every rule sits on a paper underlay. All
+    // underlays go down before any ink: a tick's underlay laid after the axis ink would
+    // cut the axis on both sides of the tick, and one laid after the band would erase it.
+    const axis = '<line x1="' + _padL + '" y1="' + AXIS_Y + '" x2="' + (VBW - PADR) + '" y2="' + AXIS_Y + '" ';
+    const tickOf = (p) => {
+      const cx = xOfT(tOfMs(p.ms)).toFixed(1),
+        h = p.major ? 7 : 4;
+      return '<line x1="' + cx + '" y1="' + (AXIS_Y - h) + '" x2="' + cx + '" y2="' + (AXIS_Y + h) + '" ';
+    };
+    const tickW = (p) => (p.major ? 1.1 : 0.7);
+    let s = axis + 'stroke="var(--card,#F7F3EA)" stroke-width="4" stroke-linecap="round"/>';
+    for (const p of _pts)
+      s += tickOf(p) + 'stroke="var(--card,#F7F3EA)" stroke-width="' + (tickW(p) + 2.4) + '" stroke-linecap="round"/>';
+
+    // Lunar totality [u2, u3]; solar central-path span [U1, U4].
     if (_band) {
       const xa = xOfT(tOfMs(_band[0])),
         xb = xOfT(tOfMs(_band[1]));
@@ -256,17 +266,10 @@ const EvScrub = (() => {
         (xb - xa).toFixed(1) +
         '" height="6" fill="var(--ink,#2B2A26)" opacity="0.12"/>';
     }
+
     // wusilan axis line.
-    s +=
-      '<line x1="' +
-      _padL +
-      '" y1="' +
-      AXIS_Y +
-      '" x2="' +
-      (VBW - PADR) +
-      '" y2="' +
-      AXIS_Y +
-      '" stroke="var(--ink-note,#696353)" stroke-width="1"/>';
+    s += axis + 'stroke="var(--ink-note,#696353)" stroke-width="1"/>';
+
     // Contacts: tick + optional label. CJK: full names (penumbra-start/end included via cjkShow);
     // western: short abbreviations (P1/G/U1…) for all labeled contacts.
     const cjk = /^(zh|ja)/.test(typeof I18n !== 'undefined' && I18n.getLocale ? I18n.getLocale() : 'en');
@@ -281,20 +284,8 @@ const EvScrub = (() => {
     const shown = new Map();
     for (const it of kept) shown.set(it.p, it.label);
     for (const p of _pts) {
-      const cx = xOfT(tOfMs(p.ms)),
-        h = p.major ? 7 : 4;
-      s +=
-        '<line x1="' +
-        cx.toFixed(1) +
-        '" y1="' +
-        (AXIS_Y - h) +
-        '" x2="' +
-        cx.toFixed(1) +
-        '" y2="' +
-        (AXIS_Y + h) +
-        '" stroke="var(--ink-note,#696353)" stroke-width="' +
-        (p.major ? 1.1 : 0.7) +
-        '"/>';
+      const cx = xOfT(tOfMs(p.ms));
+      s += tickOf(p) + 'stroke="var(--ink-note,#696353)" stroke-width="' + tickW(p) + '"/>';
       if (shown.has(p)) {
         const label = shown.get(p);
         s +=
@@ -310,6 +301,7 @@ const EvScrub = (() => {
           '</text>';
       }
     }
+
     // Endpoint UTC times, inward-anchored so they never clip the ends.
     s +=
       '<text x="' +
@@ -325,6 +317,7 @@ const EvScrub = (() => {
       'font-size="var(--fs-note)" fill="var(--ink-note,#696353)">' +
       fmtUTC(_to) +
       '</text>';
+
     // Playhead: zhupi (vermilion) yuwei + stem + current-UTC cartouche (labelled UTC).
     s +=
       '<g transform="translate(' +
@@ -411,10 +404,8 @@ const EvScrub = (() => {
   // ---- Public API ----
 
   /**
-   * Attach (or refresh) the scrubber under the ear for a selected real-time
-   * event. Called from atlas.js's updateEvStrip on every (re)selection and
-   * locale switch. Silently detaches for transient record kinds (kexing/huibo/yanfan)
-   * or events with too few contacts to scrub.
+   * Attach (or refresh) the scrubber under the ear for a selected real-time event.
+   * Silently detaches for transient record kinds or events with too few contacts.
    * @param {object} e     the solar/lunar event object (from eventByKey)
    * @param {string} kind  'solar' | 'lunar' | other (other → detach)
    */
@@ -430,6 +421,7 @@ const EvScrub = (() => {
       return;
     }
     _pts = pts;
+
     // Axis window: prefer TimeState's locked [P1,P4] (exactly what the geometry is
     // bounded to on selection); fall back to the contact span if unlocked.
     const lr = typeof TimeState !== 'undefined' ? TimeState.lockedRange : null;
@@ -444,20 +436,20 @@ const EvScrub = (() => {
       detach();
       return;
     }
-    // Shaded band: lunar [second contact u2, third contact u3]; solar [peakLocal.c2, c3] (second contact→third contact at greatest-eclipse
-    // point — e.p2/p3 are geocentric shadow-on-Earth span, up to hours wide; peakLocal is local).
+
+    // Shaded band: lunar totality [u2, u3]; solar the span a central path exists
+    // on Earth [U1, U4].
     _band = null;
-    if (kind === 'lunar' && e.times && e.times.u2 && e.times.u3) {
-      const a = Date.parse(e.times.u2),
-        b = Date.parse(e.times.u3);
-      if (isFinite(a) && isFinite(b) && b > a) _band = [a, b];
-    } else if (kind === 'solar' && e.peakLocal && e.peakLocal.c2 && e.peakLocal.c3) {
-      const a = Date.parse(e.peakLocal.c2),
-        b = Date.parse(e.peakLocal.c3);
-      if (isFinite(a) && isFinite(b) && b > a) _band = [a, b];
-    }
+    const bandOf = (x, y) => {
+      const a = Date.parse(x),
+        b = Date.parse(y);
+      return isFinite(a) && isFinite(b) && b > a ? [a, b] : null;
+    };
+    if (kind === 'lunar' && e.times) _band = bandOf(e.times.u2, e.times.u3);
+    else if (kind === 'solar') _band = bandOf(e.p2, e.p3);
     ensureEl(strip.parentNode);
     _el.style.display = '';
+
     // One permanent TimeState subscriber (no unsubscribe API); it no-ops while
     // the slat is hidden, so repeated attach never stacks listeners.
     if (!_subscribed && typeof TimeState !== 'undefined') {
@@ -466,6 +458,7 @@ const EvScrub = (() => {
       });
       _subscribed = true;
     }
+
     // Keep glued under the ear as it reflows (chronicle line count / font load).
     if (!_ro && typeof ResizeObserver !== 'undefined') {
       _ro = new ResizeObserver(() => {

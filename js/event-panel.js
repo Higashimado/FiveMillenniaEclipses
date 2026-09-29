@@ -1,35 +1,11 @@
 /**
  * event-panel.js — selected-event DETAIL builder (Sidebar.detailHtml).
  *
- * The detail renders INLINE inside the selected all-events card (.evcard), never
- * as a floating panel: a floating card fights the observe-popup (click-a-point
- * local circumstances) for the same map airspace. js/atlas.js owns that DOM and
- * calls Sidebar.detailHtml here, so this file creates no element of its own — it
- * is the pure HTML builder for the science block + linked records.
- *
- * Defines `window.Sidebar`, the API eclipse.js drives; must load BEFORE
- * map-boot.js (index.html) so it's the sole definition. eclipse.js still calls
- * Sidebar.showEclipse / showLunarEclipse on selection — now thin no-ops that just
- * remember the last event for a locale refresh; the visible inline card is
- * refreshed by Atlas.refreshEventDetail.
- *
- * Layout (jiazhu dual-row format): the folded-state head (js/atlas.js) carries the greatest-eclipse timestamp + coordinates (.ec-peak);
- * this file supplies everything below it — science strip (Saros/γ or area ratio,
- * folded "·"-joined) → an always-visible contact-time table (P-key / label /
- * date-time-UTC columns) → a period strip (central eclipse / partial / total / penumbra) → linked
- * historical records (jiehang heading note + seal-icon row; the reverse event→records
- * binding, a row click hands off to Atlas.select).
- *
- * Science fields are backfilled at build time: solar `obscuration` is derived
- * from magnitude and `centralDurationSec` is the NASA 5MCSE local
- * totality/annularity length; lunar `saros`/`gamma` come from the NASA 5MCLE
- * catalog. The only residual nulls are the
- * ~81 faint penumbral lunar eclipses NASA does not catalog — their `saros`
- * renders '—' and the `gamma`/duration entries drop out of the strip.
- *
- * Dates and times stay raw ISO/UTC — computed science, not localized prose. The card head
- * carries no era-year subtitle: this panel is the computed register, and the bridge to the
- * historical one is the linked-records row at its foot.
+ * Renders INLINE inside the selected all-events card (.evcard), never as a floating
+ * panel: a floating card would fight the observe-popup for the same map airspace.
+ * js/atlas.js owns that DOM and calls Sidebar.detailHtml, so this file only builds
+ * HTML for the science block + linked records. Defines `window.Sidebar`; must load
+ * BEFORE map-boot.js (index.html) so it's the sole definition.
  */
 (function () {
   'use strict';
@@ -64,15 +40,9 @@
   window.EventPanel = window.EventPanel || {};
   window.EventPanel.latLngLabel = latLngLabel;
 
-  // ISO timestamp → "<date> HH:MM:SS UTC". The date half is delegated to
-  // Atlas.sciDate, the site's single date renderer: it converts to the Julian
-  // calendar before the 1582-10-15 reform (matching the science row and every
-  // eclipse catalogue these times can be checked against) and localizes the form.
-  // Rendering it here instead would mean a second, divergent calendar rule —
-  // and worse, an ISO-shaped Julian date, which ISO 8601 does not permit.
-  // The clock time is left alone: UTC is an instant, not a calendar quantity.
-  // Contact rows can cross midnight, so the date is read off each timestamp,
-  // NOT the reused event date — a row past midnight then converts on its own day.
+  // ISO timestamp → "<date> HH:MM:SS UTC". The date half is delegated to Atlas.sciDate,
+  // the site's single date renderer. Read off each timestamp, not the reused event
+  // date, since a contact row can cross midnight and convert on its own day.
   function ctDate(iso) {
     const m = /^(-?\d+)-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.exec(String(iso || ''));
     if (!m) return null;
@@ -83,10 +53,9 @@
     return { date: dateOnly, html: esc(shown) + ' ' + m[4] + ':' + m[5] + ':' + m[6] + ' UTC' };
   }
 
-  // Folded greatest-eclipse timestamp + coordinates line, shared by the collapsed and expanded card head
-  // (js/atlas.js renders it in .ec-row1's place, once — not duplicated here).
-  // Lunar peak times have no companion lat/lng in the schema, so lunar cards
-  // show time only. band-only solar events append the path's ±σ° in italics.
+  // Folded greatest-eclipse timestamp + coordinates line, shared by the collapsed and
+  // expanded card head. Lunar peak times have no companion lat/lng in the schema, so
+  // lunar cards show time only.
   function peakLineHtml(e, domain) {
     const iso = domain === 'solar' ? e.peak && e.peak.time : e.times && e.times.peak;
     const m = /T(\d{2}:\d{2})/.exec(String(iso || ''));
@@ -102,28 +71,25 @@
     ) {
       html += ' <i class="mid">·</i> ' + esc(latLngLabel(e.subLunar.lat, e.subLunar.lng));
     }
-    // Gate on the NUMBER existing, never on a particular path_confidence value.
-    // The self-computed events below −1999 carry a ±7° longitude uncertainty yet
-    // are filed as 'computed' rather than 'band-only', so keying the read-out off
-    // the confidence label hides the caveat from exactly the events that need it
-    // most.
+
+    // Gate on the NUMBER existing, never on a particular path_confidence value: the
+    // self-computed events below −1999 carry this uncertainty yet are filed as
+    // 'computed' rather than 'band-only'.
     if (e._sigma_lon_deg != null) {
       html += ' <i class="mid">·</i> <span class="unc">±' + (+e._sigma_lon_deg).toFixed(1) + '°</span>';
     }
-    // Head time is the GEOCENTRIC greatest, distinct from the contact table's G
-    // row (the local greatest at that point), the two being under a second
-    // apart. Both domains gloss it, from a _solar/_lunar pair keyed off `domain`:
-    // solar is the shadow axis nearest Earth's centre and its ground intercept,
-    // lunar the Moon's centre nearest the shadow axis and its sublunar point.
+
+    // Head time is the GEOCENTRIC greatest, a different instant from the contact
+    // table's G row (the local greatest at that point); glossed from a _solar/_lunar
+    // pair keyed off `domain`.
     const gloss = typeof I18n !== 'undefined' ? I18n.glossAttr('ecl_c_greatest_geo_' + domain) : '';
     return gloss ? '<span' + gloss + '>' + html + '</span>' : html;
   }
   window.EventPanel.peakLineHtml = peakLineHtml;
 
   // One row of the always-visible contact table: P-key column (astronomical
-  // notation, language-independent) · localized label · date-time-UTC. The
-  // gloss is duplicated onto BOTH the pk and label cells — a reader may hover
-  // either "P1" or its name and expects the same explanation either way.
+  // notation, language-independent) · localized label · date-time-UTC. The gloss is
+  // duplicated onto BOTH the pk and label cells, so hovering either explains it.
   function ctRow(pk, label, iso, isPeak, glossSlug) {
     const v = ctDate(iso);
     if (v == null) return '';
@@ -155,21 +121,17 @@
     if (domain === 'solar') {
       const pl = e.peakLocal;
       if (pl) {
-        // Central-line observer's classical contacts (point-observer timestamps) at the
-        // greatest-eclipse point: first contact/second contact/greatest eclipse/third contact/fourth contact. c2→c3 is the real
-        // totality/annularity (minutes), unlike the global p2/p3 umbral sweep.
+        // Central-line observer's classical contacts at the greatest-eclipse point,
+        // C1..C4 in NASA's local naming (P/U name global contacts). c2→c3 is the real
+        // totality/annularity, unlike the global p2/p3 umbral sweep.
         const ann = pl.phase === 'annular';
-        // Whole table on ONE axis: the observer fixed at the greatest-eclipse
-        // point. G is that observer's LOCAL greatest (pl.peak) — so P2<G<P3 holds
-        // by construction. It differs from the geocentric greatest in the head
-        // (.ec-peak, e.peak.time) by under a second, too little to be worth a
-        // gloss of its own, so G reads the plain greatest-eclipse definition and
-        // only the head says it is the geocentric one. pl.peak is baked at build
-        // time; fall back to the head time for index entries built before that
-        // field existed.
-        rows += ctRow('P1', T('eclipse.contact.solar_c1.label'), pl.c1, false, 'ecl_c_p1_solar');
+
+        // Whole table on ONE axis: the observer fixed at the greatest-eclipse point.
+        // G is that observer's LOCAL greatest (pl.peak), so C2<G<C3 holds by
+        // construction. Falls back to the head time when pl.peak is absent.
+        rows += ctRow('C1', T('eclipse.contact.solar_c1.label'), pl.c1, false, 'ecl_c_p1_solar');
         rows += ctRow(
-          'P2',
+          'C2',
           T(ann ? 'eclipse.contact.solar_c2_annular.label' : 'eclipse.contact.solar_c2.label'),
           pl.c2,
           false,
@@ -183,20 +145,21 @@
           'ecl_c_greatest'
         );
         rows += ctRow(
-          'P3',
+          'C3',
           T(ann ? 'eclipse.contact.solar_c3_annular.label' : 'eclipse.contact.solar_c3.label'),
           pl.c3,
           false,
           'ecl_c_p3_solar'
         );
-        rows += ctRow('P4', T('eclipse.contact.solar_c4.label'), pl.c4, false, 'ecl_c_p4_solar');
+        rows += ctRow('C4', T('eclipse.contact.solar_c4.label'), pl.c4, false, 'ecl_c_p4_solar');
       } else {
-        // Legacy data without peakLocal: fall back to global-axis contacts+labels.
-        rows += ctRow('P1', T('eclipse.contact.p1.label'), e.p1, false, 'ecl_c_p1_solar');
-        rows += ctRow('P2', T('eclipse.contact.p2.label'), e.p2, false, 'ecl_c_p2_solar');
-        rows += ctRow('G', T('eclipse.contact.greatest.label'), e.peak && e.peak.time, true, 'ecl_c_greatest');
-        rows += ctRow('P3', T('eclipse.contact.p3.label'), e.p3, false, 'ecl_c_p3_solar');
-        rows += ctRow('P4', T('eclipse.contact.p4.label'), e.p4, false, 'ecl_c_p4_solar');
+        // Legacy data without peakLocal: fall back to the global contacts, named as
+        // NASA names them. The index fields p2/p3 hold U1/U4.
+        rows += ctRow('P1', T('eclipse.contact.solar_gp1.label'), e.p1, false, 'ecl_c_gp1');
+        rows += ctRow('U1', T('eclipse.contact.solar_gu1.label'), e.p2, false, 'ecl_c_gu1');
+        rows += ctRow('GE', T('eclipse.contact.greatest.label'), e.peak && e.peak.time, true, 'ecl_c_greatest');
+        rows += ctRow('U4', T('eclipse.contact.solar_gu4.label'), e.p3, false, 'ecl_c_gu4');
+        rows += ctRow('P4', T('eclipse.contact.solar_gp4.label'), e.p4, false, 'ecl_c_gp4');
       }
     } else {
       const t = e.times || {};
@@ -217,6 +180,7 @@
   function sciStrip(pairs) {
     const parts = pairs.filter((p) => p[1] != null && p[1] !== '');
     if (!parts.length) return '';
+
     // p = [label, value, glossSlug?]; the optional slug hangs a glossary tooltip on
     // the label chip via the shared I18n.glossAttr → glossary-tip.js path.
     const gloss = (s) => (s && typeof I18n !== 'undefined' ? I18n.glossAttr(s) : '');
@@ -237,11 +201,10 @@
         [T('eclipse.obscuration'), pct(e.obscuration), 'obscuration'],
         [T('eclipse.gamma'), fmt3(e.gamma), 'gamma'],
       ]);
-      // Durations from the central-line peakLocal so the strip agrees with the
-      // contact table above: total eclipse/annular eclipse = c3−c2, partial eclipse = c4−c1 (this observer's own
-      // partial span). Also fixes non-NASA events whose baked centralDurationSec
-      // fell back to the global U1→U4 span. Legacy data (no peakLocal) uses the
-      // baked centralDurationSec (NASA) / global partialDurSec.
+
+      // Durations from the central-line peakLocal so the strip agrees with the contact
+      // table above (total/annular = c3−c2, partial = c4−c1); a baked centralDurationSec
+      // can be the global U1→U4 span instead, used only when peakLocal is absent.
       const pl = e.peakLocal;
       const centralSec = pl && pl.c2 && pl.c3 ? (Date.parse(pl.c3) - Date.parse(pl.c2)) / 1000 : e.centralDurationSec;
       const partialSec = pl && pl.c1 && pl.c4 ? (Date.parse(pl.c4) - Date.parse(pl.c1)) / 1000 : e.partialDurSec;
@@ -255,10 +218,10 @@
         [T('eclipse.obscuration'), pct(e.obscuration), 'obscuration'],
         [T('eclipse.gamma'), fmt3(e.gamma), 'ecl_gamma'],
       ]);
-      // Lunar durations are genuine local values (the Moon is one object, not a
-      // sweeping shadow): totalDurSec = U2→U3, partialDurSec = U1→U4,
-      // penumbralDurSec = P1→P4. Show penumbral only for Penumbral-kind eclipses
-      // (the field is non-null for Total/Partial too, so a kind-guard is required).
+
+      // Lunar durations are genuine local values: totalDurSec = U2→U3, partialDurSec =
+      // U1→U4, penumbralDurSec = P1→P4. Penumbral shown only for Penumbral-kind
+      // eclipses — the field is non-null for Total/Partial too.
       sci2 = sciStrip([
         [T('eclipse.duration.total'), mmss(e.totalDurSec), 'duration_total'],
         [T('eclipse.duration.partial'), mmss(e.partialDurSec), 'duration_partial'],
@@ -272,21 +235,9 @@
     return sci1 + contactsHtml(e, domain) + sci2;
   }
 
-  // The reverse binding: every curated record whose event_date + type match
-  // the selected event. Atlas may not have finished loading records on the
-  // very first selectEvent (EclipseLoader.init is not awaited in map-boot) —
-  // Atlas.init calls Sidebar.refreshRecords() when they land.
-  //
-  // Records render as a single jiehang heading note (record count — the head's .ec-recs
-  // duplicate is hidden via .evcard.expanded .ec-recs{display:none} in CSS)
-  // followed by a wrapping row of seal-icon + place chips (no year — this is
-  // a "who recorded this, where" glance, not a chronology). Each chip keeps
-  // the .ep-rec class (+ data-id/role/tabindex) so atlas.js's existing
-  // fillEventDetail click/keyboard binding (`.ep-rec` selector) still finds it.
-  // No linked records → the whole block is omitted, not shown empty.
-  // The seal is sized under the contact table it sits beneath, not over it: 14px
-  // seal against the 12px place name keeps this row quieter than the 13px timestamp
-  // rows above, which is the reading order the card is built on.
+  // The reverse binding: every curated record whose event_date + type match the
+  // selected event. Atlas.init calls Sidebar.refreshRecords() once records land, since
+  // they may not have finished loading on the very first selectEvent.
   function recordsHtml(e, domain) {
     if (!window.Atlas || !Atlas.recordsForEvent) return '';
     const lang =
@@ -298,6 +249,7 @@
       T('eclipse.card.records_title', { n: recs.length }) +
       '</div><div class="ec-recs-icons">';
     for (const r of recs) {
+      // .ep-rec MUST stay on this span: atlas.js's click/keyboard binding selects on it.
       html +=
         '<span class="ep-rec-icon ep-rec" data-id="' +
         esc(r.id) +
@@ -311,18 +263,16 @@
   }
 
   // The event-detail body Atlas injects into the selected .evcard's .ec-detail:
-  // science strip → contact table → period strip → linked records. Header
-  // (glyph · date · greatest-eclipse timestamp / coordinates · type · magnitude) lives on the evcard in
-  // atlas.js.
+  // science strip → contact table → period strip → linked records. The card's own
+  // header (glyph · date · type · magnitude) lives on the evcard in atlas.js.
   function detailHtml(e, domain) {
     if (!e) return '';
     return scienceHtml(e, domain) + recordsHtml(e, domain);
   }
 
   window.Sidebar = {
-    // No longer floats a card; the engine still calls these on selection, so we
-    // just remember the event for a locale-switch refresh. The visible inline
-    // card is rendered by Atlas (selectEvent → fillEventDetail).
+    // These only remember the event for a locale-switch refresh. Atlas renders the
+    // visible inline card (selectEvent → fillEventDetail); nothing here floats one.
     showEclipse(e) {
       _last = { e, domain: 'solar' };
     },
@@ -331,8 +281,8 @@
     },
     // The pure detail-HTML builder Atlas consumes for the inline evcard.
     detailHtml,
-    // Shared with atlas.js's renderEventList so the folded head's greatest-eclipse timestamp +
-    // coordinates line and the expanded detail agree on formatting without duplicating it.
+    // Shared with atlas.js's renderEventList so the folded head and the expanded
+    // detail agree on formatting without duplicating it.
     peakLineHtml,
     // Called by Atlas.init once records.json lands (boot race: the first
     // selectEvent can fire before records load, leaving the records section

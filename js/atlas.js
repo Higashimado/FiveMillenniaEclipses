@@ -1,71 +1,55 @@
 /**
  * atlas.js — the light-atlas front-end.
  *
- * Owns: record markers (seal divIcons), the floating library (facets +
- * translation-first cards), the fisheye lizhou (language-scoped era ribbon +
- * draggable filter-range window), and a retained fine time-scrub that moves
- * TimeState so the umbra sweeps across the map.
+ * Owns: record markers (seal divIcons), the floating library, the fisheye
+ * lizhou (era ribbon + draggable filter window), and the time-scrub that
+ * moves TimeState. One shared `state` drives map, library and timeline.
  *
- * Reuses (does NOT re-implement): the map (window.appMap), the astronomy engine
- * (EclipseCtl.selectEvent draws the real contact curves), EclipseLoader (event
- * index + selectByDate/Nearest), TimeState (time engine), I18n (locale), and
- * Seal (js/seal.js) for civ identity.
- *
- * ORBIS: one shared `state` drives map + library + timeline together.
+ * Reuses: the map (window.appMap), EclipseCtl (contact curves), EclipseLoader
+ * (event index), TimeState, I18n, and Seal (js/seal.js) for civ identity.
  */
 
 const Atlas = (() => {
   'use strict';
   const SVGNS = 'http://www.w3.org/2000/svg';
   const cssvar = (n) => getComputedStyle(document.body).getPropertyValue(n).trim();
+
   // TimeState is a lexical global (time.js does NOT attach it to window), so
   // guard on the binding itself — `window.TimeState` would be undefined.
   const TS = typeof TimeState !== 'undefined' ? TimeState : null;
 
   // ---- Year Domain / Service Window (−3000 … 1999) ----
+
   const Y0 = -3000,
     Y1 = 1999,
     SPAN = Y1 - Y0;
   const normYear = (y) => (y - Y0) / SPAN;
 
-  // ---- Dynamic LOD: thin on-map markers by importance × zoom, never by viewport ----
-  // Pure render-layer selection — the corpus is never thinned at curation
-  // (see yingshoujinshou (collect all available) data philosophy); density is solved here, at draw time.
-  //
-  // The kept set is a function of (filters, time range, zoom) ALONE. Nothing about
-  // where the view happens to sit may enter it: a reader panning east must not see
-  // Europe's seals thin out because East Asia's dense capitals came into frame.
-  // The viewport is applied afterwards, and only as a draw-time clip — plus the one
-  // rule that is viewport-scoped by nature, rescueCivs, which only ever adds.
-  //
-  // CELL is a CONSTANT number of world pixels at every zoom, and that constant is
-  // the whole reason zooming in never removes a seal: one zoom step doubles world
-  // pixel coordinates, so the same constant-pixel grid at z+1 is an exact 2x2
-  // refinement of the grid at z. A cell's members at z are the union of its four
-  // sub-cells' members at z+1, so the cell's representative is still first in its
-  // own sub-cell. Keep LOD_K non-decreasing in z and the kept set can only grow.
-  // Never make the cell size vary with zoom — that breaks the refinement and makes
-  // seals vanish on the way in.
-  // CELL is also the minimum screen gap between two seals. A seal is 22px and its
-  // count badge overhangs to roughly a 30px box, so 32 is the floor: go lower and
-  // neighbouring seals start covering each other's badges.
-  const CELL = 32; // world-pixel grid cell (constant across zoom — see above)
+  // ---- Dynamic LOD ----
+
+  // The kept set is a function of (filters, time range, zoom) alone, never the viewport: a
+  // pan must not thin one region because another came into frame. CELL is a fixed pixel grid
+  // at every zoom, so a cell's members at z stay a subset of its members at z+1 as LOD_K grows.
+  const CELL = 32; // world-pixel grid; 22px seal + badge needs a ≥32px gap
   const LOD_K = (z) => (z <= 4 ? 1 : z <= 6 ? 2 : z <= 8 ? 3 : 5); // sites kept per cell
-  // Two-box hysteresis. A marker is BUILT once its site is within VIEW_MARGIN of the
-  // view and DESTROYED only once it leaves EVICT_MARGIN, so a pan that crosses the
-  // admit edge and comes back reuses the DOM instead of rebuilding every seal's
-  // inline SVG. Both are fractions of the view's own width/height, per side.
+
+  // Two-box hysteresis: build a marker within VIEW_MARGIN of the view, destroy it only past
+  // EVICT_MARGIN, so a pan that crosses the admit edge and back reuses the DOM. Fractions of
+  // the view's own width/height, per side.
   const VIEW_MARGIN = 0.6;
   const EVICT_MARGIN = 1.2;
+
   // A seal fades out over this long before its marker is removed; the same duration
   // is set on .rec-mk in css/app.css and the two must stay in step.
   const FADE_MS = 200;
-  // importance weights — `significance` is sparse (38/1302), so derive a
-  // composite that also protects rare civs (geographic diversity) and rewards
-  // multi-vantage events (yishi-duozheng (one event, multiple witnesses)), the project's core value.
+
+  // Importance weights. `significance` is sparse, so derive a composite that also
+  // protects rare civs (geographic diversity) and rewards multi-vantage events (yishi-duozheng,
+  // one event witnessed from several places), the project's core value.
   const SIG_W = { landmark: 1000, notable: 400 };
   const CONF_W = { certain: 100, likely: 40, candidate: 10 };
   const rarityW = (c) => (c < 5 ? 260 : c < 20 ? 140 : c < 60 ? 70 : c < 200 ? 25 : 0);
+
   // deterministic [0,1) tie-breaker from record id — stable across redraws,
   // so the same view never flickers between equal-scored records.
   function jitter(id) {
@@ -83,13 +67,12 @@ const Atlas = (() => {
     return (SIG_W[r.sig] || 0) + (CONF_W[r.conf] || 0) + rarityW(civCount) + corrob + jitter(r.id);
   }
 
-  // Stack depth as a coarse tier, not a raw count, and it feeds the LOD ranking
-  // ONLY. A deep site outranks a one-record neighbour inside its own cell and
-  // nowhere else: depth decides whether a place is drawn, never how many other
-  // places are. Capped below SIG_W.landmark so it can never outweigh significance.
+  // Stack depth as a coarse tier, feeding the LOD ranking only: it decides whether a place
+  // is drawn, never how many other places are. Capped below SIG_W.landmark.
   const depthW = (n) => Math.min(Math.floor(Math.log2(Math.max(1, n))) * 80, 320);
 
-  // ---- i18n: locale-scoped era ribbons (one family per UI language) ----
+  // ---- Locale-Scoped Era Ribbons ----
+
   const RIBBONS = {
     'zh-Hans': {
       fam: '中国朝代',
@@ -193,65 +176,186 @@ const Atlas = (() => {
   };
 
   const isZh = (l) => l.indexOf('zh') === 0;
+
   // Global i18n lookup; atlas.* keys live in data/i18n/<locale>/ui.json,
   // missing keys fall back to zh-Hans. Same guard as event-panel.js.
   const T = (k, p) => (typeof I18n !== 'undefined' ? I18n.t(k, p) : k);
 
-  // ---- Highlight the phenomenon phrase inside an original-text string ----
-  // Two vocabularies: eclipse, and the transient wording the comet / guest-star / occultation
-  // records are actually written in. The Latin-script eclipse words carry an optional qualifier
-  // tail because what a reader recognises is the phrase, not its first word: without
-  // it, "Eclipse de soleil" and "ECLIPSES LUNAE" light only as far as the space.
-  const ECLIPSE_RE = new RegExp(
-    [
-      '日有?[食蝕蚀]之?、?既?',
-      '[日月][食蝕蚀]',
-      // Transients: the nouns name the object, the verbs name the approach the entry reports.
-      // 入 is kept in the verb set even though the character is common elsewhere: inside these
-      // treatise entries it is the approach verb, and a stray highlight costs only ink.
-      '客星|彗星|孛星|星孛|彗孛|妖星|[長长]星|流星',
-      // 聚/合/會 are the gathering verbs a 合聚 entry is built on (「三星合于張」). 合 is
-      // common outside these entries, but by the same reasoning as 入 above, a stray
-      // highlight costs only ink while a missing one leaves the claim unmarked.
-      '[犯掩守入聚合會会]',
-      'nisshoku|il-sik|nhật thực|yuè shí|rì yǒu shí zhī|hi ni shoku ari',
-      'khusif\\w*|ἐξελείφθη|νὺξ ἐγένετο',
-      '(?:eclips\\w*|obscurat\\w*|deliqui\\w*)' +
-        '(?:(?:\\s+(?:de|del|di|du|of|la|le|el|il|the)){0,2}\\s*(?:sol\\w*|lun\\w*|soleil|lune|moon|sun))?',
-      'attal\\w*|AN\\.MI|dies\\s+quasi\\s+nox',
-    ].join('|'),
-    'gi'
-  );
+  // ---- Highlight The Phenomenon Phrase ----
+
+  // A mark covers the term only, never a leading article ("the eclipse" lights from "eclipse").
+  // Patterns spell word characters \p{L}, never \w, which is ASCII-only and misses "éclipse".
+  // A hedged kind ("an almost total eclipse") keeps its adjective dark; only the noun lights.
+  const LATIN_HEDGE =
+    '(?<!(?:almost|nearly|near|virtually|practically|presque|pratiquement|quasi|casi|' +
+    'prácticamente|praticamente|bijna|nahezu|fast)[\\s-])';
+  const KIND_BEFORE =
+    '(?:' +
+    LATIN_HEDGE +
+    '(?:total(?:e[ns]?)?|partial|partiell\\p{L}*|partiële|annular|central|ringförmig\\p{L}*|' +
+    'gedeeltelijke|ringvormige|volledige)\\s+)?';
+  const KIND_AFTER =
+    '(?:\\s+(?:total(?:e[ns]?|i)?|partiel\\p{L}*|parzial\\p{L}*|parcial\\p{L}*|annulaires?|' +
+    'anular\\p{L}*|annular|central\\p{L}*))?(?!\\p{L})';
+
+  // English sets the body as an adjective between the kind and the noun ("total solar
+  // eclipse"), so the body word joins the term there, or the mark stops at "eclipse".
+  const LATIN_ECLIPSE = [
+    KIND_BEFORE +
+      '(?:(?:solar|lunar)\\s+)?' +
+      '(?:(?:zons?|maans?)?[eé]cc?l[iy]ps\\p{L}*|ekl[iy]ps\\p{L}*|ecc?liss\\p{L}*|' +
+      'obscurat\\p{L}*|deliqui\\p{L}*)' +
+      KIND_AFTER +
+      '(?:(?:\\s+(?:de|del|della|di|du|des|of|la|le|el|il|the)){0,2}\\s*' +
+      '(?:sol\\p{L}*|lun\\p{L}*|soleil|lune|moon|sun)' +
+      KIND_AFTER +
+      // A coordinated second body ("eclipse of the sun or moon") belongs to the same term.
+      '(?:\\s+(?:or|and|ou|et|o|y|e|od)(?:\\s+(?:de|del|della|di|du|des|la|le|el|il|the))?\\s+' +
+      '(?:sol\\p{L}*|lun\\p{L}*|soleil|lune|moon|sun)(?!\\p{L}))?' +
+      ')?',
+    // Dutch and German close the body into one compound (zonsverduistering, Sonnenfinsternis),
+    // so the whole word is the term. The Dutch vowel run is loose on purpose: period type
+    // sets "verduustering" and "verduietering" often enough to matter.
+    KIND_BEFORE + '\\p{L}*verdu[ius]{1,2}e?ter\\p{L}*',
+    KIND_BEFORE + '(?:\\p{L}*finsterni(?:ss|ß|s)\\p{L}*|verfinster\\p{L}*)',
+    // Totality in every tongue the corpus reports it in. "grootste" alone is an ordinary
+    // adjective and lights only with the phase noun it qualifies.
+    LATIN_HEDGE + '(?:totalit\\p{L}*|totalidad\\p{L}*)',
+    'grootste\\s+(?:phase|fase)',
+  ];
+
+  const DATE_RI = '(?<![0-9０-９〇零一二三四五六七八九十廿卅]\\s*)';
+
+  const ECLIPSE_WORDS = [
+    // The term stops at the verb: in 日有食之、既 (there was an eclipse of it; 既 opens a new
+    // clause) neither the object pronoun 之 nor the clause marker 既 belongs to the mark.
+    // DATE_RI keeps a day-number's own 日 from opening the eclipse word that follows it.
+    DATE_RI + '日月[食蝕蚀]|[日月]有?[食蝕蚀]',
+    'nisshoku|il-sik|nhật thực|yuè shí|rì yǒu shí|hi ni shoku',
+    'khusif\\p{L}*|ἐξελείφθη|νὺξ ἐγένετο|ἔκλειψ\\p{L}*|ἐκλείψ\\p{L}*',
+    // Arabic kasafa / khasafa with whatever vowel points the transcription carries.
+    '[\\p{L}\\p{M}]*[كخ]\\p{M}*س\\p{M}*و?\\p{M}*ف[\\p{L}\\p{M}]*',
+    ...LATIN_ECLIPSE,
+    'attal\\p{L}*|AN\\.MI|dies\\s+quasi\\s+nox',
+  ];
+
+  // Bare 蝕/蚀 (eclipse-graph variants) lights only on a line whose phenomenon is already an
+  // eclipse; elsewhere the graph can belong to an unrelated formula. Order the two-graph term
+  // ahead of it in the alternation, and let CJK_HEDGE_WORDS reach past one character for a hedge.
+  const CJK_HEDGE_WORDS =
+    '(?:近乎|[几幾]近|[几幾]乎|接近|[将將]近|近[于於]|[几幾][与與]|ほぼ|ほとんど|' + '非|不是|不若|不像|未[达達])';
+
+  // 不知有日食者 (those unaware there was an eclipse) speaks of people, not of the eclipse
+  // seen, so the clause 有日食者 stays dark.
+  const CJK_HEDGE = '(?<!' + CJK_HEDGE_WORDS + '[日月]?)(?<!有(?=[日月][食蚀蝕]者))';
+  const CJK_HEDGE_AFTER = '(?![日月]?[食蚀蝕]?に近[いかく])';
+  const ECLIPSE_BARE = ['薄[食蝕蚀]', '(?<!' + CJK_HEDGE_WORDS + '[日月]?(?:皆既|金[環环]|[全偏环環])[日月]?)[蝕蚀]'];
+
+  // Transients: the nouns name the object, the verbs name the approach. 守/入/合/會 (ordinary
+  // prose otherwise) light only when the line's phenomenon is an approach; never widen this
+  // group to eclipse lines, where those characters are not what the entry records.
+  const TRANSIENT_WORDS = ['客星|彗星|孛星|星孛|彗孛|妖星|[長长]星|流星', '[犯掩守入聚合會会]'];
+
+  // The CJK kinds and contacts of an eclipse — e.g. 食甚 (greatest eclipse) — as newspapers
+  // and translations name them. Every 食 slot also takes 蝕/蚀 (variant graphs); a kind
+  // compound precedes the bare contacts so each lights whole, and XIANG excludes 相 (likeness).
+  const XIANG = '相(?![同似当當反近符])';
+  const CJK_CONTACT = [
+    CJK_HEDGE + '(?:皆既|金[環环]|部分|半影|[全偏环環])[日月]?[食蚀蝕](?:' + XIANG + '|期|[帯帶带])?' + CJK_HEDGE_AFTER,
+    CJK_HEDGE + '(?:' + DATE_RI + '日月|[日月](?:[全偏环環]|有|[当當])?)[食蚀蝕]' + CJK_HEDGE_AFTER,
+    CJK_HEDGE + '皆既' + CJK_HEDGE_AFTER,
+    '[食蚀蝕](?:[甚既]|' + XIANG + ')|初[亏虧食蚀蝕]|[复復][圆圓円]|(?<![生新而])生光(?!芒)',
+  ];
+
+  // ---- Highlight The Matching Term In A Translation ----
+
+  // The classical forms above (bare 蝕 (eclipse graph), bare approach verbs) would light
+  // ordinary words in a translation, which is modern prose, so this vocabulary is its own.
+  const TRANS_ECLIPSE_WORDS = [...CJK_CONTACT, ...LATIN_ECLIPSE];
+
+  // Bare 入/守/合 (ordinary modern prose otherwise) light only as the compounds a translation
+  // renders 掩犯 (approach) with, and 守 only right after the star that keeps station. Bare 犯
+  // stays lit: modern prose has no neutral reading of it on a transient line.
+  const TRANS_APPROACH_WORDS = [
+    '[掩凌侵冲衝干]犯|犯|逼近|留守|(?<=星)守|[移进進行皆]入|掩食|掩[蔽入没]|[合聚会會][于於]|俱[会會]|会合|會合',
+    '接近|侵犯|掩蔽|掩[っいう]|留ま(?:っ[たて]|り|る)|入(?:っ[たて]|り|る)',
+    '(?<!\\p{L})(?:approach\\p{L}*|enter(?:ed|s|ing)?|occult\\p{L}*|kept\\s+station|conjunction|massed|invaded|trespass\\p{L}*|linger\\p{L}*)(?!\\p{L})',
+    '(?<!\\p{L})(?:approch\\p{L}*|entr(?:ée?s?|a|èrent)|rest(?:ée?s?|a)|occult\\p{L}*|conjonction|mass(?:ée?s?|èrent)|rassembl\\p{L}*|envahi\\p{L}*|empiét\\p{L}*)(?!\\p{L})',
+    '(?<!\\p{L})(?:acerc\\p{L}*|entr(?:ó|aron|ado)|permaneci\\p{L}*|ocult\\p{L}*|conjunción|agrup\\p{L}*|congreg\\p{L}*|invadi\\p{L}*)(?!\\p{L})',
+    '(?<!\\p{L})(?:avvicin\\p{L}*|entr(?:at[aoie]|ò|arono)|rimast[aoie]|occult\\p{L}*|congiunzion\\p{L}*|raggruppat\\p{L}*|radun\\p{L}*|invas[aoie])(?!\\p{L})',
+  ];
+
+  const TRANS_TRANSIENT_WORDS = [
+    '彗星|客星|孛星|星孛|彗孛|妖星|[長长]星|流星|箒星',
+    'com[eè]t\\p{L}*|cometa\\p{L}*|broom[- ]?stars?|guest\\s+stars?',
+    'étoiles?\\s+invitées?|estrellas?\\s+(?:huésped|invitadas?)|stell[ae]\\s+ospit[ei]',
+    ...TRANS_APPROACH_WORDS,
+  ];
+
+  const _phraseRe = (parts) => new RegExp(parts.join('|'), 'giu');
+  const ECLIPSE_RE = _phraseRe(ECLIPSE_WORDS.concat(CJK_CONTACT, ECLIPSE_BARE));
+  const TRANSIENT_RE = _phraseRe(ECLIPSE_WORDS.concat(TRANSIENT_WORDS));
+  const TRANS_ECLIPSE_RE = _phraseRe(TRANS_ECLIPSE_WORDS);
+  const TRANS_TRANSIENT_RE = _phraseRe(TRANS_ECLIPSE_WORDS.concat(TRANS_TRANSIENT_WORDS));
   const _esc = (s) =>
     String(s || '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+
   // Inline ' data-gloss="…"' for a glossary slug (empty when unknown / I18n absent),
   // feeding the shared glossary-tip.js hover card — same contract as I18n.glossAttr.
   const _gloss = (slug) => (typeof I18n !== 'undefined' && I18n.glossAttr ? I18n.glossAttr(slug) : '');
-  const highlightPhrase = (s) => _esc(s).replace(ECLIPSE_RE, (m) => '<mark class="hl">' + m + '</mark>');
+
+  // The same lookup as _gloss but returning the sentence rather than the attribute, for
+  // the one case that composes two glosses into a third before inlining it.
+  const _glossText = (slug, params) => (typeof I18n !== 'undefined' && I18n.gloss ? I18n.gloss(slug, params) : '');
+
+  // Escape first, wrap second: the marks are the only markup this string is allowed to carry.
+  // A phenomenon this does not know takes the transient vocabulary, which is the wider of the
+  // two — an unmarked phrase is a worse failure than one extra mark on a line nobody typed.
+  const _isEclipse = (type) => type === 'solar' || type === 'lunar';
+  const _mark = (m) => '<mark class="hl">' + m + '</mark>';
+  const highlightPhrase = (s, type) => _esc(s).replace(_isEclipse(type) ? ECLIPSE_RE : TRANSIENT_RE, _mark);
+  const highlightTrans = (s, type) => _esc(s).replace(_isEclipse(type) ? TRANS_ECLIPSE_RE : TRANS_TRANSIENT_RE, _mark);
   const _hasCJK = (s) => /[㐀-鿿぀-ヿ가-힣]/.test(String(s || ''));
 
-  // Paragraph breaks in a source are the source's own: a newspaper report keeps the
-  // paper's paragraphing, and a reader needs to see where one paragraph ends. Give each
-  // its own block so the gap between paragraphs can be set wider than the gap between
-  // lines. Left in one text node the browser folds the break into a space and the report
-  // comes out as a single wall of type. Split before rendering, never after: the phrase
-  // highlighter emits markup, and splitting markup on a newline can cut a tag in half.
-  // A row of a table the source itself set: cells parted by a pipe, as the transcription
-  // of ruled column work renders them. Two pipes minimum, so a sentence that happens to
-  // carry one is never mistaken for tabular matter.
-  const _isRow = (s) => (s.match(/[|\uff5c]/g) || []).length >= 2;
+  // A pipe-parted line is a table row. One pipe is enough — a two-column register (a time
+  // against what happened at it) has only one gutter — and the run test below, not the pipe
+  // count, is what keeps an ordinary sentence out.
+  const _isRow = (s) => (s.match(/[|\uff5c]/g) || []).length >= 1;
   const _cells = (s) => s.split(/\s*[|\uff5c]\s*/).map((c) => c.trim());
 
-  // A meteorological register read out as running prose is unreadable — the columns are
-  // the whole point of it. Set a run of pipe rows as a real table instead. The run's first
-  // row is column heads when it carries no digit at all: heads are words, readings are
-  // numbers, and every table in the corpus parts cleanly on that.
+  // A numeral in any script the corpus sets tables in; Latin digits alone would read a
+  // Chinese register's numeral-only first row as a heading.
+  const _DIGITS = /[0-9\uff10-\uff19〇一二三四五六七八九十百千两]/;
+
+  // Wrapping is a property of the column, not the cell, decided from the column's longest
+  // cell: a per-cell numeral or punctuation test cannot tell a reading from a running clause,
+  // but the two kinds separate cleanly down a whole column.
+  const _PROSE_COLUMN = 40;
+  const _proseColumns = (rows) => {
+    const width = Math.max(...rows.map((r) => r.length));
+    return Array.from(
+      { length: width },
+      (_, i) => Math.max(0, ...rows.map((r) => (r[i] || '').length)) > _PROSE_COLUMN
+    );
+  };
+
+  // Renders a run of pipe rows as a real table. The run's first row is column heads when it
+  // carries no numeral at all: heads are words, readings are numbers.
   const tableHtml = (rows, render) => {
-    const head = /[0-9]/.test(rows[0].join('')) ? null : rows.shift();
-    const tr = (cs, tag) => '<tr>' + cs.map((c) => '<' + tag + '>' + render(c) + '</' + tag + '>').join('') + '</tr>';
+    const head = _DIGITS.test(rows[0].join('')) ? null : rows.shift();
+    const prose = _proseColumns(rows);
+    const tr = (cs, tag) =>
+      '<tr>' +
+      cs
+        .map(
+          (c, i) =>
+            '<' + tag + (tag === 'td' && prose[i] ? ' class="rec-tab-prose"' : '') + '>' + render(c) + '</' + tag + '>'
+        )
+        .join('') +
+      '</tr>';
     return (
       '<div class="rec-tabwrap"><table class="rec-tab">' +
       (head ? '<thead>' + tr(head, 'th') + '</thead>' : '') +
@@ -262,53 +366,132 @@ const Atlas = (() => {
     );
   };
 
-  // Paragraph breaks in a source are the source's own: a newspaper report keeps the
-  // paper's paragraphing, and a reader needs to see where one paragraph ends. Give each
-  // its own block so the gap between paragraphs can be set wider than the gap between
-  // lines. Left in one text node the browser folds the break into a space and the report
-  // comes out as a single wall of type. Split before rendering, never after: the phrase
-  // highlighter emits markup, and splitting markup on a newline can cut a tag in half.
-  function paraHtml(text, render) {
-    const lines = String(text || '')
-      .split('\n')
-      .map((s) => s.trim())
-      .filter(Boolean);
+  // ---- Mid-Article Headings ----
+
+  // Nothing in the text marks a heading, so shape decides: short, closing on no sentence
+  // punctuation (a trailing quote is fine), no internal comma/colon/pipe, and followed by a
+  // line at least twice its length or itself a head — else a couplet's first line reads as one.
+
+  // The source line at the same index must pass the same tests too; when the two do not part
+  // into the same number of lines, nothing corroborates and no heading is marked, since a
+  // wrongly marked head is a lie about the source.
+  const _MID_CLOSE = /[.!?:;,。！？：；，、…)）\]】"']$/;
+  const _MID_QUOTE_TAIL = /[»”」』]$/;
+  const _MID_INNER = /[,，:：…｜|]|\[…\]/;
+  const _MID_WORD = /[A-Za-zÀ-ÿͰ-῿㐀-鿿]/;
+  const _MID_CJK = /[㐀-鿿぀-ヿ]/;
+
+  const _midShape = (s) => {
+    if (!s || s.length > (_MID_CJK.test(s) ? 20 : 45)) return false;
+    if (_MID_INNER.test(s) || !_MID_WORD.test(s)) return false;
+    return !_MID_CLOSE.test(s.replace(_MID_QUOTE_TAIL, '').trim());
+  };
+
+  const _isMidHeading = (seq, i) => {
+    if (i === 0 || i + 1 >= seq.length || seq.length < 3) return false;
+    if (!_midShape(seq[i])) return false;
+    return _midShape(seq[i + 1]) || seq[i + 1].length >= 2 * seq[i].length;
+  };
+
+  // ---- Line-Start And Line-End Guard ----
+
+  // A closing mark may not begin a line and an opening mark may not end one. The browser
+  // already refuses to break before 》 or 」, but not at an ordinary space, so a space typed in
+  // front of a closing mark (French sets one by convention: « mot ») lets the mark start a line.
+
+  // The fix keeps the space but takes away its breakability: U+00A0 reads identically and
+  // cannot be broken at. Written with escapes below, since a no-break space is invisible in source.
+  const NBSP = '\u00a0';
+  const _NO_LINE_START =
+    /[\u0020\u3000]+([\u00bb\u201d\u2019\uff09\u3011\u3009\u300b\u300d\u300f\u3015\uff5d\u3001\u3002\uff0c\uff1b\uff1a\uff1f\uff01?!;:\u00b7])/g;
+  const _NO_LINE_END = /([\u00ab\u201c\u2018\uff08\u3010\u3008\u300a\u300c\u300e\u3014\uff5b])[\u0020\u3000]+/g;
+  const hardenBreaks = (s) => s.replace(_NO_LINE_START, NBSP + '$1').replace(_NO_LINE_END, '$1' + NBSP);
+
+  // ---- Paragraphs, Tables And Heads Of One Record's Text ----
+
+  // Splits the source's own paragraph breaks into separate blocks (left in one text node the
+  // browser folds a break into a space) before rendering, never after: the phrase highlighter
+  // emits markup, and splitting markup on a newline can cut a tag in half.
+  function paraHtml(text, renderLine, orig) {
+    // Runs the line-start guard here, once, rather than at each of the three call sites below,
+    // and before the renderer: the renderer emits markup, which the guard would misread.
+    const render = (s) => renderLine(hardenBreaks(s));
+    const split = (s) =>
+      String(s || '')
+        .split('\n')
+        .map((x) => x.trim())
+        .filter(Boolean);
+    const lines = split(text);
+    const src = split(orig);
+    const heads =
+      src.length === lines.length
+        ? lines.map((_, i) => _isMidHeading(lines, i) && _isMidHeading(src, i))
+        : lines.map(() => false);
     const out = [];
     let run = [];
-    // A lone pipe line is a sentence, not a table: only a run of two or more becomes one.
+
+    // Two rows make a table, and so does one row that parts into three or more cells: a strip
+    // of contact times printed under a photograph is a single row and is still tabular. What
+    // this refuses is the lone line holding one pipe, which is a sentence.
     const flush = () => {
-      if (run.length >= 2) out.push(tableHtml(run.map(_cells), render));
-      else run.forEach((s) => out.push('<p>' + render(s) + '</p>'));
+      const tabular = run.length >= 2 || (run.length === 1 && _cells(run[0].s).length >= 3);
+      if (tabular)
+        out.push(
+          tableHtml(
+            run.map((r) => _cells(r.s)),
+            render
+          )
+        );
+      else run.forEach((r) => out.push('<p>' + render(r.s) + '</p>'));
       run = [];
     };
-    for (const line of lines) {
-      if (_isRow(line)) run.push(line);
-      else {
-        flush();
-        out.push('<p>' + render(line) + '</p>');
+    lines.forEach((line, i) => {
+      if (_isRow(line)) {
+        run.push({ s: line });
+        return;
       }
-    }
+      flush();
+      out.push(heads[i] ? '<p class="rec-mid">' + render(line) + '</p>' : '<p>' + render(line) + '</p>');
+    });
     flush();
     return out.join('');
   }
 
-  // A record whose eclipse was never actually witnessed at this place: reckoned but unseen,
-  // reckoned and absent, or seen off by cloud.
-  const _unwitnessed = (rec) =>
-    rec.obsStatus === 'predicted_unseen' || rec.obsStatus === 'predicted_nonevent' || rec.obsStatus === 'obscured';
+  // Visibility buckets that mean nothing stood above the horizon to be seen. low-sun, grazing
+  // and horizon are deliberately excluded: an eclipse at sunrise is the ordinary case in the
+  // East-Asian registers, and flagging those would teach the reader to ignore the flag.
+  const _SKY_GLOSS = {
+    night: 'vis_below_horizon',
+    deep: 'vis_below_horizon',
+    'no-reach': 'vis_no_reach',
+  };
 
-  // Era-tag attributes for a record. An unwitnessed sighting takes the quewei frame plus the
-  // gloss naming which of the three it was; every other record takes the bare tag. All three
-  // statuses share ONE frame on purpose — a scan down the rail carries one bit ("this entry is
-  // flagged"), and the distinction is the hover card's job. cls differs by register: the rail
-  // card sets rc-year, the marker popup rp-year, and both must fly the same flag or the same
-  // record reads as clean on the map and flagged in the list.
+  // A record whose sighting is qualified on either of two independent axes: the source itself
+  // says it was not seen, or the reckoned sky says there was nothing to see. Both are read
+  // because they can disagree — a compiler can name cloud over a place the shadow never reached.
+  const _qualified = (rec) => (!!rec.claim && rec.claim !== 'seen') || !!_SKY_GLOSS[rec.vis];
+
+  // Era-tag attributes for a record. Every case shares one frame class on purpose: a scan down
+  // the rail carries one bit ("flagged"), and the hover card says which. `cls` differs by
+  // register (rc-year for the rail, rp-year for the marker popup) and MUST fly the same flag.
   function eraAttrs(rec, cls) {
-    if (!_unwitnessed(rec)) return ' class="' + cls + ' num"';
-    return ' class="' + cls + ' num era-quewei"' + _gloss('status_' + rec.obsStatus);
+    if (!_qualified(rec)) return ' class="' + cls + ' num"';
+    const claim = rec.claim && rec.claim !== 'seen' ? _glossText('claim_' + rec.claim) : '';
+    const sky = _SKY_GLOSS[rec.vis] ? _glossText(_SKY_GLOSS[rec.vis]) : '';
+    const both = claim && sky ? _glossText('status_pair', { claim, sky }) : claim || sky;
+
+    // The claim's head word rides along so the hover card can set it in vermilion. status_pair
+    // MUST interpolate {claim} first, so the joined two-axis card still opens on it; the sky
+    // axis carries no head word of its own.
+    const term = claim ? _glossText('claim_' + rec.claim + '.term') : '';
+    const attr =
+      (both ? ' data-gloss="' + both.replace(/"/g, '&quot;') + '"' : '') +
+      (term ? ' data-gloss-term="' + term.replace(/"/g, '&quot;') + '"' : '');
+    return ' class="' + cls + ' num era-quewei"' + attr;
   }
 
-  // ---- Astronomical year from an event_date string ("-000762-06-07" / "0975-…") ----
+  // ---- Astronomical Year From Event_date ----
+
   function _eventYear(dateStr) {
     if (!dateStr) return null;
     const neg = dateStr[0] === '-';
@@ -348,7 +531,8 @@ const Atlas = (() => {
     return e ? e + ' · ' + dy : dy;
   }
 
-  // ---- event_date string → numeric {y,m,d} (BCE-safe; mirrors _eventYear) ----
+  // ---- Event_date String To Numeric Ymd ----
+
   function _ymdFromStr(dateStr) {
     if (!dateStr) return null;
     const neg = dateStr[0] === '-';
@@ -356,18 +540,15 @@ const Atlas = (() => {
     return { y: neg ? -parts[0] : parts[0], m: parts[1] || 1, d: parts[2] || 1 };
   }
 
-  // ---- Civil calendar of a stored date (the calendar the date was actually kept in) ----
-  // The corpus stores every date in proleptic Gregorian — data filenames, event_date
-  // and share links all use it — but no pre-1582 observer kept that calendar, and
-  // every reference this atlas can be checked against prints pre-reform dates in the
-  // Julian calendar (NASA's Five Millennium Canon, Stephenson, Liu Ciyuan, Zhang
-  // Peiyu). So reader-facing dates convert to Julian before 1582-10-15; the stored
-  // Gregorian form survives in the hover card that _calGloss builds.
-  //
-  // `parts` is the component count of the source string, so precision survives the
-  // conversion. Month precision names the Julian month off the 15th, because the
-  // OS/NS offset applied to a 1st or a 31st can shift the month across a boundary.
-  // Year precision has no month/day to convert with and passes through untouched.
+  // ---- Civil Calendar Of A Stored Date ----
+
+  // The corpus stores every date in proleptic Gregorian, but no pre-1582 observer kept that
+  // calendar, so reader-facing dates convert to Julian before 1582-10-15; the stored Gregorian
+  // form survives in the hover card _calGloss builds.
+
+  // `parts` is the component count of the source string: month precision names the Julian
+  // month off the 15th (an OS/NS offset on the 1st or 31st can shift the month), and year
+  // precision passes through unconverted.
   function _civilYmd(ymd, parts) {
     const plain = { y: ymd.y, m: ymd.m, d: ymd.d, julian: false };
     if (parts < 2 || typeof SinoCal === 'undefined') return plain;
@@ -375,19 +556,18 @@ const Atlas = (() => {
     return jd.beforeReform ? { y: jd.y, m: jd.m, d: jd.d, julian: true } : plain;
   }
 
-  // ---- Science-row date (science row l1): civil calendar, localized separators ----
-  // CJK/ja render 年月日 with Arabic numerals (leading zeros stripped; BCE → 前N年).
-  // zh AND ja: a half-width space at every digit/kanji boundary (digit/kanji boundary space rule,
-  // GB/T 15834 — ja follows the same rule), but no *extra* space is
-  // added at the year/date seam — the single boundary space already sits there.
+  // ---- Science-Row Date ----
+
+  // CJK/ja render 年月日 (year/month/day) with Arabic numerals, leading zeros stripped, and a
+  // 前 (before) prefix for BCE. zh and ja both space every digit/kanji boundary (GB/T 15834),
+  // but the year/date seam needs no *extra* space: the boundary space already sits there.
   function _sciDate(dateStr, lang) {
     const ymd = _ymdFromStr(dateStr);
     if (!ymd) return dateStr;
-    // Render only the components the record actually asserts. event_date is stored
-    // truncated to its precision (year "0837", month "0616-08", day "0626-03-29"), so a
-    // missing month/day must NOT be padded to 1 — that fabricated the spurious "8 月 1 日"
-    // on a 月-precision 隋書 record. Count components off the string (BCE: drop the sign),
-    // not off _ymdFromStr, whose ||1 default other callers deliberately rely on.
+
+    // Render only the components the record actually asserts: a missing month or day must
+    // never be padded to 1, which would fabricate a date the source never gave. Count
+    // components off the string, not off _ymdFromStr, whose ||1 default other callers rely on.
     const parts = (dateStr[0] === '-' ? dateStr.slice(1) : dateStr).split('-').length;
     const cal = _civilYmd(ymd, parts);
     if (!(isZh(lang) || lang === 'ja')) return _westernSciDate(dateStr, cal, parts);
@@ -398,14 +578,9 @@ const Atlas = (() => {
     return s;
   }
 
-  // Western l1. A Julian date must NOT be written in extended-ISO form: ISO 8601 is
-  // defined on the Gregorian calendar, so "-0719-02-21" would assert something false.
-  // Pre-reform dates take the month-name form chronicles actually read in ("21 Feb 720
-  // BCE"); post-reform dates keep the canonical astro-ISO string, which is also the
-  // data-filename form. The era-year gloss stays on the ISO branch because a raw
-  // extended-ISO year misleads twice over (a bare -762 looks like "762 BCE" but the
-  // astronomical −762 is 763 BCE; year 0 is 1 BCE) — only where it is ambiguous, i.e.
-  // negative or < 1000; a plain four-digit CE year needs no "(1560 CE)" noise.
+  // A Julian date must never be written in extended-ISO form (defined on the Gregorian
+  // calendar): pre-reform dates take the month-name form ("21 Feb 720 BCE"), only post-reform
+  // dates keep the astro-ISO string; the era-year gloss is added only where a year is ambiguous.
   function _westernSciDate(dateStr, cal, parts) {
     if (cal.julian) {
       const yr = cal.y <= 0 || cal.y < 1000 ? displayYear(cal.y) : String(cal.y);
@@ -418,14 +593,9 @@ const Atlas = (() => {
     return y <= 0 || y < 1000 ? iso + ' (' + displayYear(y) + ')' : iso;
   }
 
-  // Written form of the stored proleptic-Gregorian date for the Julian gloss card
-  // below — "1185 年 5 月 1 日" (zh/ja) or "1 May 1185" (Latin), never the dashed
-  // ISO form, which the reform-date rule (js/atlas.js:303) reserves for post-reform
-  // dates only. No BCE/CE marker is added for a plain CE year — only the pre-1000
-  // ambiguous case (negative or 3-digit) needs displayYear's "公元前/BCE" prefix.
-  // `tr` names the dictionary the month comes out of, which is not always the reader's:
-  // a citation of a western serial keeps its western date on a Chinese page, and then the
-  // month has to be Apr rather than 4 月.
+  // Written form of the Julian gloss card's date in 年月日 (year/month/day) order, never the
+  // dashed ISO form reserved for post-reform dates. `tr` names the dictionary the month comes
+  // from: a citation of a western serial keeps its western month name on a Chinese page.
   function _gregEquivReadable(dateStr, lang, tr) {
     const tt = tr || T;
     const ymd = _ymdFromStr(dateStr);
@@ -444,11 +614,9 @@ const Atlas = (() => {
     return parts >= 2 ? mon + ' ' + yr : yr;
   }
 
-  // Inline ' data-gloss="…"' explaining which calendar a rendered date is in, for the
-  // shared glossary-tip card. Only the converted (Julian) dates carry it: a post-reform
-  // date is plainly Gregorian and a year-only date is calendar-agnostic, so glossing
-  // either would be noise. `lang` defaults to the live locale so callers outside
-  // this module (Atlas.calGloss, used by the event panel) need not thread it.
+  // Inline ' data-gloss="…"' naming the calendar a rendered date is in. Only the converted
+  // (Julian) dates carry it: a post-reform date is plainly Gregorian and a year-only date is
+  // calendar-agnostic, so glossing either would be noise.
   function _calGlossFor(dateStr, lang) {
     const ymd = _ymdFromStr(dateStr);
     if (!ymd || typeof I18n === 'undefined' || !I18n.glossAttr) return '';
@@ -457,11 +625,9 @@ const Atlas = (() => {
     return I18n.glossAttr('cal_julian', { date: _gregEquivReadable(dateStr, lang || state.lang) });
   }
 
-  // Canonicalize an extended-ISO date to the NASA 5MCSE display form: sign +
-  // 4-digit zero-padded |year| + -MM-DD (e.g. -000762-06-07 → -0762-06-07,
-  // 0791-07-10 stays). The service window −3000…+1999 fits 4 digits. Data files
-  // keep their own six-digit extended-ISO padding, untouched by this; the change
-  // here is display-only and never touches _ymdFromStr / _eventYear.
+  // Canonicalize an extended-ISO date to the NASA 5MCSE display form: sign + 4-digit
+  // zero-padded |year| + -MM-DD (e.g. -000762-06-07 → -0762-06-07). Display-only: the
+  // six-digit extended-ISO padding in data files is untouched.
   function _astroIso(dateStr) {
     if (!dateStr) return dateStr;
     const neg = dateStr[0] === '-';
@@ -471,12 +637,9 @@ const Atlas = (() => {
     return (neg ? '-' : '') + yr + m[2];
   }
 
-  // Chronicle-line bare-year fallback (no nianhao/nengo era covers this year, e.g.
-  // deep BCE): the reign-year format above always reads in Han numerals ("宋淳熙十二
-  // 年"), so the fallback should match instead of jarring into Arabic digits inside
-  // an otherwise all-Han prose line ("前735" → "前七三五"). Once the digits are
-  // Han glyphs there is no digit/kanji boundary left, so (unlike displayYear, which
-  // this deliberately does NOT reuse) no space is inserted.
+  // Chronicle-line bare-year fallback for a year no nianhao/nengo era covers (deep BCE): reads
+  // in Han numerals, e.g. 前七三五 (BCE 735), to match the all-Han prose line, so unlike
+  // displayYear it inserts no digit/kanji boundary space.
   function chronicleYear(lang, y) {
     if (isZh(lang)) return y <= 0 ? '公元前' + cjkDigits(1 - y) : '公元' + cjkDigits(y);
     return y <= 0 ? '紀元前' + cjkDigits(1 - y) : cjkDigits(y) + '年';
@@ -488,70 +651,58 @@ const Atlas = (() => {
     return e ? e + ' · ' + yr : yr;
   }
 
-  // ---- Beijing civil day of an event (the day an East Asian observer would have logged) ----
-  // Event dates are greatest-eclipse *UT* days, but the chronicle registers reckon in the
-  // observer's own civil day, and East-8 runs eight hours ahead: from 16:00 UT onward the
-  // event already belongs to the next day in Chang'an. That is a third of the corpus,
-  // so reckoning ganzhi and the lunisolar month off the UT day dates those one day
-  // early against the very sources this line echoes.
-  //
-  // Shifting the instant and reading the civil date off it needs no day-boundary
-  // special case and no JDN inverse. Mutating an existing Date sidesteps the
-  // Date.UTC 0–99 remap. Falls back to the stored date when there is no computed
-  // instant — transient records carry none.
+  // ---- Beijing Civil Day Of An Event ----
+
+  // Event dates are greatest-eclipse UT days, but the chronicle registers reckon the
+  // observer's own civil day; East-8 runs eight hours ahead, so from 16:00 UT onward the
+  // event belongs to the next day in Chang'an, one day later than a UT-day reckoning.
   function _bjCivilYmd(dateStr, peakIso) {
     const ymd = _ymdFromStr(dateStr);
     if (!ymd) return ymd;
-    // hasDay says whether the DAY is real or _ymdFromStr's ||1 filler, counted off the
-    // stored string the way _sciDate counts it. event_date is truncated to what the
-    // reckoning RESOLVED, which is a different question from what the source STATES:
-    // a Hanshu transient can name a ganzhi day that was never pinned to a date, and a
-    // Goryeosa eclipse can name one with no month at all. Both are day-level by
-    // precision/kind, and neither has a day here to reckon from.
+
+    // hasDay counts off the stored string, not the reckoning: a Hanshu transient can name a
+    // ganzhi day never pinned to a date, and a Goryeosa eclipse can name one with no month at
+    // all, so neither has a day here to reckon from even though both are day-level in kind.
     ymd.hasDay = (dateStr[0] === '-' ? dateStr.slice(1) : dateStr).split('-').length >= 3;
     if (!peakIso) return ymd;
     const t = new Date(peakIso);
     if (isNaN(t.getTime())) return ymd;
     t.setUTCHours(t.getUTCHours() + 8);
+
     // A computed instant resolves the civil day outright, whatever the string carried.
     return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate(), hasDay: true };
   }
 
-  // ---- Chronicle line for the shu'er (shilu): a Tianwenzhi-style, localized dating ----
-  // CJK (zh/ja): reign-era + reckoned lunisolar (season+month+ganzhi), closed by shuo (solar eclipse syzygy) / wang
-  // (lunar eclipse) with the anchor rubricated in vermilion (zhu). Western: cultural period + year only,
-  // since l1 already carries the Julian-calendar day. The lunisolar is computed
-  // (SinoCal.lunisolar), a reconstruction — not a source quotation.
+  // ---- Chronicle Line For The Shu'er ----
+
+  // CJK (zh/ja): reign-era + reckoned lunisolar date, closed by shuo (solar-eclipse syzygy) or
+  // wang (lunar eclipse), rubricated vermilion (zhu). Western: cultural period + year only,
+  // since l1 already carries the Julian-calendar day.
   function chronicleStr(y, kind, dateStr, lang, precision, lunarMonth, peakIso) {
     if (y == null) return '';
+
     // The CJK registers reckon on the observer's civil day, so they read the date off the
     // East-8 shift of the computed instant; the Western branch needs only the year.
     const ymd = _bjCivilYmd(dateStr, peakIso);
     const sino = typeof SinoCal !== 'undefined';
-    // All three registers track the record's true precision — none renders a component the
-    // source doesn't support. Eclipses are always day-precise; a transient (kexing/huibo) may be
-    // month/year. Day → reckon lunisolar day + ganzhi from the full date. Month → the source-recorded
-    // lunisolar month recorded on the record itself, no ganzhi day. Year → reign-year only.
-    // Reckon a ganzhi day only where a day was actually resolved. Gating on precision
-    // (or on kind) alone reads the SOURCE's claim, not the date on hand, and printed the
-    // ganzhi of the 1st as if it were the source's own — a different day from the one the
-    // record quotes, on nine records.
+
+    // Reckon a ganzhi day only where a day was actually resolved (hasDay + day precision):
+    // gating on precision or kind alone reads the source's claim rather than the date on
+    // hand, and would print the ganzhi of the 1st as if the source had given it.
     const dayLevel = kind === 'solar' || kind === 'lunar' || precision === 'day';
     const hasCal = ymd && ymd.hasDay && dayLevel && sino;
     if (isZh(lang) || lang === 'ja') {
-      // zh: Chinese nianhao (duizhao/nianhao.json). ja: nengō (duizhao/nengo.json) — Japan has kept a
-      // continuous nengō system since 645 Taika (645), so it gets the same reign-year
-      // treatment as zh rather than the coarse RIBBONS period band.
-      // The reign year follows the civil day, not the UT one: a late-December event that
-      // East-8 carries into January belongs to the next reign year in the annals.
+      // ja keeps a continuous nengō system since 645 Taika, so it gets the same reign-year
+      // treatment as zh's nianhao, not the coarse RIBBONS period band; the reign year follows
+      // the civil day, since East-8 can carry a late-December event into the next reign year.
       const cy = ymd ? ymd.y : y;
       const prefix = isZh(lang)
         ? nianhaoYear(cy, lang) || chronicleYearLabel(lang, cy)
         : nengoYear(cy) || chronicleYearLabel(lang, cy);
-      // lianxie (continuous writing): reign-year runs straight into the lunisolar date, no space — this is
-      // how Tianwenzhi chronicle entries actually read ("宋淳熙十二年夏四月癸丑朔").
-      // Tail char: solar eclipse closes on shuo, lunar eclipse on wang (both rubricated vermilion/zhu); a transient is
-      // not tied to syzygy, so its day just reads "…ganzhi-ri day", plain ink.
+
+      // lianxie (continuous writing): the reign-year runs straight into the lunisolar date
+      // with no space, as Tianwenzhi chronicle entries actually read. A transient is not
+      // tied to syzygy, so its day reads "…ganzhi-ri day" in plain ink, not vermilion.
       if (hasCal) {
         const ls = SinoCal.lunisolar(ymd.y, ymd.m, ymd.d);
         const body = (ls ? ls.label : '') + SinoCal.dayGanzhi(ymd.y, ymd.m, ymd.d).str;
@@ -561,32 +712,24 @@ const Atlas = (() => {
         }
         return _esc(prefix) + (body ? _esc(body) + '日' : '');
       }
-      // No resolved day: season + lunisolar month name from the RECORDED month (no ganzhi
-      // day, no syzygy tail). event_date's Gregorian month is not the lunisolar month, so
-      // this must come off lunarMonth, never a reckoning of the coarse date. e.g.
-      // 隋大业十二年夏六月. Keyed on lunarMonth alone rather than precision === 'month':
-      // a record whose source names a day the reckoning never pinned still has its month
-      // recorded, and it is owed that much. No year-precision record carries lunarMonth,
-      // so this cannot over-assert a month the source never gave.
+
+      // No resolved day: season + lunisolar month name from the recorded lunarMonth, never a
+      // reckoning of event_date's Gregorian month. Keyed on lunarMonth itself, not precision
+      // === 'month', so a record whose day was never pinned still gets its recorded month.
       if (sino && lunarMonth) {
         return _esc(prefix + SinoCal.seasonLabel(lunarMonth) + SinoCal.monthName(lunarMonth));
       }
       return _esc(prefix); // year precision (or no recorded month): reign-year only
     }
+
     // Western: cultural period + year, and no day. l1 already carries the Julian-calendar
     // day, so spelling one out here would print the same date twice.
     return _esc(yearLabel(lang, y));
   }
 
-  // Line-1 tail for a jingguan transient slip (kexing/huibo), two ways:
-  //   identified   → 「超新星 · SN 1054」, 「彗星 · 1P/Halley」
-  //   unidentified → 「未确认」 alone, no fabricated type
-  // The type word is derived from the catalogue DESIGNATION, which is the only part
-  // of a record's `object` that says WHAT the thing is: an SN … designation is a
-  // supernova, and anything else carrying one (1P/Halley, C/1264 N1) is a comet.
-  // `object` carries {key, designation, basis} and nothing else — in particular no
-  // type or confirmation field, so these two outcomes are the whole space. The
-  // designation is language-neutral; only the type word is localised.
+  // Line-1 tail for a jingguan transient slip: identified → 超新星 (supernova) or 彗星 (comet)
+  // with its designation, unidentified → 未确认 (unconfirmed) alone. The type word is derived
+  // from the designation itself (SN … is a supernova, anything else a comet).
   function transientL1(trec, lang) {
     const id = trec && trec.ident;
     const desig = (id && id.designation) || '';
@@ -603,17 +746,15 @@ const Atlas = (() => {
     );
   }
 
-  // ---- Focus year (the celadon lizhou needle) ----
-  // focusN is stored normalised over [Y0, Y1] because the fisheye lens works in that
-  // space; every consumer that wants a YEAR goes through focusYear() rather than
-  // re-deriving the mapping. Two sites deliberately keep the unrounded float instead
-  // (the fine-tick walk and the list window seek) — they step from the needle's exact
-  // position, and rounding there would nudge the first tick and the first list row.
-  //
-  // Subscribers are notified with the needle's TARGET year, not the eased value:
-  // focusStep runs every animation frame while the ease settles, but the target is
-  // what the reader means. During a drag that is one notification per pointermove
-  // sample, which is why every subscriber must coalesce (basemaps debounces 180ms).
+  // ---- Focus Year (The Lizhou Needle) ----
+
+  // focusN is stored normalised over [Y0, Y1] for the fisheye lens; every consumer that wants a
+  // year goes through focusYear(). The fine-tick walk and list window seek deliberately keep the
+  // unrounded float instead, since rounding there would nudge the first tick and first list row.
+
+  // Subscribers are notified with the needle's target year, not the eased value that
+  // focusStep animates toward; every subscriber must coalesce its own notifications
+  // (basemaps debounces 180ms) since a drag fires one per pointermove sample.
   const _focusSubs = [];
 
   function focusYear() {
@@ -634,10 +775,9 @@ const Atlas = (() => {
     }
   }
 
-  // Focus era: the RIBBONS entry [name,start,end] covering the "current" year — the
-  // selected record's year if one is selected, else the fisheye focus year (the
-  // celadon needle). Mirrors drawSpine's sel-else-focus precedent; null when this
-  // locale's periodization has no band over that year (pre-Antiquity, table gaps).
+  // The RIBBONS entry [name,start,end] covering the "current" year — the selected record's
+  // year if one is selected, else the fisheye focus year. Null when this locale's
+  // periodization has no band over that year (pre-Antiquity, table gaps).
   function focusEra() {
     const sel = state.sel ? RECS.find((r) => r.id === state.sel) : null;
     const yr = sel ? sel.year : focusYear();
@@ -648,13 +788,9 @@ const Atlas = (() => {
     return null;
   }
 
-  // #reccount: the fan-N-tiao (entry count) tally (line 1) + the "of which" current-era subset (line 2). Called from
-  // renderList (filter/range/search/mode changes) AND the end of drawTimeline (focus scrub
-  // rides focusStep→drawTimeline), so both lines track the needle live. The tally counts
-  // currentArray() — the CURRENT list's population (records → filtered records; all-events → the
-  // queried events of that kind) — so it always == what the list pages, in either mode. The
-  // era subset is counted within that SAME array via yearOf, so it is a true subset (m ≤ n)
-  // and the "of which" (nei) framing holds. Clause omitted when era is null or 0.
+  // #reccount: the fan-N-tiao (entry count) tally plus the "of which" (nei) current-era subset,
+  // counted within the same currentArray() so it is a true subset. Called from both renderList
+  // and the end of drawTimeline, so it tracks a focus scrub live; omitted when era is null.
   function updateReccount() {
     const cnt = document.getElementById('reccount');
     if (!cnt) return;
@@ -666,6 +802,7 @@ const Atlas = (() => {
           return a + (y >= e[1] && y < e[2] ? 1 : 0);
         }, 0)
       : 0;
+
     // Empty shelf: 「未收」 reads better than the account-book 「凡零条」; era line omitted.
     const fmtN = (n) => (isZh(state.lang) ? cjkCount(n) : String(n));
     const total = T('atlas.count.total', { n: fmtN(arr.length) });
@@ -688,7 +825,7 @@ const Atlas = (() => {
       .join('');
   }
 
-  // Ordinal place-value: 49 → 四十九, 10 → 十, 1 → 一 (for volumes and reign years).
+  // Ordinal place-value spelling for volumes and reign years, e.g. 四十九 (forty-nine).
   function cjkOrdinal(n) {
     const CH = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
     if (n <= 0) return CH[0] || '〇';
@@ -706,8 +843,8 @@ const Atlas = (() => {
     return String(n); // fallback for >999 (won't occur in this use)
   }
 
-  // Cardinal place-value spelling for tallies: 1256 → 一千二百五十六 (fan N-tiao tally).
-  // Internal 零 fills gaps (1006 → 一千零六); handles up to 9999 + one 万 group; arabic beyond.
+  // Cardinal place-value spelling for the fan-N-tiao tally, up to 9999 plus one 万 (ten-thousand)
+  // group, Arabic beyond. An internal 零 (zero) fills a gap, e.g. 一千零六 (one thousand and six).
   function cjkCount(n) {
     const CH = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
     const U = ['', '十', '百', '千'];
@@ -715,7 +852,7 @@ const Atlas = (() => {
     if (n === 0) return CH[0];
     if (n >= 100000) return String(n); // beyond corpus scale
     const seg = (m) => {
-      // 0..9999 with internal 零
+      // 0..9999 with internal 零 (zero)
       let out = '',
         zero = false;
       for (let pl = 3; pl >= 0; pl--) {
@@ -728,7 +865,7 @@ const Atlas = (() => {
           out += CH[0];
           zero = false;
         }
-        out += pl === 1 && d === 1 && !out ? U[pl] : CH[d] + U[pl]; // 十五 not 一十五
+        out += pl === 1 && d === 1 && !out ? U[pl] : CH[d] + U[pl]; // 十五 (fifteen), no bare 一 (one) prefix
       }
       return out;
     };
@@ -748,7 +885,7 @@ const Atlas = (() => {
     if (!NIANHAO || !NIANHAO.eras || !NIANHAO.eras.length) return null;
     const hant = lang === 'zh-Hant';
     const eras = NIANHAO.eras;
-    if (yr < eras[0].y || yr >= 1912) return null; // outside 建元–宣统 range (宣统三年止)
+    if (yr < eras[0].y || yr >= 1912) return null; // outside the Jianyuan-to-Xuantong range
     let lo = 0,
       hi = eras.length - 1,
       found = -1;
@@ -769,9 +906,8 @@ const Atlas = (() => {
     return dyn + name + reignStr;
   }
 
-  // Nengō lookup (nengō): mirrors nianhaoYear but single-line (no dynasty) and
-  // with explicit `gap` entries for the two real 7th-century interregna when no
-  // era name was in use — those must fall back to the period label, not silently
+  // Mirrors nianhaoYear but single-line (no dynasty), with explicit `gap` entries for the two
+  // real 7th-century interregna: those must fall back to the period label, never silently
   // inherit the previous era's name.
   function nengoYear(yr) {
     if (!NENGO || !NENGO.eras || !NENGO.eras.length) return null;
@@ -811,13 +947,13 @@ const Atlas = (() => {
     return norm(a) === norm(b);
   }
 
-  // A source attested in the viewer's own language is its own translation — 44 records come
-  // from public-domain French editions, so a French reader would otherwise read the same
-  // paragraph twice. Render the original alone in that case.
+  // A source attested in the viewer's own language is its own translation: the corpus
+  // draws on public-domain editions in several of the site's own locales, so a reader of
+  // one would otherwise meet the same paragraph twice. Render the original alone.
   function transLine(rec, lang, cls) {
     const t = transText(rec, lang);
     if (!t || _sameText(t, rec.orig || '')) return '';
-    return '<div class="' + cls + '">' + paraHtml(t, _esc) + '</div>';
+    return '<div class="' + cls + '">' + paraHtml(t, (s) => highlightTrans(s, rec.type), rec.orig) + '</div>';
   }
 
   // The translation to show, or the original when this locale has none — a card
@@ -827,9 +963,11 @@ const Atlas = (() => {
   }
 
   // ---- Card place / source (structured, per-locale, no embedded English) ----
+
   const _cjkLang = (l) => l === 'zh-Hans' || l === 'zh-Hant' || l === 'ja';
+
   // Recursively collect every string leaf out of a value that may be a string, a plain
-  // array, or a nested {locale: value} object (diming.json's `modern`/`aliases` shape) —
+  // array, or a nested {locale: value} object (gazetteer.json's `modern`/`aliases` shape) —
   // used to build search haystacks without "[object Object]" leaking in.
   function _flattenHay(v) {
     if (v == null) return [];
@@ -839,20 +977,17 @@ const Atlas = (() => {
     return [];
   }
 
-  // A place is shown by its historical name, with the modern name as a parenthetical
-  // gloss where the two differ. Both blocks are BCP-47-keyed, so both go through the
-  // one ladder. Only a small minority of places carry a modern name at all, and fewer
-  // still record a per-locale exonym (Beijing vs Pékin/Pekín/Pechino), so most locales
-  // resolve down the chain rather than to a field of their own. Take the gloss through
-  // pickDistinct, never pick: a locale in which the name never changed resolves the
-  // gloss to the name itself, and "Bogor (now Bogor)" is what a bare pick renders.
+  // A place is shown by its historical name, with the modern name as a parenthetical gloss
+  // where the two differ. The gloss goes through pickDistinct, never pick: a locale where the
+  // name never changed would otherwise render "Bogor (now Bogor)".
   function placeLabel(rec, lang) {
     const p = rec.placeI18n;
     if (!p) return _esc(rec.place);
     let html = _esc(I18n.pick(p.name, lang));
     const modern = I18n.pickDistinct(p.modern, p.name, lang);
+
     // CJK locales: no space before the parenthetical gloss (their punctuation supplies it).
-    // Non-CJK: one space inside the span, before the text — matches the pre-existing markup.
+    // Non-CJK: one space inside the span, before the text, never outside it.
     if (modern)
       html +=
         (_cjkLang(lang) ? '<span class="rp-mod">' : '<span class="rp-mod"> ') +
@@ -861,26 +996,19 @@ const Atlas = (() => {
     return html;
   }
 
-  // Pointer type of the gesture in flight. Touch has no hover state, so a tap on
-  // an elided place name carries two jobs at once — reveal the name, select the
-  // record — and the handlers below have to tell the two apart. A mouse never
-  // needs this: hover already revealed the name before the click.
+  // Pointer type of the gesture in flight. Touch has no hover state, so a tap on an elided
+  // place name carries two jobs at once (reveal the name, select the record); a mouse never
+  // needs this, since hover already revealed the name before the click.
   let _touchTap = false;
 
-  // The year cell is `flex: 0 0 auto` + nowrap, so the whole width shortfall lands
-  // on the place name and what gets cut is always the tail: the modern gloss.
-  //
-  // A gloss is ONE INDIVISIBLE UNIT — half of `(now Hangzhou)` names nowhere — so
-  // never let the ellipsis land inside it. Drop it whole, hand the full label to
-  // the site's hover card, and leave a hairline caret so the absence is legible.
-  //
-  // Measure, never count characters: Spectral and Source Han Serif differ by ~2x in
-  // advance width for the same string, so the threshold moves with the locale. Ask
-  // the layout engine, and re-ask after any width, locale or webfont change.
+  // The width shortfall always cuts the place name's tail, the modern gloss, and a gloss is
+  // one indivisible unit — half of `(now Hangzhou)` names nowhere — so it drops whole, never
+  // mid-ellipsis, leaving a hairline caret and the full label on the hover card.
   function fitPlaceLabels(root) {
     const scope = root || document;
     scope.querySelectorAll('.rc-place, .rp-place').forEach((el) => {
       const mod = el.querySelector('.rp-mod');
+
       // Reset first: a re-fit has to start from the full label, not from whatever
       // the previous pass left standing at the previous width.
       if (mod) mod.classList.remove('is-elided');
@@ -889,14 +1017,14 @@ const Atlas = (() => {
       if (mod && el.scrollWidth > el.clientWidth + 0.5) {
         mod.classList.add('is-elided');
         el.classList.add('has-elision');
+
         // The caret costs width of its own. If it alone re-overflows the row,
         // spend that width on the name and let the ellipsis stand instead.
         if (el.scrollWidth > el.clientWidth + 0.5) el.classList.remove('has-elision');
       }
-      // Two ways to withhold, and the elision hides the second one: once the gloss
-      // is dropped the row no longer overflows, so an overflow-only test would
-      // call the row complete and strip the very affordance the drop created the
-      // need for.
+
+      // Two ways to withhold, and elision hides the second: once the gloss drops, the row no
+      // longer overflows, so an overflow-only test would strip the affordance the drop created.
       const elided = !!mod && mod.classList.contains('is-elided');
       if (elided || el.scrollWidth > el.clientWidth + 0.5) {
         // data-gloss, not data-tip: the card wraps, clamps to 260px and accepts the
@@ -911,15 +1039,13 @@ const Atlas = (() => {
     });
   }
 
-  // sref in v2 is the sources.json entry {title?, author?, attribution?}, looked up in
-  // _map() by source.key. ja falls back to zh-Hant deliberately: a Chinese book title IS
-  // written in its traditional form in Japanese (《宋書·天文志》), unlike a place name,
-  // where ja needs its own field (see placeLabel).
+  // ja falls back to zh-Hant deliberately: a Chinese book title is written in its traditional
+  // form in Japanese, e.g. 宋書 (Book of Song), unlike a place name, where ja needs its own field.
   function sourceTitle(s, lang) {
     return I18n.pick(s.title, lang, { rom: true, zh: true });
   }
 
-  // Names joined by the locale's own list separator; a trailing 等 / "et al." marks the
+  // Names joined by the locale's own list separator; a trailing 等 (et al.) marks the
   // unnamed co-compilers the source itself only gestured at.
   function sourceAuthors(s, lang) {
     if (!s.author || !s.author.length) return '';
@@ -930,12 +1056,9 @@ const Atlas = (() => {
     return out;
   }
 
-  // Fill a locus_url template from a record's locus object: each {field} placeholder takes
-  // that locus key's value, percent-encoded on its own. Because the segments are now
-  // separate fields rather than one '/'-joined string, a multi-segment locus
-  // (朝鮮王朝實錄/{reign}/{year}) needs no special casing — the '/' lives in the template.
-  // A template whose fields the record does not supply yields no link at all rather than a
-  // URL with a literal "{volume}" in it.
+  // Fill a locus_url template: each {field} placeholder takes that locus key's value,
+  // percent-encoded on its own. A field the record does not supply yields no link at all,
+  // never a URL with a literal "{volume}" in it.
   function _locusUrl(tmpl, locus) {
     if (!tmpl || !locus) return null;
     let missing = false;
@@ -949,55 +1072,53 @@ const Atlas = (() => {
     return missing ? null : url;
   }
 
-  // ---- Citation locus (which sheet of which division of which work) ----
-  // Print the locus in the order a citation reads: the work, then where inside it, then
-  // which sheet. The same object also carries the facsimile URL, and reading it for that
-  // URL alone leaves a card citing 宋史 with no juan and a newspaper with no issue or
-  // page — the locus is what identifies the passage, not just what links to it.
+  // ---- Citation Locus ----
+
+  // Prints the locus in the order a citation reads: the work, then where inside it, then which
+  // sheet. The locus identifies the passage; the facsimile URL the same object also carries is
+  // a separate concern, and reading it alone would leave a card with no juan, issue or page.
   const LOCUS_ORDER = [
     'work',
     'volume',
     'number',
     'chapter',
     'section',
+    'part',
     'annal',
     'reign',
     'year',
     'folio',
     'fragment',
     'issue',
+    'column',
     'page',
   ];
 
-  // Three registers, and the key decides which: a title is quoted, a leaf number is
-  // labelled, everything else prints bare. A value written in Han that names its own
-  // division (英祖實錄, 十三年) is already a whole citation segment in its own tradition
-  // and takes neither.
+  // Three registers, and the key decides which: a title is quoted, a leaf number is labelled,
+  // everything else prints bare. A value written in Han that already names its own division
+  // (its own script's citation segment) takes neither.
   const LOCUS_TITLE = { work: 1, section: 1 };
   const LOCUS_NUMBERED = { volume: 1, number: 1, chapter: 1, folio: 1, fragment: 1, page: 1, annal: 1 };
 
-  // Nearly every volume value is written 卷052 / 卷四十七 — the unit sits inside the
-  // value, and a label in front of one of those reads 卷 卷052. A western edition does the
-  // same when its own division is not the one the key names: a column reference stored as
-  // the page reads p. col. 231–232 unless the value's abbreviation is taken as its unit.
-  // Test the value, never assume the key supplies the unit.
+  // The epochs an annal may be counted from other than the Common Era, keyed by the
+  // locus `era` value, each mapped to its own citation pattern.
+  const ANNAL_ERA = { spanish: 'atlas.locus.annal_spanish', 'anno-mundi': 'atlas.locus.annal_am' };
+
+  // Nearly every volume value carries its own unit 卷 (juan) inside it, e.g. "卷052", so a
+  // label in front of one would double it. A western edition does the same when its own
+  // division is not the one the key names, so this tests the value, never the key.
   const _selfLabelled = (v) => /^[卷冊册頁页葉叶第]/.test(v) || /^[A-Za-z]{1,5}\.\s*\d/.test(v);
 
-  // A half-width space parts a Han character from the Latin letters or Arabic numerals
-  // beside it, and only from those — 第 2 页 but 第七页, and the 宋會要 leaves are numbered
-  // 七 / 一○. This is the site's own typographic habit, shared with ja and applied
-  // everywhere else on the page; no national standard asks for it, so do not go looking
-  // for one. The Latin labels carry their own space already, so the CJK patterns are the
-  // ones written without.
+  // A half-width space parts a Han character from Latin letters or Arabic numerals beside it,
+  // and only from those: a spelled-out term like 第七页 (page seven) stays unspaced, but the
+  // same word set next to an Arabic digit takes one. Shared with ja, applied site-wide.
   const _locusPad = (v, lang) => ((isZh(lang) || lang === 'ja') && /^[ -~]/.test(v) ? ' ' + v + ' ' : v);
 
-  // ---- Which apparatus a citation is set in ----
-  // It follows the SOURCE, not the reader — the rule the Chinese history journals set for
-  // themselves: 引证外文文献，原则上使用该语种通行的引证标注方式. The test is the source's
-  // own displayed name: if it comes out in Han for this reader, the whole citation is set
-  // the Chinese way; otherwise it keeps its western frame, on a Chinese page included.
-  // A western locale always has a western frame of its own; a CJK locale has none, so
-  // English stands in — hence I18n.ten rather than a fourth western locale.
+  // ---- Which Apparatus A Citation Is Set In ----
+
+  // Follows the source, not the reader: if the source's own displayed name comes out in Han,
+  // the whole citation is set the Chinese way, else it keeps its western frame even on a
+  // Chinese page. A CJK locale has no western frame of its own, so English stands in (I18n.ten).
   const TEN = (k, p) => (typeof I18n !== 'undefined' && I18n.ten ? I18n.ten(k, p) : k);
 
   // The closing mark a hoisted headline ends with, in the locales whose punctuation goes
@@ -1008,28 +1129,29 @@ const Atlas = (() => {
   // is self-delimiting; only where the script changes does a boundary have to be drawn.
   const _scriptGap = (left, right) => (/[!-~]$/.test(left) !== /^[!-~]/.test(right) && left && right ? ' ' : '');
 
-  // ---- Juan: one number, two archives that write it differently ----
-  // The stored value is the archive's own page name, so 宋史 arrives as 卷053 and 高麗史 as
-  // 卷四十八 for what a citation calls juan 53 and juan 48. Read the number out and set it
-  // afresh: the Chinese history journals number a juan in positional Han (卷一〇, 卷六九,
-  // 卷一一四), and a reader of a western locale is owed Arabic digits over a Han string.
+  // ---- Juan: One Number, Two Archives ----
+
+  // The stored value is the archive's own page name, its 卷 (juan) plus digits, e.g. "卷053",
+  // so the number is read back out and reset for the reader: Chinese history journals number
+  // a juan in positional Han, and a western-locale reader is owed Arabic digits over a Han string.
   const _HAN_DIGITS = '〇一二三四五六七八九';
-  // ○ is U+25CB, the circle the 宋會要 leaf numbers are set with; 〇 is the ideographic
-  // zero. Readers see one glyph, so both have to read as zero here.
+
+  // ○ (U+25CB circle) and 〇 (ideographic zero) read as the same glyph to a reader, so both
+  // must parse as zero here.
   const _HAN_VALUE = { 〇: 0, '○': 0, 零: 0, 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
   const _HAN_SCALE = { 十: 10, 百: 100, 千: 1000 };
 
   const _hanPositional = (n) => String(n).replace(/\d/g, (d) => _HAN_DIGITS[+d]);
 
-  // The unit word belongs to the book's tradition, not to the reader's language: the same
-  // graph is juan in a Chinese history, gwon in a Korean one, kan in a Japanese one. The
-  // romanisations are the ones the source catalogue already uses (Goryeosa, Joseon wangjo
-  // sillok), so a citation romanises consistently across the whole card.
+  // The unit word belongs to the book's tradition, not the reader's language: the same graph
+  // is juan in a Chinese history, gwon in a Korean one, kan in a Japanese one, romanised the
+  // way the source catalogue already does.
   const JUAN_UNIT = { chinese: 'juan', tangut: 'juan', korean: 'gwon', japanese: 'kan', vietnamese: 'quyển' };
 
   function _hanToInt(s) {
     if (/^\d+$/.test(s)) return +s;
-    // No scale character means the digits are positional: 一〇五 is 105, not 1 + 0 + 5.
+
+    // No scale character means the digits are positional: 一〇五 (one-oh-five) is not 1+0+5.
     if (!/[十百千]/.test(s)) {
       let n = 0;
       for (const ch of s) {
@@ -1050,26 +1172,34 @@ const Atlas = (() => {
     return total + cur;
   }
 
-  // Null for anything whose juan is not a number to be read: 卷上 (the upper of two
-  // fascicles), the Vietnamese 本紀卷之一, a western volume set in Roman numerals. Those keep
-  // whatever the edition calls them, which is the only name that identifies them.
+  // Null for anything whose juan is not a number to be read, e.g. 卷上 (the upper of two
+  // fascicles) or a western volume in Roman numerals; those keep the edition's own name.
   function _juanSegment(v, lang, tt, civ) {
-    const m = /^卷(\d+|[〇零一二三四五六七八九十百千]+)(.*)$/.exec(v);
+    // Some editions write their juan 卷之十五 (juan fifteen); the middle 之 is phrasing, not a part.
+    const m = /^卷之?(\d+|[〇零一二三四五六七八九十百千]+)(.*)$/.exec(v);
     if (!m) return null;
     const n = _hanToInt(m[1]);
     if (n === null) return null;
     const cjk = _cjkLang(lang);
-    // 魏書 splits one juan into parts and the archive writes the part as 之二. Han keeps it;
-    // a western citation reads the same thing as the decimal 105.2.
+
+    // Some archives split one juan into parts and write the part as 之二 (part two). Han keeps
+    // it; a western citation reads the same thing as the decimal 105.2.
     const tail = cjk ? m[2] : m[2].replace(/^之(.+)$/, (_, t) => '.' + (_hanToInt(t) === null ? t : _hanToInt(t)));
     const unit = cjk ? (lang === 'ja' ? '巻' : '卷') : JUAN_UNIT[civ] || 'juan';
     return tt('atlas.locus.juan', { u: unit, v: (cjk ? _hanPositional(n) : n) + tail });
   }
 
-  // The 宋會要 numbers its leaves in Han (七, 一○), which a western citation has no way to
-  // read. Same treatment as the juan: take the number out and set it in the reader's digits.
-  // Null for a page written any other way, ranges and column references included.
+  // Some archives number their leaves in Han, which a western citation has no way to read;
+  // same treatment as the juan. Null for a page written any other way, ranges and column
+  // references included.
   const _hanLeaf = (v) => (/^[〇零○一二三四五六七八九十百千]+$/.test(v) ? _hanToInt(v) : null);
+
+  // Decide a title's brackets from that title's own script, never the source's: a Chinese
+  // paper's own name earns 《》 (Chinese book-title marks), but a French headline it carried
+  // stayed Latin and takes western quotes. Returns the dictionary and locale the value is set from.
+  function _titleCite(v, cite, tt) {
+    return _cjkLang(cite) && !_hasCJK(v) ? { cite: 'en', tt: TEN } : { cite, tt };
+  }
 
   // A journal or a book is cited by an italic title in the western manner and by its own
   // brackets in CJK; the locale pattern supplies the brackets where a script has them.
@@ -1078,15 +1208,9 @@ const Atlas = (() => {
     return _cjkLang(lang) ? t : '<i>' + t + '</i>';
   }
 
-  // A serial's headline is the title of the piece and precedes the paper that carried it —
-  // the order CMOS sets for a newspaper, and the order the Chinese history journals set for
-  // one too. A classical work's division name is not a headline: 天文二 belongs after the
-  // juan, where its own tradition puts it. The dated issue is what tells the two apart.
-  // Hence two pieces returned, since one of them prints before the source's own name.
-  // `cite` is the locale the citation is SET in and `tt` the dictionary it is set from.
-  // Both follow the source, not the reader, and differ from the reader's locale only for
-  // a western work read on a CJK page.
-  // `absorbed` names the one key the caller has already set inside the source's title.
+  // A serial's headline precedes the paper that carried it (the CMOS newspaper order); a
+  // classical work's division name is not a headline and stays after the juan, hence the two
+  // pieces returned. `cite`/`tt` follow the source; `absorbed` is the key already set elsewhere.
   function locusLabel(rec, cite, tt, absorbed) {
     const lo = rec.locus;
     if (!lo) return { head: '', tail: '' };
@@ -1096,17 +1220,45 @@ const Atlas = (() => {
     for (const k of LOCUS_ORDER) {
       const v = lo[k];
       if (!v || k === absorbed || (k === 'section' && headline)) continue;
+
+      // A fascicle and its leaf are one reference (e.g. "fascicle 2, leaf 1"): the fascicle
+      // carries the leaf and the leaf does not print again after it.
+      if (k === 'page' && lo.part && _hanLeaf(v) !== null) continue;
       let s;
+      if (k === 'part') {
+        const leaf = lo.page && _hanLeaf(lo.page) !== null ? _hanLeaf(lo.page) : null;
+        const n = _hanToInt(v);
+        if (han) s = _esc(v) + (leaf === null ? '' : '之' + _hanPositional(leaf));
+        else s = (n === null ? _esc(v) : n) + (leaf === null ? '' : '.' + leaf);
+        out.push({ k, s });
+        continue;
+      }
+
       // The issue is a stored Gregorian date, so it is written the way every other date
       // on the site is written rather than left as the dashed ISO string.
       if (k === 'issue') s = _esc(_gregEquivReadable(v, cite, tt));
-      else if (k === 'work') s = _workTitle(v, cite, tt);
-      else if (k === 'volume' && _juanSegment(v, cite, tt, rec.civ)) s = _juanSegment(v, cite, tt, rec.civ);
+      else if (k === 'work') {
+        const w = _titleCite(v, cite, tt);
+        s = _workTitle(v, w.cite, w.tt);
+      } else if (k === 'volume' && _juanSegment(v, cite, tt, rec.civ)) s = _juanSegment(v, cite, tt, rec.civ);
       else if (k === 'page' && _hanLeaf(v) !== null)
         s = tt('atlas.locus.page', { v: han ? _hanPositional(_hanLeaf(v)) : _hanLeaf(v) });
-      // A section that is only a number is a numbered subdivision, not a title: quoting
-      // Plutarch's seventh paragraph as “7” makes a heading out of a count.
-      else if (LOCUS_TITLE[k] && !/^\d+$/.test(v)) s = tt('atlas.locus.' + k, { v: _esc(v) });
+
+      // A standing column is the paper's own department, not the piece's title, so the history
+      // journals set it after the date in quotation marks; a western citation names it in
+      // roman. Its script picks the marks, as a headline's does.
+      else if (k === 'column') s = _titleCite(v, cite, tt).tt('atlas.locus.column', { v: _esc(v) });
+
+      // A Han citation names an annal in positional Han with no pad; a value already in Han
+      // that ends in its own year word (年) is a whole segment and takes no second one. An
+      // annal counted from another epoch (Spanish era, anno mundi) names that epoch instead.
+      else if (k === 'annal' && ANNAL_ERA[lo.era])
+        s = tt(ANNAL_ERA[lo.era], {
+          v: han && /^\d+$/.test(v) ? _hanPositional(v) : _esc(v),
+        });
+      else if (k === 'annal' && han && /^\d+$/.test(v)) s = tt('atlas.locus.annal', { v: _hanPositional(v) });
+      else if (k === 'annal' && /年$/.test(v)) s = tt('atlas.locus.annal_reign', { v: _esc(v) });
+      else if (LOCUS_TITLE[k] && !/^\d+$/.test(v)) s = _titleCite(v, cite, tt).tt('atlas.locus.' + k, { v: _esc(v) });
       else if (LOCUS_NUMBERED[k] && !_selfLabelled(v))
         s = tt('atlas.locus.' + k, { v: _locusPad(_esc(v), cite) }).trim();
       else s = _esc(v);
@@ -1116,41 +1268,52 @@ const Atlas = (() => {
     for (const p of out) {
       if (!s) s = p.s;
       else if (!han) s += tt('atlas.locus.sep') + p.s;
-      // The leaf reference closes a Chinese citation and takes the comma that stands
-      // before it (《史記》卷二十八《封禪書》，第 1394 頁); everything above it runs on.
-      else if (p.k === 'page' || p.k === 'folio') s += tt('atlas.locus.sep_leaf') + p.s;
+
+      // The leaf reference closes a Chinese citation and takes the comma that stands before
+      // it, as does a paper's column after its date; everything above them runs on.
+      else if (p.k === 'page' || p.k === 'folio' || p.k === 'column') s += tt('atlas.locus.sep_leaf') + p.s;
       else s += _scriptGap(s, p.s) + p.s;
     }
-    // The credit line arrives parenthesised, as the page printed it, so it trails the
-    // citation on a space: a comma in front of a parenthesis reads as one more list item.
-    if (lo.byline) s += (s ? ' ' : '') + _esc(lo.byline);
-    return { head: headline ? tt('atlas.locus.section', { v: _esc(headline) }) : '', tail: s };
+
+    // The credit line names who wrote the piece, so it stands with the piece's title, ahead
+    // of the paper, joined on a space as the page set it under the headline.
+    const credit = lo.byline ? _esc(lo.byline) : '';
+
+    // The headline's own locale travels out with it, so the caller's closing-quote comma is
+    // keyed to the locale that actually supplied that mark.
+    if (!headline) return { head: credit, headCite: cite, tail: s };
+    const h = _titleCite(headline, cite, tt);
+    const title = h.tt('atlas.locus.section', { v: _esc(headline) });
+    return { head: credit ? title + ' ' + credit : title, headCite: h.cite, tail: s };
   }
 
   function sourceLabel(rec, lang) {
     const s = rec.sref;
-    // A source is cited by its title; an entry with no title (18th-20th c. observers, who
-    // published no book we name) is cited by its author; one with neither — a genuinely
-    // anonymous, untitled communication — falls back to its attribution.
-    // The card line stays the work's name alone, as it has always been — the compiler is
-    // available in the entry for anyone reading sources.json, but 脫脫 等《宋史·天文志》 on
-    // every one of 5,126 cards is noise, not scholarship.
-    // No entry at all means source.key names something sources.json does not define —
-    // a data error. Show the bare key rather than an empty citation, so it is visible.
+
+    // A source is cited by its title, else by its author, else by its bare attribution. The
+    // card carries the work's name alone; the compiler stays available in sources.json but
+    // printing it on every card would be noise. No entry at all is a data error, shown bare.
     const txt = s ? sourceTitle(s, lang) || sourceAuthors(s, lang) || s.attribution || '' : rec.srcKey;
+
     // The apparatus follows the source: a name that came out in Han can carry a Chinese
     // citation, a name that stayed Latin cannot and takes the western one instead.
     const cite = _cjkLang(lang) && !_hasCJK(txt) ? 'en' : lang;
     const tt = cite === lang ? T : TEN;
-    // A reign names a division of the work itself, not a place inside it, so the Chinese
-    // apparatus sets it within the title's own brackets on the interpunct compound titles
-    // already use — 《春秋經·莊公》, 《朝鮮王朝實錄·燕山君日記》 — rather than letting it run
-    // on after them. It leaves the locus when it does, or it would be cited twice.
+
+    // A reign names a division of the work itself, so the Chinese apparatus sets it inside the
+    // title's own brackets on the interpunct compound titles already use, rather than letting
+    // it run on after them; it then leaves the locus, or it would be cited twice.
     const inTitle = _cjkLang(cite) && rec.locus && rec.locus.reign && /[》』]$/.test(txt);
     const name = inTitle ? txt.slice(0, -1) + '·' + rec.locus.reign + txt.slice(-1) : txt;
+
+    // A paper's name is stored bare, unlike a book's, so the apparatus supplies its own title
+    // marks here (Chinese book-title marks, Japanese quotation marks, or italics).
+    const serial = s && s.genre === 'newspaper' && txt === sourceTitle(s, lang);
+    const shown = serial ? _workTitle(name, cite, tt) : _esc(name);
     const body = rec.srcUrl
-      ? '<a class="src-link" href="' + _esc(rec.srcUrl) + '" target="_blank" rel="noopener">' + _esc(name) + '</a>'
-      : _esc(name);
+      ? '<a class="src-link" href="' + _esc(rec.srcUrl) + '" target="_blank" rel="noopener">' + shown + '</a>'
+      : shown;
+
     // Show transmission kind so readers know when they are reading a translation or
     // a passage preserved only via another work (CMOS 18e §14.260 visibility principle).
     const editions = (s && s.editions) || [];
@@ -1163,54 +1326,48 @@ const Atlas = (() => {
     else if (kind === 'quot' && cons.by)
       suffix = '<span class="src-via">' + T('atlas.src_apud', { by: cons.by }) + '</span>';
     else if (kind === 'cite') suffix = '<span class="src-via">' + T('atlas.src_catalog') + '</span>';
-    // The deep link stays on the publication's own name: it resolves to that issue or that
-    // juan, not to the piece, so hanging it on the headline would promise more than it gives.
-    const sep = tt('atlas.locus.sep');
+
+    // The deep link stays on the publication's own name: it resolves to that issue or juan,
+    // not to the piece, so hanging it on the headline would promise more than it gives. A
+    // Chinese citation separates the piece from the paper with its own comma, not an interpunct.
+    const sep = _cjkLang(cite) ? tt('atlas.locus.sep_leaf') : tt('atlas.locus.sep');
     let head = loc.head ? loc.head + sep : '';
+
     // CMOS 6.9 tucks the comma inside the closing quotation mark, and American practice is
     // alone in that: the French guillemets and the CJK brackets take it outside. Keyed to
     // the locale that asks for it rather than applied to every quoted headline.
-    const inside = COMMA_INSIDE_QUOTE[cite];
+    const inside = COMMA_INSIDE_QUOTE[loc.headCite];
     if (inside && loc.head.endsWith(inside) && sep[0] === ',')
       head = loc.head.slice(0, -inside.length) + ',' + inside + sep.slice(1);
-    // 《宋史·天文志》卷五三 carries no comma between the book and the juan, so the joint
+
+    // A Chinese citation carries no comma between the book and the juan, so the joint
     // between the source's name and its locus obeys the apparatus too.
     const join = _cjkLang(cite) ? _scriptGap(name, loc.tail) : sep;
     return T('atlas.src') + head + body + (loc.tail ? join + loc.tail : '') + suffix;
   }
 
-  // ---- Card note (editorial annotation, per-locale) ----
-  // A note is the project's own editorial voice, so a western locale shows English
-  // or nothing — falling through to the Chinese note would read to a French reader
-  // as though the editor had addressed them in Chinese. Hence no { zh: true } here,
-  // unlike transText, where the Han original IS the thing worth showing.
+  // ---- Card Note ----
+
+  // A note is the project's own editorial voice, so a western locale shows English or
+  // nothing, never falling through to the Chinese note (no { zh: true }, unlike transText,
+  // where the Han original is the thing worth showing).
   function noteLabel(rec, lang) {
     const txt = I18n.pick(rec.noteI18n, lang);
     return txt ? _esc(txt) : '';
   }
 
-  // ---- State (ORBIS single source) ----
-  // Default view = Eurasia (map center/zoom in map-boot.js), framed by:
-  //   range[0]  −762 Assyrian Bur-Sagale — the corpus's chronology keystone.
-  //   focusN     1919 Eddington relativity test — the fisheye focus. Also the
-  //              basemap's own default: with no event selected, OHM reads the
-  //              needle's year (js/basemaps.js), so a cold load without this
-  //              would render every OHM-dated feature stacked at once rather
-  //              than one legible slice.
-  //   range[1]  1931 — not an eclipse; a rolling public-domain wall (current
-  //             year − 95, US rule) for the modern-era newspaper corpus. The
-  //             batch runs well past 1919 now (Delpher etc.), so pinning the
-  //             right edge to the Eddington event would hide most of it by
-  //             default. Recompute when the wall next moves — it isn't pinned
-  //             to a source the way the other two bounds are.
-  // civ filter is single-select: null = all civilizations, or one civ key.
-  // site: a same-coordinate scope set by a spiderfy overflow chip (null = off).
-  // mode: 'records' (curated records cards) | 'events' (all-events — all eclipse events,
-  // paged). selEv: selected event key "date|kind" in all-events mode.
-  // The cold-open filter state, named so it can be exported. js/permalink.js omits any
-  // param still equal to its default, so it needs these exact values; when they lived in
-  // both files a change had to land twice, and missing one put a spurious f= / yr= on
-  // every URL. Frozen because the exported copy must not drift when state does.
+  // ---- State (ORBIS Single Source) ----
+
+  // Default view = Eurasia: range[0] is -762 Bur-Sagale (the chronology keystone), focusN is
+  // 1919 Eddington (also the basemap's own default when no event is selected), and range[1]
+  // is 1931, a rolling public-domain wall (current year − 95) recomputed when the wall moves.
+
+  // civ filter is single-select (null = all); site is a same-coordinate scope from a spiderfy
+  // overflow chip; mode is 'records' or 'events' (all-events, paged), with selEv the selected
+  // event key in all-events mode.
+
+  // DEFAULTS is the only copy of these values: js/permalink.js reads them here to omit a
+  // param still at default, and the object is frozen so the exported copy cannot drift.
   const DEFAULTS = Object.freeze({
     Y0,
     Y1,
@@ -1230,20 +1387,19 @@ const Atlas = (() => {
     range: [DEFAULTS.range[0], DEFAULTS.range[1]],
   };
 
-  // Shared list pager (BOTH records and all-events — only one renders into #list at a
-  // time). [winStart, winEnd) index into the current mode's sorted array; winLen
-  // caches that array's length for the pager/wheel. winSeedKey remembers what the
-  // window was seeded for so a plain re-render preserves it (for load-more), while
-  // any filter change re-seeds it centered on the lizhou focus year. Constants mirror
-  // SubstellarAtlas's makeListController.
+  // Shared list pager for records and all-events (only one renders into #list at a time).
+  // [winStart, winEnd) index into the current mode's sorted array. winSeedKey remembers what
+  // the window was seeded for: a plain re-render preserves it, a filter change re-seeds it.
   let winStart = 0,
     winEnd = 0,
     winLen = 0,
     winSeedKey = '';
-  // Row (window-relative) the next render must park at the top of #list, or -1.
-  // A freshly seeded window straddles the focus, so without this the list opens
-  // scrolled to INITIAL_BEFORE rows BEFORE the year the reader is looking at.
+
+  // Row (window-relative) the next render must park at the top of #list, or -1. A freshly
+  // seeded window straddles the focus, so without this the list opens scrolled INITIAL_BEFORE
+  // rows before the year the reader is looking at.
   let winFocusRow = -1;
+
   // Cards left visible above the focus card when a window opens on it.
   const FOCUS_LEAD_IN = 2;
   const INITIAL_BEFORE = 10,
@@ -1264,16 +1420,22 @@ const Atlas = (() => {
   let RECS = []; // mapped records within the service window
   let MANIFEST = null; // data/records/manifest.json (file list + per-file counts)
   const _loadedPh = new Set(); // phenomena whose shards are already in RECS
-  const _phLoading = new Map(); // phenomenon → in-flight load Promise (dedupes concurrent asks)
+  const _phLoading = new Map(); // phenomenon → in-flight load Promise, dedupes concurrent asks
   let CIV_COUNT = {}; // civ → corpus-wide record count, read off the manifest
-  let CIV_NAMES = {}; // civ → wenming.json row, for the civ-name search haystack
+  let CIV_NAMES = {}; // civ → civilizations.json row, for the civ-name search
   let PRESENT_CIVS = []; // civs actually present (ordered by Seal.CIVS)
-  let NIANHAO = null; // lazy-loaded Chinese reign-era table (data/duizhao/nianhao.json)
-  let NENGO = null; // lazy-loaded Japanese era-name table (data/duizhao/nengo.json)
-  let GAZ = {}; // place concordance (data/duizhao/diming.json .places), keyed by
-  // place_key — the canonical observed_at/place_i18n a
-  // record inlines only when it OVERRIDES — the build strips inline place names
-  // out of the records, and _map below inverts that strip at read time.
+
+  // record_id → visibility.json row (solar/lunar only), machine-derived from the event
+  // geometry and observing site, never hand-written: the source's own claim lives on the
+  // record as source_claim, and the two are read side by side.
+  let VIS = {};
+  let NIANHAO = null; // lazy-loaded Chinese reign-era table (nianhao.json)
+  let NENGO = null; // lazy-loaded Japanese era-name table (nengo.json)
+
+  // Place concordance keyed by place_key, the canonical form; a record inlines observed_at
+  // only when it overrides that form, since the build strips inline place names and _map
+  // below inverts that strip at read time.
+  let GAZ = {};
 
   // Flatten rather than take Object.values: a civ row may nest an `eras` array of
   // era-name overrides, and a reader who searches Norse must still reach the saga
@@ -1283,25 +1445,22 @@ const Atlas = (() => {
     return row ? _flattenHay(row).join(' ') : civ || '';
   }
 
-  // ---- Corpus loading (phenomenon-scoped) ----
-  // Fetch shards per phenomenon, never the whole corpus: occultation alone is over half
-  // its bytes and is a register most readers never open, so loading everything up front
-  // makes the reader wait on it to see the solar records the default view shows. The
-  // active phenomenon blocks first paint; the rest stream in behind it.
+  // ---- Corpus Loading (Phenomenon-Scoped) ----
+
+  // Fetch shards per phenomenon, never the whole corpus: occultation dominates the corpus by
+  // bytes and is a register most readers never open, so loading it up front would make the
+  // reader wait to see the solar records the default view shows; the rest stream in behind it.
   function _shardsFor(ph) {
     return ((MANIFEST && MANIFEST.files) || []).filter((f) => f.phenomenon === ph);
   }
 
-  // Fetch + project one phenomenon's shards into RECS. Idempotent, and concurrent
-  // callers share one in-flight promise — setType() and the background sweep can
-  // both ask for the same phenomenon in the same tick.
-  //
-  // NEVER rejects, and a failure NEVER latches: resolve false and drop the _phLoading
-  // entry so the next ask retries from scratch. A rejected promise left in that cache
-  // makes one bad projection permanent for the whole session, and every caller reads
-  // the result as a plain boolean — boot awaits it before building markerLayer, and the
-  // background sweep chains one phenomenon onto the next — so a throw would take the
-  // map down rather than one register.
+  // Fetch + project one phenomenon's shards into RECS. Idempotent, and concurrent callers
+  // share one in-flight promise, since setType() and the background sweep can both ask for
+  // the same phenomenon in the same tick.
+
+  // Must never reject, and a failure must never latch: resolve false and drop the _phLoading
+  // entry so the next ask retries. Every caller reads the result as a plain boolean (boot
+  // awaits it before building markerLayer), so a throw would take the whole map down.
   function loadPhenomenon(ph) {
     if (_loadedPh.has(ph)) return Promise.resolve(false);
     if (_phLoading.has(ph)) return _phLoading.get(ph);
@@ -1351,36 +1510,35 @@ const Atlas = (() => {
     });
   }
 
-  // ---- Data mapping: real record → internal card shape ----
-  // SOURCES: resolved by key from data/records/sources.json in init(), populated before _map runs.
+  // ---- Data Mapping: Record To Card Shape ----
+
+  // Resolved by key from data/records/sources.json in init(), populated before _map runs.
   let SOURCES = {};
 
   function _map(r) {
-    // ---- Place ----
-    // diming.json (via GAZ) is the sole display authority: a record carries no inline
-    // name or i18n block, only place.key, plus an observed_at when the true vantage
+    // gazetteer.json (via GAZ) is the sole display authority for place: a record carries no
+    // inline name or i18n block, only place.key, plus an observed_at when the true vantage
     // point differs from the gazetteer's canonical site for that key.
     const placeKey = r.place.key || '';
     const g = GAZ[placeKey] || {};
     const ll = r.place.observed_at || g;
-    // The gazetteer entry is already the display block — name/modern/aliases are all
-    // BCP-47-keyed, and the numeric lat/lon/since/until alongside them are ignored by
-    // both the label and the search haystack (which collects string leaves only).
+
+    // The gazetteer entry is already the display block; the numeric lat/lon/since/until
+    // alongside name/modern/aliases are ignored by both the label and the search haystack.
     const placeI18n = g.name ? g : null;
     const placeName = (g.name && g.name['zh-Hans']) || placeKey || '';
 
-    // ---- Source ----
-    // r.source.key names the whole sources.json entry {title?, author?, attribution?}.
-    // The link is, in priority order: (1) r.source.url — a rare per-record escape hatch;
-    // (2) edition.locus_url with r.source.locus filled in — the common case for
-    // multi-volume sources; (3) edition.url — the source's single default page.
+    // The source link is, in priority order: r.source.url (a rare per-record escape hatch),
+    // edition.locus_url with r.source.locus filled in (the common multi-volume case), or
+    // edition.url (the source's single default page).
     const sk = (r.source || {}).key;
     const se = sk ? SOURCES[sk] : null;
     const editions = (se && se.editions) || [];
     const consulted = editions.find((e) => e && e.consulted === true) || editions[0] || {};
     const srcUrl = r.source.url || _locusUrl(consulted.locus_url, r.source.locus) || consulted.url || null;
-    // Search matches ANY form of the citation — 《宋书·天文志》, its romanization, its
-    // English title, the compiler's name, the translator's name — not just what the card shows.
+
+    // Search matches any form of the citation — title, romanization, English title, compiler,
+    // translator — not just what the card shows.
     const srcHay = se
       ? [
           Object.values(se.title || {}).join(' '),
@@ -1391,6 +1549,7 @@ const Atlas = (() => {
           sk,
         ].join(' ')
       : sk || '';
+
     // A serial's column heading belongs to the CITATION, not to text_orig, so the citation
     // haystack is what has to carry it. Leave it out and searching "Jardin des Plantes"
     // silently stops reaching the records headed that way.
@@ -1409,7 +1568,8 @@ const Atlas = (() => {
       type: (r.phenomenon || 'solar').toLowerCase(),
       year: _eventYear(r.event_date),
       date: r.event_date,
-      ekey: r.event_key || '', // hand-verified "these records are one phenomenon" (see linkKey)
+      dateVerbatim: (r.date || {}).verbatim || '', // the source's own date wording, searchable
+      ekey: r.event_key || '', // hand-verified "one phenomenon" link (see linkKey)
       place: placeName,
       lat: ll.lat,
       lon: ll.lon,
@@ -1425,18 +1585,16 @@ const Atlas = (() => {
       srcHay: srcHay + ' ' + locusHay,
       sig: r.significance || null,
       conf: r.confidence || null,
-      obsStatus: r.observation_status || null,
+      claim: r.source_claim || null,
+      vis: (VIS[r.record_id] || {}).bucket || null,
       noteI18n,
       noteHay: Object.values(noteI18n || {}).join(' '),
       // Searching a civ by ANY of its seven names. Filled here rather than back-filled
       // after load, so a deferred shard's records are as searchable as the boot ones.
       civHay: _civHay(r.civilization),
-      // Search haystack for place names: diming.json's full 7-locale block + historical
-      // aliases (e.g. 汴梁/金陵/汉城 for bianjing/jiankang/hanyang) — now the ONLY source
-      // of place text since records carry no inline override. Most values are strings;
-      // `modern` is a {zh,en?,...} object and `aliases` is a {zh?:[...],en?:[...],...}
-      // object of arrays — recursively flatten both to plain strings before joining, or
-      // they stringify to "[object Object]"/comma-joined arrays instead of being searchable.
+      // Search haystack for place names, the gazetteer's full 7-locale block plus historical
+      // aliases. `modern` and `aliases` are nested per-locale objects, not plain strings, so
+      // they need _flattenHay or they stringify to "[object Object]" instead of being searchable.
       placeHay: placeI18n ? _flattenHay(placeI18n).join(' ') : '',
       // Without this, translations would be unsearchable: a card renders one locale,
       // but a reader may well search in another.
@@ -1444,22 +1602,246 @@ const Atlas = (() => {
       ident,
       datePrecision,
       lunarMonth: r.lunar_month ?? null,
-      skyPos: r.sky_position || '', // occultation target (star/asterism/planet), used by transientGlyph
+      skyPos: r.sky_position || '', // occultation target, used by transientGlyph
       imp: 0,
     };
   }
 
   // ---- Filters ----
+
+  // Search terms for a record's observation flags, resolved on demand since a head word is
+  // whatever the reader's active locale says, and the locale can change under a running page.
+  // Both the active locale and English go in; the memo is dropped whole on a locale change.
+  let _statusHayMap = {};
+  let _statusHayLang = '';
+
+  function _statusHay(rec) {
+    const slugs = [];
+    if (rec.claim && rec.claim !== 'seen') slugs.push('claim_' + rec.claim);
+    if (_SKY_GLOSS[rec.vis]) slugs.push(_SKY_GLOSS[rec.vis]);
+    if (!slugs.length) return '';
+    if (_statusHayLang !== state.lang) {
+      _statusHayMap = {};
+      _statusHayLang = state.lang;
+    }
+    const key = slugs.join('|');
+    if (_statusHayMap[key] == null) {
+      const words = [];
+      slugs.forEach((s) => {
+        words.push(_glossText(s + '.term'));
+        if (typeof I18n !== 'undefined' && I18n.ten) words.push(I18n.ten('glossary.' + s + '.term'));
+      });
+      _statusHayMap[key] = words.join(' ');
+    }
+    return _statusHayMap[key];
+  }
+
+  // The forms a reader may type for a stored date: the stored Gregorian one and, before the 1582
+  // reform, the Julian one every card shows ("-000762-06-07" is also -762-06-15). The year is a
+  // STRING because matching it is a prefix test; parts a record lacks come back null.
+  const _ymdMemo = new Map();
+
+  function _ymdForms(iso) {
+    let forms = _ymdMemo.get(iso);
+    if (forms) return forms;
+    const m = /^(-?\d+)(?:-(\d{2}))?(?:-(\d{2}))?$/.exec(iso || '');
+    forms = [];
+    if (m) {
+      const ystr = (y) => (y < 0 ? '-' : '') + Math.abs(y);
+      const y = +m[1],
+        mo = m[2] == null ? null : +m[2],
+        d = m[3] == null ? null : +m[3];
+      forms.push({ y: ystr(y), mo, d });
+      if (mo != null) {
+        const cal = _civilYmd({ y, m: mo, d: d || 1 }, d == null ? 2 : 3);
+        if (cal.julian) forms.push({ y: ystr(cal.y), mo: cal.m, d: d == null ? null : cal.d });
+      }
+    }
+    _ymdMemo.set(iso, forms);
+    return forms;
+  }
+
+  // Every reading of one date token: ISO, 年月日 (year/month/day), slashed or dotted, YYYYMMDD,
+  // day or month first before the year (05/06/1912 reads both ways), 月日 (month/day) with a null
+  // year matching any year. BCE years arrive already signed from _bceToAstro. Null when not a date.
+  function _parseDateQ(tok) {
+    const md = /^(\d{1,2})月(\d{1,2})日?$/.exec(tok);
+    if (md) return [{ y: null, mo: +md[1], d: +md[2] }];
+    const compact = /^(\d{4})(\d{2})(\d{2})$/.exec(tok);
+    if (compact) return [{ y: compact[1].replace(/^0*/, '') || '0', mo: +compact[2], d: +compact[3] }];
+    const s = tok
+      .replace(/日/g, '')
+      .replace(/[年月．./／]/g, '-')
+      .replace(/-+$/, '');
+    const yLast = /^(\d{1,2})-(\d{1,2})-(\d{3,4})$/.exec(s);
+    if (yLast) {
+      const y = yLast[3].replace(/^0*/, '') || '0',
+        a = +yLast[1],
+        b = +yLast[2];
+      const alts = [];
+      if (b >= 1 && b <= 12) alts.push({ y, mo: b, d: a });
+      if (a >= 1 && a <= 12 && a !== b) alts.push({ y, mo: a, d: b });
+      return alts.length ? alts : null;
+    }
+    const m = /^(-?)(\d{1,6})(?:-(\d{1,2}))?(?:-(\d{1,2}))?$/.exec(s);
+    if (!m) return null;
+    return [
+      {
+        y: m[1] + (m[2].replace(/^0*/, '') || '0'),
+        mo: m[3] == null ? null : +m[3],
+        d: m[4] == null ? null : +m[4],
+      },
+    ];
+  }
+
+  // Rank of the best reading in `alts` against a parsed date, or -1 if none fits. The year is a
+  // prefix test, and the sign rides in the string, so "18" cannot reach -18. Month and day, once
+  // typed, are exact: 3 月 (March) never matches month 30-39, nor a record dated only to the year.
+  function _dateRank(forms, alts) {
+    let best = -1;
+    for (const ymd of forms) {
+      for (const d of alts) {
+        if (d.y != null && ymd.y.indexOf(d.y) !== 0) continue;
+        if (d.mo != null && ymd.mo !== d.mo) continue;
+        if (d.d != null && ymd.d !== d.d) continue;
+        const r = d.y == null ? 0 : ymd.y.length - d.y.length;
+        if (best < 0 || r < best) best = r;
+      }
+    }
+    return best;
+  }
+
+  // Parsed once per query string and locale, since both lists match every row on each keystroke.
+  // `dates` and `words` split the tokens for the events list; `toks` keeps each raw token beside
+  // its date readings for the records list, which tries both.
+  let _parsedFor = null,
+    _parsedQ = null;
+
+  // Month names a reader may type, long and short in all seven locales, plus the active card's
+  // own abbreviations. Compared without accents or a trailing dot, so "fevr" finds "févr.".
+  let _monthRe = null,
+    _monthNum = null,
+    _monthLang = '';
+
+  const _foldMonth = (s) =>
+    s
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\.$/, '')
+      .toLowerCase();
+
+  function _monthNames() {
+    if (_monthLang === state.lang && _monthRe) return;
+    _monthLang = state.lang;
+    _monthNum = new Map();
+    const add = (name, n) => {
+      const k = _foldMonth(String(name || '').trim());
+      if (k && !/\d/.test(k) && !_monthNum.has(k)) _monthNum.set(k, n);
+    };
+    for (let n = 1; n <= 12; n++) {
+      add(T('julian.month.' + n), n);
+      for (const loc of I18n.SUPPORTED) {
+        for (const month of ['long', 'short']) {
+          try {
+            add(new Intl.DateTimeFormat(loc, { month, timeZone: 'UTC' }).format(Date.UTC(2000, n - 1, 15)), n);
+          } catch (_) {
+            // an unknown locale tag leaves only the names already added
+          }
+        }
+      }
+    }
+    const alt = [..._monthNum.keys()]
+      .sort((a, b) => b.length - a.length)
+      .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+    _monthRe = alt ? new RegExp('(^|\\s)(' + alt + ')\\.?(?=[\\s,]|$)', 'g') : null;
+  }
+
+  // "15 Jun 763 BCE", "April 17, 1912", "avril 1912" and "17 avril" become the numeric forms
+  // _parseDateQ reads. Runs after _bceToAstro, so the year may carry its minus sign.
+  function _monthsToNumeric(q) {
+    _monthNames();
+    if (!_monthRe) return q;
+    const n = (name) => _monthNum.get(_foldMonth(name));
+    const M = '#M(\\d+):[^#]*#';
+    const marked = q.replace(_monthRe, (_, pre, name) => pre + '#M' + n(name) + ':' + name + '#');
+    return marked
+      .replace(new RegExp('(\\d{1,2})\\.?\\s+' + M + ',?\\s+(-?\\d+)', 'g'), (_, d, mo, y) => y + '-' + mo + '-' + d)
+      .replace(new RegExp(M + '\\s+(\\d{1,2}),?\\s+(-?\\d+)', 'g'), (_, mo, d, y) => y + '-' + mo + '-' + d)
+      .replace(new RegExp(M + '\\s+(-?\\d{3,})', 'g'), (_, mo, y) => y + '-' + mo)
+      .replace(new RegExp('(\\d{1,2})\\.?\\s+' + M, 'g'), (_, d, mo) => mo + '月' + d + '日')
+      .replace(/#M\d+:([^#]*)#/g, '$1');
+  }
+
+  // A BCE year in any locale's written form ("763 BCE", "763 av. J.-C.", 763 after 前 (before) or
+  // 紀元前 (before the era)) becomes the astronomical year: 763 BCE → -762.
+  function _bceToAstro(q) {
+    const astro = (n) => '-' + (+n - 1);
+    return q
+      .replace(/(^|\s)(?:公元前|紀元前|前)\s*(\d+)/g, (_, pre, n) => pre + astro(n))
+      .replace(
+        /(^|\s)(\d+)\s*(?:b\.?\s*c\.?\s*(?:e\.?)?|a\.?\s*e\.?\s*[cv]\.?|av\.?\s*j\.?\s*-?\s*c\.?|a\.?\s*c\.?)(?=\s|$)/g,
+        (_, pre, n) => pre + astro(n)
+      );
+  }
+
+  function _parseQuery(q) {
+    const key = state.lang + '\u0000' + q;
+    if (key === _parsedFor) return _parsedQ;
+    const dates = [],
+      words = [],
+      toks = [];
+
+    // The CJK cards space every seam between a digit and 年 (year), 月 (month) or 日 (day);
+    // closing those seams keeps a date copied off a card in one token.
+    const norm = q
+      .toLowerCase()
+      .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+      .replace(/[－−]/g, '-')
+      .replace(/\s*([年月日])\s*/g, '$1')
+      .trim();
+    for (const tok of _monthsToNumeric(_bceToAstro(norm)).split(/[\s,，、]+/)) {
+      if (!tok) continue;
+      const d = _parseDateQ(tok);
+      if (d) dates.push(d);
+      else words.push(tok);
+      toks.push({ raw: tok, date: d });
+    }
+    _parsedFor = key;
+    _parsedQ = { dates, words, toks };
+    return _parsedQ;
+  }
+
+  // Every token must be found as text in the record or, if it reads as a date, as its event_date.
+  // The text route keeps a date-shaped token that means something else, such as a page number or
+  // the YYYYMMDD inside a record id, findable.
+  function _recMatchQ(r, parsed) {
+    if (!parsed.toks.length) return true;
+    const hay = [
+      r.id,
+      r.place,
+      r.placeHay,
+      r.srcHay,
+      r.orig,
+      r.textHay,
+      r.translit,
+      r.noteHay,
+      r.civHay,
+      r.dateVerbatim,
+      _statusHay(r),
+    ]
+      .join(' ')
+      .toLowerCase();
+    for (const t of parsed.toks) {
+      if (hay.includes(t.raw)) continue;
+      if (!t.date || _dateRank(_ymdForms(r.date), t.date) < 0) return false;
+    }
+    return true;
+  }
+
   function passFilters(r) {
-    const q = state.q.trim().toLowerCase();
     return (
-      (state.civ == null || r.civ === state.civ) &&
-      r.type === state.type &&
-      (!q ||
-        [r.id, r.place, r.placeHay, r.srcHay, r.orig, r.textHay, r.translit, r.noteHay, r.civHay]
-          .join(' ')
-          .toLowerCase()
-          .includes(q))
+      (state.civ == null || r.civ === state.civ) && r.type === state.type && _recMatchQ(r, _parseQuery(state.q.trim()))
     );
   }
 
@@ -1467,11 +1849,11 @@ const Atlas = (() => {
   const timelineRecords = () => RECS.filter(passFilters); // lizhou: full density, never budgeted
   const visibleRecords = () => RECS.filter((r) => passFilters(r) && inRange(r));
 
-  // ---- Dynamic LOD selection for the MAP layer (zoom × time-span × importance) ----
-  // Rank sites in a world-anchored grid, then clip the survivors to the padded
-  // viewport. Selection first, clipping second — never the other way round.
-  // margin is a fraction of the view's own span, per side; the caller picks
-  // VIEW_MARGIN to admit a marker or EVICT_MARGIN to decide it may be destroyed.
+  // ---- Dynamic LOD Selection For The Map Layer ----
+
+  // Rank sites in a world-anchored grid, then clip the survivors to the padded viewport:
+  // selection first, clipping second, never the other way round. `margin` is a fraction of
+  // the view's own span per side; the caller picks VIEW_MARGIN or EVICT_MARGIN.
   function inViewport(map, r, margin) {
     const b = map.getBounds();
     const m = margin == null ? VIEW_MARGIN : margin;
@@ -1480,6 +1862,7 @@ const Atlas = (() => {
     if (r.lat < b.getSouth() - latPad || r.lat > b.getNorth() + latPad) return false;
     const w = b.getWest() - lngPad,
       e = b.getEast() + lngPad;
+
     // Markers are single-copy at their real lon; the map spans a 720° window
     // (−200…520), so test the lon and its ±360 wraps against the bounds.
     for (let lon = r.lon - 360; lon <= r.lon + 360 + 1e-6; lon += 360) {
@@ -1488,12 +1871,9 @@ const Atlas = (() => {
     return false;
   }
 
-  // Longitude offsets at which one record must be drawn. The map window is 720°
-  // wide (−200…520), so a seal placed only at its true lon leaves every other
-  // world copy bare — and inViewport above already ADMITS a record whose only
-  // visible copy is a wrapped one, which without this would be drawn off-screen.
-  // Restricted to the padded viewport so the DOM cost stays flat: extra copies
-  // are built only while they are actually on screen.
+  // Longitude offsets at which one record must be drawn: the 720°-wide map window means
+  // inViewport above can admit a record whose only visible copy is a wrapped one. Restricted
+  // to the padded viewport so extra copies are built only while actually on screen.
   function wrapOffsetsFor(lon) {
     const offs = GeoUtils.wrapOffsets(lon, lon);
     if (!map) return offs;
@@ -1505,10 +1885,9 @@ const Atlas = (() => {
     return vis.length ? vis : offs.slice(0, 1);
   }
 
-  // The one world copy a record's marker "is" right now: the copy nearest the
-  // view centre. Every consumer that has to name a single longitude for a record
-  // — the popup claim after a rebuild, select()'s flyTo — must go through here,
-  // or a click on the +360 copy answers a world away from the gesture.
+  // The one world copy a record's marker "is" right now: the copy nearest the view centre.
+  // Every consumer naming a single longitude for a record must go through here, or a click
+  // on the +360 copy answers a world away from the gesture.
   function nearestDx(lon, offs, ref) {
     const list = offs || wrapOffsetsFor(lon);
     if (!map) return list[0] || 0;
@@ -1523,18 +1902,14 @@ const Atlas = (() => {
     return lon + nearestDx(lon, GeoUtils.wrapOffsets(lon, lon), ref);
   }
 
-  // lodSites: the sites this zoom is allowed to draw, world-wide.
-  // Bin by WORLD pixels (map.project at an explicit zoom), never by container
-  // pixels: a container-pixel grid re-phases on every pan, so half a cell of
-  // drag swaps each cell's representative under the reader and the map reads as
-  // if seals were vanishing. World pixels move only with zoom.
-  // A cell's slots are contested by that cell's own sites and by nobody else,
-  // which is what keeps a 99-record capital from costing a lone European chronicle
-  // its seal: they are never in the same cell.
+  // The sites this zoom is allowed to draw, world-wide. Bin by world pixels (map.project at
+  // an explicit zoom), never container pixels: a container-pixel grid re-phases on every pan,
+  // so half a cell of drag would swap each cell's representative under the reader.
   function lodSites(all, map) {
     const z = map.getZoom();
-    // A narrow time window earns +1 site per cell: the reader has already said
-    // which two centuries they care about, so the map can afford more detail.
+
+    // A narrow time window earns +1 site per cell: the reader has already said which two
+    // centuries they care about, so the map can afford more detail.
     const k = LOD_K(z) + (state.range[1] - state.range[0] <= 200 ? 1 : 0);
     const keep = [];
     const cells = new Map();
@@ -1561,17 +1936,9 @@ const Atlas = (() => {
     return keep;
   }
 
-  // rescueCivs: every civilization on screen keeps at least one seal, however
-  // lightly attested. The grid ranks SITES, so a tradition holding one thin site
-  // in a cell full of capitals drops off the map altogether — and the map exists to
-  // say that tradition was watching the same sky. Rescue restores the civ's own
-  // highest-ranked site in view; it only ever ADDS, so it cannot cost another
-  // civilization its seal.
-  // Presence is judged by the seal a site would paint (its top record's civ), which
-  // is the same thing the reader is counting.
-  // This is the one viewport-scoped rule in the selection. Ranking by w (a global,
-  // pan-invariant score) rather than by anything about the current frame keeps the
-  // chosen representative steady: it changes only when it leaves the view itself.
+  // Every civilization on screen keeps at least one seal, however lightly attested: the grid
+  // ranks sites, so a tradition holding one thin site in a cell full of capitals would drop
+  // off the map. Rescue restores the civ's own highest-ranked site in view and only ever adds.
   function rescueCivs(all, admitted, map) {
     const shown = new Set(admitted.map((s) => s.top.civ));
     const best = new Map();
@@ -1584,11 +1951,10 @@ const Atlas = (() => {
     return [...best.values()];
   }
 
-  // ---- Site stacks: records sharing one coordinate render as ONE marker ----
-  // The corpus concentrates hard (北京 179 / 开封 163 / 长安 143 records on one
-  // point each), so coincident seals were mutually unreachable on the map. A
-  // stack shows its top seal + a count badge; clicking fans the members out
-  // (spiderfy) with year labels — the era is readable at a glance.
+  // ---- Site Stacks: One Marker Per Coordinate ----
+
+  // Seals sharing one point are mutually unreachable on the map. A stack shows its top seal
+  // plus a count badge; clicking fans the members out (spiderfy) with year labels.
   function siteKey(r) {
     return r.lat.toFixed(4) + ',' + r.lon.toFixed(4);
   }
@@ -1608,8 +1974,10 @@ const Atlas = (() => {
       s.recs.sort((a, b) => b.imp - a.imp);
       s.top = s.recs[0];
       s.imp = s.top.imp;
+
       // a landmark member makes the whole stack landmark (keeps the LOD reserve)
       s.sig = s.recs.some((r) => r.sig === 'landmark') ? 'landmark' : s.top.sig;
+
       // w ranks the site against its cell neighbours; imp stays the record-level
       // score that markerZ() stacks by. Keep them separate: folding depth into imp
       // would push deep capitals above everything else in the paint order too.
@@ -1622,6 +1990,7 @@ const Atlas = (() => {
 
   function selectForView() {
     const withGeo = (r) => r.lat != null && r.lon != null;
+
     // Event selected → the map shows ONLY that event's records (every vantage),
     // regardless of civ / query / range filters. Parse state.selEv directly: it is
     // set before EclipseLoader.selected() updates during a record select.
@@ -1634,22 +2003,24 @@ const Atlas = (() => {
     } else {
       base = RECS.filter((r) => withGeo(r) && passFilters(r) && inRange(r));
     }
-    // Group the WHOLE filtered corpus, not just what is on screen: the LOD verdict
-    // must not depend on where the view sits. Grouping walks every held record of
-    // the register (occultation alone is ~9.4k), so memoise it — a pan changes
-    // neither the filters nor the stacks, and must not pay for a regroup.
+
+    // Group the whole filtered corpus, not just what is on screen, and memoise it on the
+    // filter signature since a pan changes neither. state.lang belongs in the signature
+    // because a query also matches the observation flags' head words in the active locale.
     const sig = [
       state.selEv,
       state.sel,
       state.civ,
       state.type,
       state.q,
+      state.lang,
       state.range[0],
       state.range[1],
       RECS.length,
     ].join('|');
     if (_sitesMemo.sig !== sig) _sitesMemo = { sig, sites: groupBySite(base) };
     let keep = map ? lodSites(_sitesMemo.sites, map) : _sitesMemo.sites;
+
     // Always keep the selected record's stack alive so a list-click can open
     // its popup even when LOD/viewport would otherwise thin it out.
     if (state.sel && !keep.some((s) => s.recs.some((r) => r.id === state.sel))) {
@@ -1659,23 +2030,32 @@ const Atlas = (() => {
         keep = keep.concat(groupBySite(own.length ? own : [sel]));
       }
     }
-    // keep is what this zoom may draw anywhere; admit is what it draws now. Only
-    // the second one looks at the viewport, and drawMarkers needs both: a marker
-    // outside admit but still inside keep is off-screen, not gone, and is retained
-    // rather than rebuilt the moment the reader pans back.
+
+    // `keep` is what this zoom may draw anywhere; `admit` is what it draws now, viewport-
+    // filtered. drawMarkers needs both: a marker outside admit but still inside keep is
+    // off-screen, not gone, and is retained rather than rebuilt when the reader pans back.
     if (!map) return { keep, admit: keep };
     const admit = keep.filter((s) => inViewport(map, s, VIEW_MARGIN));
     const rescued = rescueCivs(_sitesMemo.sites, admit, map);
+
     // Rescued sites join keep as well as admit, or the ledger would read them as
     // strangers and rebuild their markers on the next pan instead of retaining them.
     return rescued.length ? { keep: keep.concat(rescued), admit: admit.concat(rescued) } : { keep, admit };
   }
 
   // ---- Map markers ----
+
   const POPUP_OPTS = { className: 'records-popup', closeButton: true, maxWidth: 300, autoPan: false };
+
+  // The rail's open/closed state is a per-viewer layout preference kept in localStorage.
+  const RAIL_KEY = 'fme.rail';
+  function railOpen() {
+    const lib = document.getElementById('library');
+    return !!lib && !lib.classList.contains('hidden');
+  }
+
   function popupHtml(rec) {
-    return (
-      '<div class="rp">' +
+    const head =
       '<div class="rp-head">' +
       Seal.svg(rec.civ, 16, Seal.name(rec.civ, state.lang, rec.year)) +
       '<span class="rp-place">' +
@@ -1685,12 +2065,15 @@ const Atlas = (() => {
       eraAttrs(rec, 'rp-year') +
       '>' +
       yearLabel(state.lang, rec.year) +
-      '</span></div>' +
+      '</span></div>';
+    return (
+      '<div class="rp">' +
+      head +
       transLine(rec, state.lang, 'rp-trans') +
       '<div class="rp-orig ' +
       (rec.cjk ? '' : 'multi') +
       '">' +
-      paraHtml(rec.orig, highlightPhrase) +
+      paraHtml(rec.orig, (s) => highlightPhrase(s, rec.type), rec.orig) +
       '</div>' +
       '<div class="rp-src">' +
       sourceLabel(rec, state.lang) +
@@ -1700,10 +2083,9 @@ const Atlas = (() => {
     );
   }
 
-  // Open (or refresh) a record's marker popup and remember which record it belongs
-  // to, so drawMarkers()'s clearLayers() teardown can reopen it afterwards (see
-  // _popupRecId below). markerById[id] may point at a shared stack marker that
-  // binds no static popup of its own, so set THIS record's content at open time.
+  // Open (or refresh) a record's marker popup and remember which record it belongs to, so
+  // drawMarkers()'s teardown can reopen it afterwards. markerById[id] may point at a shared
+  // stack marker with no static popup of its own, so set this record's content at open time.
   let _popupRecId = null; // id of the record whose marker popup is currently open
   function openRecPopup(id) {
     const rec = RECS.find((r) => r.id === id);
@@ -1712,20 +2094,71 @@ const Atlas = (() => {
     if (!m) return;
     if (m.getPopup()) m.setPopupContent(popupHtml(rec));
     else m.bindPopup(popupHtml(rec), POPUP_OPTS);
+
+    // The marker's own click handler opens the popup; drop Leaflet's bound-popup click
+    // toggle, which would otherwise close it again in the same click.
+    m.off('click', m._openPopup, m);
     m.openPopup();
     _popupRecId = id;
   }
 
-  // ---- Marker stacking order ----
-  // Leaflet stacks markers by latitude alone (southern over northern), which puts
-  // whichever seal happens to sit lower on screen on top of the one the reader
-  // came for. Every record marker therefore names its own band, and the bands are
-  // 100k apart so no latitude term can ever bridge two of them:
-  //   observer > hovered > selected > open fan > multi-record stack > lone record
-  // Inside a band the order is importance first, age second — the same imp score
-  // the LOD thinning ranks by (significance, confidence, civ rarity, corroborating
-  // vantages), then older over younger, because the scarce ancient record is the
-  // one that must not end up under a 20th-century one at the same site.
+  // The shu'er and its ruled slat float above every popup; pan the map down just far enough
+  // to clear a popup that runs under either one, never so far the marker leaves the map.
+  // Called once after a rail toggle settles, never on every moveend or a deliberate pan reverts.
+  function clearEarForPopup() {
+    const m = _popupRecId && markerById[_popupRecId];
+    const pop = m && m.getPopup();
+    const el = map && pop && pop.isOpen() && pop.getElement();
+    if (!el) return;
+    const box = el.getBoundingClientRect();
+    let bottom = -Infinity;
+    for (const id of ['ev-strip', 'ev-scrub']) {
+      const o = document.getElementById(id);
+      if (!o || !o.offsetHeight) continue;
+      const r = o.getBoundingClientRect();
+      if (r.right > box.left && r.left < box.right) bottom = Math.max(bottom, r.bottom);
+    }
+    const need = bottom + 8 - box.top;
+    if (!(need > 0)) return;
+    const room = map.getSize().y - 24 - map.latLngToContainerPoint(m.getLatLng()).y;
+    const dy = Math.min(need, room);
+    if (dy > 0) map.panBy([0, -dy]);
+  }
+
+  // The map centre that frames a record popup in one move: the marker lands at the centre
+  // unless the popup above it would run under the ear, in which case it sits low enough for
+  // the popup to clear it. Measured from the open popup, so the fly needs no correction after.
+  function popupFrameCenter(latlng, zoom, el, markerPt) {
+    const box = el.getBoundingClientRect();
+    const mapBox = map.getContainer().getBoundingClientRect();
+    const lift = markerPt.y - (box.top - mapBox.top);
+    const size = map.getSize();
+    const left = mapBox.left + size.x / 2 - (markerPt.x - (box.left - mapBox.left));
+    const right = left + box.width;
+    let bottom = -Infinity;
+    for (const id of ['ev-strip', 'ev-scrub']) {
+      const o = document.getElementById(id);
+      if (!o || !o.offsetHeight) continue;
+      const r = o.getBoundingClientRect();
+      if (r.right > left && r.left < right) bottom = Math.max(bottom, r.bottom - mapBox.top);
+    }
+    const y = Math.min(Math.max(size.y / 2, bottom + 8 + lift), size.y - 24);
+    const pt = map.project(latlng, zoom).subtract([0, y - size.y / 2]);
+    return map.unproject(pt, zoom);
+  }
+
+  // Once the map cell has been resized, reframe the open record popup clear of the ear.
+  function reopenRecPopup() {
+    if (!_popupRecId) return;
+    openRecPopup(_popupRecId);
+    clearEarForPopup();
+  }
+
+  // ---- Marker Stacking Order ----
+
+  // Leaflet stacks markers by latitude alone, so every record marker instead names its own
+  // band, 100k apart: observer > hovered > selected > open fan > stack > lone record. Inside
+  // a band the order is importance (imp) first, then older over younger.
   const Z = { site: 0, stack: 100000, fan: 300000, sel: 500000, hover: 800000, observer: 900000 };
 
   // Age bonus, coarse on purpose: it only ever breaks ties between records of
@@ -1778,13 +2211,11 @@ const Atlas = (() => {
     return L.divIcon({ className: 'rec-mk', html: html, iconSize: [sz, sz], iconAnchor: [sz / 2, sz / 2] });
   }
 
-  // ---- Spiderfy (self-implemented, no vendor dep) ----
-  // ≤8 members fan on a circle, more on an Archimedean spiral (constant arc
-  // spacing), capped at SPIDER_MAX. A stack deeper than that fans its most important
-  // SPIDER_MAX members; the rest stay reachable through the record list, which is
-  // never thinned.
-  // The fan is rebuilt (respiderfy) on every drawMarkers pass so zoom, filter
-  // and selection changes keep it live instead of snapping it shut.
+  // ---- Spiderfy (Self-Implemented) ----
+
+  // ≤8 members fan on a circle, more on an Archimedean spiral, capped at SPIDER_MAX; a
+  // deeper stack fans its most important members and leaves the rest reachable through the
+  // record list. Rebuilt on every drawMarkers pass so zoom/filter/selection keep it live.
   const SPIDER_MAX = 24;
   let spider = null; // { key, dx, layer } — at most one site fanned at a time
   function spiderOffsets(n) {
@@ -1820,28 +2251,25 @@ const Atlas = (() => {
     unspiderfy();
     if (!map) return;
     const layer = L.layerGroup().addTo(map);
-    spider = { key: stack.key, dx: dx || 0, layer };
+    const center = L.latLng(stack.lat, stack.lon + (dx || 0));
+
     // keep the most important members, but LAY OUT chronologically — the fan
     // then reads as a clock of eras around the site.
     const shown = stack.recs
       .slice(0, SPIDER_MAX)
       .slice()
       .sort((a, b) => a.year - b.year);
-    const nodes = shown.length;
-    const c = map.latLngToContainerPoint([stack.lat, stack.lon + spider.dx]);
-    const offs = spiderOffsets(nodes);
+    spider = { key: stack.key, dx: dx || 0, layer, center, sig: spiderSig(shown), legs: [] };
     const ink = cssvar('--ink-3') || '#8B8F8C';
-    const legTo = (ll) =>
-      L.polyline([[stack.lat, stack.lon + spider.dx], ll], {
+    spiderLegPoints(center, shown.length).forEach((ll, i) => {
+      const r = shown[i];
+      const line = L.polyline([center, ll], {
         color: ink,
         weight: 1,
         dashArray: '2 3',
         opacity: 0.8,
         interactive: false,
       }).addTo(layer);
-    shown.forEach((r, i) => {
-      const ll = map.containerPointToLatLng(L.point(c.x + offs[i][0], c.y + offs[i][1]));
-      legTo(ll);
       const m = L.marker(ll, {
         icon: spiderIcon(r, state.sel === r.id),
         riseOnHover: true,
@@ -1849,18 +2277,31 @@ const Atlas = (() => {
         zIndexOffset: markerZ(state.sel === r.id ? Z.sel : Z.fan, r, r.imp),
       });
       m.bindTooltip(placeLabel(r, state.lang), { sticky: true, className: 'eclipse-curve-tooltip', offset: [0, -8] });
+      m._spiderSel = state.sel === r.id;
       m.bindPopup(popupHtml(r), POPUP_OPTS);
       m.on('click', () => select(r.id));
       layer.addLayer(m);
       markerById[r.id] = m; // select() opens popups on the fanned marker
+      spider.legs.push({ r, m, line });
     });
   }
 
-  // Rebuild against the stacks this pass actually DREW, not against a re-filtered
-  // RECS: the map's record base is not always passFilters+inRange (an event
-  // selection re-bases it onto that event's records), and LOD thinning can drop a
-  // stack the filters would keep. A fan is a child of its stack marker — when the
-  // marker is gone or has collapsed to a lone record, the fan goes with it.
+  // The legs' tooltips and popups are baked in the interface language, so a language
+  // switch counts as a change of fan and rebuilds it.
+  function spiderSig(shown) {
+    return shown.map((r) => r.id).join('|') + '|' + state.lang;
+  }
+
+  // Leg tips sit at fixed pixel offsets around the site, so their map positions
+  // depend on the zoom they are laid out at.
+  function spiderLegPoints(center, n) {
+    const c = map.latLngToContainerPoint(center);
+    return spiderOffsets(n).map(([x, y]) => map.containerPointToLatLng(L.point(c.x + x, c.y + y)));
+  }
+
+  // Rebuild against the stacks this pass actually drew, not a re-filtered RECS: the record
+  // base can be re-based onto an event's own records, and LOD thinning can drop a stack the
+  // filters would keep. A fan is a child of its stack marker and goes with it if gone.
   function respiderfy(stacks) {
     if (!spider || !map) return;
     const stack = stacks.find((s) => s.key === spider.key);
@@ -1868,14 +2309,37 @@ const Atlas = (() => {
       unspiderfy();
       return;
     }
-    spiderfy(stack, spider.dx);
+    const shown = stack.recs
+      .slice(0, SPIDER_MAX)
+      .slice()
+      .sort((a, b) => a.year - b.year);
+    if (spiderSig(shown) !== spider.sig) {
+      spiderfy(stack, spider.dx);
+      return;
+    }
+
+    // Same members: move and restyle the existing legs in place. Rebuilding them
+    // would close the popup open on a leg and reopen it on a new marker, which the
+    // reader sees as a flicker at the end of every fly or zoom.
+    spiderLegPoints(spider.center, spider.legs.length).forEach((ll, i) => {
+      const { r, m, line } = spider.legs[i];
+      m.setLatLng(ll);
+      line.setLatLngs([spider.center, ll]);
+      const sel = state.sel === r.id;
+      if (m._spiderSel !== sel) {
+        m._spiderSel = sel;
+        m.setIcon(spiderIcon(r, sel));
+        m.setZIndexOffset(markerZ(sel ? Z.sel : Z.fan, r, r.imp));
+      }
+      markerById[r.id] = m;
+    });
   }
 
-  // ---- Incremental marker ledger ----
-  // Keyed "siteKey@dx" — one entry per site per drawn world copy. A pass reconciles
-  // this ledger against the LOD verdict instead of tearing the layer down: a seal
-  // the reader can already see keeps its DOM node, its open popup and its fan, and
-  // only genuine arrivals and departures animate.
+  // ---- Incremental Marker Ledger ----
+
+  // Keyed "siteKey@dx", one entry per site per drawn world copy. A pass reconciles this
+  // ledger against the LOD verdict instead of tearing the layer down: a seal the reader can
+  // already see keeps its DOM node, popup and fan, and only genuine arrivals/departures animate.
   let _drawn = new Map();
 
   // Everything about an entry that the icon, tooltip, popup and paint order read.
@@ -1901,10 +2365,9 @@ const Atlas = (() => {
     requestAnimationFrame(() => el.classList.remove('mk-in'));
   }
 
-  // Departure is deferred by FADE_MS so the seal dissolves instead of blinking out.
-  // A marker re-admitted during that window cancels the timer and keeps its node,
-  // which is the whole point of the evict box: a pan that overshoots and comes back
-  // must not pay to rebuild every seal it crossed.
+  // Departure is deferred by FADE_MS so the seal dissolves instead of blinking out. A marker
+  // re-admitted during that window cancels the timer and keeps its node, the whole point of
+  // the evict box: an overshooting pan must not pay to rebuild every seal it crossed.
   function fadeOut(entry) {
     if (entry.fade) return;
     const el = entry.m.getElement && entry.m.getElement();
@@ -1969,6 +2432,7 @@ const Atlas = (() => {
 
   function drawMarkers() {
     if (!markerLayer) return;
+
     // A marker whose popup this pass rebuilds fires popupclose, which nulls the
     // module-level _popupRecId; capture it first and reopen afterwards.
     const reopen = _popupRecId;
@@ -1977,10 +2441,9 @@ const Atlas = (() => {
     const keepByKey = new Map(keep.map((s) => [s.key, s]));
     const want = new Set();
     admit.forEach((stack) => {
-      // One seal per visible world copy. Clicking a copy points markerById at THAT
-      // copy; a rebuild resets that, so the default claim goes to the copy nearest
-      // the view centre — never to whichever copy happened to be built first, which
-      // would reopen the popup a world away from the gesture.
+      // One seal per visible world copy. A rebuild resets which copy markerById points at,
+      // so the default claim goes to the copy nearest the view centre, never whichever copy
+      // happened to be built first (which would reopen the popup a world away).
       const offs = wrapOffsetsFor(stack.lon);
       const home = nearestDx(stack.lon, offs);
       offs.forEach((dx) => {
@@ -1991,6 +2454,7 @@ const Atlas = (() => {
         if (entry) cancelFade(entry);
         else entry = makeMarker({ key, stack, dx, sig: null, fade: null });
         entry.stack = stack;
+
         // Dress BEFORE the layer add on a fresh marker, or Leaflet's default pin
         // flashes for a frame in place of the seal.
         dressMarker(entry);
@@ -2003,9 +2467,9 @@ const Atlas = (() => {
         if (dx === home) stack.recs.forEach((r) => (markerById[r.id] = entry.m));
       });
     });
-    // Retain, don't rebuild: an entry this zoom still allows and that has not left
-    // the evict box is merely off-screen. Anything else — thinned out by a filter,
-    // by zoom, or dragged clean out of the evict box — fades and goes.
+
+    // Retain, don't rebuild: an entry this zoom still allows and that has not left the evict
+    // box is merely off-screen. Anything else fades and goes.
     _drawn.forEach((entry) => {
       if (want.has(entry.key)) return;
       const live = keepByKey.get(entry.stack.key);
@@ -2017,6 +2481,7 @@ const Atlas = (() => {
       if (entry.m.isPopupOpen && entry.m.isPopupOpen()) return; // never yank an open card
       fadeOut(entry);
     });
+
     // Off-screen retained markers answer for their records too, but only where an
     // on-screen copy has not already claimed them.
     _drawn.forEach((entry) => {
@@ -2025,31 +2490,35 @@ const Atlas = (() => {
         if (!markerById[r.id]) markerById[r.id] = entry.m;
       });
     });
+
     // rebuild an active fan against the fresh markers/zoom/filters
     respiderfy(admit);
-    // Reopen the record popup a repaint closed — AFTER respiderfy so a fanned marker
-    // exists in markerById. If LOD dropped it, markerById[reopen] is undefined → no
-    // reopen, which is the right thing (its marker is genuinely gone).
-    if (reopen && markerById[reopen]) openRecPopup(reopen);
+
+    // Reopen the record popup a repaint closed, after respiderfy so a fanned marker exists in
+    // markerById; if LOD dropped it, no reopen happens, which is correct. A popup this pass
+    // left open is not rewritten, since resetting its content would reflow it on screen.
+    if (reopen && markerById[reopen] && !markerById[reopen].isPopupOpen()) openRecPopup(reopen);
+
     // Permalink sync chokepoint: drawMarkers runs after nearly every state
     // change (civ/type/q filters, record/event select+clear, map move/zoom), so
     // one touch() here keeps the shareable URL current for all of them.
     if (window.Permalink) Permalink.touch();
+
     // Selecting or clearing an event switches WHICH clock downstream readers follow
     // (the event's instant vs. the needle's year), and a clear moves neither the
     // needle nor TimeState — so the same chokepoint has to announce it.
     _notifyFocus();
   }
 
-  // ---- Click-a-point local observation popup ----
-  // While an event is selected, a background map click asks ObservePanel what an
-  // observer at that point would witness (local contact times / next-visible),
-  // anchored by a lightweight observer marker. Cleared when the event deselects.
+  // ---- Click-A-Point Local Observation Popup ----
+
+  // While an event is selected, a background map click asks ObservePanel what an observer at
+  // that point would witness, anchored by a lightweight observer marker, cleared on deselect.
   let _obsMarker = null;
-  // maxWidth 600 clears the 580px .op-body (figure-column is sized to render the
-  // sky-path at ~12px text); Leaflet clamps content to [minWidth,maxWidth], so a
-  // lower ceiling would squeeze the card back down. minWidth 240 floors the
-  // figure-less not-visible card (op-body--full is width:auto ≈ 234px).
+
+  // Leaflet clamps popup content to [minWidth, maxWidth], so these straddle the observe
+  // card's own widths in css/app.css: the ceiling clear of the widest figure-bearing card, the
+  // floor under the figure-less not-visible card; a lower ceiling would squeeze content back down.
   const OBS_POPUP_OPTS = { className: 'observe-popup', closeButton: true, maxWidth: 600, minWidth: 240, autoPan: true };
   function observerIcon() {
     return L.divIcon({
@@ -2078,6 +2547,7 @@ const Atlas = (() => {
       });
       _obsMarker.addTo(map);
       _obsMarker.on('popupopen', (ev) => wireForecast(ev.popup));
+
       // Dismissing the card by its × leaves the marker in place, so drawMarkers
       // never runs and its touch() can't notice — stamp the URL from here instead.
       _obsMarker.on('popupclose', () => {
@@ -2090,10 +2560,9 @@ const Atlas = (() => {
     if (window.Permalink) Permalink.touch();
   }
 
-  // The observed point, for Permalink — null unless the card is actually open, so a
-  // dismissed card drops out of the URL. Reports the marker's own world-copy
-  // longitude (not the ±180 wrap showObservation derives for geometry) so a restore
-  // puts the pin back in the same copy the shared view frames.
+  // The observed point, for Permalink; null unless the card is actually open, so a dismissed
+  // card drops out of the URL. Reports the marker's own world-copy longitude, not the ±180
+  // wrap showObservation derives for geometry, so a restore lands in the same copy.
   function observePoint() {
     if (!_obsMarker || !_obsMarker.isPopupOpen()) return null;
     const ll = _obsMarker.getLatLng();
@@ -2114,6 +2583,7 @@ const Atlas = (() => {
           state.type = k;
           renderAll();
         }
+
         // Intentional jump: auto-expand the handle window to include the target year
         // so the event appears in the list and map after selection.
         const fy = parseInt(d, 10);
@@ -2149,14 +2619,9 @@ const Atlas = (() => {
     }
   }
 
-  // Library focus: while an event is selected, split the rail in two (records list → by
-  // link group; all-events → by evcard date/kind, which that rail carries directly). Cards
-  // outside the event get .dimmed; cards inside it get .linked, which holds the pale-green
-  // linkage tier with the pointer nowhere near the rail — setEventHighlight's .hl only
-  // survives while the pointer is on a card, so without this the sibling records of a
-  // selected event go bare the moment the reader moves away, and "who else recorded this
-  // eclipse" drops off screen right after the click that asked. The list stays full and
-  // scrollable — only the emphasis narrows.
+  // While an event is selected, split the rail into .dimmed/.linked cards (by link group for
+  // records, by evcard date/kind for all-events): setEventHighlight's .hl only survives while
+  // the pointer is on a card, so sibling records need this to stay marked once the pointer moves.
   function applyEventFocus() {
     const list = document.getElementById('list');
     if (!list) return;
@@ -2183,27 +2648,23 @@ const Atlas = (() => {
     });
   }
 
-  // ---- TIMELINE (plateau lens: locally-uniform focus + fisheye flanks) ----
+  // ---- Timeline: Plateau Lens ----
+
   const tl = () => document.getElementById('tlsvg');
-  // The plain Sarkar–Brown fisheye peaked at ~6× (≈1.1 px/yr at focus over the
-  // 5000-yr domain) — never enough to tell adjacent years apart. The lens now
-  // has a locally-UNIFORM plateau around the focus (PPY px per year across
-  // ±W_YR years, so single years are separable and clickable) and each flank
-  // is a Sarkar–Brown fisheye whose distortion is derived per draw such that
-  // the slope is CONTINUOUS at the plateau edge (no crease). Every piece is
-  // analytic and monotone, so yearFromX(tlX(y)) === y stays exact, and
-  // lens(f) === f preserves the needle-at-focus identity drawTimeline relies
-  // on. Focus stays decoupled from zoom (spec-locked).
+
+  // A plain Sarkar–Brown fisheye cannot magnify enough here to tell adjacent years apart, so
+  // the lens adds a locally-uniform plateau around the focus (PPY px/year across ±W_YR years)
+  // with a fisheye flank whose slope stays continuous at the edge, keeping yearFromX(tlX(y)) exact.
   const PPY = 6; // plateau resolution, px per year
   const W_YR = 12; // plateau half-width, years
   const TICK_STEPS = [1, 2, 5, 10, 20, 50, 100, 200, 500]; // fine-tick step tiers, coarsest last
   const MIN_GAP = 28; // px — legibility floor between adjacent fine-tick labels
   const fxSB = (u, d) => ((d + 1) * u) / (d * u + 1); // Sarkar–Brown response
   const invFxSB = (v, d) => v / (d + 1 - v * d);
-  // Per-frame lens parameters, memoised by (focus, innerH). Arms shrink near
-  // the domain edges so each flank keeps ≥20% of its side's pixel budget —
-  // that guard keeps dL/dR ≥ 0 (needs s ≥ 1, hence the clamp) and the mapping
-  // invertible everywhere.
+
+  // Per-frame lens parameters, memoised by (focus, innerH). Arms shrink near the domain edges
+  // so each flank keeps ≥20% of its side's pixel budget, which keeps dL/dR ≥ 0 (needs s ≥ 1,
+  // hence the clamp) and the mapping invertible everywhere.
   let _lensCache = { key: '', p: null };
   function lensParams(f, innerH) {
     const key = f + '|' + innerH;
@@ -2251,19 +2712,14 @@ const Atlas = (() => {
     return f + q.wr + invFxSB(v, q.dR) * q.nR;
   }
 
-  // Layout: one merged full-height band (shoujuan timeline), not a stack of strips.
-  // Top-register text (range yrs / millennium / fine ticks) shares ONE
-  // row above the band, collision-guarded by MEASURED width (interval ledger
-  // in drawTimeline — dynamic range labels win, fixed ticks yield). Event
-  // seals fan UPWARD from dotY; a dividerY rule marks the seal/dynasty-name
-  // boundary within the shared band. Cross-axis zones (Y) are EXPLICIT (not
-  // H-relative deltas). The main axis is X (year→x); the lens's innerH arg is
-  // just "main-axis pixel budget", so we feed it the width-derived iw.
+  // Layout: one merged full-height band, not a stack of strips. Top-register text shares one
+  // row above the band, collision-guarded by measured width. Event seals fan upward from
+  // dotY; dividerY marks the seal/dynasty-name boundary within the same band.
   let tlW = 800;
   const padL = 16,
     padR = 16,
-    focusYearY = 14, // focus-year label baseline — 3px gap above the fish-tail (bandTop-8=20)
-    regY = 21, // tick-label baseline (range yrs, millennium, fine); 3px gap to bandTop
+    focusYearY = 14, // focus-year label baseline, gap above the fish-tail
+    regY = 21, // tick-label baseline (range yrs, millennium, fine)
     bandTop = 25, // merged band top edge (yuwei tip lands here)
     dotY = 62, // event-dot baseline; fan stacks UPWARD, pitch 8, cap 4
     dividerY = 72, // register divider — event dots above, dynasty names below
@@ -2272,6 +2728,7 @@ const Atlas = (() => {
     H = 117;
   const FAN_PITCH = 8,
     FAN_CAP = 4;
+
   // yuwei (fish-tail folding mark, focus/selection alignment): notched top, tip
   // points down. Local coords: tip at (0,8); placed via translate(x, bandTop-8).
   const YUWEI = 'M-5 0 L0 2.5 L5 0 L0 8 Z';
@@ -2292,9 +2749,9 @@ const Atlas = (() => {
     return e;
   }
 
-  // ---- Cached canvas text measurement (top-register collision + name fit) ----
-  // Hit path is a bare-object property read; 60fps drag pays zero measureText
-  // after warmup (misses only on locale switch / first frame).
+  // ---- Cached Canvas Text Measurement ----
+
+  // Hit path is a bare-object property read; 60fps drag pays zero measureText after warmup.
   let _measCtx = null,
     _measCache = Object.create(null);
   function textW(str, font) {
@@ -2306,10 +2763,9 @@ const Atlas = (() => {
     return (_measCache[k] = _measCtx.measureText(str).width);
   }
 
-  // Canvas measurement fonts must match the .tl-* classes exactly or label-collision
-  // layout drifts from what renders. Read the sizes from the same tokens the CSS
-  // subscribes to rather than restating them. A restated literal cannot be enforced,
-  // and retuning the type scale would then silently mislay every timeline label.
+  // Canvas measurement fonts must match the .tl-* classes exactly or label-collision layout
+  // drifts from what renders, so sizes are read from the same tokens the CSS subscribes to
+  // rather than restated: a restated literal cannot be enforced against retuning the type scale.
   let _tlFonts = null;
   const tlFonts = () =>
     _tlFonts ||
@@ -2324,6 +2780,7 @@ const Atlas = (() => {
         era: note + ' ' + text,
       };
     })());
+
   // Webfont subsets stream in (font-display:swap): flush widths once per batch.
   if (document.fonts && document.fonts.addEventListener)
     document.fonts.addEventListener('loadingdone', () => {
@@ -2340,8 +2797,10 @@ const Atlas = (() => {
     svg.setAttribute('viewBox', '0 0 ' + tlW + ' ' + H);
     svg.setAttribute('height', H);
     svg.innerHTML = '';
-    // One computed-style read per frame (still every frame — that's the skin-
-    // follow contract — just merged into a single parse instead of ~10).
+
+    // Exactly one computed-style read per frame, and every frame: reading it each
+    // frame is the skin-follow contract, but the whole palette comes out of a single
+    // parse rather than one per token.
     const cs = getComputedStyle(document.body),
       cv = (n) => cs.getPropertyValue(n).trim();
     const panel = cv('--panel'),
@@ -2356,10 +2815,12 @@ const Atlas = (() => {
       lunar = cv('--lunar'),
       card = cv('--card');
     const iw = tlW - padL - padR;
+
     // 1 · band ground — one full-height body, square corners (R16)
     svg.appendChild(
       mk('rect', { x: 0, y: bandTop, width: tlW, height: bandBot - bandTop, fill: 'rgba(' + panel + ', .88)' })
     );
+
     // 1b · register divider: event seals (above) share the band with the
     // dynasty names (below) at no gap, but a tinted rule keeps the two
     // registers legible — distinct from the neutral --hair dynasty-column rules.
@@ -2374,6 +2835,7 @@ const Atlas = (() => {
         'stroke-opacity': 0.3,
       })
     );
+
     // 2 · jiege dynasty columns: alternating paper washes split by wusilan rules;
     // names measured-fit later so grid lines never strike through glyphs.
     // Only the current UI language's family is shown.
@@ -2413,6 +2875,7 @@ const Atlas = (() => {
         );
       names.push({ cx: (ex1 + ex2) / 2, w: ew, name: e[0] });
     });
+
     // 3 · filter window (accent, R8) + dimmed out-of-range flanks
     const rx0 = tlX(state.range[0]),
       rx1 = tlX(state.range[1]);
@@ -2448,6 +2911,11 @@ const Atlas = (() => {
         'fill-opacity': 0.06,
       })
     );
+
+    // Tick-label register: CE ticks stay bare numerals, BCE ticks carry the locale's era
+    // marker — a bare negative or a hard-coded Latin suffix would leak into CJK locales.
+    const bceTxt = (y) => (y <= 0 ? T('atlas.year.bce', { n: 1 - y }) : String(y));
+
     // 4 · 500-yr grid lines; millennium labels become top-register candidates
     const millCands = [];
     for (let y = -3000; y <= 2000; y += 500) {
@@ -2464,8 +2932,9 @@ const Atlas = (() => {
         })
       );
       if (y % 1000 !== 0) continue;
-      millCands.push({ x: xx, text: y <= 0 ? 1 - y + ' BCE' : y + '' });
+      millCands.push({ x: xx, text: bceTxt(y) });
     }
+
     // 5 · dynasty names, drawn over the grid, only where the measured name fits
     const eraFont = tlFonts().era;
     names.forEach((n) => {
@@ -2475,28 +2944,18 @@ const Atlas = (() => {
         svg.appendChild(t);
       }
     });
-    // 6 · fine plateau ticks hang from the band top; labels become candidates.
-    // Walk outward from the focus in both directions, escalating from a 1-yr step
-    // to coarser TICK_STEPS tiers whenever a full step's REAL pixel span (via
-    // tlX — never a flat px/yr guess) would crowd the next tick closer than
-    // MIN_GAP. The step has to escalate along the walk: one step sized off the
-    // plateau's own uniform rate covers the plateau and leaves the fisheye flanks
-    // with no fine ticks at all, however much pixel room they have.
-    // Candidates are collected nearest-focus-first, right/left interleaved, so the
-    // section-10 ledger's greedy fits() favours them over distant ones — the same
-    // liberal-generate/ledger-thins contract millCands relies on, so no separate
-    // label-thinning pass is needed here.
+
+    // 6 · fine plateau ticks hang from the band top. Walk outward from the focus, escalating
+    // to a coarser TICK_STEPS tier whenever a step's real pixel span (via tlX, never a flat
+    // px/yr guess) would crowd the next tick closer than MIN_GAP.
     const yF = Y0 + state.focusN * SPAN;
-    const bceTxt = (y) => (y <= 0 ? 1 - y + ' BCE' : String(y));
     const walkFine = (dir) => {
       const ys = [];
       let y = yF,
         stepIdx = 0;
       for (;;) {
-        // Probe a full step-width hop from the CURRENT walk position (not the
-        // next grid line) — probing the grid line would let the arbitrary
-        // phase offset between yF and that grid understate a coarse tier's
-        // true steady-state spacing and over-escalate right near the focus.
+        // Probe from the current walk position, never the next grid line: that would let the
+        // arbitrary phase offset between yF and the grid over-escalate right near the focus.
         while (stepIdx < TICK_STEPS.length - 1 && Math.abs(tlX(y + dir * TICK_STEPS[stepIdx]) - tlX(y)) < MIN_GAP)
           stepIdx++;
         const step = TICK_STEPS[stepIdx];
@@ -2528,6 +2987,7 @@ const Atlas = (() => {
         fineCands.push({ x: xx, text: bceTxt(y) });
       });
     }
+
     // 7 · event seals — fan stacks UPWARD from the dotY baseline, cap FAN_CAP.
     // The by-year index is module-cached so the hover tip reads it without a
     // redraw (rebuilt here on every draw, which every data change goes through).
@@ -2579,6 +3039,7 @@ const Atlas = (() => {
         svg.appendChild(g);
       });
     });
+
     // 8 · needles + yuwei alignment marks (bare <path> — never <g>: the gesture
     // code's closest('g') guard must keep matching dots only)
     const fx = padL + state.focusN * iw;
@@ -2606,6 +3067,7 @@ const Atlas = (() => {
         );
       }
     }
+
     // 9 · range handles (last, so they stay grabbable on top) — plain accent bars.
     // A wide transparent hit-casing behind each bar advertises the grab zone; the
     // actual hit-test is coordinate-based in wireTimelineGestures (±HIT px).
@@ -2630,16 +3092,10 @@ const Atlas = (() => {
         })
       ); /* handle = accent (R8) */
     });
-    // 10 · top register: interval-ledger label pass, strict priority —
-    // range labels (never dropped) → yuwei reserves → millennium → fine ticks.
-    // Density envelope: three dense anchors — the two domain edges and the focus —
-    // with required spacing swelling from G_MIN at each anchor to G_MAX across the
-    // flanks between them, so the label field reads as dense–sparse–dense rather
-    // than uniform. The spacing must be a NEAREST-ANCHOR function: that is what
-    // self-heals when the focus nears a rim, since the collapsing flank never
-    // reaches large d and no empty valley is forced onto a side with no room.
-    // DWELL matches the lens plateau's pixel half-width (W_YR·PPY), so the ramp
-    // thins only the flanks beyond the plateau.
+
+    // 10 · top register: interval-ledger label pass, strict priority (range labels never
+    // dropped → yuwei reserves → millennium → fine ticks). Spacing swells from G_MIN to G_MAX
+    // across the flanks as a nearest-anchor function of the domain edges and the focus.
     const ANCH = [padL, fx, tlW - padR],
       G_MIN = MIN_GAP,
       G_MAX = 110,
@@ -2652,13 +3108,10 @@ const Atlas = (() => {
     };
     const ledger = [],
       GAP = 6;
-    // A candidate fits only if, against EVERY placed label, it neither overlaps
-    // its box (GAP floor) nor sits closer than the local envelope gap from its
-    // centre. Governed by the candidate's own gapAt(cx): greedy fill runs
-    // outward from the anchors, so checking the incoming point's breathing room
-    // gives predictable, monotonic thinning (G is continuous across the focus
-    // anchor, so no seam). Never-dropped labels (range yrs, yuwei/sel reserves)
-    // skip this test but still carry a .cx so others yield around them.
+
+    // A candidate fits only if it neither overlaps a placed label's box (GAP floor) nor sits
+    // closer than gapAt(cx) from its centre. Never-dropped labels skip this test but still
+    // carry a .cx so others yield around them.
     const fits = (a, b, cx) => {
       const g = gapAt(cx);
       return ledger.every((o) => (b + GAP <= o[0] || a - GAP >= o[1]) && Math.abs(cx - o.cx) >= g);
@@ -2680,9 +3133,9 @@ const Atlas = (() => {
       const midX = (rx0 + rx1) / 2,
         txt = displayYear(state.range[0]) + '–' + displayYear(state.range[1]);
       const w = textW(txt, F.range);
-      // Same edge clamp as loA/hiA: a midpoint-anchored label near either
-      // strip edge would otherwise spill off-canvas (verified via
-      // browser repro at range≈[-2999,-2990] — bbox went to x=-28).
+
+      // Same edge clamp as loA/hiA: a midpoint-anchored label near either strip edge
+      // spills off-canvas, so pivot it to start/end anchoring there.
       const a = midX - w / 2 < padL ? 'start' : midX + w / 2 > tlW - padR ? 'end' : 'middle';
       const lx = a === 'start' ? padL : a === 'end' ? tlW - padR : midX;
       const rangeEl0 = mk('text', {
@@ -2698,6 +3151,7 @@ const Atlas = (() => {
     } else {
       const loTxt = displayYear(state.range[0]),
         hiTxt = displayYear(state.range[1]);
+
       // Offset by ±(bar half-width 3 − gap 2) = ±1 so the first/last glyph
       // aligns with the bar edge with 2px breathing room.
       const loEl = mk('text', {
@@ -2721,16 +3175,16 @@ const Atlas = (() => {
       svg.appendChild(hiEl);
       ledger.push(interval(rx1 + 1, hiA, textW(hiTxt, F.range)));
     }
-    // Focus-year seal: plain numeral matching the tick-label register (bceTxt,
-    // not the localized displayYear era-string), pinned at fx right above the
-    // yuwei — reads as "hugging the seam" in a single line instead of an
-    // orphaned caption in its own row. Never dropped, edge-clamped like the
-    // range labels.
+
+    // Focus-year seal in the tick-label register (bceTxt: bare numeral for CE, no "CE" prefix
+    // as displayYear would add), pinned at fx above the yuwei. Never dropped, edge-clamped
+    // like the range labels.
     const nowTxt = bceTxt(Math.round(yF)),
       nowW = textW(nowTxt, F.range);
     const nowA = fx - nowW / 2 < padL ? 'start' : fx + nowW / 2 > tlW - padR ? 'end' : 'middle';
     const nowX = nowA === 'start' ? padL : nowA === 'end' ? tlW - padR : fx;
     const nowIv = interval(nowX, nowA, nowW);
+
     // Hide focus-year label when it overlaps a range label (already in ledger).
     // Still reserve a narrow fish-tail slot so tick labels don't land on the needle.
     const nowCollides = ledger.some((o) => nowIv[0] - GAP < o[1] && nowIv[1] + GAP > o[0]);
@@ -2755,6 +3209,7 @@ const Atlas = (() => {
       sR.cx = selX;
       ledger.push(sR);
     }
+
     // Edge-anchor flip (same trick as loA/hiA above): a tick sitting within
     // ~34px of either strip edge would spill half its middle-anchored text
     // past padL/padR, so it pivots to start/end anchoring right at the edge.
@@ -2778,12 +3233,11 @@ const Atlas = (() => {
     updateReccount();
   }
 
-  // nianhaoYear/cjkOrdinal are kept for the event-card year label; there is no
-  // timeline-side call site for them here — a focus-year readout may get a
-  // new home later (2026-07-11: deferred, not in scope for this redesign).
+  // nianhaoYear/cjkOrdinal serve the event-card year label; nothing on the timeline
+  // side calls them.
   let raf = null,
     dragging = null;
-  let _byYear = {}; // year → records index, rebuilt by drawTimeline; read by the hover tip
+  let _byYear = {}; // year → records index, rebuilt by drawTimeline
   function schedule() {
     if (!raf)
       raf = requestAnimationFrame(() => {
@@ -2854,9 +3308,8 @@ const Atlas = (() => {
     }
   }
 
-  // Heavy refresh (full list rebuild + Leaflet marker churn) is far too costly
-  // to run per pointermove during a range drag (renderList rebuilds ~1200
-  // cards). Debounce it so the drag stays smooth; a final sync fires on
+  // Never run the heavy refresh (full list rebuild + Leaflet marker churn) per pointermove
+  // during a range drag. Debounced so the drag stays smooth; a final sync fires on
   // pointerup/pointercancel via heavyRefreshNow.
   let heavyTimer = null;
   function heavyRefreshSoon() {
@@ -2887,11 +3340,9 @@ const Atlas = (() => {
     return null;
   }
 
-  // Pointer Events (mouse + touch + pen) with pointer capture, so a drag keeps
-  // tracking even when the cursor leaves the SVG. The lens ONLY recenters while
-  // the empty band is pressed/dragged (aiming the plateau) or a dot is selected
-  // — grabbing a range handle leaves the axis frozen so the user adjusts the
-  // boundary in the already-magnified region. Plain hover never moves focusN.
+  // Pointer Events with pointer capture, so a drag keeps tracking even when the cursor leaves
+  // the SVG. The lens only recenters while the empty band is dragged or a dot is selected;
+  // grabbing a range handle leaves the axis frozen. Plain hover never moves focusN.
   function wireTimelineGestures() {
     const svg = tl();
     if (!svg) return;
@@ -2905,6 +3356,7 @@ const Atlas = (() => {
         // Dot <g> elements own their clicks — a redraw here would destroy the
         // element before its click event fires, breaking dot selection.
         if (ev.target.closest('g')) return;
+
         // A click outside the filter-handle window is ignored (needle stays
         // put), mirroring the pointermove clamp so click and drag share one
         // boundary. Range handles and out-of-window dots stay clickable above.
@@ -2924,21 +3376,19 @@ const Atlas = (() => {
     svg.addEventListener('pointermove', (ev) => {
       const mx = localX(ev);
       if (dragging === 'focus') {
-        // Aim-the-lens drag: focus follows the finger but is clamped to [lo, hi]
-        // in normalised-year space so the lens needle never visually crosses a
-        // range handle. When focusN = normYear(handle), lens(f,f,iw)=f (fixed-
-        // point identity), so needle and handle share the exact same pixel.
+        // Aim-the-lens drag: focus follows the finger but is clamped to [lo, hi] in
+        // normalised-year space so the needle never visually crosses a range handle, since
+        // lens(f,f,iw)=f means needle and handle share the exact same pixel there.
         const rawN = Math.max(0, Math.min(1, (mx - padL) / (tlW - padL - padR)));
         setFocusTarget(Math.max(normYear(state.range[0]), Math.min(normYear(state.range[1]), rawN)));
         return;
       }
       if (dragging) {
-        // Axis-frozen handle drag (scheme B): focus stays put so the axis never
-        // warps while the user repositions a range boundary. Pixel-space collision:
-        // each handle stops when within HIT*2 px of the other; when blocked the
-        // range isn't updated. No setFocusTarget here — user aims the lens first
-        // by dragging the empty band, then adjusts handles in the magnified zone.
+        // Axis-frozen handle drag: focus stays put so the axis never warps while a range
+        // boundary moves. Each handle stops when within HIT*2 px of the other, and the range
+        // is not updated when blocked. No setFocusTarget here: the lens is aimed separately.
         const y = Math.max(Y0, Math.min(Y1, yearFromX(mx)));
+
         // Focus needle pixel: lens(f,f)=f fixed-point, so needle x = padL + focusN*iw.
         const fnx = padL + state.focusN * (tlW - padL - padR);
         if (dragging === 'lo') {
@@ -2952,6 +3402,7 @@ const Atlas = (() => {
         schedule(); // no focus animator during handle drags — schedule directly
         return;
       }
+
       // Plain hover (not dragging): no focus movement, no redraw — only the
       // rAF-throttled year/count tip.
       if (!_tipRaf)
@@ -2979,10 +3430,10 @@ const Atlas = (() => {
     svg.addEventListener('pointercancel', endDrag);
   }
 
-  // ---- LIBRARY (facets + translation-first cards) ----
-  // Single-select civ filter as a one-line horizontally-scrollable chip row: a
-  // leading "All" chip (state.civ == null) then one chip per present civ. Picking
-  // a civ sets state.civ to that key; picking "All" clears it back to null.
+  // ---- Library: Facets And Translation-First Cards ----
+
+  // Single-select civ filter as a one-line scrollable chip row: a leading "All" chip then one
+  // per present civ. Picking a civ sets state.civ to its key; "All" clears it back to null.
   function renderCivFilter() {
     const box = document.getElementById('civscroll');
     if (!box) return;
@@ -3010,17 +3461,17 @@ const Atlas = (() => {
     });
   }
 
-  // ---- Shared list pager (records + all-events) ----
+  // ---- Shared List Pager ----
+
   // The current mode's full sorted array; only a [winStart,winEnd) slice renders.
   const recsSorted = () =>
     visibleRecords().sort((a, b) => a.year - b.year || (a.date || '').localeCompare(b.date || ''));
   const currentArray = () => (state.mode === 'events' ? evAll() : recsSorted());
   const yearOf = (item) => (state.mode === 'events' ? _eventYear(item.date) : item.year);
-  // Seed key = the filter fingerprint that defines the array. Any change (mode,
-  // type, civ, query, range, site) re-seeds the window centered on the focus;
-  // an unchanged key preserves the window so load-more / wheel paging survives a
-  // re-render (locale switch, heavyRefresh). Note it includes the mode prefix, so
-  // toggling records↔all-events always re-seeds.
+
+  // Seed key = the filter fingerprint that defines the array. Any change re-seeds the window
+  // centered on the focus; an unchanged key preserves it so load-more/wheel paging survives a
+  // re-render. Includes the mode prefix, so toggling records↔all-events always re-seeds.
   function seedKeyNow() {
     return state.mode === 'events'
       ? 'ev|' + state.type + '|' + state.q
@@ -3030,32 +3481,24 @@ const Atlas = (() => {
   function seedWindow(arr) {
     const len = arr.length,
       key = seedKeyNow();
-    // A window seeded against an EMPTY array is 0..0, and the key it caches is the same key
-    // the filled array produces — so without this the register that arrived late (a shard
-    // streaming in behind first paint) keeps rendering nothing while the count reads 152.
-    // Re-seeding is safe here precisely because the cached window holds no card that a
-    // reader could be looking at.
+
+    // A window seeded against an empty array is 0..0 and caches the same key the filled array
+    // produces, so it must be invalidated the moment the array fills, e.g. when a shard streams
+    // in behind first paint; safe since the cached window holds no card a reader could be viewing.
     if (winStart === winEnd && len) winSeedKey = null;
     if (winSeedKey !== key) {
-      // Snap exactly to the current selection for this array when there is one
-      // — e.g. switching records↔all-events with an event/record already selected should
-      // land exactly on its card, not just "nearby by year" (same-year ties
-      // would drift a few rows off). Falls back to the focus-year approximation
-      // otherwise. This is what makes the OTHER mode's window end up correctly
-      // centered "in the background" without select()/selectEvent() having to
-      // reach across and poke the other mode's window directly (they'd fight
-      // over the same winStart/winEnd globals — see centerEventWindow/
-      // centerRecordsWindow below, which are for the CURRENT mode only).
+      // Snap exactly to the current selection when there is one, so switching records↔events
+      // with a record already selected lands on its exact card, not "nearby by year"; this is
+      // what centers the other mode's window without fighting over the same winStart/winEnd.
       let cur = -1;
       if (state.mode === 'events' && state.selEv) {
         cur = arr.findIndex((e) => evKey(e.date, e._kind) === state.selEv);
       } else if (state.mode === 'records' && state.sel) {
         cur = arr.findIndex((r) => r.id === state.sel);
       }
-      // A rank-ordered all-events result is a hit list, not a stretch of the
-      // timeline: open it at the top. Scanning for the focus year would both be
-      // meaningless (the array is no longer chronological) and bury the literal
-      // year the reader typed under the decades and centuries beneath it.
+
+      // A rank-ordered all-events result is a hit list, not a stretch of the timeline: open it
+      // at the top. Scanning for the focus year would be meaningless on a non-chronological array.
       if (cur < 0 && state.mode === 'events' && evQueryRanked) cur = 0;
       if (cur < 0) {
         const fy = Y0 + state.focusN * SPAN;
@@ -3065,6 +3508,7 @@ const Atlas = (() => {
       winStart = Math.max(0, cur - INITIAL_BEFORE);
       winEnd = Math.min(len, cur + INITIAL_AFTER);
       winSeedKey = key;
+
       // Park the render on the focus row rather than on the window's first row:
       // the earlier half is context to scroll back into, not the opening view.
       winFocusRow = cur - winStart;
@@ -3076,7 +3520,7 @@ const Atlas = (() => {
 
   // Load-earlier prepends (list grows upward) → restore scrollTop by the height
   // delta or the viewport jumps. Load-later appends — no fixup. Both trim the far
-  // edge to hold the window at MAX_WINDOW, mirroring SubstellarAtlas's controller.
+  // edge to hold the window at MAX_WINDOW.
   function pageEarlier() {
     if (winStart <= 0) return;
     const list = document.getElementById('list');
@@ -3085,6 +3529,7 @@ const Atlas = (() => {
     if (winEnd - winStart > MAX_WINDOW) winEnd = winStart + MAX_WINDOW;
     renderList();
     if (list) list.scrollTop += list.scrollHeight - h0;
+
     // renderList already drew the bands, but it measured the rail before this
     // scrollTop restore — redraw against the position the reader ends up at.
     drawBands();
@@ -3113,10 +3558,9 @@ const Atlas = (() => {
     }
   }
 
-  // Wheel-to-edge auto-load: keep-scrolling intent at a list boundary pages the
-  // window and flashes the chevron. 'wheel' (not 'scroll') because scroll stops
-  // firing at the boundary — wheel keeps firing, so it detects the intent. One
-  // listener on the persistent #list element survives every innerHTML rebuild.
+  // Wheel-to-edge auto-load: keep-scrolling intent at a list boundary pages the window and
+  // flashes the chevron. 'wheel', not 'scroll', because scroll stops firing at the boundary
+  // while wheel keeps firing. One listener on the persistent #list survives every rebuild.
   let _wheelCool = false;
   const WHEEL_COOLDOWN_MS = 400;
   function flashBtn(id) {
@@ -3164,6 +3608,7 @@ const Atlas = (() => {
     const row = winFocusRow;
     winFocusRow = -1;
     if (row <= 0) return;
+
     // Two rows of lead-in above the focus card, not zero: a list that opens flush
     // on its target reads as the beginning of the corpus, hiding the fact that
     // earlier records exist and that scrolling up reaches them.
@@ -3178,12 +3623,13 @@ const Atlas = (() => {
     const list = document.getElementById('list');
     if (!list) return;
     list.innerHTML = '';
-    // Chronological (oldest→newest), same-year ties by ISO date — matches the
-    // bottom lizhou's left-old→right-new reading. Windowed to a page centered on the
-    // focus, paged by the chevrons / wheel (identical machinery to all-events).
+
+    // Chronological (oldest→newest), same-year ties by ISO date, matching the lizhou's
+    // left-old→right-new reading. Windowed to a page centered on the focus.
     const recs = recsSorted();
     seedWindow(recs);
     updateReccount();
+
     // Empty shelf (a type not yet collected, or filters/search matching nothing):
     // a quiet centered note rather than a blank leaf. Loop below no-ops.
     if (!recs.length) list.innerHTML = '<div class="list-empty">' + _esc(T('atlas.empty')) + '</div>';
@@ -3192,6 +3638,7 @@ const Atlas = (() => {
       const card = document.createElement('div');
       card.className = 'reccard' + (state.sel === rec.id ? ' sel' : '');
       card.dataset.id = rec.id;
+
       // The quewei frame for an unwitnessed sighting rides on the era tag (see eraAttrs).
       // It stays on the always-visible rc-top row rather than the folded detail, so an
       // unlit contact path never reads as a bug on a collapsed card.
@@ -3215,24 +3662,27 @@ const Atlas = (() => {
         // `solo` lets it stand in for the missing preview, set in the translation's style.
         (trans ? '' : ' solo') +
         '">' +
-        paraHtml(rec.orig, highlightPhrase) +
+        paraHtml(rec.orig, (s) => highlightPhrase(s, rec.type), rec.orig) +
         '</div>' +
         '<div class="rc-src">' +
         sourceLabel(rec, state.lang) +
         '</div>' +
         (noteLabel(rec, state.lang) ? '<div class="rc-note">' + noteLabel(rec, state.lang) + '</div>' : '');
+
       // A drag to select the source text (or a click on the citation link) must
       // NOT be hijacked into a card-select: that redraws the list and would wipe
       // the user's selection, making the text impossible to copy.
       card.onclick = (e) => {
         if (!window.getSelection().isCollapsed) return;
         if (e.target.closest('a')) return;
+
         // A touch tap on an elided place name is asking for the withheld name, not
         // for the record — glossary-tip is opening its card on this same gesture,
         // and selecting would move the lens and the map out from under it.
         if (_touchTap && e.target.closest('.rc-place[data-gloss]')) return;
         select(rec.id);
       };
+
       // Reverse cross-highlight: hovering a card lights the sibling records of the
       // same event (other vantages on it), its marker, and — for solar — its band.
       card.onmouseenter = () => setEventHighlight(rec.date, rec.type, true, rec);
@@ -3246,100 +3696,41 @@ const Atlas = (() => {
     applyEventFocus();
   }
 
-  // ---- All-events (all eclipse events, paged) ----
-  // A chronological running-log of EVERY eclipse of the selected kind — with or
-  // without a curated record — windowed around the lizhou focus and paged by the
-  // load-earlier / load-later chevrons (ported windowing from SubstellarAtlas's
-  // makeListController, reskinned to the Song card chrome).
+  // ---- All-Events (Every Eclipse, Paged) ----
+
+  // A chronological running-log of every eclipse of the selected kind, with or without a
+  // curated record, windowed around the lizhou focus and paged by the load chevrons.
   const evKey = (dateStr, kind) => dateStr + '|' + kind;
+
   // Kinds with a checked-in event catalogue (solar.json / lunar.json). The other
   // type slips (yanfan/kexing/huibo) have no catalogue at all — an empty evAll() for them
   // is a real empty shelf, NOT the boot race below, and must never enter the retry.
   const EV_CATALOGUED = { solar: true, lunar: true };
-
-  // The records list searches prose (place / source / text); an all-events row has
-  // no prose, so the same query box matches the two things its card actually
-  // shows — the eclipse type and the date. Tokens are AND-ed, so "日全食 1178"
-  // narrows on both at once.
-  const _EV_YMD = /^(-?\d+)-(\d{2})-(\d{2})$/;
 
   // Set by evAll(): whether its last result was ordered by match rank instead of
   // chronologically. seedWindow reads it — a ranked list is a search result and
   // must open on its best matches, not on the lizhou focus year.
   let evQueryRanked = false;
 
-  // An event's date as the reader would write it: the year sign-plus-digits with
-  // the zero padding dropped ("-000762-06-07" → "-762"), month and day as
-  // numbers. The year is a STRING because matching it is a prefix test.
-  function _evYmd(iso) {
-    const m = _EV_YMD.exec(iso || '');
-    if (!m) return null;
-    const sign = m[1][0] === '-' ? '-' : '';
-    return { y: sign + (m[1].replace(/^-?0*/, '') || '0'), mo: +m[2], d: +m[3] };
-  }
-
-  // One date token, in whatever shape a reader types it: written ("1178年3月21日"),
-  // slashed ("1178/03/21"), dashed ("1178-3-21"), dotted, or truncated to
-  // year-month or bare year. A leading 前 / 公元前 becomes the astronomical minus
-  // sign, which is how the catalogue keys BCE years. Returns null for anything
-  // that isn't a date, so the caller can fall through to the type-name match.
-  function _parseDateQ(tok) {
-    const s = tok
-      .replace(/^(?:公元)?前/, '-')
-      .replace(/日/g, '')
-      .replace(/[年月．./／]/g, '-')
-      .replace(/-+$/, '');
-    const m = /^(-?)(\d{1,6})(?:-(\d{1,2}))?(?:-(\d{1,2}))?$/.exec(s);
-    if (!m) return null;
-    return {
-      y: m[1] + (m[2].replace(/^0*/, '') || '0'),
-      mo: m[3] == null ? null : +m[3],
-      d: m[4] == null ? null : +m[4],
-    };
-  }
-
-  // Split the query once per keystroke rather than once per event — the loop
-  // below runs over the whole catalogue (tens of thousands of rows) on every
-  // character typed. Tokens are AND-ed, so "日全食 1178" narrows on type and date
-  // at once; each is read as a date if it parses as one, otherwise as a word.
-  function _parseQuery(q) {
-    const dates = [],
-      words = [];
-    for (const tok of q.toLowerCase().split(/[\s,，、]+/)) {
-      if (!tok) continue;
-      const d = _parseDateQ(tok);
-      if (d) dates.push(d);
-      else words.push(tok);
-    }
-    return { dates, words };
-  }
-
-  // Match rank, or -1 for no match. 0 means the reader typed the year exactly; n
-  // means the event's year carries n further digits — "18" ranks year 18 at 0,
-  // 18X at 1, 18XX at 2. That is what orders the list, so a half-typed year
-  // still finds its decade and century without burying the literal year.
+  // An all-events row has no prose, so tokens match its type and date. Rank is -1 for no match,
+  // else how many digits the event's year runs past the typed one: a half-typed year still finds
+  // its decade and century without burying the literal year.
   function evMatchQ(e, parsed) {
     if (parsed.words.length) {
       const kindKey = String(e.kind || '').toLowerCase();
-      // Only the active locale's dictionary is loaded, so the type name matches
-      // in the language on screen; the raw kind token ("total", "annular") keeps
-      // the same filter reachable from an English keyboard whatever that
-      // language is.
+
+      // Only the active locale's dictionary is loaded, so the type name matches in the
+      // language on screen; the raw kind token keeps the filter reachable from an English keyboard.
       const label = T('eclipse.type.' + e._kind + '.' + kindKey).toLowerCase();
       for (const w of parsed.words) if (!label.includes(w) && !kindKey.includes(w)) return -1;
     }
     if (!parsed.dates.length) return 0;
-    const ymd = _evYmd(e.date);
-    if (!ymd) return -1;
+    const forms = _ymdForms(e.date);
     let rank = 0;
-    for (const d of parsed.dates) {
-      // The year is a prefix test — and the sign rides in the string, so "18"
-      // cannot reach -18 and "-7" cannot reach 762. Month and day, once typed,
-      // are exact: "3月" means March, not the 3rd through 3Xth month.
-      if (ymd.y.indexOf(d.y) !== 0) return -1;
-      if (d.mo != null && ymd.mo !== d.mo) return -1;
-      if (d.d != null && ymd.d !== d.d) return -1;
-      rank = Math.max(rank, ymd.y.length - d.y.length);
+    for (const alts of parsed.dates) {
+      const r = _dateRank(forms, alts);
+      if (r < 0) return -1;
+      rank = Math.max(rank, r);
     }
     return rank;
   }
@@ -3360,6 +3751,7 @@ const Atlas = (() => {
       hits.push({ e, rank });
     }
     evQueryRanked = ranked;
+
     // Sort is stable, so within a rank the catalogue's chronological order
     // stands. Skipped entirely when nothing outranks anything (no date token, or
     // a fully typed year), leaving the plain chronological list untouched.
@@ -3377,6 +3769,7 @@ const Atlas = (() => {
       updateLoadBtns(0);
       return;
     }
+
     // Boot-race check uses the raw (unfiltered) catalogue: a zero-length result
     // here means the catalogue hasn't arrived yet, not that the range is empty.
     const raw = (window.EclipseLoader && EclipseLoader.all ? EclipseLoader.all() : []).filter((e) => e._kind === kind);
@@ -3389,6 +3782,7 @@ const Atlas = (() => {
       }, 200);
       return;
     }
+
     // Range filter applied after boot-race check — a legitimately empty window
     // shows the empty shelf rather than spinning forever.
     const all = evAll();
@@ -3398,7 +3792,7 @@ const Atlas = (() => {
       return;
     }
     seedWindow(all); // focus-centered on (re)entry; preserved across paging
-    updateReccount(); // all-events tally = the whole catalogue of this kind (parallels renderList)
+    updateReccount(); // all-events tally = whole catalogue of this kind
     list.innerHTML = '';
     for (let i = winStart; i < winEnd; i++) {
       const e = all[i];
@@ -3406,6 +3800,7 @@ const Atlas = (() => {
       const mag = e.magnitude == null || !isFinite(+e.magnitude) ? '—' : (+e.magnitude).toFixed(3);
       const recs = recordsForEvent(e.date, kind);
       const n = recs.length;
+
       // Deduplicate to one seal per civilization and render inline right of the date.
       const civs = [...new Set(recs.map((r) => r.civ).filter(Boolean))];
       const sealsHtml =
@@ -3428,6 +3823,7 @@ const Atlas = (() => {
       card.className = 'evcard' + (isSel ? ' sel expanded' : '') + (n ? '' : ' ev-norec');
       card.dataset.date = e.date;
       card.dataset.kind = kind;
+
       // .ec-detail holds the inline science/records body, filled only when selected;
       // js/event-panel.js builds that HTML.
       const peakLine = window.Sidebar && Sidebar.peakLineHtml ? Sidebar.peakLineHtml(e, kind) : '';
@@ -3458,6 +3854,7 @@ const Atlas = (() => {
         '</div>' +
         '<div class="ec-detail"></div>';
       if (isSel) fillEventDetail(card, e, kind);
+
       // Click the summary area toggles selection (re-click collapses); clicks
       // inside .ec-detail (nav / records / contacts) handle themselves.
       card.onclick = (ev) => {
@@ -3466,6 +3863,7 @@ const Atlas = (() => {
         if (state.selEv === evKey(e.date, kind)) clearEventSel();
         else selectEvent(e.date, kind);
       };
+
       // Reverse cross-highlight: hovering an event card lights its records and, for
       // a central solar event, its band. No CENTRAL_KINDS gate — a non-central
       // event simply has no band layer to find, and its records still light.
@@ -3504,9 +3902,9 @@ const Atlas = (() => {
     renderList();
   }
 
-  // elephantine corner nav nav glyphs: prev/next chevrons + close cross, all drawn on one 24×24
-  // viewBox with a single stroke so they read at an identical visual size. The
-  // blank-spine divider + corner-nail nails are pure CSS on .ev-strip-nav button; glyphs stay geometric.
+  // Corner-nav glyphs: prev/next chevrons + close cross, all drawn on one 24×24 viewBox with a
+  // single stroke so they read at an identical visual size. The divider and corner nail are
+  // pure CSS on .ev-strip-nav; glyphs stay geometric.
   const NAV_GLYPH = {
     prev: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 8 12 15 18"/></svg>',
     next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6 16 12 9 18"/></svg>',
@@ -3527,17 +3925,15 @@ const Atlas = (() => {
       strip = document.createElement('div');
       strip.id = 'ev-strip';
       (document.getElementById('map') || document.body).appendChild(strip);
-      // The strip lives INSIDE the Leaflet container (so it anchors to the map, not
-      // the page), which means a mousedown on its text bubbles up to Leaflet's own
-      // drag handler and gets hijacked into a map pan instead of a text selection.
-      // disableClickPropagation/disableScrollPropagation (Leaflet's own control-layer
-      // fix for exactly this) stop that bubbling so the strip behaves like ordinary
-      // page text — selectable/copyable — while clicks elsewhere on the map still
-      // drag/zoom normally.
+
+      // The strip lives inside the Leaflet container so it anchors to the map, which means a
+      // mousedown on its text would bubble into Leaflet's own drag handler as a map pan.
+      // disableClickPropagation/disableScrollPropagation stop that so the strip stays selectable.
       if (window.L && L.DomEvent) {
         L.DomEvent.disableClickPropagation(strip);
         L.DomEvent.disableScrollPropagation(strip);
       }
+
       // Delegated click: ‹ / × / › buttons share one handler on the container.
       strip.addEventListener('click', (ev) => {
         ev.stopPropagation();
@@ -3552,10 +3948,12 @@ const Atlas = (() => {
     const bar = state.selEv.lastIndexOf('|');
     const dateStr = state.selEv.slice(0, bar),
       kind = state.selEv.slice(bar + 1);
+
     // kexing/huibo are transients (kind = phenomenon): no eclipse event, so read the
     // record instead and take the year from its own date (else the chronicle line
     // stays blank because y was derived from the missing event).
     const isTransient = kind !== 'solar' && kind !== 'lunar';
+
     // Prefer the specific selected record (state.sel = record_id) so that multiple
     // records sharing the same year-only event_date are each resolved individually.
     // recordByKey is a coarser fallback for the rare case where sel lags behind selEv.
@@ -3566,6 +3964,7 @@ const Atlas = (() => {
       : null;
     const e = isTransient ? null : eventByKey(dateStr, kind);
     const y = e ? _eventYear(e.date) : _eventYear(dateStr);
+
     // 30px glyph: eclipse figure, or a kexing/huibo emblem — either way it fills (and
     // reserves) the same slot beside the two rows.
     const glyph = isTransient
@@ -3575,6 +3974,7 @@ const Atlas = (() => {
       : e && typeof EclipseGlyph !== 'undefined' && EclipseGlyph.render
         ? EclipseGlyph.render(e, { size: 30, idPrefix: 'strip-' })
         : '';
+
     // Line-1 tail after the date: for an eclipse, type + magnitude; for a transient,
     // modern name + designation|unconfirmed (see transientL1).
     let l1extra;
@@ -3583,6 +3983,7 @@ const Atlas = (() => {
     } else {
       const kindKey = e ? String(e.kind || '').toLowerCase() : '';
       const typeLabel = kindKey ? T('eclipse.type.' + kind + '.' + kindKey) : '';
+
       // Magnitude (magnitude): 3 decimals with its label so the bare number reads clearly.
       const rawMag = e ? e.magnitude : null;
       const magStr =
@@ -3597,10 +3998,10 @@ const Atlas = (() => {
           : '') +
         (magStr ? ' · <span class="ev-strip-mag"' + _gloss('ecl_magnitude') + '>' + _esc(magStr) + '</span>' : '');
     }
-    // Chronicle line (shilu): reign-era + reckoned lunisolar/ganzhi (CJK) or period +
-    // year (Western). Already HTML — may carry the vermilion (zhu) anchor span.
-    // The peak instant is what the CJK branch shifts into East-8; solar and lunar
-    // events file it under different keys, and transients have none.
+
+    // Chronicle line (shilu): reign-era + reckoned lunisolar/ganzhi (CJK) or period + year
+    // (Western), already HTML. The peak instant is what the CJK branch shifts into East-8;
+    // solar and lunar events file it under different keys, and transients have none.
     const peakIso = e ? (e.peak && e.peak.time) || (e.times && e.times.peak) || null : null;
     const chronicle = chronicleStr(
       y,
@@ -3611,13 +4012,14 @@ const Atlas = (() => {
       isTransient ? trec && trec.lunarMonth : null,
       peakIso
     );
+
     // shu'er label: CJK/ja keep the upright vertical jingguan; Western get a short spine label
-    // (ear.now.short) so long words (fr "Maintenant") can't overflow the tab.
-    // ear.now.short is deliberately a Latin-script-only key: never read it on the CJK
-    // branch, where it resolves to nothing and the tab would echo the key itself.
+    // so long words (fr "Maintenant") can't overflow the tab. ear.now.short is deliberately
+    // Latin-script-only; never read on the CJK branch, where it would echo the key itself.
     const tabLabel = isZh(state.lang) || state.lang === 'ja' ? T('ear.now') : T('ear.now.short');
     const canPrev = !!stepSelection(-1, { peek: true });
     const canNext = !!stepSelection(1, { peek: true });
+
     // Two registers stacked in .ev-strip-lines: the science row (ISO · type · magnitude)
     // over the chronicle row; the glyph is a quandian centered against the pair.
     strip.innerHTML =
@@ -3671,6 +4073,7 @@ const Atlas = (() => {
     const box = card.querySelector('.ec-detail');
     if (!box) return;
     box.innerHTML = window.Sidebar && Sidebar.detailHtml ? Sidebar.detailHtml(e, domain) : '';
+
     // Linked-record rows → switch to records mode (so the record card is visible), select.
     box.querySelectorAll('.ep-rec').forEach((r) => {
       const go = (ev) => {
@@ -3702,15 +4105,13 @@ const Atlas = (() => {
     if (card) fillEventDetail(card, eventByKey(dateStr, kind), kind);
   }
 
-  // all-events window centering for the CURRENT mode only: when all-events is already the
-  // active view and the given event's card falls outside the rendered window
-  // (e.g. stepping to a far neighbour, or a forecast-popup pick), re-seed
-  // winStart/winEnd on its exact index and report true so the caller rebuilds.
-  // Cross-mode centering (when selected while another mode is active) is NOT this function's job — that's
-  // handled lazily by seedWindow()'s selection-aware snap above, the moment the
-  // reader actually switches modes. Doing it here too would fight over the same
-  // winStart/winEnd globals with centerRecordsWindow() below (whichever ran
-  // last would clobber the other's window before either mode was ever shown).
+  // all-events window centering for the current mode only: when all-events is already active
+  // and the event's card falls outside the rendered window, re-seed winStart/winEnd on its
+  // exact index and report true so the caller rebuilds.
+
+  // Cross-mode centering is not this function's job; that is handled lazily by seedWindow's
+  // selection-aware snap when the reader switches modes. Doing it here too would fight over
+  // the same winStart/winEnd globals with centerRecordsWindow() below.
   function centerEventWindow(dateStr, kind) {
     if (state.mode !== 'events' || kind !== state.type) return false;
     const all = evAll();
@@ -3734,12 +4135,9 @@ const Atlas = (() => {
     return true;
   }
 
-  // Select an EVENT (record or not): drive the engine's contact curves via
-  // EclipseLoader (which also flies the map to the greatest-eclipse point —
-  // unlike select()'s records, an event has no single "don't jump" record
-  // marker to preserve), glide the lens, and move the .sel highlight in place
-  // (no list rebuild → scroll + any text selection survive), expanding its
-  // inline detail.
+  // Select an event (record or not): drive the engine's contact curves via EclipseLoader
+  // (which also flies the map to the greatest-eclipse point), glide the lens, and move the
+  // .sel highlight in place, without a list rebuild, so scroll and text selection survive.
   function selectEvent(dateStr, kind) {
     clearObservation(); // a prior point's read-out was for the old event
     state.selEv = evKey(dateStr, kind);
@@ -3748,14 +4146,14 @@ const Atlas = (() => {
     if (window.EclipseLoader && EclipseLoader.selectByDate) {
       EclipseLoader.selectByDate(dateStr, kind); // curves + TimeState + fly to peak
     }
+
     // all-events window centering, only meaningful when all-events is already the active
     // view (see centerEventWindow's own comment for the cross-mode case).
     if (centerEventWindow(dateStr, kind)) renderEventList();
-    // records follow-through: if this event has a matching record, select it too
-    // (state.sel) so switching to records later lands on it — the exact centering
-    // itself happens lazily in seedWindow() at that point. No matching record →
-    // clear any stale state.sel instead of leaving an unrelated record
-    // highlighted. If records already happens to be the active view, recenter now.
+
+    // records follow-through: if this event has a matching record, select it too so
+    // switching to records later lands on it (centering happens lazily in seedWindow). No
+    // match clears any stale state.sel instead of leaving an unrelated record highlighted.
     const linkedRecs = recordsForEvent(dateStr, kind);
     state.sel = linkedRecs.length ? linkedRecs[0].id : null;
     if (state.sel && centerRecordsWindow(state.sel)) renderList();
@@ -3767,16 +4165,13 @@ const Atlas = (() => {
     applyEventFocus(); // dim other events' cards, light this one's siblings
   }
 
-  // Move the .sel/.expanded highlight to the given event's rail card, filling its
-  // inline detail and scrolling it to center. Shared by selectEvent() and select()
-  // (record→event, all-events mode) so both land identically. The card must already be
-  // in the rendered window (caller re-seeds via centerEventWindow + renderEventList
-  // when it isn't); in records mode the rail holds .reccard, not .evcard, so callers
-  // guard on state.mode. Idempotent — renderEventList already flags an in-window
-  // isSel card, but only this scrolls it into view.
+  // Move the .sel/.expanded highlight to the given event's rail card, filling its inline
+  // detail and scrolling it to center. The card must already be in the rendered window;
+  // callers re-seed via centerEventWindow + renderEventList when it isn't.
   function highlightEventCard(dateStr, kind) {
     const list = document.getElementById('list');
     if (!list) return;
+
     // Collapse the previously expanded card, then expand the newly selected one.
     list.querySelectorAll('.evcard.sel, .evcard.expanded').forEach((c) => {
       c.classList.remove('sel', 'expanded');
@@ -3800,9 +4195,10 @@ const Atlas = (() => {
   // Deselect the event: restore the band overview and collapse the inline detail.
   function clearEventSel() {
     state.selEv = null;
-    state.sel = null; // drop any record selection too, so × fully clears records mode
+    state.sel = null; // drop any record selection too, so × fully clears
     clearObservation();
     if (map) map.closePopup(); // close the selected record's marker popup if open
+
     // Tear down the engine's live footprint + selected curves.
     if (window.EclipseLoader && EclipseLoader.deselect) EclipseLoader.deselect();
     const list = document.getElementById('list');
@@ -3828,6 +4224,7 @@ const Atlas = (() => {
     if (!L || !L.all || !L.selected) return null;
     const cur = L.selected();
     if (!cur) return null;
+
     // Constrain stepping to the current handle window so ‹ › never leave state.range.
     const [lo, hi] = state.range;
     const all = L.all().filter((e) => {
@@ -3846,22 +4243,19 @@ const Atlas = (() => {
     return null; // at range boundary
   }
 
-  // Mode-aware neighbour step for the #ev-strip ‹ › buttons. all-events steps between
-  // EVENTS (stepEvent, same kind); records steps the visible RECORD list (select the
-  // adjacent card) so the strip stays linked to whatever the rail is showing.
-  // opts.peek returns the neighbour (or null at a boundary) without selecting.
+  // Mode-aware neighbour step for the #ev-strip ‹ › buttons: all-events steps between events
+  // (same kind), records steps the visible record list, so the strip stays linked to whatever
+  // the rail is showing. opts.peek returns the neighbour without selecting.
   function stepSelection(dir, opts) {
     if (state.mode === 'records') {
       if (!state.sel) return null;
       const recs = recsSorted();
       const i = recs.findIndex((r) => r.id === state.sel);
       if (i < 0) return null;
-      // Step to the FIRST record of the adjacent EVENT, not the adjacent record —
-      // one eclipse (evKey = date|type) may carry several records, which recsSorted
-      // keeps contiguous (secondary sort on date). Forward: skip the current event's
-      // run, land on its next distinct key. Backward: skip the current run, then walk
-      // to the START of the previous event's run so prev always lands on that event's
-      // first record, mirroring next.
+
+      // Step to the first record of the adjacent event, not the adjacent record: one eclipse
+      // may carry several records, kept contiguous by recsSorted. Forward skips the current
+      // run; backward skips it too, then walks to the start of the previous event's run.
       const key = (r) => evKey(r.date, r.type);
       const cur = key(recs[i]);
       let j = i;
@@ -3881,10 +4275,11 @@ const Atlas = (() => {
     return stepEvent(dir, opts);
   }
 
-  // ---- Central-band shadow overlay (total/annular eclipse path) ----
-  // Draw the totality/annularity band of every central solar eclipse whose card is
-  // on screen in the right rail as a translucent wash, interactive: hover cross-
-  // highlights the card + related record markers, click jumps to the event.
+  // ---- Central-Band Shadow Overlay ----
+
+  // Draws the totality/annularity band of every central solar eclipse whose card is on
+  // screen in the rail, interactive: hover cross-highlights the card and its markers, click
+  // jumps to the event.
   const CENTRAL_KINDS = { Total: 1, Annular: 1, Hybrid: 1 };
   function solarByDate(date) {
     // Build lazily, but NOT while EclipseLoader is still loading (boot race:
@@ -3899,14 +4294,12 @@ const Atlas = (() => {
     return (_solarByDate && _solarByDate.get(date)) || null;
   }
 
-  // The cards intersecting #list's scroll viewport, as absolute indices into the
-  // current mode's sorted array. Slice the bands by THIS, never by the pager's
-  // [winStart, winEnd): that window carries up to MAX_WINDOW cards while the rail
-  // shows a handful, and it moves only on a page, so the map would wash events the
-  // reader has scrolled past and hold them there. Compare rects, never offsetTop —
-  // a card's offsetParent is not guaranteed to be #list.
+  // The cards intersecting #list's scroll viewport, as absolute indices into the current
+  // mode's sorted array. Slice the bands by this, never the pager's [winStart, winEnd), which
+  // moves only on a page. Compare rects, never offsetTop, which is not guaranteed to be #list.
   function viewSlice() {
     const list = document.getElementById('list');
+
     // No layout yet (collapsed rail, pre-paint boot) — fall back to the paged
     // window so the very first draw is not empty.
     if (!list || !list.clientHeight) {
@@ -3934,10 +4327,8 @@ const Atlas = (() => {
     return [_viewFrom, _viewTo];
   }
 
-  // Redraw when — and only when — the on-screen slice actually shifts. One
-  // listener on the persistent #list survives every innerHTML rebuild (same
-  // reason wireWheelAutoload binds there). rAF-coalesced: a fling would otherwise
-  // rebuild every polygon each frame.
+  // Redraw only when the on-screen slice actually shifts. One listener on the persistent
+  // #list survives every rebuild. rAF-coalesced, or a fling would rebuild every polygon each frame.
   let _bandScrollRaf = 0;
   function wireBandScrollSync() {
     const list = document.getElementById('list');
@@ -3994,6 +4385,7 @@ const Atlas = (() => {
     SPARK = '#CE564C'; // yanzhi (== --spark)
   function drawBands() {
     if (!bandLayer || !map) return;
+
     // Boot race: EclipseLoader.init isn't awaited, so the catalogue may not be
     // ready on the first render — retry so the initial bands still appear.
     if (state.type === 'solar' && window.EclipseLoader && EclipseLoader.all && !EclipseLoader.all().length) {
@@ -4001,12 +4393,10 @@ const Atlas = (() => {
       drawBands._t = setTimeout(drawBands, 200);
       return;
     }
-    // An event is selected → the engine renders its band in a higher pane;
-    // hide the background overview so other paths don't add visual noise.
-    // Bump the token BEFORE returning: an in-flight overview Promise.all (e.g.
-    // a permalink cold-load that selects an event a tick later) would otherwise
-    // still pass its token check and repaint the overview central band on top
-    // of the cached curves — the two must stay mutually exclusive.
+
+    // An event is selected: the engine renders its band in a higher pane, so hide the
+    // background overview. Bump the token before returning, or an in-flight overview
+    // Promise.all would still pass its token check and repaint on top of the cached curves.
     if (state.selEv) {
       ++_bandToken;
       bandLayer.clearLayers();
@@ -4018,10 +4408,10 @@ const Atlas = (() => {
       bandLayer.clearLayers();
       return;
     }
-    // Cache the PROMISE, not the value it resolves to. drawBands runs several times
-    // over a boot (renderList, event selection, mode switch, theme swap); a
-    // value-keyed cache is still empty while the first fetch is in flight, so every
-    // in-flight event file was fetched a second time.
+
+    // Cache the promise, never the value it resolves to: drawBands runs several times over a
+    // boot, and a value-keyed cache is still empty while the first fetch is in flight, so
+    // each concurrent draw would fetch the same event file again.
     Promise.all(
       evs.map((e) => {
         let p = _bandCache.get(e.date);
@@ -4037,8 +4427,8 @@ const Atlas = (() => {
       if (token !== _bandToken) return; // a newer drawBands superseded this one
       bandLayer.clearLayers();
       for (const { e, r } of results) {
-        // One event can yield several rings — a band clipped by the terminator arrives as
-        // separate closed loops, and drawing only the first left visible gaps.
+        // Draw EVERY ring an event yields, not just the first: a band clipped by the
+        // terminator arrives as separate closed loops, and the rest are the gaps.
         if (!r || !r.ok || !r.rings) continue;
         for (const ring of r.rings) drawBandRing(ring, e, bandColor(e.kind));
       }
@@ -4076,6 +4466,7 @@ const Atlas = (() => {
       poly._evDate = e.date;
       poly._evKind = e.kind;
       poly._baseColor = color;
+
       // 'solar' is the RECORD type here, not e.kind (which is the total/annular subtype).
       poly.on('mouseover', () => setEventHighlight(e.date, 'solar', true));
       poly.on('mouseout', () => setEventHighlight(e.date, 'solar', false));
@@ -4084,11 +4475,10 @@ const Atlas = (() => {
         typeof I18n !== 'undefined' ? I18n.t('eclipse.type.solar.' + (e.kind || '').toLowerCase()) : e.kind || '';
       const _bandTip = [_bandTipDate, _bandTipKind].filter(Boolean).join(' · ');
       if (_bandTip) poly.bindTooltip(_bandTip, { sticky: true, className: 'eclipse-curve-tooltip' });
-      // Click a shadow: re-click the selected one closes it; in records mode jump to
-      // the event's record card, in all-events mode expand its event card. Stop the
-      // click from bubbling to the map's own 'click' handler — otherwise it
-      // fires right after selectEvent()/select() set state.selEv and mistakenly
-      // opens the local-observation popup at this point too.
+
+      // Click a shadow: re-click the selected one closes it; records mode jumps to the
+      // event's record card, all-events expands its event card. Stop the click bubbling to
+      // the map's own handler, or it would open the local-observation popup here too.
       poly.on('click', (domEvt) => {
         L.DomEvent.stopPropagation(domEvt);
         if (state.selEv === evKey(e.date, 'solar')) {
@@ -4107,15 +4497,13 @@ const Atlas = (() => {
     }
   }
 
-  // Cross-highlight one event everywhere it surfaces: its shadow band, its
-  // all-events card, and the record cards + map markers of every civilization
-  // that witnessed it. The linkage thread is what makes two vantages on one
-  // event legible as one event; only the band half is solar-specific (no other
-  // kind draws a shadow).
-  // `origin` is the record the pointer is actually on, and it is what decides the group
-  // (see linkKey) — date+kind cannot, outside the catalogue kinds. Callers that start from
-  // an event rather than a record (the all-events card, a band) pass none and take the
-  // catalogue path, which is the only path those two surfaces have.
+  // Cross-highlight one event everywhere it surfaces: its shadow band, its all-events card,
+  // and the record cards + map markers of every civilization that witnessed it. Only the
+  // band half is solar-specific.
+
+  // `origin` is the record the pointer is actually on, and decides the group (see linkKey):
+  // date+kind cannot, outside the catalogue kinds. Callers starting from an event rather than
+  // a record (the all-events card, a band) pass none and take the catalogue path instead.
   function setEventHighlight(date, kind, on, origin) {
     if (bandLayer && kind === 'solar') {
       bandLayer.eachLayer((l) => {
@@ -4129,6 +4517,7 @@ const Atlas = (() => {
     }
     const _cssEsc = (s) => (window.CSS && CSS.escape ? CSS.escape(s) : s);
     const esc = _cssEsc(date);
+
     // Match the kind too: one date can carry a solar eclipse AND a comet sighting,
     // and lighting the wrong card would assert a link that isn't there.
     document
@@ -4144,10 +4533,9 @@ const Atlas = (() => {
     }
   }
 
-  // Wait until a record is actually held, fetching registers until it turns up.
-  // Boot loads only the register on screen, so a link into one still streaming in
-  // arrives before its shards do; select() finds nothing and returns without a word.
-  // The active register is tried first because a permalink names it in `type`.
+  // Wait until a record is actually held, fetching registers until it turns up: boot loads
+  // only the register on screen, so a link into one still streaming in would otherwise arrive
+  // before its shards do. The active register is tried first since a permalink names it in `type`.
   async function ensureRecord(id) {
     const held = () => RECS.some((r) => r.id === id);
     if (held()) return true;
@@ -4160,20 +4548,21 @@ const Atlas = (() => {
   }
 
   // ---- SELECT (ORBIS: pan + popup + REAL contact curves + time baseline) ----
+
   function select(id) {
     const rec = RECS.find((r) => r.id === id);
     if (!rec) return;
     state.sel = id;
     setFocusTarget(normYear(rec.year)); // glide the lens to the record's year
-    // Selecting a record also selects its eclipse EVENT (the footprint + panel
-    // open below), so enter selected-event mode: the map narrows to this event's
-    // records, other cards dim, and a map-point click opens the observation popup.
+
+    // Selecting a record also selects its eclipse event, entering selected-event mode: the
+    // map narrows to this event's records, other cards dim, and a click opens the observe popup.
     clearObservation();
     state.selEv = evKey(rec.date, rec.type);
-    // A record chosen from a map marker / timeline dot / event panel may fall
-    // outside the current page. Re-seed the window on it and rebuild so its card
-    // exists to highlight. (A click on an in-window card skips this, keeping the
-    // in-place .sel toggle that preserves any in-progress text selection.)
+
+    // A record chosen from a map marker/timeline dot/event panel may fall outside the current
+    // page: re-seed the window and rebuild so its card exists. A click on an in-window card
+    // skips this, keeping the in-place .sel toggle that preserves any text selection.
     if (state.mode === 'records') {
       const recs = recsSorted();
       const idx = recs.findIndex((r) => r.id === id);
@@ -4184,11 +4573,10 @@ const Atlas = (() => {
         renderList();
       }
     }
-    // If all-events is the ACTIVE view, mirror what selectEvent() does: re-seed the
-    // window onto this record's underlying event (if off-page) and move the
-    // .sel/.expanded highlight to its card. When records is active instead, the
-    // all-events window is centered lazily by seedWindow()'s selection snap the moment
-    // the reader switches modes (state.selEv was set at 1977) — see its comment.
+
+    // If all-events is the active view, mirror selectEvent(): re-seed the window onto this
+    // record's event (if off-page) and move the highlight to its card. When records is active,
+    // the all-events window centers lazily, once seedWindow's snap acts on state.selEv.
     if (state.mode === 'events') {
       if (centerEventWindow(rec.date, rec.type)) renderEventList();
       highlightEventCard(rec.date, rec.type);
@@ -4197,6 +4585,7 @@ const Atlas = (() => {
     drawMarkers();
     drawTimeline();
     applyEventFocus();
+
     // Move the .sel highlight in place rather than rebuilding the list — a full
     // renderList() here would destroy any in-progress text selection in a card.
     const list = document.getElementById('list');
@@ -4209,32 +4598,15 @@ const Atlas = (() => {
         card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
     }
-    // Fly the map to the record's own observation site, then open its popup in
-    // place — autoPan stays disabled on the popup so opening it doesn't cause a
-    // second, smaller shift right after flyTo already centered the view.
-    if (map && rec.lat != null) {
-      if (markerById[id]) {
-        openRecPopup(id);
-      } else {
-        // Flying to a record outside the pre-fly viewport means drawMarkers()
-        // hasn't built its marker yet (LOD is viewport-based) — redraw once the
-        // fly settles, THEN open, or markerById[id] is still undefined here.
-        map.once('moveend', () => {
-          drawMarkers();
-          openRecPopup(id);
-        });
-      }
-      const mk = markerById[id];
-      map.flyTo([rec.lat, nearestLon(rec.lon, mk ? mk.getLatLng().lng : null)], Math.max(map.getZoom(), 4));
-    }
-    // Real geometry: select the matching eclipse so the engine draws its contact
-    // curves; baseline TimeState on that event's PEAK so the (now static) umbra
-    // sits at greatest eclipse. Pass noFly so selectEvent does NOT fly to the peak.
+
+    // Real geometry: select the matching eclipse so the engine draws its contact curves,
+    // baselining TimeState on that event's peak so the static umbra sits at greatest eclipse.
+    // Pass noFly so selectEvent does not also fly to the peak.
     const d = _dateFromStr(rec.date);
     let ev = null;
-    // Only eclipse records hook the geometry engine. Guest stars / comets (guest,
-    // comet) have no eclipse event — without this guard selectNearest would snap to a
-    // bogus nearest eclipse and draw its contact curves under an unrelated record.
+
+    // Only eclipse records hook the geometry engine; without this guard a guest-star or
+    // comet record would snap selectNearest to a bogus nearest eclipse.
     if (window.EclipseLoader && (rec.type === 'solar' || rec.type === 'lunar')) {
       if (!EclipseLoader.selectByDate(rec.date, rec.type, { noFly: true }) && d)
         EclipseLoader.selectNearest(d, { noFly: true });
@@ -4242,14 +4614,49 @@ const Atlas = (() => {
     }
     const peak = ev && EclipseLoader.peakMs ? EclipseLoader.peakMs(ev) : d ? d.getTime() : null;
     if (peak != null && !isNaN(peak) && TS) TS.resetTo(new Date(peak));
-    updateEvStrip(); // record selection drives the top strip too (records↔strip sync)
+    updateEvStrip(); // record selection drives the top strip too
+
+    // Open the popup first and measure it, then fly once to the framing that already leaves
+    // room for it (autoPan stays disabled so nothing shifts the view a second time). Runs
+    // after the strip update above, since a record from another event resizes the strip/scrub bar.
+    if (map && rec.lat != null) {
+      const zoom = Math.max(map.getZoom(), 4);
+      let target = null;
+      if (markerById[id]) {
+        openRecPopup(id);
+        const m = markerById[id];
+
+        // A fanned record's popup stands on its leg, a fixed pixel offset from the site,
+        // so frame the site and measure the popup against the site's own point.
+        const site = spider && spider.layer.hasLayer(m) ? spider.center : m.getLatLng();
+        const at = L.latLng(site.lat, nearestLon(rec.lon, site.lng));
+        const el = m.getPopup().getElement();
+        if (el) target = popupFrameCenter(at, zoom, el, map.latLngToContainerPoint(site));
+      } else {
+        // The marker is not built yet, so measure the same content in a stand-in popup
+        // at the site and drop it before the fly.
+        const at = L.latLng(rec.lat, nearestLon(rec.lon, null));
+        const tmp = L.popup(POPUP_OPTS).setLatLng(at).setContent(popupHtml(rec)).openOn(map);
+        const el = tmp.getElement();
+        if (el) target = popupFrameCenter(at, zoom, el, map.latLngToContainerPoint(at));
+        map.closePopup(tmp);
+
+        // Flying to a record outside the pre-fly viewport means drawMarkers() hasn't built
+        // its marker yet; redraw once the fly settles, then open.
+        map.once('moveend', () => {
+          drawMarkers();
+          openRecPopup(id);
+        });
+      }
+      const mk = markerById[id];
+      map.flyTo(target || [rec.lat, nearestLon(rec.lon, mk ? mk.getLatLng().lng : null)], zoom);
+    }
   }
 
-  // ---- Language / panels ----
-  // The one search box means different things per mode — prose in the records
-  // list, eclipse type and date in the all-events table — so its label follows
-  // the mode. The declarative key is rewritten too, not just the rendered text,
-  // so a later I18n.applyDOM() re-resolves the mode-appropriate string.
+  // ---- Language / Panels ----
+
+  // The one search box means different things per mode (prose vs. eclipse type/date), so its
+  // label follows the mode; the declarative key is rewritten too, not just the rendered text.
   function syncSearchTip() {
     const q = document.getElementById('q');
     if (!q) return;
@@ -4268,7 +4675,9 @@ const Atlas = (() => {
     };
     set('lib-t', T('atlas.lib'));
     set('tltab', T('atlas.tab.tlt'));
+    set('libtab', T('atlas.tab.lib'));
     syncSearchTip();
+
     // fuqian type slips: Latin locales use typeShort abbreviations (sideways full
     // words would stretch the slips); CJK/ja use the full two-glyph names.
     const isLatin = !isZh(state.lang) && state.lang !== 'ja';
@@ -4326,6 +4735,7 @@ const Atlas = (() => {
       document
         .querySelectorAll(sel + ' button')
         .forEach((x) => x.setAttribute('aria-pressed', String(x.classList.contains('on'))));
+
     // type toggle (solar / lunar exclusive) — re-seeds the all-events window (evSeedKey)
     document.querySelectorAll('#typeseg button').forEach(
       (b) =>
@@ -4333,16 +4743,15 @@ const Atlas = (() => {
           document.querySelectorAll('#typeseg button').forEach((x) => x.classList.remove('on'));
           b.classList.add('on');
           syncPressed('#typeseg');
-          // Tear down the previous layer's selection before switching type, so a
-          // solar event's live shadow / cached curves / body-marker disks / lunar
-          // veil don't linger onto the new layer — all four share one soloLayer /
-          // curvesLayer, and only a teardown (not a re-render) removes them.
+
+          // Tear down the previous layer's selection before switching type: solar's shadow,
+          // curves and disks share one soloLayer/curvesLayer with the lunar veil, and only a
+          // teardown, not a re-render, removes them.
           clearEventSel();
           state.type = b.dataset.t;
-          // The new phenomenon's shards may not be in yet (only the booted one blocks
-          // first paint). Render immediately with whatever is held — usually everything,
-          // since the background sweep starts right after boot — and render again when
-          // the load resolves. loadPhenomenon is a no-op once a phenomenon is in.
+
+          // The new phenomenon's shards may not be in yet. Render immediately with whatever
+          // is held, then render again when loadPhenomenon resolves (a no-op if already in).
           const redraw = () => {
             renderList();
             drawTimeline();
@@ -4354,6 +4763,7 @@ const Atlas = (() => {
           });
         })
     );
+
     // mode toggle (records records / all-events events exclusive). Only the rail content
     // changes — map + timeline untouched — so just re-render the list. seedKeyNow
     // carries the mode prefix, so the switch re-seeds the window on the focus.
@@ -4369,6 +4779,7 @@ const Atlas = (() => {
           if (window.Permalink) Permalink.touch(); // mode is renderList-only (no drawMarkers)
         })
     );
+
     // pager chevrons (both modes)
     const eb = document.getElementById('ec-earlier');
     if (eb) eb.onclick = pageEarlier;
@@ -4376,18 +4787,68 @@ const Atlas = (() => {
     if (lb) lb.onclick = pageLater;
     wireWheelAutoload();
     wireBandScrollSync();
-    // search
+
+    // rail show/hide. A per-viewer layout preference, so it lives in localStorage rather than
+    // the permalink. Folding the rail resizes the map cell, so Leaflet must re-measure
+    // synchronously, or a deferred invalidateSize's moveend could land mid-fly.
+    const frameEl = document.getElementById('frame');
+    const afterSlide = (prop, fn) => {
+      const moving =
+        document.body.classList.contains('motion') &&
+        frameEl &&
+        getComputedStyle(frameEl)
+          .transitionDuration.split(',')
+          .some((d) => parseFloat(d) > 0);
+      if (!moving) return fn();
+
+      // A slide reversed midway never ends, so a timer backs the event up; whichever
+      // comes first runs fn, once.
+      let timer = 0;
+      const done = (e) => {
+        if (e && (e.target !== frameEl || e.propertyName !== prop)) return;
+        frameEl.removeEventListener('transitionend', done);
+        clearTimeout(timer);
+        fn();
+      };
+      frameEl.addEventListener('transitionend', done);
+      timer = setTimeout(done, 400);
+    };
+
+    const toggleRail = (show) => {
+      toggle('library', 'libtab', show);
+      try {
+        localStorage.setItem(RAIL_KEY, railOpen() ? '1' : '0');
+      } catch (_) {}
+      afterSlide('grid-template-columns', () => {
+        if (map) map.invalidateSize();
+        reopenRecPopup();
+      });
+    };
+    const lc = document.getElementById('lib-close');
+    if (lc) lc.onclick = () => toggleRail(false);
+    const lt = document.getElementById('libtab');
+    if (lt) lt.onclick = () => toggleRail(true);
+    try {
+      if (localStorage.getItem(RAIL_KEY) === '0') toggleRail(false);
+    } catch (_) {}
+
+    // Motion is armed only after the stored layout is applied, so a reload never slides.
+    setTimeout(() => document.body.classList.add('motion'), 0);
+
+    // search — results are a list, so typing brings a folded rail back
     const q = document.getElementById('q');
     if (q)
       q.oninput = (e) => {
         state.q = e.target.value;
+        if (!railOpen()) toggleRail(true);
         renderList();
         drawTimeline();
         drawMarkers();
       };
-    // timeline show/hide — the rail is permanent, only the lizhou collapses.
-    // Toggling it resizes the inset map (via body:has(#timeline.hidden) #map),
-    // so Leaflet must re-measure its container afterwards or tiles grey out.
+
+    // timeline show/hide. Toggling it resizes the inset map (via
+    // body:has(#timeline.hidden) #map), so Leaflet must re-measure its container
+    // afterwards or tiles grey out.
     const toggleTimeline = (show) => {
       toggle('timeline', 'tltab', show);
       requestAnimationFrame(() => {
@@ -4398,10 +4859,10 @@ const Atlas = (() => {
     if (tc) tc.onclick = () => toggleTimeline(false);
     const tt = document.getElementById('tltab');
     if (tt) tt.onclick = () => toggleTimeline(true);
-    // language: I18n owns the dropdown (ui.js). React to its changes. An open popup
-    // holds locale-baked HTML, so reopen both the selected record marker AND the
-    // observe card — the latter now branches CJK shichen vs Western hora, so a stale card
-    // would show the wrong reckoning entirely, not just an untranslated word.
+
+    // language: I18n owns the dropdown (ui.js). An open popup holds locale-baked HTML, so
+    // reopen both the selected record marker and the observe card, which branches CJK shichen
+    // vs Western hora and would otherwise show the wrong reckoning, not just an untranslated word.
     if (typeof I18n !== 'undefined' && I18n.subscribe) {
       I18n.subscribe(() => {
         state.lang = I18n.getLocale();
@@ -4409,10 +4870,19 @@ const Atlas = (() => {
         updateEvStrip();
         if (state.sel && markerById[state.sel]) markerById[state.sel].openPopup();
         if (_obsMarker && _obsMarker.isPopupOpen()) showObservation(_obsMarker.getLatLng());
+
+        // The place row has to be re-fitted for the new locale; only the rail gets that free
+        // from renderList. Ask again for the whole document once laid out, and clear the ear
+        // against the reopened popup's new height.
+        requestAnimationFrame(() => {
+          fitPlaceLabels();
+          clearEarForPopup();
+        });
       });
     }
-    // Grid layout: the map cell resizes with the window, and CSS alone never tells Leaflet
-    // its container changed — it must be told to re-measure or the tiles grey out.
+
+    // The map cell resizes with the window, and CSS alone never tells Leaflet, which must be
+    // told to re-measure or the tiles grey out.
     window.addEventListener('resize', () => {
       drawTimeline();
       fitPlaceLabels();
@@ -4425,44 +4895,53 @@ const Atlas = (() => {
       },
       true
     );
+
     // Popup markup is inserted only when the popup opens, so the place row cannot
     // be measured any earlier than this.
     if (map) map.on('popupopen', (ev) => fitPlaceLabels(ev.popup.getElement()));
-    // Webfonts land after first paint and change every advance width on the page —
-    // a fit measured against the fallback face is measured against the wrong font.
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitPlaceLabels());
+
+    // Webfonts land after first paint and change every advance width. Listen for every
+    // batch, not just the first, since faces split by weight and unicode-range: `ready`
+    // covers the already-cached run, `loadingdone` covers each later one.
+    if (document.fonts) {
+      if (document.fonts.ready) document.fonts.ready.then(() => fitPlaceLabels());
+      if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => fitPlaceLabels());
+    }
   }
 
   // ---- Boot ----
+
   async function init(mapInstance, ctl) {
     map = mapInstance;
     eclipseCtl = ctl;
     if (typeof I18n !== 'undefined' && I18n.getLocale) state.lang = I18n.getLocale();
 
-    // Phase 1: load lookup tables + manifest + sources in parallel. GAZ must be populated
-    // before _map() runs; SOURCES must be populated before _map() resolves source keys.
-    // No cache override: these are content-addressed by the ?v= bump in index.html, and
-    // forcing no-store here made every reload re-download the whole corpus.
-    const [sitesJson, nianJson, nengoJson, civsJson, quyuJson, manifestJson, sourcesJson] = await Promise.all([
-      fetch('data/duizhao/diming.json')
+    // GAZ and SOURCES must be loaded before _map() runs. Never pass a cache override
+    // here: no-store re-downloads the whole corpus on every reload.
+    // prettier-ignore
+    const [sitesJson, nianJson, nengoJson, civsJson, regionsJson, manifestJson, sourcesJson, visJson] = await Promise.all([
+      fetch('data/concordance/gazetteer.json')
         .then((r) => r.json())
         .catch(() => null),
-      fetch('data/duizhao/nianhao.json')
+      fetch('data/concordance/nianhao.json')
         .then((r) => r.json())
         .catch(() => null),
-      fetch('data/duizhao/nengo.json')
+      fetch('data/concordance/nengo.json')
         .then((r) => r.json())
         .catch(() => null),
-      fetch('data/duizhao/wenming.json')
+      fetch('data/concordance/civilizations.json')
         .then((r) => r.json())
         .catch(() => null),
-      fetch('data/duizhao/quyu.json')
+      fetch('data/concordance/regions.json')
         .then((r) => r.json())
         .catch(() => null),
       fetch('data/records/manifest.json')
         .then((r) => r.json())
         .catch(() => null),
       fetch('data/records/sources.json')
+        .then((r) => r.json())
+        .catch(() => null),
+      fetch('data/records/visibility.json')
         .then((r) => r.json())
         .catch(() => null),
     ]);
@@ -4474,12 +4953,19 @@ const Atlas = (() => {
       });
     }
     GAZ = (sitesJson && sitesJson.places) || {};
+
+    // Must be populated before any _map() runs: a record mapped ahead of this reads its
+    // visibility as null and ships unflagged, which is the silent half of the failure the
+    // sidecar exists to end.
+    VIS = (visJson && visJson.records) || {};
+
     // Reuse the already-fetched sites map for the reverse-geocode popup (no 2nd fetch);
-    // quyu.json holds the authored Voronoi anchors for the tier-2 yuezhi fallback.
+    // regions.json holds the authored Voronoi anchors for the tier-2 yuezhi fallback.
     if (typeof PlaceName !== 'undefined') {
-      PlaceName.load(GAZ, (quyuJson && quyuJson.anchors) || []);
+      PlaceName.load(GAZ, (regionsJson && regionsJson.anchors) || []);
     }
-    // Inject 7-locale civ names from data/duizhao/wenming.json into Seal (single source
+
+    // Inject 7-locale civ names from data/concordance/civilizations.json into Seal (single source
     // of truth) and keep the same table here for the civ-name search haystack. Both must
     // be set before any _map() runs — boot shard or deferred one.
     CIV_NAMES = (civsJson && civsJson.civs) || {};
@@ -4488,10 +4974,9 @@ const Atlas = (() => {
     NENGO = nengoJson;
     MANIFEST = manifestJson;
 
-    // The civ chip row and the LOD rarity weight both describe the WHOLE corpus, not
-    // the shards currently held — so both are read off the manifest, which names every
-    // (phenomenon, civilization) pair and its count. They are therefore correct from
-    // the first frame and never shift as deferred shards arrive.
+    // The civ chip row and the LOD rarity weight both describe the whole corpus, not the
+    // shards currently held, so both are read off the manifest and never shift as deferred
+    // shards arrive.
     CIV_COUNT = {};
     ((MANIFEST && MANIFEST.files) || []).forEach((f) => {
       const c = (f.civilization || '').toLowerCase();
@@ -4499,6 +4984,7 @@ const Atlas = (() => {
     });
     const seen = new Set(Object.keys(CIV_COUNT));
     PRESENT_CIVS = Object.keys(Seal.CIVS).filter((k) => seen.has(k));
+
     // include any civ present in data but missing from the table (fallback seal)
     seen.forEach((c) => {
       if (PRESENT_CIVS.indexOf(c) < 0) PRESENT_CIVS.push(c);
@@ -4509,13 +4995,13 @@ const Atlas = (() => {
     await loadPhenomenon(state.type);
 
     markerLayer = L.layerGroup().addTo(map);
-    // Central-band overlay: a low pane (z 350) so the washes read as shadows on
-    // the map — above tiles (200), below record markers (600) and the selected
-    // event's own richer curves (593/594). Its own layerGroup, refreshed from the
-    // list render funnel (drawBands).
+
+    // Central-band overlay: a low pane so the washes read as shadows, above tiles and below
+    // record markers and the selected event's own richer curves.
     map.createPane('atlas-bands');
     map.getPane('atlas-bands').style.zIndex = 350;
     bandLayer = L.layerGroup().addTo(map);
+
     // Viewport coupling: re-run the LOD selection when the view changes.
     // Debounced so a pan/zoom gesture reconciles markers once, on settle.
     let _mvTimer;
@@ -4523,11 +5009,10 @@ const Atlas = (() => {
       clearTimeout(_mvTimer);
       _mvTimer = setTimeout(drawMarkers, 120);
     });
-    // Mid-gesture top-up. VIEW_MARGIN pre-builds the seals just off each edge, so a
-    // short drag reveals markers that already exist; a drag longer than the margin
-    // would otherwise expose bare map until the finger lifts. Watch for the visible
-    // bounds leaving the box the last pass drew for, and reconcile then — rAF-gated,
-    // so a settled map costs nothing.
+
+    // Mid-gesture top-up. VIEW_MARGIN pre-builds the seals just off each edge, so a short
+    // drag reveals markers that already exist; watch for the visible bounds leaving the box
+    // the last pass drew for, and reconcile then, rAF-gated so a settled map costs nothing.
     let _topUp = 0,
       _drawnBounds = null;
     map.on('move', () => {
@@ -4545,14 +5030,14 @@ const Atlas = (() => {
         drawMarkers();
       });
     });
-    // Forget the reopen-target when a popup closes for ANY reason other than our
-    // own rebuild — a reader clicking the × or the observe popup superseding it —
-    // so drawMarkers() won't resurrect a popup the reader (or another feature)
-    // deliberately dismissed. The rebuild's own reopen happens synchronously
-    // inside drawMarkers after this fires, reading a captured local, not this.
+
+    // Forget the reopen-target when a popup closes for any reason other than our own rebuild,
+    // so drawMarkers() won't resurrect a popup the reader deliberately dismissed. The
+    // rebuild's own reopen reads a captured local, not this, so it is unaffected.
     map.on('popupclose', () => {
       _popupRecId = null;
     });
+
     // Background click: fold an open spiderfy; when an event is selected, also
     // open the local observation popup at the clicked point.
     map.on('click', (ev) => {
@@ -4563,11 +5048,23 @@ const Atlas = (() => {
       if (ev.key === 'Escape') unspiderfy();
     });
 
-    // Grid layout drives the map's pixel size (#map fills the col-1 #mapwrap cell
-    // now, not a CSS inset), and Leaflet caches that size — so re-measure whenever
-    // #mapwrap's box changes: mount, window resize, or the lizhou folding. One rAF-
-    // coalesced observer covers all three (the reason grid was avoided before).
+    // Grid layout drives the map's pixel size, and Leaflet caches that size, so re-measure
+    // whenever #mapwrap's box changes: mount, window resize, or the lizhou folding.
     const mapWrap = document.getElementById('mapwrap');
+
+    // The lizhou reads its width only when drawn, and folding the rail changes it
+    // without a window resize.
+    const tlBox = document.getElementById('timeline');
+    if (tlBox && 'ResizeObserver' in window) {
+      let tlPending = 0;
+      new ResizeObserver(() => {
+        if (tlPending) return;
+        tlPending = requestAnimationFrame(() => {
+          tlPending = 0;
+          drawTimeline();
+        });
+      }).observe(tlBox);
+    }
     if (mapWrap && 'ResizeObserver' in window) {
       let roPending = 0;
       new ResizeObserver(() => {
@@ -4590,31 +5087,28 @@ const Atlas = (() => {
     renderAll();
     wireChrome();
     wireTimelineGestures();
+
     // second layout pass after fonts/reflow settle; re-measure the inset map too
     window.addEventListener('load', () => {
       drawTimeline();
       if (map) map.invalidateSize();
     });
+
     // Boot race: EclipseLoader.init is not awaited in map-boot, so the first
     // selectEvent can beat the corpus — let the event panel re-render its
     // linked-records section now that RECS exist.
     if (window.Sidebar && Sidebar.refreshRecords) Sidebar.refreshRecords();
 
-    // Everything else streams in behind the first paint, so switching register is
-    // instant in practice while the opening view never waits on 10 MB of
-    // occultation records it does not show. Deliberately after render + wiring:
-    // the reader can already read and click during this.
-    // EVERY phenomenon, with nothing excluded — do NOT filter out state.type here as
-    // an optimisation. Boot loads the DEFAULT register, and Permalink.restore assigns
-    // state.type from the URL only afterwards, so such a filter starves any
-    // permalinked non-default register of its shards and its list stays empty
-    // forever. loadPhenomenon is idempotent, so the filter buys nothing anyway.
+    // Everything else streams in behind the first paint, deliberately after render/wiring so
+    // the reader can already read and click. Every phenomenon, nothing excluded: Permalink
+    // restores state.type from the URL only afterwards, and filtering here would starve it.
     const rest = [...new Set(((MANIFEST && MANIFEST.files) || []).map((f) => f.phenomenon))];
     const sweep = () =>
       rest
         .reduce((chain, ph) => chain.then(() => loadPhenomenon(ph)), Promise.resolve())
         .then(() => {
           drawMarkers();
+
           // Re-render the list only when it has nothing in it. Records arriving behind a
           // reader who is already reading must not rebuild the list under them — that is
           // what wipes a drag-selection — but an empty list has nothing to disturb.
@@ -4631,22 +5125,14 @@ const Atlas = (() => {
     return RECS.filter((r) => r.date === dateStr && r.type === kind);
   }
 
-  // Phenomena whose event_date is assigned from the computed eclipse catalogue. For those,
-  // date+kind names ONE event that many observers can share, which is what makes the
-  // reverse binding above meaningful. Every other phenomenon takes its date from the source
-  // text, where it is only "the day this chronicle claims", and carries no identity.
+  // Phenomena whose event_date is assigned from the computed eclipse catalogue, so date+kind
+  // names one event many observers can share. Every other phenomenon takes its date from the
+  // source text, where it carries no identity.
   const CATALOGUE_KINDS = new Set(['solar', 'lunar']);
 
-  // The group a record belongs to for cross-highlighting — the corpus's answer to "which
-  // other records are THIS SAME phenomenon". Three tiers, most trustworthy first:
-  //   k: an editor wrote event_key by hand after identifying the records as one phenomenon
-  //   d: a catalogue-derived date, which is identity-bearing on its own
-  //   r: nothing asserts a link, so the record is its own event
-  // A non-catalogue record must NOT be grouped by date. Occultation dates are often
-  // source-truncated to a bare year, so string equality sweeps dozens of unrelated
-  // sightings into one "event"; and the multi-culture records that genuinely are one
-  // event (SN 1006, SN 1054) are dated differently by each chronicle that saw them.
-  // Date is too loose and too tight at once, which is why tier k exists.
+  // The group a record belongs to for cross-highlighting, three tiers, most trustworthy
+  // first: k = a hand-written event_key, d = a catalogue-derived date, r = the record is its
+  // own event. A non-catalogue record must never be grouped by date: those dates carry no identity.
   function linkKey(rec) {
     if (rec.ekey) return 'k:' + rec.ekey;
     if (CATALOGUE_KINDS.has(rec.type)) return 'd:' + rec.date + '|' + rec.type;
@@ -4667,14 +5153,9 @@ const Atlas = (() => {
     return state.selEv ? 'd:' + state.selEv : null;
   }
 
-  // selectEvent / refresh (= renderAll) exposed for Permalink restore: select a
-  // bare event by date+kind, and re-render the whole library after state.* is set.
-  // sciDate is exported for the observation popup's brow (js/observe-popup.js),
-  // which must date its contact table the same way the shu'er dates the event —
-  // BCE handling, GB/T 15834 digit spacing and the Julian conversion all live in
-  // one place rather than being restated there. calGloss travels with it so a date
-  // rendered outside this module still explains which calendar it is in.
-  // observePoint / showObservation are the Permalink pair for the click-a-point card.
+  // selectEvent/refresh (= renderAll) are exposed for Permalink restore. sciDate is exported
+  // so the observation popup's contact table dates itself the same way the shu'er does (BCE
+  // handling, digit spacing, Julian conversion, all in one place); calGloss travels with it.
   return {
     init,
     select,

@@ -1,25 +1,14 @@
 /**
  * place-name.js — offline two-tier reverse geocode for the observation popup.
  *
- * A clicked map point is named, never left as bare coordinates:
- *   tier 1 (site)   — nearest historical observation site within SITE_KM →
- *                     its own name (quezhi, exact-place match), e.g. 长安 / Chang'an.
- *   tier 2 (region) — otherwise the nearest broad geographic-region anchor
- *                     (yuezhi), e.g. 蒙古高原 / 中亚 / 太平洋.
+ * A clicked map point is named, never left as bare coordinates: tier 1 (site) is the
+ * nearest historical observation site within SITE_KM, e.g. 长安 (Chang'an); tier 2
+ * (region) is otherwise the nearest broad geographic-region anchor. Sites come from
+ * data/concordance/gazetteer.json, regions from data/concordance/regions.json,
+ * both injected via PlaceName.load; before that, lookup falls back to coordinates.
  *
- * Data-driven, not hardcoded: sites come from data/duizhao/diming.json (the same published
- * concordance js/atlas.js resolves records against — injected via PlaceName.load
- * so there is no second fetch); regions come from data/duizhao/quyu.json, an authored
- * nearest-anchor Voronoi partition, coarse by design and refined by adding anchors
- * rather than by drawing borders. Both are loaded once at startup; before load()
- * the lookup falls back to bare coordinates.
- *
- * Temporal validity: co-located sites (大都↔京师 = Beijing, 建康↔应天 = Nanjing,
- * 君士坦丁堡↔伊斯坦布尔) and country-name regions carry since/until so a lookup
- * resolves the era-correct name by the selected event's year (葡人登陆前无「巴西」).
- *
- * Both tables key their names by BCP-47 tag, so locale selection is I18n.pick's
- * job here as everywhere else — this module owns the geometry, not a name ladder.
+ * Co-located sites (e.g. 大都↔京师 = Dadu/Beijing) and renamed regions carry
+ * since/until so a lookup resolves the era-correct name by the event's year.
  */
 window.PlaceName = (function () {
   'use strict';
@@ -29,29 +18,28 @@ window.PlaceName = (function () {
   let _regions = []; // { lat, lon, name:{…}, since?, before?:{ name:{…} } }
 
   /**
-   * Inject the loaded concordances. `sitesPlaces` is data/duizhao/diming.json's `.places`
-   * map (place_key -> block); `regions` is data/duizhao/quyu.json's `.anchors` array.
-   * Atlas already fetches both for its own use, so it passes them in rather than
-   * triggering a second network round-trip.
-   *
-   * Sites arrive keyed by place_key and are flattened to a plain array: every lookup
-   * is a nearest-neighbour scan over coordinates, and the key is never consulted.
+   * Inject the loaded concordances. `sitesPlaces` is gazetteer.json's `.places` map
+   * (place_key -> block), flattened to a plain array here; `regions` is
+   * regions.json's `.anchors` array.
    */
   function load(sitesPlaces, regions) {
     _sites = Object.keys(sitesPlaces || {}).map((k) => sitesPlaces[k]);
     _regions = Array.isArray(regions) ? regions : [];
   }
 
-  const SITE_KM = 90; // within this of a site → quezhi (exact match); else region yuezhi
+  const SITE_KM = 90; // within this of a site: exact match; else region fallback
   const CO_KM = 5; // co-located sites (same spot, different era) within this
   const RAD = Math.PI / 180;
 
-  // Great-circle distance in km (haversine). Coarse enough for a nearest scan.
+  // 2R, the haversine constant, spelled once: the formula below ends in 2·R·asin(…).
+  const EARTH_DIAM_KM = 12742;
+
+  // Great-circle distance in km, haversine formula.
   function gcKm(aLat, aLng, bLat, bLng) {
     const dLat = (bLat - aLat) * RAD,
       dLng = (bLng - aLng) * RAD;
     const s = Math.sin(dLat / 2) ** 2 + Math.cos(aLat * RAD) * Math.cos(bLat * RAD) * Math.sin(dLng / 2) ** 2;
-    return 12742 * Math.asin(Math.min(1, Math.sqrt(s))); // 2·R·asin, R=6371
+    return EARTH_DIAM_KM * Math.asin(Math.min(1, Math.sqrt(s)));
   }
 
   function nearest(list, lat, lng) {
@@ -89,10 +77,9 @@ window.PlaceName = (function () {
     return near;
   }
 
-  // A region anchor renamed at `since` carries the earlier, politically neutral
-  // geographic name under `before`; a lookup dated before that epoch must use it
-  // (there is no "Brazil" before the Portuguese landfall). Anchors with no `since`
-  // are timeless and always use `name`.
+  // A region anchor renamed at `since` carries the earlier geographic name under
+  // `before` (e.g. 巴西 = Brazil reads "Eastern South America" before 1500). Anchors
+  // with no `since` are timeless and always use `name`.
   function regionNames(anchor, year) {
     const before = anchor.since != null && year != null && year < anchor.since;
     return (before && anchor.before ? anchor.before.name : anchor.name) || {};

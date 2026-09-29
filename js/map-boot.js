@@ -1,9 +1,9 @@
 /**
  * map-boot.js — thin runtime shell.
  *
- * Builds the Leaflet map, carries the one upstream helper eclipse.js needs
- * (_computeAltitudeContourArcs, for lunar visibility hemispheres), provides a
- * minimal Sidebar shim, then hands control to Eclipse.init + the lazy loader.
+ * Builds the Leaflet map, carries the one shared helper eclipse.js needs
+ * (_computeAltitudeContourArcs, for lunar visibility hemispheres), then hands
+ * control to Eclipse.init + the lazy loader.
  *
  * Everything heavy (shadow geometry, contact-curve rendering) is reused from
  * js/eclipse.js and js/bessel-runtime.js. This file is wiring.
@@ -13,26 +13,22 @@
   'use strict';
 
   // ---- World Window ----
-  // Single source of truth for the horizontal world range. −200…+520 gives a
-  // 720° window (two world copies with margin) so contact curves can repeat in
-  // every copy that falls inside it. Exposed on window so js/eclipse.js and
-  // js/geo-utils.js reuse the same bounds for their world-copy draw loops.
+  // Single source of truth for the horizontal world range, exposed on window so
+  // other modules reuse the same bounds for their world-copy draw loops.
   const MAP_LNG_WEST = -200,
     MAP_LNG_EAST = 520;
   window.MAP_LNG_WEST = MAP_LNG_WEST;
   window.MAP_LNG_EAST = MAP_LNG_EAST;
 
   // ---- Deg/Rad Helpers ----
+
   const _rad = (d) => (d * Math.PI) / 180;
   const _deg = (r) => (r * 180) / Math.PI;
 
   /**
-   * Raw closed small-circle ring (721 points, first == last) of angular radius
-   * 90−altThresholdDeg about (centerLat, centerLng). Longitudes are NOT split at
-   * the antimeridian — this is the continuous ring that _computeAltitudeContourArcs
-   * slices and that eclipse.js's _drawShadowBand fills (it does its own unwrap +
-   * pole-winding). Single owner of the sine/cosine sweep so the two callers can't
-   * drift. Returns [] when the radius degenerates (threshold at ±90°).
+   * Raw closed small-circle ring (first == last) of angular radius 90−altThresholdDeg
+   * about (centerLat, centerLng). Longitudes are NOT split at the antimeridian; that
+   * is _computeAltitudeContourArcs's job. Returns [] when the radius degenerates.
    */
   function _computeAltitudeContourRing(centerLat, centerLng, altThresholdDeg) {
     const dDeg = 90 - altThresholdDeg;
@@ -61,8 +57,7 @@
   window._computeAltitudeContourRing = _computeAltitudeContourRing;
 
   /**
-   * Small-circle arc(s) for boundary rendering — ported verbatim from upstream
-   * SubstellarAtlas (see ATTRIBUTION.md). eclipse.js calls this for lunar
+   * Small-circle arc(s) for boundary rendering. eclipse.js calls this for lunar
    * visibility hemispheres. Returns Array<Array<[lat,lng]>>; splits at the
    * antimeridian.
    */
@@ -100,9 +95,8 @@
   }
   window._computeAltitudeContourArcs = _computeAltitudeContourArcs;
 
-  // The Sidebar API that eclipse.js drives (showEclipse / showLunarEclipse) is
-  // defined by js/event-panel.js, loaded before this file (index.html), so no
-  // fallback shim is needed here.
+  // The Sidebar API eclipse.js drives (showEclipse / showLunarEclipse) belongs to
+  // js/event-panel.js, which index.html must load before this file.
 
   // ---- Build the map ----
   // Base tile layers + the layer-control switcher are owned by js/basemaps.js.
@@ -110,8 +104,8 @@
   function buildMap() {
     const map = L.map('map', {
       worldCopyJump: false,
-      minZoom: 3, // matches SubstellarAtlas: can't zoom out past the world window
-      maxZoom: 19, // ceiling shared by SA and every base layer's native/upsampled zoom
+      minZoom: 3, // can't zoom out past the world window
+      maxZoom: 19, // ceiling shared by every base layer's native/upsampled zoom
       zoomControl: false, // default top-left paints UNDER the 68px topbar (z 1300 vs 0)
       maxBounds: [
         [-90, MAP_LNG_WEST],
@@ -120,11 +114,10 @@
       maxBoundsViscosity: 1.0, // hard edge — no rubber-band past the bounds
     }).setView([30, 30], 3);
 
-    // Attribution lives bottom-right of the inset map (just left of the right rail).
-    // License requirement (OSM / CARTO / OHM / Esri all mandate credit);
-    // basemaps.js supplies the per-layer strings. Zoom controls omitted — users
-    // pinch / scroll; buttons are redundant and clutter the paper surface.
+    // License requirement: every base layer (OSM / CARTO / OHM / Esri) mandates credit;
+    // basemaps.js supplies the per-layer strings.
     map.attributionControl.setPosition('bottomright');
+
     // Leaflet's default prefix ships a country-flag sprite next to "Leaflet",
     // which clashes with the site's Song-painting palette — text only.
     map.attributionControl.setPrefix('Leaflet');
@@ -145,13 +138,14 @@
     const map = buildMap();
     const eclipseCtl = Eclipse.init(map);
     window.EclipseCtl = eclipseCtl;
+
     // soloLayer (real-time umbra/penumbra) is NOT mounted here — it tracks event
     // selection: EclipseCtl.selectEvent adds it, panel-close (deselect) removes
     // it. Boot lands in ambient-overview mode with no live footprint.
 
     // Base layers + switcher (light-first). Capture the returned control
-    // (selectBase/chooseBase/getBase) on window so js/permalink.js can read +
-    // restore the active basemap.
+    // (selectBase/chooseBase/getBase/getPick) on window so js/permalink.js can
+    // read + restore the active basemap.
     if (window.Basemaps && Basemaps.init) window.BasemapsCtl = Basemaps.init(map);
 
     if (window.UI && UI.init) UI.init();
@@ -160,6 +154,7 @@
     if (window.EclipseLoader && EclipseLoader.init) {
       EclipseLoader.init(map, eclipseCtl);
     }
+
     // The Atlas front-end OWNS the record markers, the library and the fisheye
     // lizhou; nothing here may draw a record marker of its own.
     if (window.Atlas && Atlas.init) await Atlas.init(map, eclipseCtl);

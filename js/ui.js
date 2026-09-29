@@ -10,9 +10,8 @@
 const UI = (() => {
   'use strict';
 
-  // Endonyms for the switcher: every language names itself, in its own script, so
-  // the list is readable to the reader looking for their own row. zh-Hant is
-  // therefore written 繁體 in traditional characters, not 繁体 in simplified.
+  // Endonyms for the switcher: every language names itself, in its own script.
+  // zh-Hant is written 繁體 (traditional), not 繁体 (simplified).
   const LANG_NAMES = {
     'zh-Hans': '简体中文',
     'zh-Hant': '繁體中文',
@@ -23,18 +22,18 @@ const UI = (() => {
     ja: '日本語',
   };
 
-  // ---- Out-of-window notice ----
-  // TimeState.onRangeClamp fires whenever a requested time is redirected onto
-  // the service-window boundary (−3000…1999). Surface a brief notice so the
-  // reader understands why the clock landed on the edge. Text is read fresh
-  // from i18n each time (survives a mid-session locale switch); the fade timer
-  // is single-shot and restarts on repeated clamps.
+  // ---- Out-Of-Window Notice ----
+
+  // TimeState.onRangeClamp fires whenever a requested time is redirected onto the
+  // service-window boundary. Text is read fresh from i18n each time; the fade timer
+  // restarts on repeated clamps.
   let _clampTimer = null;
   function _showClampHint() {
     const el = document.getElementById('range-clamp-hint');
     if (!el) return;
     el.textContent = typeof I18n !== 'undefined' && I18n.t ? I18n.t('time.clamped_to_range') : '';
     el.hidden = false;
+
     // Reflow between removing and re-adding .show so a repeat clamp re-triggers
     // the CSS fade-in from the top rather than freezing mid-transition.
     el.classList.remove('show');
@@ -49,7 +48,8 @@ const UI = (() => {
     }, 2800);
   }
 
-  // ---- Language switcher (i18n.js is already vendored; this is just the UI) ----
+  // ---- Language Switcher ----
+
   function populateLangDropdown() {
     if (typeof I18n === 'undefined') return;
     const sel = document.getElementById('lang-select');
@@ -70,6 +70,7 @@ const UI = (() => {
     const sel = document.getElementById('lang-select');
     populateLangDropdown();
     if (sel) sel.addEventListener('change', () => I18n.setLocale(sel.value));
+
     // Re-render keyed DOM + dropdown on every switch.
     I18n.subscribe(() => {
       I18n.applyDOM();
@@ -77,10 +78,8 @@ const UI = (() => {
     });
   }
 
-  // Replace each .iconselect's native OS popup with a styled custom panel.
-  // The hidden <select> is kept as the event hub; basemaps.js / ui.js wire
-  // 'change' on it unchanged. MutationObserver re-syncs the list when
-  // populateLayerSelect() re-fills it (e.g. after OHM late-registers).
+  // Replace each .iconselect's native OS popup with a styled custom panel. The
+  // hidden <select> stays the event hub; other modules wire 'change' on it unchanged.
   function wrapIconSelect(container) {
     const sel = container.querySelector('select');
     if (!sel || container.dataset.wrapped) return;
@@ -115,6 +114,7 @@ const UI = (() => {
     }
 
     syncPanel();
+
     // Re-read the options on both ways the <select> can change: repopulation (childList,
     // e.g. OHM registering late) and a committed pick, so aria-selected keeps naming the
     // row the control actually holds.
@@ -139,10 +139,8 @@ const UI = (() => {
       if (!container.contains(e.target)) closePanel();
     });
 
-    // Arrow keys move a cursor; only Enter/Space commits it. Clicking an option fires
-    // `change` AND closes the panel, so driving the arrows through click() would switch
-    // the locale or swap the basemap on every keystroke and shut the list on the first
-    // one — the reader could never browse to the row they wanted.
+    // Arrow keys move a cursor; only Enter/Space commits it. Driving the arrows
+    // through click() would fire `change` on every keystroke and close the panel.
     function moveCursor(dir) {
       const items = [...panel.querySelectorAll('.isel-item')];
       if (!items.length) return;

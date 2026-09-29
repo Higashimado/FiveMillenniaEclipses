@@ -1,34 +1,19 @@
 /**
  * ephem-correct.js — per-event calibration of astronomy-engine against JPL DE441.
  *
- * Public API:
- *   EphemCorrect.setEvent(event)              — adopt the selected event's coefficients
- *   EphemCorrect.at(date)                     — the correction in force there, or null
- *   EphemCorrect.geoVector(body, date)        — corrected geocentric EQJ vector
- *   EphemCorrect.equator(body, date, obs)     — topocentric of-date RA/Dec
- *   EphemCorrect.subPoint(body, date)         — the place the body stands overhead
- *   …With() variants take the correction explicitly, for the build.
+ * Public API: EphemCorrect.{setEvent, at, geoVector, equator, subPoint}; the …With()
+ * variants take the correction as an argument instead of reading module state.
  *
- * Events before −1999 ship Besselian elements computed from DE441, so the shadow,
- * the contact curves and the local contact times are DE-quality already. What is
- * not is everything the page recomputes live: sub-solar and sub-lunar points,
- * altitude and azimuth read-outs, the eclipse glyph, the Moon marker. Those run on
- * astronomy-engine, whose Moon is thousands of km from DE441 across −3000…−2000.
- *
- * Shipping DE to the browser is not an option and is not needed: across the few
- * hours around an event that this atlas ever displays, DE minus AE is a slowly
- * turning, nearly rigid offset, and a cubic in "hours from greatest eclipse"
- * absorbs it. So each ancient event carries 24 floats.
- *
- * OUTSIDE the fitted window the correction is DROPPED, never frozen. The offset
- * direction rotates with the Moon's orbit, so a held correction drifts out of
- * phase and overshoots — far enough out, worse than no correction at all.
+ * astronomy-engine's Moon diverges from DE441 by thousands of km across −3000…−2000;
+ * each ancient event carries a cubic-in-hours correction fitted around greatest eclipse.
+ * Outside the fitted window the correction is DROPPED, never frozen: the offset
+ * direction rotates with the Moon's orbit, so a held correction overshoots.
  */
 const EphemCorrect = (() => {
   'use strict';
 
-  // Matches HALF_WINDOW_H in the generator that fits these coefficients. The two
-  // must agree: outside it the polynomial was never fitted and diverges fast.
+  // This must equal the half-window the shipped coefficients were fitted over: outside
+  // it the polynomial was never fitted and diverges fast.
   const MAX_APPLY_HOURS = 12;
 
   const KM_PER_AU = 1.4959787069098932e8;
@@ -36,12 +21,11 @@ const EphemCorrect = (() => {
 
   let _active = null; // { epoch: ms, moon: coeffs, sun: coeffs }
 
-  // ---- Correction state ----
+  // ---- Correction State ----
 
   /**
-   * Adopt (or clear) the selected event's coefficients. Events from −1999 on
-   * carry none, so this is how the correction switches itself off for the 97 %
-   * of the atlas that never needed it.
+   * Adopt (or clear) the selected event's coefficients. An event without them clears
+   * the correction — most of the atlas carries none, and this is what switches it off.
    */
   function setEvent(event) {
     const corr = event && event.aeCorr;
@@ -81,19 +65,12 @@ const EphemCorrect = (() => {
     return null;
   }
 
-  // ---- Corrected positions ----
+  // ---- Corrected Positions ----
 
   /**
-   * Add the DE-minus-AE offset to a geocentric EQJ vector the caller already has.
-   *
-   * This is the primitive, and call sites use it in preference to letting this
-   * module make the astronomy-engine call for them. The two lunar entry points
-   * differ — GeoVector(Moon, t, true) carries aberration and GeoMoon(t) does not —
-   * so wrapping whatever the call site already asked for adds the correction
-   * without silently changing which convention that site has always used.
-   *
-   * Passing through unchanged for any body other than the Sun and Moon, and
-   * whenever no correction applies, so callers need no guard.
+   * Add the DE-minus-AE offset to a geocentric EQJ vector the caller already has, so
+   * wrapping an existing GeoVector/GeoMoon call never changes its convention. Passes
+   * vec through unchanged for any body other than the Sun and Moon.
    */
   function correctWith(vec, body, corr) {
     if (!corr) return vec;
@@ -109,8 +86,7 @@ const EphemCorrect = (() => {
 
   /**
    * Geocentric EQJ vector (AU) for the Sun or Moon, for callers with no existing
-   * call of their own to wrap. Uses GeoMoon for the Moon, matching how the
-   * coefficients were fitted.
+   * call of their own to wrap.
    */
   function geoVectorWith(body, date, corr) {
     const raw = _bodyName(body) === 'Moon' ? Astronomy.GeoMoon(date) : Astronomy.GeoVector(body, date, true);
@@ -118,18 +94,9 @@ const EphemCorrect = (() => {
   }
 
   /**
-   * Topocentric of-date RA (hours) and declination (degrees) — the two numbers
-   * Astronomy.Horizon takes. Horizon needs no correction of its own, being pure
-   * rotation, so this is the only place an ephemeris enters an altitude reading.
-   *
-   * The observer is subtracted as a VECTOR rather than the correction being
-   * applied as an angle afterwards. Parallax moves the Moon by up to a degree
-   * between the geocentric and topocentric directions, and that fraction of the
-   * ancient correction is larger than everything else in this module together.
-   *
-   * With a zero correction this reproduces Astronomy.Equator(body, date, obs,
-   * true, true) to 0.004", which is how the reconstruction was checked rather
-   * than assumed.
+   * Topocentric of-date RA (hours) and declination (degrees). The observer is
+   * subtracted as a VECTOR, not applied as an angle: parallax moves the Moon up to a
+   * degree. With a zero correction this MUST equal Astronomy.Equator(body, date, obs, true, true).
    */
   function equatorWith(body, date, observer, corr) {
     if (!corr) return Astronomy.Equator(body, date, observer, true, true);
@@ -165,13 +132,11 @@ const EphemCorrect = (() => {
     return { lat: (Math.asin(v.z / dist) * 180) / Math.PI, lng, distAU: dist };
   }
 
-  // ---- Ambient-state wrappers ----
-  //
-  // Two forms of every call, rather than one that treats a missing argument as
-  // "use the ambient state": the build passes coefficients explicitly and the
-  // browser reads them from the selection, and an undefined-versus-null slip
-  // between those two worlds would silently drop the correction rather than fail.
+  // ---- Ambient-State Wrappers ----
 
+  // Two forms of every call, never one that treats a missing argument as "use the
+  // ambient state": merging the two makes an undefined-versus-null slip silently
+  // drop the correction instead of failing.
   function correct(vec, body, date) {
     return correctWith(vec, body, at(date));
   }

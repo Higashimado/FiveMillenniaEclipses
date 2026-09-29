@@ -15,44 +15,27 @@ const Eclipse = (() => {
   const R_SUN = 695700;
   const AU = 1.495978707e8; // km
 
-  // Views onto EclipseLoader's single merged catalog — NOT copies. It already
-  // fetches solar.json + lunar.json (13.5 MB), tags each event with _kind and
-  // pre-parses the _p1Ms/_p4Ms contact bounds this module scans on every
-  // TimeState tick; fetching and annotating a second private copy here doubled
-  // both the parse cost and the resident event objects for no added information.
+  // Views onto EclipseLoader's merged catalog: never fetch or annotate a private copy.
   let solarEvents = [];
   let lunarEvents = [];
-  let besselPolys = {}; // date → NASA Besselian polynomial, filled per-event
-  // from events/<date>.json's bessel block on selection
-  // Bumped on every besselPolys mutation. ANY memo whose value derives from the
-  // Bessel-element vector b MUST fold this into its key: the same instant + place
-  // resolves to DIFFERENT elements before vs after an event's NASA polynomial
-  // lands (b = f(instant, ephemeris), not f(instant) alone), so a key without it
-  // hands back geometry from the superseded ephemeris — e.g. a fresh-b NASA
-  // penumbra wash drawn over stale AE dashed iso-lines, which then cross.
+  let besselPolys = {}; // date → NASA polynomial from events/<date>.json
+
+  // Bumped on every besselPolys mutation. Any memo derived from the Bessel elements MUST
+  // fold it into its key: one instant resolves to other elements once the NASA polynomial lands.
   let _ephemGen = 0;
   let _loaded = false;
   let _polling = false;
   let _callbacks = [];
 
-  // At zoom ≥ Z_CAP the shadow densify density and umbra seed azimuth count are
-  // frozen: finer steps only insert invisible collinear vertices, so a zoomend
-  // beyond Z_CAP that changes neither the instant nor zEff can be skipped by
-  // redrawShadow's zoom-reuse gate. Module-scoped so renderSolarShadow and the
-  // gate share the one constant. (Shared with the companion atlas.)
+  // Densify step and umbra seed count stop growing at zoom Z_CAP, so redrawShadow may skip
+  // a zoomend beyond it that changes neither the instant nor zEff.
   const Z_CAP = 9;
-  // Per-instant memo of the marching-squares iso/penumbra chains: a function of the
-  // Bessel elements (b), so a zoom-only redraw of the same instant + ephemeris
-  // reuses them and skips the field build + marching-squares. Keyed by keyTime +
-  // _ephemGen — the instant alone is NOT enough, since b also depends on which
-  // ephemeris is loaded (AE-direct until the event's NASA polynomial lands).
+
+  // Marching-squares chains for one instant, keyed by keyTime + _ephemGen.
   let _fieldCache = { key: '', chainsByMag: null };
 
-  // Map reference + per-redraw viewport snapshot, used by addPolyline to skip
-  // world-wrap copies that fall entirely outside the current viewport. Set once
-  // per draw pass (drawContactCurves / redrawShadow) so individual addPolyline
-  // calls don't each hit map.getBounds(). _curveViewport === null disables
-  // culling (no map ref yet, e.g. tests) → draw every wrap as before.
+  // Viewport snapshot taken once per draw pass; addPolyline skips world copies outside it.
+  // null draws every copy.
   let _map = null;
   let _curveViewport = null; // { west, east } in degrees, margin already applied
 
@@ -78,26 +61,19 @@ const Eclipse = (() => {
 
   // ---- Data loading ----
 
-  // Adopt EclipseLoader's catalog once it is populated. besselPolys stays lazily filled
-  // per event from events/<date>.json (see loadCurvesFor): every event carries its own
-  // NASA elements, so there is no shared elements blob to load up front and none should
-  // be reintroduced — at full coverage it would be megabytes fetched to read one event.
+  // Adopt EclipseLoader's catalog once it is populated. besselPolys fills per event in
+  // loadCurvesFor; never load every event's elements up front.
   function loadData(cb) {
     if (_loaded) {
       cb && cb();
       return;
     }
     if (cb) _callbacks.push(cb);
-    // The same service-window view every other consumer reads. The catalog files
-    // carry a post-1999 tail that nothing here can reach: findActiveSolar and
-    // findActiveLunar are only ever passed TimeState.current, and TimeState hard-
-    // clamps at 1999-12-31 (time.js _RANGE_MAX), while nextVisible() scans
-    // EclipseLoader.all() directly.
     const cat = window.EclipseLoader && EclipseLoader.all ? EclipseLoader.all() : [];
     if (!cat.length) {
       // EclipseLoader.init is not awaited by map-boot, so a shadow redraw can beat it.
-      // Poll rather than fetch: a second fetch would re-download and re-parse 13.5 MB
-      // to learn what is already on its way.
+      // Poll for the catalog rather than fetching it: a second fetch re-downloads and
+      // re-parses the whole index to learn what is already on its way.
       if (!_polling) {
         _polling = true;
         setTimeout(() => {
@@ -114,28 +90,23 @@ const Eclipse = (() => {
     _callbacks = [];
   }
 
-  // ---- Solar shadow geometry (real-time) ----
-  //
-  // The shadow footprint is drawn with the SAME Besselian geometry as the cached
-  // contact curves (js/bessel-runtime.js), so the live umbra/antumbra and
-  // iso-magnitude rings stay tangent to the cached limit/iso-mag curves. The
-  // legacy sphere approximation below is kept only as a fallback for the
-  // (practically impossible) case that the runtime module fails to load.
+  // ---- Solar Shadow Geometry ----
 
-  // Besselian path — returns { b (elements), sub, isTotal }. sub is null when
-  // the shadow axis doesn't intersect Earth (partial eclipses, or partial phases
-  // P1→U1 / U4→P4 of total/annular eclipses); penumbra/iso-mag rings are still
-  // rendered via projectRing's per-azimuth boundary search.
+  // The live footprint uses the same Besselian geometry as the cached contact curves
+  // (js/bessel-runtime.js) so the two stay tangent. The sphere version runs only when that
+  // module failed to load.
+
+  // Returns { b, sub, isTotal }; sub is null when the shadow axis misses Earth.
   function computeSolarShadow(date, event) {
     const poly = event && besselPolys[event.date];
     const b = poly
-      ? BesselRT.evalBessel(poly, date) // NASA-transcribed (4 events)
-      : BesselRT.coreBesselAE(Astronomy, date); // AE-direct (== build)
+      ? BesselRT.evalBessel(poly, date) // this event's own NASA elements
+      : BesselRT.coreBesselAE(Astronomy, date); // AE-direct, until they land
     const sub = BesselRT.fundamentalToGeo(b.x, b.y, b);
     return { b, sub, isTotal: b.l2 < 0 };
   }
 
-  // Legacy sphere approximation (fallback only).
+  // Sphere approximation (fallback only).
   function computeSolarShadowSphere(date) {
     const sun = EphemCorrect.correct(Astronomy.GeoVector(Astronomy.Body.Sun, date, false), Astronomy.Body.Sun, date);
     const moon = EphemCorrect.correct(Astronomy.GeoMoon(date), Astronomy.Body.Moon, date);
@@ -202,17 +173,11 @@ const Eclipse = (() => {
     return null;
   }
 
-  // ---- Local circumstances & forecast (ported verbatim from SubstellarAtlas) ----
-  //
-  // Per-observer geometry for the click-a-point observation popup: which phase a
-  // location would witness (classifySolar / classifyLunar), the observer's own
-  // contact times (solarLocalContacts), and — when the selected eclipse isn't
-  // visible there — the next eclipse of each kind visible from that point
-  // (nextVisible). Solar geometry runs through BesselRT.localCircumstances with
-  // the SAME coreBesselAE the real-time footprint uses, so the popup agrees with
-  // the drawn shadow. Refraction is confined to the horizon gate / altitude
-  // read-outs (Astronomy.Horizon 'normal'); the disc-tangency contacts stay
-  // geometric, so the map's drawn geometry is untouched.
+  // ---- Local Circumstances And Forecast ----
+
+  // Per-observer geometry for the observation popup, on the same Bessel elements as the live
+  // footprint. Refraction applies only to the horizon gate and altitude read-outs; contacts
+  // stay geometric.
 
   // Apparent horizontal coords (az/alt deg) of a body — refraction-corrected.
   function _bodyHorizontal(body, date, lat, lng) {
@@ -311,11 +276,8 @@ const Eclipse = (() => {
     return { visible: true, maxPhase, maxMag: r.lc.magnitude, peakMs: r.ms };
   }
 
-  // Full local contact times for a solar eclipse at the observer: C1/C4 (partial
-  // limits), C2/C3 (central limits, null if not central), the local maximum, and
-  // sunrise/sunset markers when the Sun crosses the horizon mid-eclipse. Contacts
-  // are GEOMETRIC disc-tangency (refraction never moves them); visibility is gated
-  // by classifySolar (apparent). Times are Dates; null when absent.
+  // C1–C4, local maximum and mid-eclipse sunrise/sunset as Dates, null when absent.
+  // Contacts are geometric disc tangency; visibility is apparent, from classifySolar.
   function solarLocalContacts(event, lat, lng) {
     const base = classifySolar(event, lat, lng);
     if (!base.visible) return { visible: false, maxPhase: 'none' };
@@ -383,9 +345,9 @@ const Eclipse = (() => {
       };
       c2 = edge(-1);
       c3 = edge(1);
-      // Reject an edge-clamp collapse (grazing/midnight/bad point): keep only a
-      // strictly-interior [c2,c3] — the same rejection the offline contact solver
-      // applies, so the popup's times agree with the cached ones.
+
+      // Keep [c2,c3] only when strictly inside [c1,c4]; MUST match the offline contact
+      // solver's rejection so popup times equal the cached ones.
       if (!(c2.getTime() > c1ms && c3.getTime() < c4ms && c3.getTime() - c2.getTime() > 1000)) {
         c2 = null;
         c3 = null;
@@ -424,10 +386,7 @@ const Eclipse = (() => {
     };
   }
 
-  // Local solar contacts depend on event elements + location; memoize so a moving
-  // time slider doesn't re-run the root-finder each tick. _ephemGen is in the key
-  // too: the elements flip AE→NASA when the event's polynomial loads, and a key
-  // without it would pin the popup's contact times to the pre-NASA (AE) solution.
+  // Memoized so a moving time slider does not rerun the root finder.
   let _slcCache = null;
   function solarLocalContactsCached(event, lat, lng) {
     const key = event.date + ',' + lat.toFixed(2) + ',' + lng.toFixed(2) + ',' + _ephemGen;
@@ -457,6 +416,7 @@ const Eclipse = (() => {
       for (let i = 0; i <= 6; i++) if (_moonAlt(new Date(a + ((b - a) * i) / 6), lat, lng) > 0) return true;
       return false;
     };
+
     // Penumbral eclipses have no umbral contacts; check the penumbral window instead.
     if (isNaN(Date.parse(t.u1)) || isNaN(Date.parse(t.u4))) {
       if (moonUpIn(t.p1, t.p4)) return { visible: true, maxPhase: 'penumbral', peakMs: Date.parse(t.peak) };
@@ -505,10 +465,7 @@ const Eclipse = (() => {
     return slots;
   }
 
-  // nextVisible is expensive (hundreds of ephemeris evals); memoize by rounded
-  // location + day (+ _ephemGen, since the underlying elements flip AE→NASA on
-  // load) so it recomputes only when the observer moves, the date rolls, or the
-  // ephemeris generation advances.
+  // Memoized by rounded location and day.
   let _nvCache = null;
   function nextVisibleCached(lat, lng, fromDate) {
     const key =
@@ -519,19 +476,10 @@ const Eclipse = (() => {
     return slots;
   }
 
-  // Umbral-eclipse "redness" driving the moonlight veil tint below, and exported
-  // on the public API for any future veil consumer.
-  // 0 = no umbral phase active … 1 = deepest red.
-  //   Total   eclipse: FULL red throughout totality (U2..U3); linear ramp
-  //                    across the partial ingress (U1..U2) and egress (U3..U4).
-  //   Partial eclipse: no totality → triangular ramp peaking at the umbral
-  //                    magnitude (<1) at greatest.
-  //   Penumbral-only (no U contacts): 0 — too faint to tint.
+  // Moonlight-veil redness, 0…1: full through U2–U3 with linear ramps on U1–U2 and U3–U4;
+  // a partial eclipse peaks at its umbral magnitude; a penumbral one stays 0.
   function lunarRedness(date) {
-    // Lazy-load the catalog so the moonlight veil can redden during normal
-    // sky viewing without the (mutually-exclusive) Eclipses overlay being on.
-    // First call kicks off the fetch and returns 0; the next TimeState tick
-    // (mask rebuild) picks up the loaded data.
+    // The veil reddens without the Eclipses overlay, so load here; the first call returns 0.
     if (!_loaded) {
       loadData();
       return 0;
@@ -551,6 +499,7 @@ const Eclipse = (() => {
       if (t < u2) return (t - u1) / (u2 - u1);
       return (u4 - t) / (u4 - u3);
     }
+
     // Partial: triangular ramp, peak = umbral magnitude (<1) at greatest.
     const peak = Date.parse(T.peak);
     const frac = t <= peak ? (t - u1) / (peak - u1) : (u4 - t) / (u4 - peak);
@@ -560,17 +509,10 @@ const Eclipse = (() => {
 
   // ---- Rendering ----
 
-  // ---- Besselian instantaneous-footprint renderer ----
-  // Draws the umbra/antumbra, iso-magnitude rings (0.2/0.4/0.6/0.8 — matching
-  // the cached magContours), and the partial-visibility (penumbra) edge by
-  // projecting fundamental-plane contours through BesselRT.projectRing. Each
-  // ring is laid down via addPolyline so it gets ±360° world copies, antimeridian
-  // splitting and null-gap (limb-clip) handling for free.
+  // Live iso-magnitude levels MUST equal the cached magContours levels. Every ring goes
+  // through addPolyline for world copies, antimeridian splits and limb gaps.
 
-  // Localized "totality band" map label. Read at draw time so a fresh path picks
-  // up the current locale. The bare-English literal covers only the case where
-  // i18n never loaded at all — it must not be a Chinese string, which would put
-  // Han script on a French or Spanish map.
+  // Read at draw time for the current locale; the fallback stays English.
   function _totalBandLabel() {
     return typeof I18n !== 'undefined' ? I18n.t('eclipse.map.total_band') : 'Totality band';
   }
@@ -582,8 +524,8 @@ const Eclipse = (() => {
     for (const p of pts) if (p && (!top || p[0] > top[0])) top = p;
     if (!top) return;
     const lat = top[0] + 0.5;
-    for (let w = -1; w <= 1; w++) {
-      L.marker([lat, top[1] + w * 360], {
+    for (const off of GeoUtils.wrapOffsets(top[1], top[1])) {
+      L.marker([lat, top[1] + off], {
         icon: L.divIcon({
           className,
           html: isBand ? '<span aria-hidden="true">' + html + '</span>' : html,
@@ -594,13 +536,8 @@ const Eclipse = (() => {
     }
   }
 
-  // On-screen tangent (deg) of seg at index i, measured in _map's Web Mercator
-  // pixel space so it matches the drawn polyline's slope EXACTLY (the polyline is
-  // drawn in that same space). Zoom-invariant — Mercator scales x/y isotropically,
-  // so the chord angle is independent of zoom (and of pan, which is translation),
-  // letting us bake it once at render time. Computing the angle in geographic
-  // (Δlat,Δlng) space instead and applying it as a screen-space CSS rotate() is the
-  // classic bug (latitude stretch desyncs it from the on-screen slope) — don't.
+  // Tangent in degrees, measured in Web Mercator pixels so it holds at every zoom. Never
+  // measure it in Δlat/Δlng: latitude stretch skews it from the on-screen slope.
   function contourTangentDeg(seg, i) {
     if (!_map || typeof _map.project !== 'function') return 0;
     const n = seg.length,
@@ -617,15 +554,8 @@ const Eclipse = (() => {
     return deg;
   }
 
-  // Anchor index for a contour label, decided by the segment's TOPOLOGY. A CLOSED
-  // loop (a concentric iso-magnitude ring around the point of greatest eclipse) is
-  // anchored at its NORTHERNMOST vertex: nested rings' top vertices line up
-  // vertically, so the labels stack into a readable 0.80→0.20 ladder (and the tangent
-  // there is ~horizontal, so the text sits flat). An OPEN arc (terminator-clipped, or
-  // a cached ground-envelope branch) has its ends out on the limb, so its midpoint is
-  // the true visual centre — anchor there (and NOT at the northernmost vertex, which
-  // for an open arc is just the clipped end). Topology is judged by endpoint
-  // coincidence relative to the segment's own bbox, so the test is scale-free.
+  // A closed ring anchors at its northernmost point so nested labels stack in one column;
+  // an open arc anchors at its midpoint, since its ends lie on the limb.
   function anchorIndex(seg, refLng) {
     const n = seg.length;
     const a = seg[0],
@@ -656,7 +586,6 @@ const Eclipse = (() => {
         const dp = p[1] - refLng,
           dq = q[1] - refLng;
         if (dp * dq <= 0 && dp !== dq) {
-          // Edge straddles refLng
           const t = dp / (dp - dq);
           const crossLat = p[0] + t * (q[0] - p[0]);
           if (crossLat > bestLat) {
@@ -667,6 +596,7 @@ const Eclipse = (() => {
       }
       if (bestIdx >= 0) return bestIdx;
     }
+
     // Fallback: global northernmost vertex (refLng absent or outside ring bbox).
     let bi = 0,
       best = -Infinity;
@@ -678,14 +608,8 @@ const Eclipse = (() => {
     return bi;
   }
 
-  // Drop a value label on each sufficiently-long segment in `segs`, rotated to run
-  // PARALLEL to the contour's on-screen tangent at the anchor. The anchor is chosen by
-  // `anchorIndex` per topology: closed iso rings get their northernmost vertex (so
-  // nested rings stack into a 0.80→0.20 ladder), open arcs get their midpoint (inside
-  // the drawn arc, not at a clip/limb end). Labelling every segment ≥ 0.5× the longest
-  // gives one label for a single arc and one per branch when north and south arcs are
-  // both substantial. `color`, when given, is applied inline (cached magContour); omit
-  // it to inherit the className's CSS color (real-time grey .iso-mag-label).
+  // Labels every segment at least half as long as the longest, parallel to the contour.
+  // Omit color to inherit the className's CSS color.
   function placeContourLabel(segs, text, className, layer, color, refLng, pane) {
     if (!segs || !segs.length) return;
     let maxLen = 0;
@@ -697,15 +621,14 @@ const Eclipse = (() => {
       const mid = seg[i];
       if (!mid) continue;
       const deg = contourTangentDeg(seg, i);
-      // Rotate the inner span (the marker div itself is owned by Leaflet for
-      // positioning); the same deg serves all ±360 wrap copies (angle is invariant
-      // under a longitude shift).
+
+      // Rotate the inner span: Leaflet owns the marker div's transform.
       const style =
         'display:inline-block;transform:rotate(' + deg.toFixed(1) + 'deg)' + (color ? ';color:' + color : '');
       const html = '<span style="' + style + '">' + text + '</span>';
-      for (let w = -1; w <= 1; w++) {
+      for (const off of GeoUtils.wrapOffsets(mid[1], mid[1])) {
         L.marker(
-          [mid[0] + 0.3, mid[1] + w * 360],
+          [mid[0] + 0.3, mid[1] + off],
           Object.assign(
             {
               icon: L.divIcon({ className, html, iconSize: [32, 14], iconAnchor: [16, 7] }),
@@ -733,12 +656,15 @@ const Eclipse = (() => {
       }
     }
     if (simple) {
-      // smoothFactor:0 — disable Leaflet's Douglas-Peucker simplification so our
-      // carefully densified vertices are all used. The default smoothFactor:1 drops
-      // any vertex whose on-screen deviation from the straight chord is < 1px,
-      // reducing a 34px-radius ring to ~13 sides regardless of vertex count.
+      // smoothFactor 0: Leaflet's default of 1 drops ring vertices.
       const polyOpts = Object.assign({ pane: 'eclipse-curves', interactive: false, smoothFactor: 0 }, opts);
-      for (const off of [0, -360, 360]) {
+      let lo = Infinity,
+        hi = -Infinity;
+      for (const p of pts) {
+        if (p[1] < lo) lo = p[1];
+        if (p[1] > hi) hi = p[1];
+      }
+      for (const off of GeoUtils.wrapOffsets(lo, hi)) {
         L.polygon(
           pts.map((p) => [p[0], p[1] + off]),
           polyOpts
@@ -749,28 +675,15 @@ const Eclipse = (() => {
     }
   }
 
-  // Project a fundamental-plane (ξ,η) interior-iso vertex to [lat,lng] with the
-  // self-consistent SPHERICAL inverse (the field uses the spherical ζ too). Smooth
-  // and defined everywhere on the disc — unlike the ellipsoid fundamentalToGeo,
-  // which returns null in the thin near-limb band and makes contours break/zigzag.
+  // Spherical inverse, matching the field's spherical ζ. Never the ellipsoid fundamentalToGeo:
+  // it returns null in a band near the limb.
   function fundToGeoSafe(xi, eta, b) {
     const g = BesselRT.fundamentalToGeoSphere(xi, eta, b);
     return [g.lat, g.lng];
   }
 
-  // Project a fundamental-plane (ξ,η) contour chain to a [lat,lng] polyline,
-  // adaptively closing the geographic facets that appear where the (ξ,η)→geo
-  // projection stretches (the rise/set limb, and high latitude where sec φ blows
-  // up): consecutive cell-step vertices there can be hundreds of km apart on the
-  // ground even though they're ~one grid cell apart in (ξ,η). We bisect IN (ξ,η)
-  // and project each sub-vertex (grid-scale segments are locally straight in ξ,η,
-  // so no contour re-snap is needed) until the on-map Mercator chord ≤ maxMercDeg,
-  // the same discipline the cached rise/set curves are densified under.
-  //   The off-chord guard does double duty: when the (ξ,η) midpoint does NOT
-  // project between its endpoints, the segment isn't a stretch but a PROJECTION
-  // SINGULARITY (the contour passing the geographic pole, where longitude is
-  // undefined). Densifying across it would draw a slash, so insert a null break
-  // instead and let splitAtAntimeridian cut it cleanly.
+  // Bisects in (ξ,η) until every Mercator chord ≤ maxMercDeg. A midpoint that does not
+  // project between its endpoints marks the pole singularity: break the line there.
   function densifyContour(chain, b, maxMercDeg) {
     const mc = BesselRT.mercatorChordDeg;
     const pj = chain.map((p) => ({ x: p, g: fundToGeoSafe(p[0], p[1], b) }));
@@ -812,12 +725,8 @@ const Eclipse = (() => {
     return out;
   }
 
-  // Fill one closed shadow ring (a lens from isoMagLensGeo) as a flat-opacity band,
-  // repeated across world copies. Unwraps longitude into a continuous run; only when the
-  // ring truly winds a pole (|Σ Δlng| ≈ 360°) does it close over the Mercator-clamped
-  // pole edge so the enclosed polar cap fills too. Merely CROSSING the antimeridian
-  // must not trigger that close, or the fill is slashed across the map. Bands carry
-  // className 'eclipse-penumbra-band'.
+  // Close over the pole only when the ring winds it (|Σ Δlng| ≈ 360°), never when it
+  // merely crosses the antimeridian.
   function _drawShadowBand(ring, color, opacity, layer, poleLat, pane, className) {
     if (!ring || ring.length < 3) return;
     const uw = [[ring[0][0], ring[0][1]]];
@@ -829,9 +738,8 @@ const Eclipse = (() => {
       wind += d;
       uw.push([ring[i][0], uw[i - 1][1] + d]);
     }
-    // Default pane/class = the solar penumbra choropleth (unchanged for solar).
-    // The lunar visibility cap passes its own class so it isn't repainted as
-    // the shadowPenumbra band.
+
+    // The lunar visibility cap passes its own pane and class.
     const polyOpts = {
       color: 'none',
       weight: 0,
@@ -842,13 +750,9 @@ const Eclipse = (() => {
       pane: pane || 'eclipse-shadow',
       smoothFactor: 0,
     };
-    // World-copy offsets derived from each polygon's OWN longitude extent, not a
-    // fixed [0,-360,+360] triple. Even with a normalized cap centre, the unwrap
-    // above (and the pole-winding split below) can leave a polygon's longitudes
-    // anywhere in [0,360) or beyond — so when the cap crosses the antimeridian a
-    // fixed triple misses the far-west copy of the -200..520 window (720° wide).
-    // Tile every 360° shift overlapping the window instead. Mirrors addPolyline's
-    // derivation.
+
+    // Tile every 360° shift of each polygon that overlaps the map window, never a fixed
+    // three-copy set: the unwrap can leave longitudes anywhere.
     const LNG_WEST = -200,
       LNG_EAST = 520; // = MAP_LNG_WEST..MAP_LNG_EAST
     const drawPoly = (pts) => {
@@ -867,12 +771,8 @@ const Eclipse = (() => {
         ).addTo(layer);
     };
     if (Math.abs(wind) > 180) {
-      // Polar-winding cap: the unwrapped ring spans ~360° of longitude. A single
-      // 360°-wide Leaflet polygon triggers an SVG nonzero-winding pathology — the
-      // east-side, west-side, and polar-closure edges cancel to winding=0 at the
-      // cap interior, leaving most of the fill missing. Fix: split at the
-      // antimeridian crossing (uw ≈ start + 180°) into two ≤180°-wide halves;
-      // each half cleanly winds to −1 inside its region.
+      // Split into two halves at most 180° wide, never one 360° polygon: under SVG nonzero
+      // winding that polygon's edges cancel and the fill goes missing.
       const capLat = poleLat >= 0 ? 90 : -90;
       const target = uw[0][1] + 180;
       let splitIdx = 1,
@@ -892,53 +792,29 @@ const Eclipse = (() => {
       drawPoly(h2);
       return;
     }
+
     // Non-polar: the ring is self-closing (uw[0] ≈ uw[last]); no pole closure.
     drawPoly(uw.slice());
   }
 
   function renderSolarShadow(s, layer, zoom, keyTime) {
     const b = s.b;
-    // Azimuth count scales with zoom so the umbra ring stays sub-pixel-smooth at
-    // any zoom (the runtime point math is already meter-accurate; this only
-    // controls polygon faceting). The umbra/antumbra is the hero feature → most
-    // samples. The faint dashed iso/penumbra contours now come from a marching-
-    // squares field (below), not the radial sweep. Redrawn on zoomend.
+
+    // Umbra ring facets grow with zoom; the dashed contours come from the field below.
     const z = zoom || 4;
     const umbraNAz = Math.max(256, Math.min(1024, Math.round(64 * Math.pow(2, z / 2))));
-    // Web-Mercator chord threshold derived from pixels at the current zoom: at
-    // zoom z, 1° of Mercator-equivalent ≈ 256·2^z/360 px, so a 4 px target gives a
-    // sub-pixel-visible bound. Every contour densifier below bisects and
-    // re-projects until each on-map chord ≤ maxMercDeg, because sec φ stretches
-    // polar arcs by ~3× at 70° and ~6× at 80°.
-    //   The density freezes at Z_CAP: past it, finer steps only insert invisible
-    // collinear vertices. redrawShadow's zoom-reuse gate keys on the same zEff, so
-    // a zoom change above Z_CAP skips the rebuild entirely. Capping cannot jitter a
-    // line, because the shape comes from the zoom-independent field below.
+
+    // Mercator chord of 4 px at zEff; 1° spans 256·2^z/360 px.
     const zEff = Math.min(z, Z_CAP);
     const maxMercDeg = (4 * 360) / (256 * Math.pow(2, zEff));
 
-    // Partial-visibility contours — the penumbra (mag=0) edge and the iso-magnitude
-    // levels. Each level is the boundary of {mag ≥ k} ∩ {sunlit disc}, drawn as TWO
-    // pieces that share exact endpoints:
-    //   • interior iso arc — marching squares on the CONTINUOUS magnitude field
-    //     (ζ clamped to 0 off-disc), then clipChainToDisc cuts it at the exact ρ=1
-    //     root; projected with the self-consistent spherical inverse.
-    //   • rise/set terminator — the limb arc closing the lens, grown analytically
-    //     by terminatorArcs FROM the interior arc's own clip angles, so the two
-    //     endpoints coincide.
-    // The two must stay apart: one combined min-of-two-constraints field creases
-    // where the iso arc runs tangent to the limb. Do NOT snap the interior endpoint
-    // to the analytic cusp — near the bottom of the disc the spherical inverse is
-    // sensitive enough that a few-km tangential snap spikes the arc. The narrow
-    // umbra (~30 km) is beyond any practical grid and keeps the radial projector.
-    //   The field step is zoom-INDEPENDENT: the interior arc's (ξ,η) geometry must
-    // be identical at every zoom, or the contour walks as the reader zooms.
-    // densifyContour's maxMercDeg still scales with zoom, but it only inserts
-    // collinear points along the same curve. 0.004 ≈ 25 km in (ξ,η).
-    const fieldStep = 0.004;
-    // mag 0 = penumbra (solid-dim, matches old penumbra style); the rest = iso
-    // levels matching the cached magContours. Colors resolve from COLOR at
-    // render time.
+    // Each level is two pieces sharing endpoints: the marching-squares arc clipped at ρ=1, and
+    // the terminator arc grown from those clip angles. Never snap the arc end to the analytic
+    // cusp, and keep fieldStep independent of zoom so contours hold still while zooming.
+    const fieldStep = 0.004; // ≈ 25 km in (ξ,η)
+
+    // mag 0 = the penumbra edge, drawn solid-dim; the rest = iso levels matching the
+    // cached magContours. Colors resolve from COLOR at render time.
     const LEVELS = [
       { mag: 0, color: COLOR.shadowPenumbra, weight: 1, opacity: 0.55, dash: '4 4', label: null },
       { mag: 0.2, color: COLOR.shadowIso[0], weight: 0.8, opacity: 0.7, dash: '3,5', label: '0.20' },
@@ -946,13 +822,8 @@ const Eclipse = (() => {
       { mag: 0.6, color: COLOR.shadowIso[2], weight: 0.8, opacity: 0.7, dash: '6,4', label: '0.60' },
       { mag: 0.8, color: COLOR.shadowIso[3], weight: 0.8, opacity: 0.7, dash: '8,3', label: '0.80' },
     ];
-    // The magnitude field and per-level marching-squares chains are a function of
-    // b, so memoise by keyTime + _ephemGen: a zoom-only redraw of the same instant
-    // AND ephemeris reuses them and skips the field build + marching-squares. The
-    // _ephemGen tag is essential — b also depends on which ephemeris is loaded, so
-    // keying by the instant alone serves AE chains after NASA elements land, and
-    // the dashed iso-lines then lag the fresh-b penumbra wash (they cross). Cached
-    // chains are read-only downstream (clipChainToDisc/densifyContour copy), safe.
+
+    // Cached chains are shared across redraws: never mutate them downstream.
     let chainsByMag;
     const cacheKey = keyTime != null ? String(keyTime) + '|' + _ephemGen : '';
     if (cacheKey && _fieldCache.key === cacheKey && _fieldCache.chainsByMag) {
@@ -967,14 +838,9 @@ const Eclipse = (() => {
       }
       if (cacheKey) _fieldCache = { key: cacheKey, chainsByMag };
     }
-    // Penumbra ink wash — a choropleth of nested iso-magnitude lens rings. Each ring is the
-    // mag=k contour (isoMagLensGeo → SAME formula as the dashed lines, so bands hug them);
-    // opacity follows the obscuration O(k) = (2/π)[acos(1−k) − (1−k)√(1−(1−k)²)] = the light
-    // actually removed = the darkening seen from space. Painted outer→inner with per-ring
-    // incremental alpha so the composited opacity in band [k_i,k_{i+1}] equals PEAK·O(k_i):
-    // it fades to ~0 at the mag=0 edge (in EVERY direction, unlike a Mercator-radial
-    // gradient) and deepens toward the axis, staying correct at oblique geometry. The axis
-    // ground point only picks the pole side for a genuinely pole-winding ring.
+
+    // Ink wash: nested lens rings painted outer→inner with incremental alpha, so the band at
+    // magnitude k composites to PEN_PEAK·O(k), O being the obscured fraction of the disc.
     const OBSC = (m) => (2 / Math.PI) * (Math.acos(1 - m) - (1 - m) * Math.sqrt(Math.max(0, 1 - (1 - m) * (1 - m))));
     const penAnchor = BesselRT.fundamentalToGeoSphere(b.x, b.y, b);
     const PEN_PEAK = 0.45,
@@ -988,11 +854,12 @@ const Eclipse = (() => {
       prevG = G;
       if (a > 0.002) _drawShadowBand(ring, COLOR.shadowPenumbra, a, layer, penAnchor ? penAnchor.lat : 0);
     }
+
     // Runtime QC accumulator — read by tests via window.__eclipseShadowQC so the
     // shadow is validated numerically (turn-angle + continuity), not just by eye.
     const qc = {};
     for (const lvl of LEVELS) {
-      const interiorGeos = []; // interior iso arcs only (terminator limb arc excluded from labelling)
+      const interiorGeos = []; // labelled; terminator arcs are not
       let worstTurn = 0,
         worstGap = 0,
         nLines = 0;
@@ -1015,12 +882,7 @@ const Eclipse = (() => {
         );
         nLines++;
       };
-      // Interior iso arc(s). The continuous (no +Inf) field lets the contour
-      // cross ρ=1 inside a real cell; clipChainToDisc cuts each chain at the
-      // EXACT ρ=1 root and drops the off-disc part. We record the limb ANGLE of
-      // each clip point and feed those to terminatorArcs, so the terminator is
-      // grown FROM the interior arc's own crossing — the two pieces meet with zero
-      // seam, and we never snap the (singularity-sensitive) interior endpoint.
+
       const interiorClipGeo = []; // geo of interior-arc ends that sit on ρ=1
       const clipThetas = []; // limb angles of those ends → terminator boundaries
       const chains = chainsByMag[String(lvl.mag)];
@@ -1028,6 +890,7 @@ const Eclipse = (() => {
         if (ch.length < 2) continue;
         for (const sub of BesselRT.clipChainToDisc(ch)) {
           if (sub.length < 2) continue;
+
           // Record sub-arc ends that lie ON the limb (clip points): their angle
           // bounds the terminator, their geo feeds the seam QC. Closed-loop ends
           // sit mid-disc (ρ<1) and are skipped.
@@ -1043,6 +906,7 @@ const Eclipse = (() => {
           interiorGeos.push(geo);
         }
       }
+
       // Rise/set terminator arc(s) — analytic on the limb circle, spanning between
       // the interior arc's actual clip angles (zero seam) when there were any.
       const termEndGeo = [];
@@ -1052,6 +916,7 @@ const Eclipse = (() => {
           termEndGeo.push(arc[0], arc[arc.length - 1]);
         }
       }
+
       // Seam continuity QC: every interior clip end must coincide with a terminator
       // end. maxGapKm on a 2-pt poly = the haversine distance between the points.
       let seamKm = 0;
@@ -1083,9 +948,6 @@ const Eclipse = (() => {
         );
       }
       if (lvl.label) {
-        // Label the interior iso arc(s). Closed rings (around greatest eclipse) are
-        // anchored on the vertical line through the sub-solar point so all rings
-        // share the same screen column. Open arcs anchor at their midpoint.
         placeContourLabel(
           interiorGeos,
           lvl.mag.toFixed(2),
@@ -1099,14 +961,8 @@ const Eclipse = (() => {
     }
     if (typeof window !== 'undefined') window.__eclipseShadowQC = qc;
 
-    // Umbra (total) / antumbra (annular) — palette rim stroke + ink-wash fill. The
-    // shadow boundary is the m=|L2'| circle in the fundamental plane; umbraLensGeo
-    // parametrises it by angle (defined for every azimuth) and closes any grazing
-    // day-side lens along the terminator, so it stays smooth both when the axis is
-    // on the disc (a closed ellipse) and at a sunset-terminus eclipse where the axis
-    // grazes just off-disc — the regime that defeats a radial boundary search.
-    // Returns null only when the shadow misses Earth entirely (partial phase / no
-    // landfall).
+    // Umbra or antumbra: the m=|L2'| circle by angle, closed along the terminator when it
+    // grazes the limb; null when the shadow misses Earth.
     const umbra = BesselRT.umbraLensGeo(b, umbraNAz, maxMercDeg);
     if (umbra) {
       drawFilledRing(
@@ -1124,21 +980,20 @@ const Eclipse = (() => {
     }
   }
 
-  // Legacy sphere renderer (fallback only — paired with computeSolarShadowSphere).
+  // Sphere renderer (fallback only — paired with computeSolarShadowSphere).
   function renderSolarShadowSphere(s, layer) {
-    // Iso-magnitude rings: linear approximation between umbra (mag=1) and
-    // penumbra (mag=0). Placeholder for v1.0; v1.1 will replace with Bessel
-    // element exact contours.
+    // Iso rings interpolate linearly between umbra (mag 1) and penumbra (mag 0).
     const ISO_MAG_LEVELS = [
       { mag: 0.2, dashArray: '3,5', color: COLOR.shadowIso[0] },
       { mag: 0.5, dashArray: '5,4', color: COLOR.shadowIso[1] },
       { mag: 0.8, dashArray: '8,3', color: COLOR.shadowIso[3] },
     ];
 
-    for (const offset of [0, -360, 360]) {
+    // Longitude half-width of the penumbra circle; a circle over a pole spans every longitude.
+    const cosLat = Math.cos((s.lat * Math.PI) / 180);
+    const halfLng = cosLat > 1e-6 ? Math.min(180, s.penumbraKm / (111.32 * cosLat)) : 180;
+    for (const offset of GeoUtils.wrapOffsets(s.lng - halfLng, s.lng + halfLng)) {
       const center = [s.lat, s.lng + offset];
-
-      // Penumbra (outer soft edge)
       L.circle(center, {
         radius: s.penumbraKm * 1000,
         color: COLOR.shadowPenumbra,
@@ -1149,8 +1004,6 @@ const Eclipse = (() => {
         interactive: false,
         pane: 'eclipse-shadow',
       }).addTo(layer);
-
-      // Iso-magnitude rings between umbra and penumbra
       for (const level of ISO_MAG_LEVELS) {
         const radiusKm = s.umbraKm + (s.penumbraKm - s.umbraKm) * (1 - level.mag);
         L.circle(center, {
@@ -1164,7 +1017,6 @@ const Eclipse = (() => {
           pane: 'eclipse-shadow',
         }).addTo(layer);
         if (offset === 0) {
-          // Label at north edge of each iso-mag ring (a bit outside)
           const dLatDeg = (radiusKm + 30) / 111.0; // km → degrees of latitude
           L.marker([s.lat + dLatDeg, s.lng], {
             icon: L.divIcon({
@@ -1177,8 +1029,6 @@ const Eclipse = (() => {
           }).addTo(layer);
         }
       }
-
-      // Umbra: palette rim stroke + ink-wash fill (geometry self-explains)
       L.circle(center, {
         radius: s.umbraKm * 1000,
         color: COLOR.umbraStroke,
@@ -1190,8 +1040,7 @@ const Eclipse = (() => {
         pane: 'eclipse-shadow',
       }).addTo(layer);
 
-      // Edge label at north umbra rim (only the on-screen copy). Annular eclipses
-      // get no label — only the total-eclipse band is called out by name.
+      // Only the total band is named; an annular one gets no label.
       if (offset === 0 && s.isTotal) {
         const labelLatDeg = s.lat + (s.umbraKm + 60) / 111.0;
         L.marker([labelLatDeg, s.lng], {
@@ -1207,47 +1056,39 @@ const Eclipse = (() => {
     }
   }
 
-  // ---- Contact-curve rendering (P1/P4 envelope, N/S limits, central path,
-  //      iso-magnitude contours, lunar U1–U4 visibility hemispheres). The
-  //      curves are time-independent for a given event — built once at
-  //      build-eclipses.js time — so we just need to lay them down on the
-  //      map when the user selects an eclipse, and clear when they close.
+  // ---- Contact Curves ----
 
-  // Hard-coded to match tokens.css: Leaflet's polyline `color` does not accept a
-  // `var(--…)` string, so these cannot be read from CSS. There is no dark theme —
-  // one Song-painting light-wash (dan-shese) family, hued by family and layered by
-  // lightness so the ~8 curve types stay pairwise-distinguishable on the
-  // desaturated basemap without going neon. Totality = warm madder (the hero
-  // band), annular = ochre, penumbral N/S = zhilü (sap-green), lunar family =
-  // piaobe (celadon), iso-lines = huaqing (cornflower-indigo), greatest = yanzhi.
+  // The offline curve builder bakes each event's curves; this lays them down on selection
+  // and clears them on close.
+
+  // MUST equal css/tokens.css: Leaflet's color option cannot read var(--…). Pigment names
+  // follow the Song light-wash (dan-shese) palette.
   const COLOR = {
     central: '#A8324A', // total: umbral center line (deep madder yanzhi)
     centralAnn: '#B0703C', // annular: antumbral center line (deep zheshi ochre)
     penumbraRim: '#B5645A', // P1/P4 outer penumbral limit (faded terracotta)
-    nsLimit: '#3C6E5A', // penumbral N/S limits (zhilü (sap-green)-deep)
+    nsLimit: '#3C6E5A', // penumbral N/S limits (deep zhilü, sap-green)
     umbralLimit: '#C06B78', // total: umbral N/S limits (dusty rose, lighter madder)
     umbralLimitAnn: '#C89A6A', // annular: antumbral N/S limits (light ochre)
     visibility: '#3F8378', // lunar visibility outline (piaobe (celadon))
-    mag50: '#4E6E86', // 50% magnitude iso-line (huaqing (cornflower-indigo) indigo)
+    mag50: '#4E6E86', // 50% magnitude iso-line (huaqing, cornflower-indigo)
     uContact: '#4E948A', // lunar U1–U4 contact arcs (piaobe (celadon))
     greatest: '#CE564C', // greatest-eclipse point (yanzhi spark)
-    // Real-time shadow, ink-wash register: the dark set's navy/gold umbra reads
-    // as a hole punched in light paper, so the sweeping umbra becomes a danmo (pale-ink)
-    // pool with an ochre rim, and the iso steps ramp huaqing (cornflower-indigo)→zhe (ochre) (deeper magnitude
-    // = warmer + darker, still recessive against the desaturated basemap).
+
+    // Live shadow: a danmo (pale-ink) umbra pool with an ochre rim; iso steps warm from
+    // huaqing to zhe (ochre) as magnitude deepens.
     shadowPenumbra: '#1C1C28', // mag-0 penumbra edge + lunar visibility circle (mo ink)
-    // Lunar visibility veil (filled moon-up hemisphere): dianqing (indigo-blue)-to-zhusha (cinnabar). The old milky
-    // a white base suits a dark basemap — invisible on this project's pale
-    // paper basemaps (Positron/OHM). On light paper the base must be DARK to read,
-    // so it's a deep dianqing (night hemisphere) warming to zhusha cinnabar at totality —
-    // the same zhu-red as the woodblock frame's zhupi, so the map's red has one origin.
+
+    // Moon-up veil: deep dianqing (indigo-blue) to read on pale basemaps, warming to zhusha
+    // (cinnabar) at totality; the red MUST equal the frame's zhupi accent.
     lunarVeilBase: '#465468', // penumbral wash (deep dianqing, reads on cream paper)
     lunarVeilRed: '#C0472E', // totality (zhusha cinnabar, echoes the zhupi accent)
-    shadowIso: ['#5A7386', '#6F7B72', '#8A7D5B', '#A2803F'], // mag .2/.4/.6/.8 huaqing (cornflower-indigo)→zhe (ochre)
+    shadowIso: ['#5A7386', '#6F7B72', '#8A7D5B', '#A2803F'], // mag .2/.4/.6/.8
     umbraStroke: '#A2803F', // zhe (ochre) rim (mirrors --eclipse-mag-90 light)
     umbraFill: '#3A3E44', // danmo (pale-ink) pool
     umbraFillOp: 0.75,
     halo: 'rgba(246, 242, 232, 0.72)', // liubai (reserved-white) paper casing under curve strokes
+
     // Umbral band wash (danran (light-wash)): tone-on-tone with the center lines — pale yanzhi for
     // totality, pale zhe (ochre) for annularity — so the band reads as one wash stroke.
     bandFillTotal: '#A8324A',
@@ -1256,26 +1097,18 @@ const Eclipse = (() => {
     bandFillOpHybrid: 0.08,
   };
 
-  // Detail mode for the selected event's curve set. Default OFF = only the
-  // Detail curves always on: magnitude contours, rise/set loops, extreme
-  // lines, and faint lunar p1/p4 circles are drawn alongside the narrative core.
+  // Detail mode for the selected event's curve set, on by default: magnitude contours,
+  // rise/set loops, extreme lines and the faint lunar p1/p4 circles are drawn alongside
+  // the narrative core.
   let _curveDetail = true;
 
-  // ---- Eclipse Curve Names ----
-  // Map tooltips carry the bare curve name only. An encyclopedia-style definition
-  // trailing after an em dash turns every hover into a wall of text over the map,
-  // and the names alone already identify the lines.
+  // Tooltips carry the bare curve name, never a definition.
   function curveName(key, mag) {
     const name = typeof I18n !== 'undefined' ? I18n.t('eclipse.curve.' + key) : key;
     return mag != null ? name + ' ' + mag.toFixed(2) : name;
   }
 
-  // Split a polyline at:
-  //   – null-lng sentinels (data signals "this sample is at the pole; lng
-  //     is undefined" — the build script emits these so the renderer can
-  //     leave a clean gap instead of an arbitrary chord across the pole),
-  //   – antimeridian crossings (|ΔLng| > 180°),
-  //   – polar wraps (both ends within 15° of a pole + ΔLng > 60°).
+  // Splits at null longitudes (samples at a pole), antimeridian crossings and polar wraps.
   function splitAtAntimeridian(pts) {
     const out = [];
     let cur = [];
@@ -1301,27 +1134,13 @@ const Eclipse = (() => {
     return out;
   }
 
-  // The Leaflet map is configured with MAP_LNG_WEST = -200, MAP_LNG_EAST = 520
-  // (a ~720° span so the user can pan across the antimeridian without a void
-  // edge). Each curve must be drawn in every world-copy that falls inside
-  // those bounds — otherwise the eclipse only shows in one of the wraps.
-  // ±360° is enough since the span is just under 2 full worlds.
+  // Draws the curve once per world copy inside the map's −200…+520 longitude range.
   function addPolyline(pts, opts, layer, tooltip) {
-    // Route event polylines through eclipse-curves(z=593) by default; shadow
-    // callers override with pane:'eclipse-shadow'(z=594) so the real-time wash
-    // sits above the historical contact curves.
-    // smoothFactor:0 — keep every vertex we computed; the default Leaflet value
-    // of 1 would apply Douglas-Peucker with a 1px on-screen tolerance and silently
-    // discard most of the ring vertices, turning a smooth curve into a coarse polygon.
+    // smoothFactor 0: Leaflet's default of 1 drops ring vertices.
     const polyOpts = Object.assign({ pane: 'eclipse-curves', smoothFactor: 0 }, opts);
-    // Normalize longitudes with ADJACENT-POINT CONTINUITY: the first point of
-    // each segment goes to [-180,180); every following point takes the ±360
-    // representative nearest its predecessor, so a curve that crosses the
-    // antimeridian stays continuous (output lng may exceed ±180 — Leaflet draws
-    // it correctly and the ±360 world copies still cover the visible span).
-    // Normalizing each point independently would reintroduce a 360° jump at the
-    // dateline that splitAtAntimeridian then cuts, leaving a visible gap
-    // (2024-10-02 sLimit crosses 180° twice → two ~25 km breaks).
+
+    // Unwrap each longitude to the ±360 copy nearest its predecessor, never per point on its
+    // own: a per-point wrap leaves a 360° jump that splitAtAntimeridian cuts into a gap.
     const norm = [];
     let prevLng = null;
     for (const p of pts) {
@@ -1338,12 +1157,8 @@ const Eclipse = (() => {
       prevLng = lng;
       norm.push([p[0], lng]);
     }
-    // Draw a world-copy for every 360° shift that overlaps the map's longitude
-    // span (MAP_LNG_WEST..MAP_LNG_EAST = -200..520, set in js/map-boot.js). The
-    // continuity unwrap above can leave lng well outside [-180,180] (e.g.
-    // 2024-04-08 nLimit spans -290..-129), so a fixed w∈{-1,0,1} misses copies —
-    // the 70°E arc would show but its 430°E copy would not. Derive the range from
-    // the curve's own extent so every visible world copy is drawn.
+
+    // MUST equal MAP_LNG_WEST / MAP_LNG_EAST in js/map-boot.js.
     const LNG_WEST = -200,
       LNG_EAST = 520;
     let lo = Infinity,
@@ -1358,9 +1173,6 @@ const Eclipse = (() => {
     const wMin = Math.ceil((LNG_WEST - hi) / 360);
     const wMax = Math.floor((LNG_EAST - lo) / 360);
     for (let w = wMin; w <= wMax; w++) {
-      // Skip world-copies entirely outside the current viewport (perf at high
-      // zoom: at z≥9 only 1 wrap overlaps a ~35° span, so we draw 1 polyline
-      // instead of 3-7). _curveViewport is null when no map ref → draw all.
       if (_curveViewport) {
         const cLo = lo + w * 360,
           cHi = hi + w * 360;
@@ -1369,11 +1181,7 @@ const Eclipse = (() => {
       const shifted = w === 0 ? norm : norm.map((p) => (p == null || p[1] == null ? p : [p[0], p[1] + w * 360]));
       const segments = splitAtAntimeridian(shifted);
       for (const seg of segments) {
-        // Casing: a solid paper ribbon in the dedicated underlay pane (z=592,
-        // one below eclipse-curves) so ALL halos sit under ALL colored strokes
-        // — same-pane interleaving would let a later curve's halo overpaint an
-        // earlier curve's stroke where they cross. Solid even under dashed
-        // strokes (reads as engraved casing); dashed strokes get a fainter one.
+        // Halos go in their own pane under every stroke, so no halo covers another curve.
         if (opts.halo) {
           L.polyline(seg, {
             pane: 'eclipse-curves-halo',
@@ -1390,30 +1198,12 @@ const Eclipse = (() => {
     }
   }
 
-  // Add a single 2-point segment (from a marching-squares contour) and its
-  // ±360° copies. Skips the antimeridian-split check because contour segments
-  // are inherently local (≤4° cell width); they can't span the antimeridian.
-  function addContourSegment(lat1, lng1, lat2, lng2, opts, layer) {
-    const polyOpts = Object.assign({ pane: 'eclipse-curves' }, opts);
-    for (let w = -1; w <= 1; w++) {
-      L.polyline(
-        [
-          [lat1, lng1 + w * 360],
-          [lat2, lng2 + w * 360],
-        ],
-        polyOpts
-      ).addTo(layer);
-    }
-  }
-
-  // Delegate to js/envelope-ring.js (loaded before this file). These aliases
-  // preserve all downstream call sites unchanged.
+  // Delegate to js/envelope-ring.js, which index.html must load before this file.
   const splitOnNull = EnvelopeRing.splitOnNull;
   const asCompact = EnvelopeRing.asCompact;
 
-  // Fill an unwrapped envelope ring as a polygon in every visible world copy.
-  // Deliberately NOT drawFilledRing: that helper bails to unfilled polylines on
-  // any >180° lng jump, which an unwrapped ring legitimately contains.
+  // Never drawFilledRing here: it falls back to unfilled lines on any >180° longitude jump,
+  // which an unwrapped ring contains.
   function addBandPolygon(ring, opts, layer, tooltip) {
     const polyOpts = Object.assign(
       {
@@ -1448,10 +1238,10 @@ const Eclipse = (() => {
     }
   }
 
-  // Add a wrapped marker (point + ±360° copies of itself).
+  // One marker in every world copy of the point that falls within the map's range.
   function addWrappedMarker(lat, lng, iconHtmlClass, layer, label) {
-    for (let w = -1; w <= 1; w++) {
-      L.marker([lat, lng + w * 360], {
+    for (const off of GeoUtils.wrapOffsets(lng, lng)) {
+      L.marker([lat, lng + off], {
         icon: L.divIcon({
           className: iconHtmlClass,
           html: '<span aria-hidden="true">' + (label || '✶') + '</span>',
@@ -1568,11 +1358,7 @@ const Eclipse = (() => {
     const isAnnular = event.kind === 'Annular';
     const isHybrid = event.kind === 'Hybrid';
 
-    // 1. Equal-magnitude contours (cyan dashed, mag < 1.0 only)
-    // smoothFactor omitted → inherits addPolyline's default 0 (keep every cached
-    // vertex). The cached envelope for mag=0.2 has 1056+671=1727 raw points; the
-    // old explicit smoothFactor:1 collapsed them to ~28, making the smooth envelope
-    // look like a coarse polygon and visually mis-comparable to the live ring.
+    // Never pass smoothFactor here: addPolyline's 0 keeps every cached vertex.
     if (_curveDetail && cc.magContours) {
       const opts = {
         color: COLOR.mag50,
@@ -1601,8 +1387,6 @@ const Eclipse = (() => {
         }
       }
     }
-
-    // 2. Sunrise/sunset 8-loop (pink dashed) — detail mode only
     if (_curveDetail && cc.riseSetLoops) {
       const a = asCompact(cc.riseSetLoops.sideA);
       const b = asCompact(cc.riseSetLoops.sideB);
@@ -1617,14 +1401,9 @@ const Eclipse = (() => {
         halo: true,
       };
       const tip = curveName('riseSetLoop');
-      // Each loop of a multi-loop envelope (total/annular eclipses split at P2/P3
-      // into two rings) is the union of a sideA "plus" arc and a sideB "minus" arc
-      // sharing the SAME P-cusp endpoints. Pair them by SHARED ENDPOINTS, never by
-      // array index: the two sides do not store their arcs in a matching order, so
-      // aSegs[i]/bSegs[i] stitches arcs from different rings and draws a line
-      // across the globe. Same-ring arcs have byte-identical cusp coordinates
-      // (both pinned to the same anchor), so exact matching is robust and
-      // antimeridian-immune.
+
+      // Pair sideA and sideB arcs by shared cusp endpoints, never by array index: the two
+      // sides store their arcs in different orders.
       const samePt = (p, q) => Math.abs(p[0] - q[0]) < 1e-6 && Math.abs(p[1] - q[1]) < 1e-6;
       const bUsed = new Array(bSegs.length).fill(false);
       const matchBSeg = (aSeg) => {
@@ -1635,8 +1414,10 @@ const Eclipse = (() => {
           const bSeg = bSegs[j],
             b0 = bSeg[0],
             b1 = bSeg[bSeg.length - 1];
+
           // same orientation: a0↔b0, a1↔b1 → append reverse(bSeg)
           if (samePt(a0, b0) && samePt(a1, b1)) return { j, seg: bSeg.slice().reverse() };
+
           // flipped: a0↔b1, a1↔b0 → bSeg already runs back, append as-is
           if (samePt(a0, b1) && samePt(a1, b0)) return { j, seg: bSeg.slice() };
         }
@@ -1654,12 +1435,9 @@ const Eclipse = (() => {
           addPolyline(loop, opts, layer, tip);
         }
       }
-      // Any arcs without an endpoint-matched partner are drawn as open polylines.
       for (let i = 0; i < aSegs.length; i++) if (!usedA[i]) addPolyline(aSegs[i], opts, layer, tip);
       for (let j = 0; j < bSegs.length; j++) if (!bUsed[j]) addPolyline(bSegs[j], opts, layer, tip);
     }
-
-    // 3. Rise-max + set-max eclipse curves (pink solid) — detail mode only
     const riseMax = asCompact(cc.riseMaxEclipse);
     const setMax = asCompact(cc.setMaxEclipse);
     if (_curveDetail && (riseMax.length || setMax.length)) {
@@ -1673,8 +1451,6 @@ const Eclipse = (() => {
       for (const seg of splitOnNull(riseMax)) addPolyline(seg, opts, layer, curveName('riseMaxEclipse'));
       for (const seg of splitOnNull(setMax)) addPolyline(seg, opts, layer, curveName('setMaxEclipse'));
     }
-
-    // 4. Penumbral N/S limits (green, always green)
     const nl = asCompact(cc.nLimit);
     if (nl.length > 1) {
       const optsLim = {
@@ -1700,11 +1476,8 @@ const Eclipse = (() => {
       for (const seg of splitOnNull(sl)) addPolyline(seg, optsLim, layer, curveName('sLimit'));
     }
 
-    // 5. Umbral/antumbral envelope — Total: madder, Annular: ochre, Hybrid: split.
-    // 5a. Band wash first: the envelope re-chained into a closed ring and laid
-    // down as a translucent danran (light-wash) polygon in the underlay pane (the song-paper
-    // reading of Espenak's path band). QC-gated — on failure the strokes below
-    // still tell the story and __eclipseBandQC records why.
+    // Band wash under the envelope strokes; on a QC failure only the strokes draw and
+    // __eclipseBandQC records why.
     const unl = asCompact(cc.umbralNLimit);
     const usl = asCompact(cc.umbralSLimit);
     const bandQC = {
@@ -1736,10 +1509,8 @@ const Eclipse = (() => {
     }
     if (typeof window !== 'undefined') window.__eclipseBandQC = bandQC;
     if (isHybrid && cc.hybridBreaks) {
-      // Umbral-limit segments are null-separated fragments whose array order
-      // does NOT follow the central path's spatial order.  Instead of splitting
-      // the flat array by break coordinates, project each segment's midpoint
-      // onto the central path to determine its phase.
+      // Limit fragments are not stored in path order: phase each one by projecting its
+      // midpoint onto the central path.
       const cp = asCompact(cc.centralPath);
       const fp = cc.hybridFirstPhase || 'annular';
       const breakIdxOnCp = cc.hybridBreaks
@@ -1783,6 +1554,7 @@ const Eclipse = (() => {
             let phase = fp;
             for (let j = 0; j < crossings; j++) phase = phase === 'total' ? 'annular' : 'total';
             const c = phase === 'total' ? COLOR.umbralLimit : COLOR.umbralLimitAnn;
+
             // The stash is one closed envelope (never side-labelled N/S), so the
             // tooltip uses the neutral envelope name rather than a wrong side.
             const k = phase === 'total' ? 'umbralEnvelope' : 'antumbralEnvelope';
@@ -1793,8 +1565,8 @@ const Eclipse = (() => {
       }
     } else {
       const uColor = isAnnular ? COLOR.umbralLimitAnn : COLOR.umbralLimit;
-      // umbralNLimit holds the whole closed envelope (umbralSLimit is always
-      // empty in current builds) — label it neutrally, not "northern".
+
+      // umbralNLimit holds the whole closed envelope, so its name is neutral.
       const uKey = isAnnular ? 'antumbralEnvelope' : 'umbralEnvelope';
       if (unl.length > 1) {
         const optsU = { color: uColor, weight: 1.6, opacity: 0.9, interactive: true, halo: true };
@@ -1806,11 +1578,7 @@ const Eclipse = (() => {
       }
     }
 
-    // 6. Central path — Total: deep magenta, Annular: orange, Hybrid: split
-    // Bare curve name, no date/type header: these curves only ever draw for the
-    // already-selected event, so the header repeated what the panel states. The
-    // date · type line belongs to the unselected overview bands (js/atlas.js),
-    // where hovering is how you tell one event's band from another's.
+    // Bare curve names: the panel already shows the selected event's date and type.
     const cp = asCompact(cc.centralPath);
     if (cp.length > 1) {
       if (isHybrid && cc.hybridBreaks) {
@@ -1828,8 +1596,6 @@ const Eclipse = (() => {
         for (const seg of splitOnNull(cp)) addPolyline(seg, optsC, layer, curveName(cKey));
       }
     }
-
-    // 7. Greatest-eclipse marker
     if (event.peak && typeof event.peak.lat === 'number') {
       addWrappedMarker(event.peak.lat, event.peak.lng, 'eclipse-greatest-marker', layer, '✶');
     }
@@ -1838,10 +1604,9 @@ const Eclipse = (() => {
   function drawLunarContactCurves(event, layer) {
     const cp = event.contactPoints;
     if (!cp) return;
-    // Each contact instant gets an 88.22° small circle (visibility hemisphere
-    // outline — Moon alt ≥ 1.78°). Penumbral contacts (P1/P4) are dashed and dim; partial
-    // contacts (U1/U4) are solid medium; total contacts (U2/U3) are solid
-    // bright; greatest (G) is the highlight.
+
+    // One small circle of radius 88.22° per contact: Moon altitude ≥ 1.78° around the
+    // sub-lunar point.
     const STYLE = {
       p1: { weight: 0.9, opacity: 0.45, dashArray: '3 4', color: COLOR.uContact },
       u1: { weight: 1.4, opacity: 0.85, color: COLOR.uContact },
@@ -1855,14 +1620,10 @@ const Eclipse = (() => {
     for (const k of ORDER) {
       const pt = cp[k];
       if (!pt) continue;
+
       // The faint penumbral circles are detail-mode extras; the u-family and
       // peak carry the narrative on their own.
       if (!_curveDetail && (k === 'p1' || k === 'p4')) continue;
-      // 88.22° visibility hemisphere = small circle of radius 90−1.78 around
-      // the SUB-lunar point (Moon above the horizon). Reuse the shell's arc
-      // machinery (720-pt sweep + antimeridian split + polar double-arc) so the
-      // outline stays smooth and geometry-correct across poles — no 96-pt creases.
-      // addPolyline handles world-wrap copies and antimeridian re-splitting.
       const arcs = _computeAltitudeContourArcs(pt.lat, pt.lng, 1.78);
       for (const arc of arcs) {
         if (arc.length >= 2) addPolyline(arc, { ...STYLE[k], interactive: false }, layer);
@@ -1872,6 +1633,7 @@ const Eclipse = (() => {
 
   function drawContactCurves(event, layer) {
     layer.clearLayers();
+
     // Snapshot the viewport once for this whole draw pass; every addPolyline
     // call below reads it to cull off-screen world-copies.
     _curveViewport = _map ? viewportLngSpan(_map, curveMargin(_map)) : null;
@@ -1879,18 +1641,14 @@ const Eclipse = (() => {
     else drawLunarContactCurves(event, layer);
   }
 
-  // ---- Public init ----
+  // ---- Public Init ----
 
   function init(map) {
     _map = map; // expose for addPolyline's viewport-wrap culling
-    // Create eclipse panes eagerly so drawSolarContactCurves can always use them.
-    // z-order: eclipse-curves-halo(592) < eclipse-curves(593) < eclipse-shadow(594) < eclipse-markers(595) < eclipse-labels(596).
-    // The whole block sits BELOW Leaflet's markerPane(600): record seals must be
-    // clickable and never buried under a contact curve or a shadow wash.
+
+    // z-order: curves-halo 592 < curves 593 < shadow 594 < markers 595 < labels 596, all
+    // under Leaflet's markerPane 600 so record seals stay clickable.
     if (!map.getPane('eclipse-shadow')) {
-      // One of the highest eclipse panes: real-time shadow fills (penumbra
-      // gradient, iso-mag rings, umbra polygon) sit above the cached contact
-      // curves so the live shadow wash is never buried under the historical path.
       map.createPane('eclipse-shadow');
       map.getPane('eclipse-shadow').style.zIndex = 594;
       map.getPane('eclipse-shadow').style.pointerEvents = 'none';
@@ -1898,27 +1656,21 @@ const Eclipse = (() => {
     if (!map.getPane('eclipse-curves')) {
       map.createPane('eclipse-curves');
       map.getPane('eclipse-curves').style.zIndex = 593;
-      // Curves are added with interactive:false; keep the pane itself click-
-      // through too (it floats above grids/UI) so it never steals pointer events.
+
+      // Click-through: the pane floats above grids and UI.
       map.getPane('eclipse-curves').style.pointerEvents = 'none';
     }
     if (!map.getPane('eclipse-curves-halo')) {
-      // Underlay pane for curve casings + the umbral band wash: one z below the
-      // strokes so every halo/fill stays beneath every colored line.
       map.createPane('eclipse-curves-halo');
       map.getPane('eclipse-curves-halo').style.zIndex = 592;
       map.getPane('eclipse-curves-halo').style.pointerEvents = 'none';
     }
     if (!map.getPane('eclipse-markers')) {
-      // Point markers (greatest-eclipse ✶) must sit above shadow fills and curve strokes.
       map.createPane('eclipse-markers');
       map.getPane('eclipse-markers').style.zIndex = 595;
       map.getPane('eclipse-markers').style.pointerEvents = 'none';
     }
     if (!map.getPane('eclipse-labels')) {
-      // Text labels (iso-mag contour values, edge labels) must sit above every line
-      // type and point marker so they are never painted over by geometry added later
-      // in the same pane. Pane z=596 beats eclipse-markers(595) and eclipse-shadow(594).
       map.createPane('eclipse-labels');
       map.getPane('eclipse-labels').style.zIndex = 596;
       map.getPane('eclipse-labels').style.pointerEvents = 'none';
@@ -1927,10 +1679,8 @@ const Eclipse = (() => {
     const soloLayer = L.layerGroup();
     const curvesLayer = L.layerGroup().addTo(map); // contact curves of selected event
 
-    // Currently-selected event, kept so moveend/zoomend can re-draw its contact
-    // curves with viewport-restricted world-copies. _lastCurveWrapsKey short-
-    // circuits redraws when the visible viewport hasn't changed enough to alter
-    // the drawn wrap set (intra-wrap pans cost 0).
+    // Kept so moveend/zoomend can redraw its curves; the wraps key skips pans that change no
+    // drawn world copy.
     let _selectedEvent = null;
     let _lastCurveWrapsKey = '';
 
@@ -1942,17 +1692,12 @@ const Eclipse = (() => {
       drawContactCurves(_selectedEvent, curvesLayer);
     }
 
-    // Ephemeral per-tick group: solar shadow circles + the lunar visibility veil
-    // (filled moon-up hemisphere, milky→red by Eclipse.lunarRedness) and its
-    // dashed edge. Both are rebuilt each TimeState tick.
+    // Rebuilt every tick: the solar shadow, or the lunar moon-up veil and its edge.
     let _shadowGroup = null;
     let _lastShadowKey = null; // (instant|zEff|wraps) gate for the zoom-reuse skip
 
-    // Sun/Moon disk textures at their sub-points (js/body-markers.js). Own group
-    // so it lives independently of _shadowGroup's solar/zoom gate — the disks must
-    // repaint on BOTH time and zoom (their px size follows zoom), for solar AND
-    // lunar events alike. Markers land in the eclipse-markers pane (z 595), above
-    // the shadow band, so paint order is fine regardless of layer-add order.
+    // Sun and Moon disks, outside the shadow's zoom gate: they repaint on time and zoom for
+    // both kinds of eclipse.
     let _bodyGroup = null;
 
     function redrawBodies() {
@@ -1977,32 +1722,22 @@ const Eclipse = (() => {
     });
 
     function redrawShadow(layer) {
-      // Rebuild the cheap vector overlay each tick (solar shadow circles only).
       if (!_shadowGroup) _shadowGroup = L.layerGroup().addTo(layer);
 
       const date = TimeState.current;
       const solar = findActiveSolar(date);
 
-      // Zoom-reuse gate. For an active solar eclipse drawn by the Bessel renderer
-      // the whole shadow geometry is a pure function of (instant, zEff) — past
-      // Z_CAP the densify density and umbra seed azimuth count are frozen, so a
-      // zoomend that changes neither the instant nor zEff (e.g. 9→10→…→13) would
-      // rebuild the same field-cached densify + projection for no visible change.
-      // Skip it and let Leaflet reproject the few existing paths for free.
-      // curveWrapsKey guards a redraw revealing a new world-copy. _lastShadowKey is
-      // cleared on layer remove and whenever a non-Bessel / no-eclipse path runs.
+      // The Bessel shadow depends only on instant, zEff, visible world copies and _ephemGen;
+      // skip a redraw that changes none of them.
       const _zEff = Math.min(map.getZoom(), Z_CAP);
       const _bessel = solar && typeof BesselRT !== 'undefined' && typeof Astronomy !== 'undefined';
-      // The 4th key component is the ephemeris generation (_ephemGen): it advances
-      // when an event's NASA elements replace the AE-direct default, so the first
-      // (AE) frame's key no longer matches the later NASA frame's and the stale
-      // shadow is not pinned — most visibly on the noFly (record-driven) path,
-      // which has no flyTo/zoom to invalidate it (1141 km off at -762). Sharing the
-      // one counter with _fieldCache keeps both halves of the shadow on the same b.
+
+      // Keep _ephemGen in the key: the noFly path has no flyTo or zoom to invalidate it.
       const _gateKey = _bessel ? date.getTime() + '|' + _zEff + '|' + curveWrapsKey(map) + '|' + _ephemGen : null;
       if (_gateKey && _gateKey === _lastShadowKey && _shadowGroup.getLayers().length) return;
 
       _shadowGroup.clearLayers();
+
       // Snapshot the viewport so any addPolyline below (lunar realtime visibility
       // hemisphere) culls off-screen world-copies like the contact curves do.
       _curveViewport = _map ? viewportLngSpan(_map, curveMargin(_map)) : null;
@@ -2022,16 +1757,13 @@ const Eclipse = (() => {
         return;
       }
       _lastShadowKey = null;
-      // Lunar eclipse: real-time visibility hemisphere (Moon above the horizon
-      // = where the eclipse is visible right now). Filled as a milky→blood-red
-      // veil tinted by the umbral depth (lunarRedness), so the visible region
-      // reads at a glance and reddens as totality deepens while the time axis
-      // scrubs — with a dashed great-circle edge on top for a crisp boundary.
+
+      // Lunar: the moon-up hemisphere as a veil that reddens with umbral depth, under a
+      // dashed edge.
       const lunar = findActiveLunar(date);
       if (lunar && typeof Astronomy !== 'undefined' && typeof _computeAltitudeContourArcs === 'function') {
-        // Geocentric equator-of-date sub-lunar point. Mirror of js/body-markers.js:73
-        // bodySubPoint — same EQJ→EQD transform so live veil and disk marker are co-located.
-        // Do NOT use Equator(…,ofdate=false,…): that adds ~1° topocentric parallax via Observer.
+        // Geocentric sub-lunar point; MUST use the same EQJ→EQD transform as bodySubPoint in
+        // js/body-markers.js. Never Equator(…, ofdate=false): it adds topocentric parallax.
         const _t = Astronomy.MakeTime(date);
         const _v = Astronomy.RotateVector(
           Astronomy.Rotation_EQJ_EQD(_t),
@@ -2041,14 +1773,9 @@ const Eclipse = (() => {
         const gast = Astronomy.SiderealTime(_t) * 15;
         const subLat = (Math.asin(_v.z / _d) * 180) / Math.PI;
         const subLng = (((Math.atan2(_v.y, _v.x) * 180) / Math.PI - gast + 540) % 360) - 180;
-        // Visibility hemisphere = where the Moon is above the horizon = small
-        // circle of radius 90−1.78 = 88.22° around the SUB-lunar point (Moon alt
-        // ≥ 1.78°, a display tolerance for parallax/refraction/semidiameter).
-        // Same machinery as drawLunarContactCurves — both cap on the sub-lunar
-        // point, NOT its antipode (the sub-solar / daytime hemisphere).
-        // Fill first so the dashed edge below stays on top. lunarRedness is 0 in
-        // penumbral / pre-umbral phases → pure milky base (a pale but visible cap
-        // since baseAlpha stays > 0); ramps to 1 (blood red) through totality.
+
+        // Moon altitude ≥ 1.78° around the sub-lunar point, never its antipode. Fill before
+        // the dashed edge so the edge stays on top.
         const f = lunarRedness(date);
         const tint =
           f > 0 && typeof GeoUtils !== 'undefined'
@@ -2057,6 +1784,7 @@ const Eclipse = (() => {
         const alpha = 0.18 + 0.2 * f; // dianqing ~0.18 (penumbral) → zhusha ~0.38 (total)
         if (typeof _computeAltitudeContourRing === 'function') {
           const ring = _computeAltitudeContourRing(subLat, subLng, 1.78);
+
           // poleLat = cap-centre latitude so _drawShadowBand closes over the
           // correct Mercator pole edge when the near-hemisphere cap winds a pole.
           _drawShadowBand(ring, tint, alpha, _shadowGroup, subLat, 'eclipse-shadow', 'lunar-visibility-band');
@@ -2086,49 +1814,31 @@ const Eclipse = (() => {
       if (TimeState.unlockRange) TimeState.unlockRange();
     }
 
-    // Deselect entry point (panel close): drop the live footprint layer, whose
-    // 'remove' hook already tears down the selected curves + unlocks the range.
-    // Kept separate from clearSelection to avoid a removeLayer→'remove'→
-    // clearSelection self-recursion; falls back to a bare clear if it's already off.
+    // Panel close. soloLayer's 'remove' hook clears the selection; never call
+    // clearSelection on that path too, or the two recurse.
     function deselect() {
       if (map.hasLayer(soloLayer)) map.removeLayer(soloLayer);
       else clearSelection();
     }
 
-    // Solar contact curves live in per-event JSON files (data/eclipses/
-    // events/<date>.json) to keep the master index small. Fetched on demand;
-    // cache:'no-cache' ensures the browser revalidates (304 if unchanged)
-    // so rebuilds are picked up without a hard refresh.
+    // Curves live in data/eclipses/events/<date>.json; no-cache revalidates so a rebuild shows
+    // without a hard refresh.
     function loadCurvesFor(event) {
       if (!event._curves_url) {
         return Promise.resolve(event.contactCurves || null);
       }
-      // Memoize the PROMISE on the event, not just its result. Selecting an event
-      // calls this from two places in the same tick — selectEvent for the curves and
-      // drawBands' bandRingsFor for the band envelope — and a result-only memo is
-      // still empty while the first fetch is in flight, so the file was fetched twice.
+
+      // Memoize the promise, never the result: two callers ask in the same tick.
       if (event._curvesPromise) return event._curvesPromise;
       const url = `data/eclipses/${event._curves_url}`;
       event._curvesPromise = fetch(url, { cache: 'no-cache' })
         .then((r) => (r.ok ? r.json() : null))
         .then((data) => {
-          // Adopt the elements the curves were actually built from. Without this
-          // the live shadow stays on the AE-direct path, whose Moon carries no
-          // secular-acceleration correction and so drifts visibly from the
-          // 5MCSE-derived path it is drawn over. This fetch resolves AFTER the
-          // first post-selection redraw (the 'add' hook and the lockRange
-          // subscriber both fire synchronously in selectEvent), so that first frame
-          // is legitimately AE-direct; assigning besselPolys and forcing one redraw
-          // swaps it the moment the elements land. The event file is the authority,
-          // so assign unconditionally — no stale value can win.
+          // Adopt the elements the curves were built from, so the live shadow matches them;
+          // the first frame after selection is AE-direct until this lands.
           if (data && data.bessel) {
             besselPolys[event.date] = data.bessel;
-            _ephemGen++; // sole besselPolys write; advance the generation so every
-            // element-derived memo (_fieldCache / _slcCache / _nvCache
-            // / _lastShadowKey) misses its pre-NASA (AE) entry.
-            // _ephemGen just advanced, so this redraw's gate key differs and is not
-            // short-circuited; it repaints the umbra AND the dashed iso-lines on NASA
-            // elements even on the noFly path, which has no flyTo/zoom otherwise.
+            _ephemGen++; // the only besselPolys write
             if (map.hasLayer(soloLayer)) redrawShadow(soloLayer);
           }
           const cc = data ? data.contactCurves : null;
@@ -2142,37 +1852,27 @@ const Eclipse = (() => {
     function selectEvent(e, opts) {
       const noFly = !!(opts && opts.noFly);
       const isSolar = e._kind === 'solar';
-      // Adopt (or clear) this event's astronomy-engine correction before anything
-      // reads a position. Events from -1999 on carry none and this switches it
-      // off, so the 97 % of the atlas that never needed it is untouched.
+
+      // Set or clear this event's ephemeris correction before anything reads a position.
       EphemCorrect.setEvent(e);
-      // Greatest eclipse on the SAME axis the scrubber ticks and the contact
-      // table use (peakLocal for solar, falling back to the geocentric peak) —
-      // this is what the ±slider anchors on, so the read-out lands exactly on
-      // the G tick instead of a hair off it.
-      const peakTime = isSolar ? (e.peakLocal && e.peakLocal.peak) || e.peak.time : e.times.peak;
-      // Timeline window = classical local first/last contact so its ends coincide
-      // with the P1/P4 (first contact/fourth contact) ticks the scrubber draws (ev-scrub.js reads the
-      // SAME peakLocal.c1/c4). Solar e.p1/e.p4 are the GEOCENTRIC outer penumbral
-      // contacts (penumbra first touches / last leaves Earth anywhere) — wider than
-      // the local partial span, which left the P1/P4 ticks inset from the axis ends.
-      // Lunar times.p1/p4 (penumbra begin/end) are already the local values the ticks use.
-      // Fall back to geocentric p1/p4 for legacy index entries lacking peakLocal.
-      const p1Iso = isSolar ? (e.peakLocal && e.peakLocal.c1) || e.p1 : e.times && e.times.p1;
-      const p4Iso = isSolar ? (e.peakLocal && e.peakLocal.c4) || e.p4 : e.times && e.times.p4;
+
+      // Greatest eclipse (GE): the instant the shadow axis passes closest to Earth's
+      // centre, the ±slider anchor and the scrubber's GE tick.
+      const peakTime = isSolar ? e.peak.time : e.times.peak;
+
+      // The timeline spans P1…P4: the whole event anywhere on Earth.
+      const p1Iso = isSolar ? e.p1 : e.times && e.times.p1;
+      const p4Iso = isSolar ? e.p4 : e.times && e.times.p4;
       if (p1Iso && p4Iso && TimeState.lockRange) {
         TimeState.lockRange(new Date(p1Iso), new Date(p4Iso), new Date(peakTime));
       } else {
         TimeState.resetTo(new Date(peakTime));
       }
-      // Live footprint tracks selection: bring the real-time umbra/visibility
-      // layer onto the map (its 'add' hook redraws the shadow at the time just
-      // locked above). Idempotent when stepping between already-selected events.
+
+      // Its 'add' hook redraws the shadow at the time locked above.
       if (!map.hasLayer(soloLayer)) soloLayer.addTo(map);
-      // For solar events, fetch the per-event curves file before rendering.
       if (isSolar) {
         loadCurvesFor(e).then((cc) => {
-          // Splice fetched curves in, then render.
           if (cc) e.contactCurves = cc;
           _selectedEvent = e;
           _lastCurveWrapsKey = curveWrapsKey(map);
@@ -2185,13 +1885,9 @@ const Eclipse = (() => {
       }
 
       if (isSolar) {
-        // noFly: keep the view put (record-driven selection from the atlas should
-        // not jump to the greatest-eclipse point). Time baseline + curves + sidebar
-        // still update below.
+        // noFly: a record-driven selection keeps the view.
         if (!noFly) {
-          // Always fly, even when the peak is off the current view — flyTo eases
-          // over any distance, and a silent no-op (the old in-bounds-only gate)
-          // reads as "selecting did nothing" from the caller's side.
+          // Fly even when the peak is off screen, or the selection looks like a dead click.
           map.flyTo([e.peak.lat, e.peak.lng], Math.max(map.getZoom(), 4));
         }
         Sidebar.showEclipse(e, deselect);
@@ -2208,26 +1904,19 @@ const Eclipse = (() => {
       }
     });
 
-    // Re-render the shadow after a zoom so the umbra/antumbra ring picks the
-    // zoom-appropriate azimuth count (keeps it smooth when zoomed in, cheap when
-    // zoomed out). Only the real-time solar shadow is zoom-resolution-dependent.
-    // Also force a contact-curve redraw: zoom changes both the visible wrap set
-    // and the per-vertex reprojection cost, so always rebuild (the moveend that
-    // follows a zoom gesture then short-circuits on the now-matching wrap key).
+    // Zoom changes the umbra facet count and the visible world copies; the moveend that
+    // follows then matches the wraps key.
     map.on('zoomend', () => {
       if (_loaded && map.hasLayer(soloLayer) && findActiveSolar(TimeState.current)) {
         redrawShadow(soloLayer);
       }
-      // Disk textures scale with zoom (footprintPx ∝ 2^zoom), so they must rebuild
-      // on every zoom — unconditionally, for lunar events too (the shadow rebuild
-      // above is solar-only).
+
+      // Disk size follows zoom, for lunar events too.
       if (_loaded && map.hasLayer(soloLayer)) redrawBodies();
       if (_loaded) redrawSelectedCurves(true);
     });
 
-    // Pan: re-draw the selected event's contact curves so curves appear in the
-    // world-copies that just scrolled into view (and drop those that left).
-    // Gated by the wrap-key short-circuit so intra-wrap pans pay 0 cost.
+    // Redraws only when the set of visible world copies changes.
     map.on('moveend', () => {
       if (_loaded) redrawSelectedCurves(false);
     });
@@ -2241,10 +1930,7 @@ const Eclipse = (() => {
       redrawSelectedCurves(true);
     }
 
-    // Expose the totality/annularity band rings for an arbitrary event so the
-    // atlas can draw a multi-event band overlay (its own interactive layer).
-    // Pure read of the cached curve file + the same buildEnvelopeRings QC gate
-    // the single-event fill uses — no geometry recomputation.
+    // Band rings of any event for the atlas overview, through the selected fill's QC gate.
     function bandRingsFor(event) {
       return loadCurvesFor(event)
         .then((cc) => {

@@ -1,34 +1,28 @@
 /**
  * body-markers.js — Sun & Moon disk textures at their sub-points.
  *
- * Ported from SubstellarAtlas (see ATTRIBUTION.md): the footprint-sized disk
- * markers, the phase-aware moon disk, and the sun's large↔xlarge level-of-detail
- * swap. The glow/glare canvas, day-mode bloom and distance z-sort are deliberately
- * NOT ported — they belong to a luminosity model this project does not have.
- *
- * The disk is pinned to a real ground FOOTPRINT rather than a fixed pixel size, so
- * it doubles every zoom level and divides by cos(lat) for the Mercator stretch.
- * That is what makes it read as an object lying ON the Earth rather than a marker
- * floating above it. Floored to 32 px so it stays visible when zoomed out, with a
- * large↔xlarge SVG crossfade above ~80-160 px. The moon carries its phase
- * (elliptical terminator + earthshine + north-pole texture pose) so a
- * solar-eclipse new moon reads dark; a live Earth-shadow "bite" is grafted
- * straight from EclipseGlyph.lunarShadowAt during eclipses.
+ * This renderer has no luminosity model: no glow, glare, or distance z-sort. The
+ * disk is pinned to a real ground FOOTPRINT rather than a fixed pixel size, so it
+ * doubles every zoom level and divides by cos(lat) for the Mercator stretch — that
+ * is what reads as an object lying ON the Earth rather than a floating marker. The
+ * moon carries its phase and a live Earth-shadow "bite" during eclipses.
  *
  * Pure renderer: BodyMarkers.render(map, group, date) draws two markers into
- * `group`. The caller (js/eclipse.js) owns the layer lifecycle + redraw timing.
+ * `group`; the caller (js/eclipse.js) owns the layer lifecycle and redraw timing.
  */
 const BodyMarkers = (() => {
   'use strict';
 
   // ---- Tiny geometry helpers ----
+
   const RAD = Math.PI / 180,
     DEG = 180 / Math.PI;
   const rad = (d) => d * RAD;
   const deg = (r) => r * DEG;
   const clamp = (lo, hi, x) => Math.max(lo, Math.min(hi, x));
-  // Smoothstep, used for both the disk-appearance ramp and the LOD crossfade: a
-  // linear ramp makes the swap visible as a hard edge at either end.
+
+  // Smoothstep both the disk-appearance ramp and the LOD crossfade — a linear ramp
+  // shows the swap as a hard edge at either end.
   const smoothstep = (e0, e1, x) => {
     const t = clamp(0, 1, (x - e0) / (e1 - e0));
     return t * t * (3 - 2 * t);
@@ -36,11 +30,8 @@ const BodyMarkers = (() => {
   const normLng = (lng) => (((lng % 360) + 540) % 360) - 180;
 
   // ---- Constants ----
-  // SUN_FOOTPRINT_KM: the Sun's ~31.5' apparent diameter subtends ~59 km on the
-  // ground. MIN_DISK_PX 32 is a display floor, not physics — at true scale both
-  // bodies vanish when zoomed out, and a marker you cannot see cannot be read.
-  // DISK_RASTER_CAP_PX: rasterize at most 512 px and CSS-scale beyond that, so max
-  // zoom does not build an enormous SVG bitmap for no added detail.
+  // SUN_FOOTPRINT_KM: the Sun's angular diameter, in ground km. MIN_DISK_PX is a
+  // display floor, not physics; DISK_RASTER_CAP_PX rasterizes at most 512 px.
   const SUN_FOOTPRINT_KM = 59;
   const MOON_DIAM_KM = 3474;
   const EARTH_R_KM = 6371.0;
@@ -95,13 +86,13 @@ const BodyMarkers = (() => {
   }
 
   // ---- Disk raster helpers ----
+
   const diskRenderSize = (fpPx) => Math.min(fpPx, DISK_RASTER_CAP_PX);
   const moonSvgSrc = (fpPx) => (smoothstep(80, 160, fpPx) > 0.5 ? 'img/moon-xlarge.svg' : 'img/moon-large.svg');
 
-  // Wrap disk content (built at renderW×renderH) so it visually fills
-  // visualW×visualH while its backing raster stays the render size. Uniform scale
-  // preserves aspect; transform-origin 0 0 keeps the scaled box at the divIcon's
-  // top-left so the visual center still lands on iconAnchor.
+  // Wrap disk content (built at renderW×renderH) so it visually fills visualW×visualH
+  // while its backing raster stays the render size. transform-origin 0 0 keeps the
+  // scaled box at the divIcon's top-left so the visual center lands on iconAnchor.
   function scaleDiskWrap(innerHtml, renderW, renderH, visualW, visualH) {
     if (visualW <= renderW + 0.5 && visualH <= renderH + 0.5) return innerHtml;
     const k = visualW / renderW;
@@ -119,20 +110,14 @@ const BodyMarkers = (() => {
   }
 
   // ---- Unique clipPath id counter + phase-SVG memo ----
+
   let _iconId = 0;
   const _phaseCache = new Map();
   const _PHASE_CACHE_LIMIT = 256;
 
-  // ---- Phased-disk SVG generator ----
-  //   R    disk radius (px)
-  //   i    phase angle (rad). 0 = full, π = new. Terminator semi-minor = R·cos(i).
-  //   chi  bright-limb position angle (rad), north through east.
-  //   opts.baseImageHref  moon: full texture under a dark overlay → earthshine look
-  //   opts.texRotDeg      moon: lunar north-pole PA. The SURFACE texture rotates by
-  //     this (slowly varying) instead of chi; otherwise it spins ~360°/synodic
-  //     month and flips across full/new. Only the terminator boundary tracks chi.
-  //   opts.shadow         live Earth-shadow geometry (EclipseGlyph.lunarShadowAt);
-  //     when present, a red umbra/penumbra "bite" is clipped onto the disk.
+  // ---- Phased-Disk SVG Generator ----
+  // R = disk radius (px); i = phase angle (rad, 0 full, π new); chi = bright-limb PA.
+  // opts.texRotDeg (moon) rotates the SURFACE texture, decoupled from chi.
   function buildPhasedDiskSVG(R, i, chi, opts) {
     const baseHref = opts.baseImageHref || '';
     const litHref = opts.litImageHref || '';
@@ -255,6 +240,7 @@ const BodyMarkers = (() => {
           '"/>'
       );
       parts.push('<g clip-path="url(#' + id + ')"><image href="' + baseHref + '" ' + imgAttrs + texT + '/></g>');
+
       // Live Earth-shadow bite — same geometry as the sidebar card glyph
       // (eclipse-glyph.js), in the screen-north frame, clipped to the moon disk.
       if (shadow && shadow.penumbralMag > 0) {
@@ -305,6 +291,7 @@ const BodyMarkers = (() => {
   }
 
   // ---- Moon disk HTML ----
+
   function buildMoonDiskHtml(illum, paDeg, fpPx, diskAlpha, northPADeg, shadow) {
     const visualSz = Math.max(4, Math.round(fpPx));
     const renderSz = Math.max(4, Math.round(diskRenderSize(fpPx)));
@@ -316,6 +303,7 @@ const BodyMarkers = (() => {
       texRotDeg: northPADeg || 0,
       shadow: shadow || null,
     });
+
     // Tighten the visible-disc ramp so the disc is fully opaque once past the
     // floor — the moon is a solid body, not a translucent glow.
     const wrapperOpacity = Math.min(1, diskAlpha * 2);
@@ -333,10 +321,8 @@ const BodyMarkers = (() => {
   }
 
   // ---- Sun disk HTML ----
-  // large↔xlarge crossfade by opacity, clipped to a circle. Upstream leaves the disk
-  // ~76% opaque so it can blend into a glow/bloom layer; that layer is not ported, and
-  // against this project's light basemap a translucent sun reads as a smudge. Forced
-  // fully opaque instead (min(1, dA·2), the same treatment the moon disk uses).
+  // large↔xlarge crossfade by opacity, clipped to a circle. Goes FULLY opaque past
+  // the ramp floor: against a light basemap, a translucent sun reads as a smudge.
   function buildSunDiskHtml(fpPx) {
     const visualSz = Math.max(4, Math.round(fpPx));
     const renderSz = Math.max(4, Math.round(diskRenderSize(fpPx)));
@@ -369,19 +355,17 @@ const BodyMarkers = (() => {
     return { html: scaleDiskWrap(inner, renderSz, renderSz, visualSz, visualSz), size: visualSz };
   }
 
-  // ---- World-copy placement (ceil/floor window tiling; mirrors _drawShadowBand's
-  // drawPoly and addPolyline). NOT the fixed [-360,0,+360] triple — that drops a
-  // far copy near the antimeridian for wide shapes; the tiling is uniformly safe. ----
+  // ---- World-Copy Placement ----
+  // Tile the whole longitude window, never the fixed [-360,0,+360] triple: a wide
+  // shape near the antimeridian loses a far copy.
   function placeWrapped(group, lat, lng, diskHtml, tip, zOffset) {
     const west = typeof window !== 'undefined' && window.MAP_LNG_WEST != null ? window.MAP_LNG_WEST : -200;
     const east = typeof window !== 'undefined' && window.MAP_LNG_EAST != null ? window.MAP_LNG_EAST : 520;
     const sz = diskHtml.size;
+
     // Name chip on hover: wrap the disk in a hit layer carrying data-tip (read by
-    // glossary-tip.js's delegated listener). pointer-events:auto is set on the wrapper
-    // so hover fires even though the marker is interactive:false (a child's auto wins
-    // over any inherited none); it stays off the map-click path otherwise. Attribute
-    // copies into every world-copy naturally since it rides diskHtml. tip empty → no
-    // wrapper, preserving the untouched disk for callers that pass none.
+    // glossary-tip.js's delegated listener). pointer-events:auto lets hover fire even
+    // though the marker is interactive:false. tip empty → no wrapper, untouched disk.
     const html = tip
       ? '<div class="body-disk-hit" style="width:100%;height:100%;pointer-events:auto" data-tip="' +
         tip.replace(/"/g, '&quot;') +
@@ -409,6 +393,7 @@ const BodyMarkers = (() => {
   }
 
   // ---- Draw one body (sun | moon) at its sub-point ----
+
   function drawBody(map, group, date, zoom, which) {
     const body = which === 'sun' ? Astronomy.Body.Sun : Astronomy.Body.Moon;
     let sp;
@@ -429,12 +414,9 @@ const BodyMarkers = (() => {
       const dA = smoothstep(6, 40, fpPxEff);
       let illum, mp, sunp;
       try {
-        // Illumination is deliberately left uncorrected while the surrounding
-        // positions are not. It supplies the phase ANGLE, and the ancient
-        // ephemeris error of 1.9 deg perturbs that by the same amount — which at
-        // an eclipse, where the Moon is within a degree of new or full, moves the
-        // illuminated fraction by 0.03 % of the disc. The bright-limb orientation,
-        // which would be visible, comes from bodyPosition below and is corrected.
+        // Illumination is deliberately left uncorrected while the surrounding positions
+        // are not: it supplies only the phase ANGLE, which ancient-ephemeris error moves
+        // far less than the disc can show. Bright-limb orientation is corrected below.
         illum = Astronomy.Illumination(body, date);
         mp = bodyPosition(date, body);
         sunp = bodyPosition(date, Astronomy.Body.Sun);
@@ -442,6 +424,7 @@ const BodyMarkers = (() => {
         return;
       }
       const pa = deg(positionAngle(mp.alpha, mp.delta, sunp.alpha, sunp.delta));
+
       // Lunar north-pole PA orients the surface texture (decoupled from phase).
       let northPADeg = 0;
       try {
@@ -450,23 +433,27 @@ const BodyMarkers = (() => {
       } catch (_) {
         /* keep texture upright if axis unavailable */
       }
+
       // Live Earth-shadow bite during lunar eclipses; null (no bite) otherwise.
       const shadow =
         typeof EclipseGlyph !== 'undefined' && EclipseGlyph.lunarShadowAt ? EclipseGlyph.lunarShadowAt(date) : null;
       diskHtml = buildMoonDiskHtml(illum, pa, fpPxEff, dA, northPADeg, shadow);
     }
+
     // Hover name chip so the reader knows the disk marks the sub-solar / sub-lunar
     // point (the spot on Earth with the body at the zenith), not the body itself.
     const tip =
       typeof I18n !== 'undefined' && I18n.t
         ? I18n.t(which === 'sun' ? 'body.subsolar_point' : 'body.sublunar_point')
         : '';
+
     // Moon needs zIndexOffset large enough to beat the sun at any latitude
     // (max lat diff 180° × 10 000 = 1 800 000; 2 000 000 clears the margin).
     if (diskHtml) placeWrapped(group, sp.lat, sp.lng, diskHtml, tip, which === 'moon' ? 2000000 : 0);
   }
 
   // ---- Public: draw sun + moon disks into `group` for the given instant ----
+
   function render(map, group, date) {
     if (typeof Astronomy === 'undefined' || typeof L === 'undefined' || !map || !group) return;
     const zoom = map.getZoom();

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://fivemillenniaeclipses/records/schema.json",
   "title": "Five Millennia of Eclipses — historical-record schema",
-  "description": "One JSON object per line (NDJSON) in data/records/<phenomenon>/<civilization>.jsonl. additionalProperties:false is the enforcement mechanism this schema exists for — a new top-level key MUST be added here (a reviewable diff) before any record may carry it. See data/records/README.md for the field-by-field prose gloss this schema does not repeat.",
+  "description": "One JSON object per line (NDJSON) in data/records/<phenomenon>/<civilization>.jsonl. additionalProperties:false is the enforcement mechanism this schema exists for — a new top-level key MUST be added here (a reviewable diff) before any record may carry it. See data/records/README.md for the files and the keys that resolve outside the record.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -31,7 +31,7 @@
     },
     "civilization": {
       "type": "string",
-      "description": "Must be a key present in data/duizhao/wenming.json. No record may carry null."
+      "description": "Must be a key present in data/concordance/civilizations.json. No record may carry null."
     },
     "confidence": {
       "enum": ["certain", "likely", "candidate", "disputed", "legendary"],
@@ -55,7 +55,7 @@
             "explicit", "sexagenary_forward_scan", "civil_day_number", "era_midpoint", "year_only",
             "approximate", "scholarly_consensus", "reverse_match_nasa", "reverse_match_ae"
           ],
-          "description": "How event_date/date.verbatim was converted to the calendar. explicit = source gives a directly-usable calendar date. sexagenary_forward_scan = the 干支 ganzhi cycle forward-scanned from a reign-year start (the historical-China default). civil_day_number = the source numbers the day within its lunar month (七月二十二日) instead of naming it by ganzhi, so the day is counted from the month start rather than scanned for; administrative paperwork dates this way where annalistic histories do not. era_midpoint = only 'in the Nth reign, mid-period' is known. reverse_match_nasa/ae = eclipse identified by matching the record's description against the NASA 5MCSE/5MCLE canon or an AE-computed path, not by calendrical reckoning of the record's own date — this is the ONLY basis where an eclipse record's identification depends on data/eclipses/*.json, and where observation.status=predicted_unseen most often applies (global peak was matched, not confirmed locally visible)."
+          "description": "How event_date/date.verbatim was converted to the calendar. explicit = source gives a directly-usable calendar date. sexagenary_forward_scan = the 干支 ganzhi cycle forward-scanned from a reign-year start (the historical-China default). civil_day_number = the source numbers the day within its lunar month (七月二十二日) instead of naming it by ganzhi, so the day is counted from the month start rather than scanned for; administrative paperwork dates this way where annalistic histories do not. era_midpoint = only 'in the Nth reign, mid-period' is known. reverse_match_nasa/ae = eclipse identified by matching the record's description against the NASA 5MCSE/5MCLE canon or an AE-computed path, not by calendrical reckoning of the record's own date — this is the ONLY basis where an eclipse record's identification depends on data/eclipses/*.json, and the family most in need of reading against data/records/visibility.json: the matcher takes the global peak and never checks local visibility."
         }
       }
     },
@@ -65,7 +65,7 @@
     },
     "sky_position": {
       "type": "string",
-      "description": "The lunar-lodge / asterism position phrase as the source states it, e.g. '奎九度', '軒轅第四星'. Free text; not yet linked to duizhao/xingguan.json."
+      "description": "The lunar-lodge / asterism position phrase as the source states it, e.g. '奎九度', '軒轅第四星'. Free text; not yet linked to concordance/xingguan.json."
     },
     "place": {
       "type": "object",
@@ -73,14 +73,18 @@
       "properties": {
         "key": {
           "type": "string",
-          "description": "Key into data/duizhao/diming.json .places. Present on nearly every record; a place.key value is the sole authority on display name, dynasty period, and aliases — see diming.json's `aliases` field for historical alternate names (e.g. 汴梁 for bianjing). No per-record name/i18n override exists (removed 2026-07-24 — it was 44.8% dead weight)."
+          "description": "Key into data/concordance/gazetteer.json .places. Present on nearly every record; a place.key value is the sole authority on display name, dynasty period, and aliases — see gazetteer.json's `aliases` field for historical alternate names (e.g. 汴梁 for bianjing). No per-record name/i18n override exists (removed 2026-07-24 — it was 44.8% dead weight)."
         },
         "observed_at": {
           "type": "object",
           "additionalProperties": false,
           "required": ["lat", "lon"],
           "properties": { "lat": {"type": "number"}, "lon": {"type": "number"} },
-          "description": "OVERRIDE of diming.json's coordinates — a genuinely different observation point than the gazetteer's canonical site for this place.key (or the record has no place.key at all)."
+          "description": "OVERRIDE of gazetteer.json's coordinates — a genuinely different observation point than the gazetteer's canonical site for this place.key (or the record has no place.key at all)."
+        },
+        "basis": {
+          "enum": ["attested", "inferred"],
+          "description": "How the place is known, mirroring date.basis and object.basis. 'inferred' means the source names no observing site and the key is an editorial default — the six ibn al-Athīr entries take Baghdad that way. It matters because a visibility verdict computed at an inferred site tests the inference, not the record. Absent = unasserted."
         }
       }
     },
@@ -103,8 +107,11 @@
             "volume": {"type": "string", "description": "卷 / juan / Book / Liber / Tomus, in the edition's own numbering — '卷052' for 宋史 but '卷27' for 明史, '卷四十七' for 高麗史, 'XVI' for Scotichronicon."},
             "number": {"type": "string", "description": "The serial's own issue NUMBER, where it numbers its issues instead of (or as well as) dating them — Astronomische Nachrichten 33, Nr. 782. Bare digits: the unit word is the reader's, supplied per locale, because the German Nr. and the French n° name the same thing. `issue` cannot hold it (that field is an ISO date by pattern) and `chapter` would misname it, so a numbered serial had no home at all before this key."},
             "chapter": {"type": "string", "description": "章 / cap. / ch. / §, the division below volume."},
-            "section": {"type": "string", "description": "The TITLED PIECE inside the container, or a division named rather than numbered: a classical work's part (新羅本紀, 推古天皇紀), a newspaper's column heading, the title of a paper in a periodical (Beobachtung der totalen Mondfinsterniß 1852 Januar 6 auf der Breslauer Sternwarte). A column heading belongs HERE, not at the head of text_orig: one heading covers several records (EN PROVINCE runs over six Le Gaulois dispatches), which is what a locus is for, and a heading left in text_orig becomes the whole of the record's collapsed preview. Two decks of one heading join with an em dash. Verbatim, never translated — a citation does not translate the title it cites."},
+            "section": {"type": "string", "description": "The TITLED PIECE inside the container, or a division named rather than numbered: a classical work's part (新羅本紀, 推古天皇紀), a newspaper article's own headline, the title of a paper in a periodical (Beobachtung der totalen Mondfinsterniß 1852 Januar 6 auf der Breslauer Sternwarte). A newspaper's standing department (LOCAL AND GENERAL., Échos, 漢口信息) is NOT a headline and goes in `column`: a citation puts the headline before the paper and the column after the date. A heading belongs HERE, not at the head of text_orig: one heading covers several records (EN PROVINCE runs over six Le Gaulois dispatches), which is what a locus is for, and a heading left in text_orig becomes the whole of the record's collapsed preview. Two decks of one heading join with an em dash. Verbatim, never translated — a citation does not translate the title it cites."},
+            "column": {"type": "string", "description": "A serial's standing column or department, the named division the paper prints under the same name issue after issue (LOCAL AND GENERAL., GEMENGDE BERICHTEN., Échos, 漢口信息), with any instalment number it carries (Zaterdagavondpraatjes. — CCXVI). Cited after the issue date, 《申报》1882年5月22日，“漢口信息” — the 《历史研究》 newspaper rule — where `section` is cited before the paper. A piece that has a headline of its own under the column keeps that headline in `section`. Verbatim, never translated."},
+            "part": {"type": "string", "description": "The numbered fascicle of a category whose name the source title already carries: 宋會要輯稿 cites 瑞異二之一 as the title's 瑞異, part 二, leaf 一. Written in Han as the edition writes it; the leaf goes in 'page'."},
             "annal": {"type": "string", "description": "The year-entry of a chronicle: 's.a. 840' is stored as '840', 'era MCCXXIX' as 'MCCXXIX', 昭公二十一年 as written."},
+            "era": {"type": "string", "enum": ["spanish", "anno-mundi"], "description": "The epoch 'annal' is counted from when it is not the Common Era: the Spanish era (CE + 38) or the Byzantine anno mundi (CE + 5508)."},
             "reign": {"type": "string", "description": "The reign whose records contain the entry (憲宗實錄 in 朝鮮王朝實錄; 莊公 in 春秋經)."},
             "year": {"type": "string", "description": "The regnal year within a reign (五年), used with 'reign'."},
             "folio": {"type": "string", "description": "Manuscript leaf, recto/verso suffix included: '40v'."},
@@ -134,7 +141,7 @@
       "properties": {
         "key": {
           "type": "string",
-          "description": "For occultation/comet/guest: the celestial object per data/duizhao/xingguan.json .planets (moon/mars/venus/jupiter/saturn) or a comet/nova designation. Replaces the old bloated 'identification' block (212 distinct values collapsed to this + designation)."
+          "description": "For occultation/comet/guest: the celestial object per data/concordance/xingguan.json .planets (moon/mars/venus/jupiter/saturn) or a comet/nova designation. Replaces the old bloated 'identification' block (212 distinct values collapsed to this + designation)."
         },
         "designation": {
           "type": "string",
@@ -173,9 +180,13 @@
       "enum": ["landmark", "notable"],
       "description": "LOD ranking hint for the map's marker-thinning selector. Absent = ordinary record. 'minor'/'routine' (old values) are simply omitted; prose values must move to note."
     },
-    "observation_status": {
-      "enum": ["observed", "predicted_unseen", "predicted_nonevent", "obscured", "unknown"],
-      "description": "Distinguishes eyewitness records from a predicted-but-unconfirmed astronomical-bureau ledger entry (推步 tuibu, computed rather than seen). 'obscured' is the third case: geometrically visible here, but the source itself says cloud hid it (陰雲不見). Absent = unasserted, NOT 'observed' — do not default it."
+    "genre": {
+      "enum": ["dispatch", "report", "eyewitness", "feuilleton", "editorial", "scientific", "notice"],
+      "description": "OPTIONAL, newspaper-source records only: the editor's per-record newspaper subgenre (build/lib/genre_taxonomy.py). When present it overrides register.classify_genre, which reads only Western-language text and so leaves Han-script newspaper records unlabelled; 'editorial' has no text signature and exists only as a declaration. Absent = the classifier decides."
+    },
+    "source_claim": {
+      "enum": ["seen", "not_seen", "cloud", "nonevent", "forecast"],
+      "description": "What the SOURCE says about the sighting — one axis only, never what the sky permitted. 'seen' an eyewitness report; 'not_seen' the compiler says it was not seen without naming a cause; 'cloud' weather is named as the obstruction (陰雲不見); 'nonevent' the source says the predicted eclipse did not occur (當食不食). Absent = the source made no statement, which is the normal state of a bureau ledger line — do NOT default it to 'seen'. Whether the eclipse was observable from the place at all is machine-derived in data/records/visibility.json and must not be written here; a claim and a verdict that disagree is a finding, not an error to smooth over."
     },
     "text_orig": {
       "type": "string",

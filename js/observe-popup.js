@@ -1,27 +1,18 @@
 /**
  * observe-popup.js — click-a-point local observation panel (map popup).
  *
- * When an eclipse event is selected, clicking a map point asks: what would an
- * observer AT that point have seen? This module builds the popup HTML — the
- * local eclipse-situation glyph, the observer's own contact times + Sun/Moon
- * altitude, and, when the selected eclipse isn't visible there, the next
+ * Builds the popup HTML for the observer at a clicked point: contact times, Sun/Moon
+ * altitude, the eclipse-situation glyph, and — when not visible there — the next
  * eclipse of each kind visible from that point.
  *
- * All geometry is delegated to EclipseCtl (classifySolar / solarLocalContacts /
- * classifyLunar / nextVisible — ported from SubstellarAtlas), which runs the SAME
- * Besselian evaluator as the drawn footprint. This file is presentation only.
- *
- * Forecast rows carry data-ecl-date / data-ecl-kind; the map wires them to
- * Atlas.selectEvent on popupopen (Leaflet popup HTML is inert until attached).
+ * Geometry comes from EclipseCtl, the same Besselian evaluator as the drawn footprint;
+ * this file is presentation only. Forecast rows carry data-ecl-date/data-ecl-kind for
+ * Atlas.selectEvent on popupopen.
  */
 window.ObservePanel = (function () {
   'use strict';
 
-  // Figure column, in CSS px — MUST equal .op-fig's width in css/app.css, and the
-  // label target MUST equal --fs-note. Both are handed to EclipseGlyph.renderSchematic,
-  // which authors its type against them so the diagram can shrink without its labels
-  // shrinking with it (the figure once sat in a 116px column and rendered 4.35px text).
-  // This is the only reason the card is no longer sized by the diagram's viewBox.
+  // FIG_PX MUST equal .op-fig's width in css/app.css; FIG_TEXT_PX MUST equal --fs-note.
   const FIG_PX = 240,
     FIG_TEXT_PX = 12;
 
@@ -32,9 +23,9 @@ window.ObservePanel = (function () {
       (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
     );
   const ctl = () => window.EclipseCtl;
-  // Which register the reader is in. Several presentation choices on this card fork on
-  // it — shichen against hora, the approximation marker, shupai tracking — so it reads
-  // the same predicate every time rather than each site testing the locale its own way.
+
+  // Whether the reader is in a CJK locale: shichen vs hora, full-width vs ASCII
+  // brackets, and other presentation forks on this card key off this one predicate.
   const isCJK = () => (typeof I18n !== 'undefined' ? I18n.isZhOrJa() : true);
 
   // UTC HH:MM from a Date (contact instants are computed as UTC, like the panel).
@@ -98,18 +89,13 @@ window.ObservePanel = (function () {
     }
   }
 
-  // ---- twelve-shichen (CJK locales) — the double-hour reading of local apparent time ----
-  // Twelve equal double-hours, each a fixed 2h, anchored at midnight (子 begins 23:00),
-  // each split into an 初 (first) and 正 (second) half — so the day is finely cut into 24.
-  // Because every shichen is a fixed 2h anchored at midnight, this is defined everywhere,
-  // the poles included — unlike the Western hora below, which needs a finite daylight span.
-  //
-  //   子 23–01  丑 01–03  寅 03–05  卯 05–07  辰 07–09  巳 09–11
-  //   午 11–13  未 13–15  申 15–17  酉 17–19  戌 19–21  亥 21–23   (local apparent time)
-  //   初 = first half-double-hour, 正 = second. 午正 = 12:00–13:00 LAT.
+  // ---- Shichen (CJK Locales) ----
+  // Twelve equal double-hours, each a fixed 2h anchored at midnight and split into an
+  // 初 (first)/正 (second) half; midnight-anchored, so unlike hora it holds at the poles.
   const SHICHEN = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-  // Kanji ordinals for the branch's 1-based position in the day (子=第一, 酉=第十, …),
-  // shared by zh-Hans/zh-Hant/ja — the characters are identical across all three.
+
+  // Kanji ordinals for the branch's 1-based position in the day; identical characters
+  // across zh-Hans/zh-Hant/ja.
   const ZH_ORDINAL = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
 
   // Decimal hour-of-day (from localApparentHour) → "HH:MM", shared by the shichen
@@ -133,18 +119,9 @@ window.ObservePanel = (function () {
     return s ? SHICHEN[s.branch] + (s.first ? '初' : '正') : '—';
   }
 
-  // ---- hora inaequalis (Western locales) — the classical unequal / temporal hour ----
-  // What a Latin chronicler wrote where a Chinese one wrote shichen. Daylight is split into
-  // twelve equal parts and night into another twelve, so an hour STRETCHES with the season
-  // (a Paris summer daylight-hora ≈ 81 min, winter ≈ 41 min) — it is NOT a fixed 60 min.
-  // Anchored at sunrise/sunset, not midnight; hence undefined in polar day/night (no finite
-  // span to divide) — the one case shichen handles but hora cannot.
-  //
-  //   Names run prima(I) … duodecima(XII); hora sexta closes at noon (meridies = end of VI),
-  //   hora nona ≈ mid-afternoon — English "noon" drifted here from nona. The canonical Office
-  //   (Prime=I, Terce=III, Sext=VI, None=IX, Vespers≈XII) is built on this reckoning, and
-  //   "the eleventh hour" (Matt. 20, hora undecima) is a fossil of it. d./n. = diei/noctis
-  //   ("of the day"/"of the night"), the genitive the source texts themselves use.
+  // ---- Hora Inaequalis (Western Locales) ----
+  // The Latin unequal hour: daylight and night each split into twelve parts, so an hour
+  // stretches with the season and is undefined in polar day/night. d./n. = diei/noctis.
   const ROMAN12 = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
   const LATIN_ORD = [
     '',
@@ -163,9 +140,8 @@ window.ObservePanel = (function () {
   ];
 
   // Sun horizon crossings across [t0ms, t1ms], sorted ascending as { ms, rise }. Empty
-  // when the Sun neither rises nor sets in the window (polar day/night). A 25h pad on each
-  // side of the contacts (see contactTable) guarantees a bracketing crossing on both sides
-  // of every row, since rise/set recur every ~24h — except at the poles, which is the point.
+  // when the Sun neither rises nor sets in the window (polar day/night). Callers pad
+  // t0ms/t1ms by 25h so a bracketing crossing exists on both sides of every row.
   function sunHorizonEvents(lat, lng, t0ms, t1ms) {
     if (typeof Astronomy === 'undefined') return [];
     const evs = [];
@@ -190,12 +166,9 @@ window.ObservePanel = (function () {
     return evs;
   }
 
-  // Which unequal hour `ms` falls in, given the day's crossings. The bracketing pair
-  // [start, end] is the surrounding rise→set (day) or set→rise (night); the hour index is
-  // 1..12 within it. Deciding day/night by which crossing PRECEDES ms — rather than by a
-  // refracted altitude test — keeps this self-consistent with the rise/set convention at
-  // the ~1-minute boundary where an apparent-altitude test could pick the wrong side.
-  // Returns { n, night, startMs, spanMs } or null (polar / outside the events window).
+  // Which unequal hour `ms` falls in: bracketed by the surrounding rise→set (day) or
+  // set→rise (night) pair, hour index 1..12 within it. Night is decided by which crossing
+  // precedes ms, never a refracted-altitude test, which can flip within ~1 minute of it.
   function horaAt(ms, events) {
     let start = null,
       end = null;
@@ -224,9 +197,8 @@ window.ObservePanel = (function () {
     return s ? ' data-gloss="' + esc(s) + '"' : '';
   };
 
-  // Contact desc-column label (first contact/second contact/…) → glossary slug, so the table's name column
-  // gets the same hover definition the schematic's contact labels already carry.
-  // Annular c2/c3 variants share the plain slug; unknown keys resolve to '' via gAttr.
+  // Contact desc-column label → glossary slug, so the table's name column gets the same
+  // hover definition the schematic's contact labels carry. Unknown keys resolve to '' via gAttr.
   const CONTACT_DESC_GLOSS = {
     'eclipse.contact.solar_c1.label': 'ecl_c_p1_solar',
     'eclipse.contact.solar_c2.label': 'ecl_c_p2_solar',
@@ -247,60 +219,39 @@ window.ObservePanel = (function () {
     'eclipse.contact.moonset': 'ecl_c_moonset',
   };
 
-  // Brow header (meiti running-head band), single line: place name (two-tier offline lookup, site=quezhi/
-  // region=yuezhi per PlaceName.lookup) + coordinates, then current phase (or "no-eclipse") at
-  // the trailing edge. Coordinates only follow a NAMED place — when lookup falls back
-  // to bare coordinates as the name itself, appending them again would duplicate.
-  // The band stays ONE line: the date is already printed with the forecast dates
-  // elsewhere, and magnitude sits at the figure's own corner.
   // Leading signed integer of an extended-ISO astronomical date ("-000762-06-07" →
-  // -762, "2030-06-01" → 2030), for era-correct place naming. null if unparseable.
+  // -762), for era-correct place naming. null if unparseable.
   function _yearOf(dateStr) {
     const y = parseInt(dateStr, 10);
     return Number.isFinite(y) ? y : null;
   }
 
-  // No gloss on the phase name — "Total eclipse"/"Annular eclipse" are basic
-  // enough that this site's readers can be assumed to know them already.
+  // Meiti running-head band, one line: place name + coordinates, then phase (no gloss —
+  // "Total eclipse" is assumed known) at the trailing edge. Coordinates follow a named
+  // place only, never duplicated when the lookup falls back to bare coordinates.
   function browHtml(lat, lng, phaseName, phaseNone, year) {
     const p = typeof PlaceName !== 'undefined' ? PlaceName.lookup(lat, lng, undefined, year) : null;
     const hasName = !!(p && p.name);
 
-    // Region tier (yuezhi) is an approximation, and the seal is the ONE marker that
-    // says so. The heading must NOT also change ink colour: that states the same fact
-    // twice and makes an approximate name read as a lesser one. The marker glyph is a
-    // translated key, never a CSS literal: it is 约/約 for a Chinese or Japanese reader
-    // and "c." (circa) for a Latin-script one, the same register split localHourCell
-    // already makes between shichen and hora. Its gloss explains the 90 km site radius
-    // on hover.
-    const mark =
-      hasName && p.tier === 'region'
-        ? '<span class="op-mark"' + gAttr('op_approx') + '>' + esc(T('place.approx.mark')) + '</span>'
-        : '';
+    // Before PlaceName.load() resolves there is no name; the heading must stay EMPTY and
+    // collapse rather than fall back to the coordinate string, which would set the same
+    // digits two different ways on one card.
+    const place = '<div class="op-place">' + (hasName ? esc(p.name) : '') + '</div>';
 
-    // Modern name is part of the place name, not a tier beside it, so it trails the
-    // historical name as a parenthetical — the same idiom and the same key the records
-    // card sets (js/atlas.js placeLabel). CJK needs no leading space; its parenthesis
-    // supplies one.
-    const mod =
-      p && p.modern
-        ? '<span class="op-mod">' + (isCJK() ? '' : ' ') + esc(T('atlas.place.modern', { name: p.modern })) + '</span>'
-        : '';
+    // Brackets are text, not a pseudo-element, so a reader dragging across the line copies
+    // what they see; dropped entirely when there is no name. The Latin pair's leading space
+    // must be NO-BREAK: this box is a flex item, and an ordinary leading space collapses.
+    const cjk = isCJK();
+    const coordText = coordStr(lat, lng);
+    const coord =
+      '<span class="op-coord">' +
+      (hasName ? (cjk ? '（' : ' (') + esc(coordText) + (cjk ? '）' : ')') : esc(coordText)) +
+      '</span>';
 
-    // The coordinates always render, and always as coordinates. Before PlaceName.load()
-    // resolves there is no name, and the old fallback promoted the coordinate string into
-    // the 14px/700 heading slot — the one state where this card set digits two different
-    // ways. The heading now simply stays empty and collapses (see .op-place:empty).
-    const place = '<div class="op-place">' + (hasName ? esc(p.name) + mod : '') + '</div>';
-    const coord = '<span class="op-coord num">' + esc(coordStr(lat, lng)) + '</span>';
-
-    // The phase text is wrapped so the letterspacing can sit on the inner span: its
-    // negative right margin pulls the outer box back to the last glyph's ink, and the
-    // outer box is what carries the underline.
     const phase =
       '<div class="op-phase' + (phaseNone ? ' op-none' : '') + '"><span>' + esc(phaseName) + '</span></div>';
 
-    return '<div class="op-brow"><div class="op-head">' + mark + place + coord + phase + '</div></div>';
+    return '<div class="op-brow"><div class="op-head">' + place + coord + phase + '</div></div>';
   }
 
   // Duration annotation (jiazhu) appended under the contact table. items:
@@ -329,7 +280,7 @@ window.ObservePanel = (function () {
 
   // Solar durations from THIS observer's own local contacts (central = c3−c2 for a
   // total/annular max here; partial = c4−c1) — the site-local take, matching the
-  // contact table above (cf. event-panel.js:163, same central-line choice).
+  // contact table above, which makes the same central-line choice.
   function solarDurations(lc) {
     const central =
       (lc.maxPhase === 'total' || lc.maxPhase === 'annular') && lc.c2 instanceof Date && lc.c3 instanceof Date;
@@ -340,10 +291,8 @@ window.ObservePanel = (function () {
     return durStrip(items);
   }
 
-  // Lunar durations (global — the Moon is one body, not a sweeping shadow): total/
-  // partial from EclipseGlyph.lunarStats (baked totalDurSec/partialDurSec preferred);
-  // penumbral only for Penumbral-kind (the field is non-null for total/partial too,
-  // so a kind guard is required — cf. event-panel.js:183-187).
+  // Lunar durations (global — the Moon is one body, not a sweeping shadow), from
+  // EclipseGlyph.lunarStats; penumbral only for Penumbral-kind events.
   function lunarDurations(event) {
     const st = window.EclipseGlyph && EclipseGlyph.lunarStats ? EclipseGlyph.lunarStats(event) : null;
     const isPenumbral = (event.kind || '').toLowerCase() === 'penumbral';
@@ -359,12 +308,8 @@ window.ObservePanel = (function () {
     return durStrip(items);
   }
 
-  // The local-hour cell (shichen for CJK, hora for Western), text + its hover gloss.
-  // CJK reads local apparent time as a fixed double-hour; Western reads it as the
-  // unequal hour a Latin chronicler would have named — see the two blocks above.
-  // Each cell's gloss names only this instant (ordinal + local apparent clock time);
-  // the shared mechanism explanation (what a shichen/hora IS) lives on the column
-  // header instead — see contactTable — so it renders once per card, not once per row.
+  // The local-hour cell (shichen for CJK, hora for Western), text + its hover gloss; the
+  // shared mechanism explanation lives once on the column header (see contactTable).
   // `events` (Western only) is the day's sun crossings, computed once per card.
   function localHourCell(date, lat, lng, isCJK, events) {
     const lah = localApparentHour(date, lat, lng);
@@ -386,26 +331,16 @@ window.ObservePanel = (function () {
     };
   }
 
-  // Contact table. defs: [pk, labelKey, Date, forceVisible?]. A contact below the
-  // horizon (Sun/Moon set) is shown dimmed — the instant is geometrically real
-  // but not observable there. Sunrise/sunset markers are forceVisible. Each row
-  // also carries local apparent time in the third column: a shichen double-hour under
-  // CJK locales, an unequal hora under Western ones. Both explain themselves on
-  // hover (data-gloss → the themed card), so no on-card caption text is needed.
-  //
-  // Column order is P-key · CJK-name · shichen/hora · UTC · altitude, matching the event card's
-  // .ec-ct (pk | k | v) rather than inverting its first two.
-  //
-  // refDay anchors the day markers: an eclipse can straddle UTC midnight, and the
-  // brow dates the event, not each row. Rows are marked relative to greatest eclipse (the day
-  // the brow names), so first contact the evening before reads −1 and a fourth contact after midnight
-  // reads +1. Local apparent time never straddles here, so its column needs no marker.
+  // Contact table. defs: [pk, labelKey, Date, forceVisible?]; a below-horizon contact is
+  // dimmed. refDay anchors the day markers to greatest eclipse, so a contact the evening
+  // before reads −1 and one after midnight reads +1.
   function contactTable(defs, body, lat, lng, refDate) {
     const refDay = refDate instanceof Date && !isNaN(refDate.getTime()) ? utcDay(refDate) : null;
     const cjk = isCJK();
+
     // Western hora needs the day's sun crossings. Compute them ONCE over a window
-    // padded 25h past the outermost contact — enough to bracket every row (rise/set
-    // recur ~24h) yet cheap (~4-6 searches vs 3 per row). Skipped entirely for CJK.
+    // padded 25h past the outermost contact, which brackets every row because rise and
+    // set recur about every 24h. Skipped entirely for CJK.
     let events = [];
     if (!cjk) {
       const ms = defs
@@ -425,9 +360,11 @@ window.ObservePanel = (function () {
         const cls = [below && 'op-ct-below', peak && 'op-ct-peak'].filter(Boolean).join(' ');
         const lh = localHourCell(date, lat, lng, cjk, events);
         const shift = refDay == null ? 0 : utcDay(date) - refDay;
-        // ±1 rather than locale-specific next/previous-day kanji: the day-offset tag is the same in every locale the
-        // site ships, and two characters is all the column can spare.
+
+        // ±1 rather than locale-specific next/previous-day kanji: the tag is the same in
+        // every locale the site ships, and two characters is all the column can spare.
         const day = shift ? '<i class="op-ct-day">' + (shift > 0 ? '+' : '−') + Math.abs(shift) + '</i>' : '';
+
         // Same gloss on the pk cell (P1…P4) as on its name — a reader may hover
         // either.
         const descGloss = gAttr(CONTACT_DESC_GLOSS[labelKey]);
@@ -464,11 +401,9 @@ window.ObservePanel = (function () {
       })
       .join('');
     if (!rows) return '';
-    // Column header — the local-hour column is shichen (CJK) or "Hora" (Western),
-    // one key whose value tracks the same locale split as the cells below it, so header
-    // and body can never disagree; UTC is the universal abbreviation; the altitude column reuses the
-    // existing star.altitude key. The mechanism gloss (what a shichen/hora IS) sits
-    // here, once, rather than repeating on every row's cell.
+
+    // Column header. The mechanism gloss (what a shichen/hora IS) sits here, once,
+    // rather than repeating on every row's cell.
     const head =
       '<thead><tr>' +
       '<td class="op-ct-key"></td><td class="op-ct-desc"></td>' +
@@ -485,26 +420,34 @@ window.ObservePanel = (function () {
     return '<table class="op-contacts">' + head + '<tbody>' + rows + '</tbody></table>';
   }
 
-  // Next-visible forecast (four kinds). Rows carry data attrs for map wiring.
-  //
-  // Each slot is a BUCKET, not a phase: nextVisible files annular maxima under
-  // solarTotal (js/eclipse.js:403) and penumbral ones under lunarPartial (:414),
-  // so a slot's own true phase can differ from its label. That distinction was
-  // shown here as a trailing annotation, but it read as a plain duplicate on
-  // the two rows where phase and label already say the same thing, so it was
-  // dropped; the label is what's shown, per bucket, not the resolved phase.
+  // Next-visible forecast (four kinds). Rows carry data attrs for map wiring. Each slot
+  // is a BUCKET, not a phase — nextVisible files an annular maximum under solarTotal, for
+  // instance — so a row always shows the bucket's label, never the resolved phase.
+
+  // Aligns a CJK date on its 年 (year) marker rather than the string's right edge, so a
+  // one- or two-digit month/day still falls into straight columns. Latin dates pass
+  // through unchanged: ISO is already fixed-width.
+  const CJK_DATE = /^(.*?)(\d+) 年(?: (\d+) 月)?(?: (\d+) 日)?$/;
+
+  function dateCells(shown) {
+    const m = isCJK() ? CJK_DATE.exec(shown) : null;
+    if (!m) return esc(shown);
+    let s = '<span class="op-dy">' + esc(m[1] + m[2]) + '</span> 年';
+    if (m[3]) s += ' <span class="op-dm">' + esc(m[3]) + '</span> 月';
+    if (m[4]) s += ' <span class="op-dd">' + esc(m[4]) + '</span> 日';
+    return s;
+  }
+
   function forecastHtml(slots) {
     if (!slots) return '<div class="op-note">' + T('panel.eclipse.loading') + '</div>';
     const row = (labelKey, slot) => {
       const lbl = T(labelKey);
       if (!slot || !slot.event)
         return '<div class="op-fc-row"><span class="op-k">' + lbl + '</span><span class="op-v op-none">—</span></div>';
-      // event.date is the raw ISO date-only form ("2030-06-01" / "-001999-11-18").
-      // The data attr stays raw (machine-read: map wiring keys on it); the visible
-      // cell is dated the same way the shu'er dates events (Atlas.sciDate — Julian
-      // calendar before 1582, BCE gloss, no bare -0/leading-0 year), guarded for
-      // pre-Atlas-boot calls. Keeping the raw attr and the shown date apart is what
-      // lets the display calendar change without touching any of the map wiring.
+
+      // The data attr stays the raw ISO date (map wiring keys on it); the visible cell
+      // goes through Atlas.sciDate when available, so the shown calendar can change
+      // without touching the map wiring.
       const shownDate = window.Atlas && Atlas.sciDate ? Atlas.sciDate(slot.event.date) : slot.event.date;
       return (
         '<div class="op-fc-row op-fc" role="button" tabindex="0" data-ecl-date="' +
@@ -514,7 +457,7 @@ window.ObservePanel = (function () {
         '"><span class="op-k">' +
         lbl +
         '</span><span class="op-v num">' +
-        esc(shownDate) +
+        dateCells(shownDate) +
         '</span></div>'
       );
     };
@@ -550,8 +493,8 @@ window.ObservePanel = (function () {
       (lc.maxPhase === 'total' || lc.maxPhase === 'annular') && lc.c2 instanceof Date && lc.c3 instanceof Date;
     const phaseName = T('eclipse.type.solar.' + String(lc.maxPhase || '').toLowerCase());
 
-    // Point-observer contacts (this location's own first contact/second contact/greatest eclipse/third contact/fourth contact) —
-    // NOT the global external/internal tangency contacts the event card once mislabeled these as.
+    // This observer's own contacts, not the global external/internal tangency contacts
+    // (which belong to no observer).
     const ann = lc.maxPhase === 'annular';
     const defs = [
       ['P1', 'eclipse.contact.solar_c1.label', lc.c1],
@@ -566,9 +509,9 @@ window.ObservePanel = (function () {
       (a, b) => (a[2] instanceof Date ? a[2].getTime() : Infinity) - (b[2] instanceof Date ? b[2].getTime() : Infinity)
     );
 
-    // Sky-path eclipse phase diagram (shixiangtu) replaces the small local glyph. A below-horizon exterior
-    // contact is swapped for its sunrise/sunset horizon marker so the arc keeps a
-    // visible endpoint; the true P1/P4 stay in the contact table.
+    // Sky-path eclipse phase diagram (shixiangtu) replaces the small local glyph. A
+    // below-horizon exterior contact is swapped for its horizon marker so the arc keeps
+    // a visible endpoint; the true P1/P4 stay in the contact table.
     const diagContacts = {
       maxPhase: lc.maxPhase,
       maxTime: lc.maxTime,
@@ -587,9 +530,8 @@ window.ObservePanel = (function () {
       P1: lc.sunrise ? T('eclipse.contact.sunrise') : undefined,
       P4: lc.sunset ? T('eclipse.contact.sunset') : undefined,
     };
-    // colPx/textPx must match .op-fig's width in css/app.css: the schematic sizes its
-    // type against the column it is given, so the figure shrinks while its labels stay
-    // at --fs-note on screen. Change one, change the other.
+
+    // colPx/textPx MUST match .op-fig's width in css/app.css and --fs-note.
     const diagram =
       window.EclipseGlyph && EclipseGlyph.renderSchematic
         ? EclipseGlyph.renderSchematic(event, {
@@ -617,7 +559,7 @@ window.ObservePanel = (function () {
     if (diagram) {
       fig = magLabel + '<div class="ecl-diagram ecl-diagram--solar">' + diagram + '</div>';
     } else {
-      // Fallback (astronomy engine unavailable): the original compact glyph + a note.
+      // Fallback when the astronomy engine is unavailable: compact glyph plus a note.
       const glyph =
         window.EclipseGlyph && EclipseGlyph.renderLocal
           ? EclipseGlyph.renderLocal(event, { maxPhase: lc.maxPhase, maxMag: lc.maxMag, size: 76 })
@@ -647,11 +589,10 @@ window.ObservePanel = (function () {
 
     const t = event.times || {};
     const Moon = Astronomy.Body.Moon;
-    // The phase of THIS place, not of the event. classifyLunar already computes the
-    // deepest phase that clears the local horizon; naming the card from the global
-    // event.kind instead — as this did — meant a site where only the partial phase
-    // ever rose still read total lunar eclipse, on a card whose entire claim is visible from this location.
-    // event.kind stays as the fallback for when the classifier gives nothing.
+
+    // The phase of THIS place, never of the event: classifyLunar computes the deepest
+    // phase that clears the local horizon. event.kind is only the fallback for when the
+    // classifier gives nothing.
     const phaseName = T('eclipse.type.lunar.' + String(cl.maxPhase || event.kind || '').toLowerCase());
 
     const iso = (s) => (s ? new Date(Date.parse(s)) : null);
@@ -669,7 +610,7 @@ window.ObservePanel = (function () {
       (a, b) => (a[2] instanceof Date ? a[2].getTime() : Infinity) - (b[2] instanceof Date ? b[2].getTime() : Infinity)
     );
 
-    // Shadow-cone eclipse phase diagram, shixiangtu (global geometry — location-independent) replaces the glyph.
+    // Shadow-cone eclipse phase diagram (shixiangtu): global geometry, location-independent.
     const lgloss = {
       umbra: G('ecl_umbra'),
       penumbra: G('ecl_penumbra'),

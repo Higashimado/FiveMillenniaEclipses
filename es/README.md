@@ -1,4 +1,4 @@
-# <img src="../img/mark.svg" alt="" width="34" style="vertical-align: text-bottom"> Cinco milenios de eclipses
+# <img src="../img/mark.svg" alt="" width="34" style="vertical-align: text-bottom"> Five Millennia Eclipses
 
 [简体中文](../zh-Hans/README.md) · [繁體中文](../zh-Hant/README.md) · [English](../en/README.md) · [Français](../fr/README.md) · **Español** · [Italiano](../it/README.md) · [日本語](../ja/README.md)
 
@@ -6,135 +6,135 @@
   <img src="../docs/demo/world_map_es.png" width="100%">
 </p>
 
-**Sitio**: <https://higashimado.github.io/FiveMillenniaEclipses/>
+**Sitio web**: <https://higashimado.github.io/FiveMillenniaEclipses/>
 
-Cinco milenios de eclipses es un atlas histórico de registros astronómicos. Reúne los testimonios escritos en todas las épocas y devuelve cada uno al día y al lugar que ese testimonio nombra. Los eclipses de Sol y de Luna constituyen su núcleo; las ocultaciones, las conjunciones, las estrellas invitadas y los cometas completan seis clases de fenómenos, y el corpus reúne hoy más de doce mil entradas. Todo registro datable queda ligado al suceso real recuperado por el cálculo moderno, y todos se alinean sobre una única línea de tiempo que abarca cinco milenios. Quién vio un fenómeno, dónde se vio, qué calendario lo fechó y con qué nombre se designó se leen de un vistazo, a través de culturas y de siglos.
+**Five Millennia Eclipses** es una base de datos abierta de registros astronómicos históricos, construida sobre las bibliotecas cartográficas Leaflet y MapLibre GL JS y sobre el formato de datos JSONL. Reúne más de diez mil registros de dominio público sobre fenómenos celestes, contrasta cada uno con el cálculo astronómico, anota su fecha, lugar, objeto y fuente, y los presenta todos sobre un mismo mapa histórico interactivo. De cada testimonio, el mapa muestra de un vistazo cuándo y dónde se observó el fenómeno, con qué nombre se lo llamó y qué era en realidad.
+
+## Interfaz
+
+La página principal consta de cuatro partes: la barra superior, el mapa, la línea de tiempo y el panel lateral. La línea de tiempo ocupa la parte inferior y el panel lateral, la derecha.
+
+- **Barra superior**: el cuadro de búsqueda filtra los registros por texto original, traducción, nota, fuente, topónimo, fecha o civilización, y los menús cambian el mapa base y el idioma de la interfaz.
+- **Mapa**: [OpenHistoricalMap](https://www.openhistoricalmap.org/) es el mapa base predeterminado, y sus elementos cambian según la época mostrada. Unos sellos señalan la civilización y el lugar de observación de cada registro.
+- **Línea de tiempo**: una cronología con efecto de ojo de pez y foco ajustable, con marcas de años y límites de los grandes periodos. Unos puntos indican el momento en que se observó cada registro.
+- **Panel lateral**: la vista Registros enumera los testimonios de fenómenos y la vista Tablas, los eventos astronómicos. Las pestañas de la parte superior del panel alternan entre tipos de fenómeno.
+
+Al pulsar un sello del mapa o una entrada de la lista se abre el **detalle del evento**. En este modo:
+
+- El mapa muestra las curvas de contacto del cono de sombra y la zona desde la que el evento fue visible, junto con la ubicación de todos los registros del mismo evento.
+- La cartela reúne los datos principales del evento y su día en el ciclo sexagenario, y el dial situado debajo reproduce hora a hora la proyección del cono de sombra.
+- Al pulsar cualquier punto del mapa se abre una ventana emergente con el esquema del eclipse y la tabla de contactos calculados para ese lugar.
+
+<p align="center">
+  <img src="../docs/demo/event_detail_map_es.png" width="100%">
+</p>
 
 ## Registros
 
-El corpus reúne 12 026 registros de 26 civilizaciones. Cada registro conserva el texto original, sus traducciones y una nota editorial en campos separados. Los archivos fuente están en [data/](../data/):
+El corpus reúne hoy 13 159 registros de fenómenos celestes, y su traducción al español suma casi 500 000 palabras. Proceden de 381 fuentes en 23 lenguas, entre ellas el chino clásico, el neerlandés, el francés, el inglés, el latín, el árabe y el griego. Los textos se han tomado de más de 20 bibliotecas digitales, como [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), la [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), los [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) y [NASA ADS](https://ui.adsabs.harvard.edu/). Todos los textos citados son de dominio público.
 
-| Archivo | Contenido |
-|---|---|
-| [`data/records/schema.json`](../data/records/schema.json) | Definición de campos |
-| [`data/records/manifest.json`](../data/records/manifest.json) | Inventario de archivos |
-| [`data/records/sources.json`](../data/records/sources.json) | Bibliografía |
-| `data/records/<phenomenon>/<civilization>.jsonl` | Los propios registros |
+### Géneros
 
-### Asia oriental
+Según su propósito y su forma, los registros se agrupan en cuatro grandes clases, «Anales», «Prensa», «Escritos científicos» y «Misceláneas», que a su vez se dividen en 19 subgéneros. El subgénero consta en el campo `genre` de [`sources.json`](../data/records/sources.json). Las clases difieren en estilo, tema, extensión y grado de detalle; la lista completa de fuentes está en [`SOURCES.md`](../SOURCES.md).
 
-Asia oriental aporta 11 804 registros, el 98,2 % del corpus, desde 2137 a. C. hasta 1911 d. C. La rama china se apoya en dieciséis de las Veinticuatro Historias junto con la Historia provisional de los Qing, tomando sus tratados de astronomía, de las cinco fases y del calendario, así como sus anales básicos. Se apoya también en los clásicos (Shangshu, Shijing, [Chunqiu](https://zh.wikisource.org/wiki/春秋經) y [Zuozhuan](https://zh.wikisource.org/wiki/春秋左氏傳)), en las inscripciones oraculares de Yinxu y en varias misceláneas y poemas. La mayoría de los textos sigue las ediciones puntuadas de [Wikisource](https://zh.wikisource.org/).
+| Clase | Subgéneros | Fuentes | Registros | % de registros | Palabras en español | % de palabras | Periodo |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Anales | 6 | 92 | 12 012 | 91,3 % | 250 714 | 50,3 % | 720 a. C. – 1911 |
+| Prensa | 6 | 186 | 1000 | 7,6 % | 222 049 | 44,6 % | 1834 – 1941 |
+| Escritos científicos | 3 | 55 | 55 | 0,4 % | 18 200 | 3,7 % | 1715 – 1923 |
+| Misceláneas | 4 | 50 | 92 | 0,7 % | 7239 | 1,5 % | 2137 a. C. – 1842 |
+| **Total** | **19** | **381** | **13 159** | | **498 202** | | **2137 a. C. – 1941** |
 
-Veintitrés fuentes principales suman 11 666 registros, el 98,8 % de la rama de Asia oriental, ordenadas aquí por el año más antiguo que cada una recoge:
+Los **Anales** son sobre todo las historias oficiales de China, Japón, Corea y Vietnam, a las que se suman crónicas de Asia occidental y de Europa. Sus asientos forman series ininterrumpidas, están clasificados de manera sistemática y siguen un formato fijo; un ejemplo típico es el [Tratado de Astronomía de la *Historia de Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053). La **Prensa** pertenece a la época moderna y procede de muchas manos y de puntos de vista muy diversos, desde escenas callejeras llenas de vida hasta editoriales y artículos de opinión que leen el cielo como comentario de la actualidad. Los **Escritos científicos** son obra de astrónomos y otros eruditos y entran en gran detalle; el más trascendental es el de las observaciones del eclipse de 1919 que confirmaron la relatividad general, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). Las **Misceláneas** abarcan clásicos, obras históricas, poemas, diarios, cartas y tablillas de arcilla, como el verso del *Clásico de la poesía* «El sol fue eclipsado, presagio de gran desdicha». Todos los testimonios más antiguos pertenecen a esta clase, aunque las fechas y los lugares que se les asignan son a menudo discutidos.
 
-| Fuente | Periodo | Sol. | Lun. | Oc. | Conj. | Nov. | Com. | Total |
-|---|---|---:|---:|---:|---:|---:|---:|---:|
-| [Book of Han, Treatise on the Five Phases](https://zh.wikisource.org/wiki/%E6%BC%A2%E6%9B%B8/%E5%8D%B7027) | 205 a. C. – 2 d. C. | 45 |  |  |  |  |  | 45 |
-| [Samguk sagi](https://zh.wikisource.org/wiki/%E4%B8%89%E5%9C%8B%E5%8F%B2%E8%A8%98/%E5%8D%B701) | 54 a. C. – 911 d. C. | 44 |  |  |  | 3 | 7 | 54 |
-| [Book of Later Han, Treatise on the Five Phases VI](https://zh.wikisource.org/wiki/%E5%BE%8C%E6%BC%A2%E6%9B%B8/%E5%8D%B7108) | 26–219 | 65 |  |  |  |  |  | 65 |
-| [Book of Later Han, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E5%BE%8C%E6%BC%A2%E6%9B%B8/%E5%8D%B7102) | 55–213 | 1 |  |  |  | 11 | 17 | 29 |
-| [Book of Song, Treatise on the Five Phases](https://zh.wikisource.org/wiki/%E5%AE%8B%E6%9B%B8/%E5%8D%B734) | 221–479 | 73 |  |  |  |  |  | 73 |
-| [Book of Jin, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E6%99%89%E6%9B%B8/%E5%8D%B7013) | 222–418 |  | 1 |  |  | 6 | 47 | 54 |
-| [Book of Wei, Treatise on Celestial Phenomena](https://zh.wikisource.org/wiki/%E9%AD%8F%E6%9B%B8/%E5%8D%B7105%E4%B9%8B%E4%B8%80) | 400–549 | 32 | 36 |  |  | 3 | 23 | 94 |
-| [Book of Sui, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E9%9A%8B%E6%9B%B8/%E5%8D%B721) | 502–617 | 11 | 3 | 175 | 12 | 4 | 14 | 219 |
-| [New Book of Tang, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E6%96%B0%E5%94%90%E6%9B%B8/%E5%8D%B7033) | 618–906 | 90 |  | 389 | 1 | 6 | 48 | 534 |
-| [Old Book of Tang, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E8%88%8A%E5%94%90%E6%9B%B8/%E5%8D%B736) | 626–839 | 1 | 1 |  |  |  | 18 | 20 |
-| [Rikkokushi](https://zh.wikisource.org/wiki/%E6%97%A5%E6%9C%AC%E6%9B%B8%E7%B4%80/%E5%8D%B7%E7%AC%AC%E4%B8%89%E5%8D%81) | 680–887 | 97 | 4 |  |  |  |  | 101 |
-| [Fusō ryakki](https://zh.wikisource.org/wiki/%E6%89%B6%E6%A1%91%E7%95%A5%E8%A8%98/%E7%AC%AC023); Hyakurenshō; Azuma kagami | 898–1265 | 20 |  |  |  |  |  | 20 |
-| [Old History of the Five Dynasties, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E8%88%8A%E4%BA%94%E4%BB%A3%E5%8F%B2/%E5%8D%B7139) | 911–958 | 9 | 11 |  |  |  | 6 | 26 |
-| [History of Song, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) | 960–1275 | 121 | 149 | 4,819 |  | 17 | 21 | 5,127 |
-| [Đại Việt sử ký toàn thư](https://zh.wikisource.org/wiki/%E5%A4%A7%E8%B6%8A%E5%8F%B2%E8%A8%98%E5%85%A8%E6%9B%B8/%E6%9C%AC%E7%B4%80%E5%8D%B7%E4%B9%8B%E4%BA%94) | 993–1774 | 46 | 32 |  |  |  |  | 78 |
-| [Goryeosa, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E9%AB%98%E9%BA%97%E5%8F%B2/%E5%8D%B7%E5%9B%9B%E5%8D%81%E5%85%AB) | 1012–1393 | 119 | 97 | 1,911 | 4 | 3 | 15 | 2,149 |
-| [History of Jin, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E9%87%91%E5%8F%B2/%E5%8D%B720) | 1120–1232 | 8 | 25 | 209 | 4 | 2 | 5 | 253 |
-| [History of Yuan, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E5%85%83%E5%8F%B2/%E5%8D%B7049) | 1264–1367 | 35 |  | 571 | 8 | 1 | 18 | 633 |
-| [History of Ming, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E6%98%8E%E5%8F%B2/%E5%8D%B726) | 1368–1642 |  |  | 972 | 45 |  | 38 | 1,055 |
-| [History of Ming, Basic Annals](https://zh.wikisource.org/wiki/%E6%98%8E%E5%8F%B2/%E5%8D%B72) | 1371–1643 | 75 |  |  |  |  |  | 75 |
-| [Veritable Records of the Joseon Dynasty](https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84/%E5%93%B2%E5%AE%97%E5%AF%A6%E9%8C%84/%E5%8D%81%E4%BA%8C%E5%B9%B4) | 1400–1863 | 84 | 32 |  |  | 84 | 297 | 497 |
-| [Draft History of Qing, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E6%B8%85%E5%8F%B2%E7%A8%BF/%E5%8D%B737) | 1618–1796 | 50 |  | 357 |  |  | 25 | 432 |
-| [Draft History of Qing, Basic Annals](https://zh.wikisource.org/wiki/%E6%B8%85%E5%8F%B2%E7%A8%BF/%E5%8D%B716) | 1646–1911 | 33 |  |  |  |  |  | 33 |
+### Estructura
 
-Las veintisiete fuentes restantes reúnen 138 registros, entre ellos el eclipse de Zhongkang en el [Shangshu, «Yinzheng»](https://zh.wikisource.org/wiki/尚書/胤征), las inscripciones oraculares de Yinxu, el [Shijing, «Xiaoya, Shiyue zhi jiao»](https://zh.wikisource.org/wiki/詩經/十月之交), el [Yueshi shi](https://zh.wikisource.org/wiki/全唐詩/卷388) de Lu Tong y el [Yueshi shi xiao Yuchuanzi zuo](https://zh.wikisource.org/wiki/全唐詩/卷340) de Han Yu, el [Liaoshi](https://zh.wikisource.org/wiki/%E9%81%BC%E5%8F%B2/%E5%8D%B722), el Meigetsuki de Fujiwara no Teika, el [Xixia shushi](https://zh.wikisource.org/wiki/%E8%A5%BF%E5%A4%8F%E6%9B%B8%E4%BA%8B/29), el [Changchun zhenren xiyou ji](https://zh.wikisource.org/wiki/%E9%95%B7%E6%98%A5%E7%9C%9F%E4%BA%BA%E8%A5%BF%E9%81%8A%E8%A8%98/%E5%8D%B7%E4%B8%8A), el [Xu Zizhi Tongjian](https://zh.wikisource.org/wiki/續資治通鑑) y el Rishi de Shu Yuexiang.
+Los registros se guardan en formato JSONL en [`data/records/`](../data/records/), agrupados por fenómeno y civilización. Cada uno contiene el texto original, sus traducciones y una nota, además de anotaciones de fecha, lugar, civilización, fuente, fiabilidad y otros datos. En el mismo directorio, [`manifest.json`](../data/records/manifest.json) contiene la lista de archivos y el número de entradas; [`sources.json`](../data/records/sources.json), los títulos, autores, tomos, páginas y demás datos bibliográficos; y [`visibility.json`](../data/records/visibility.json), la visibilidad de cada evento, obtenida al contrastar lo que describe el registro con el cálculo astronómico.
 
-### Fuera de Asia oriental
+| Archivo | Contenido | Usado por |
+|---|---|---|
+| [`data/records/README.md`](../data/records/README.md) | Descripción del formato | — |
+| [`data/records/schema.json`](../data/records/schema.json) | Definición de campos | — |
+| [`data/records/manifest.json`](../data/records/manifest.json) | Inventario de archivos | [`js/atlas.js`](../js/atlas.js) |
+| [`data/records/sources.json`](../data/records/sources.json) | Catálogo de fuentes | [`js/atlas.js`](../js/atlas.js) |
+| [`data/records/visibility.json`](../data/records/visibility.json) | Visibilidad | [`js/atlas.js`](../js/atlas.js) |
+| [`data/records/`](../data/records/) `<fenómeno>/<civilización>.jsonl` | Los registros | [`js/atlas.js`](../js/atlas.js) |
 
-Fuera de Asia oriental hay 222 registros repartidos en 21 civilizaciones. No son obra de un cargo que vigilara el cielo día tras día; son testigos aislados, un suceso cada vez. Antes de la época moderna las fuentes son crónicas, historias, códices y tablillas. Desde el siglo XVII ya no hay libros, sino informes de observatorio, comunicaciones de sociedades científicas y cartas privadas: la tercera columna reúne por eso obras y observadores.
-
-| Civilización | Periodo | Obras e informes | Sol. | Lun. | Total |
-|---|---|---|---:|---:|---:|
-| Árabe | 829–1226 | [Ḥabash al-Ḥāsib](https://gallica.bnf.fr/ark:/12148/bpt6k5626201z), [al-Māhānī](https://gallica.bnf.fr/ark:/12148/bpt6k5626201z), al-Battānī, [Ibn Amājūr](https://gallica.bnf.fr/ark:/12148/bpt6k5626201z), [Ibn Yūnus](https://gallica.bnf.fr/ark:/12148/bpt6k5626201z), [al-Bīrūnī](https://archive.org/details/chronologyofanci00biru), [Ibn al-Athīr, *al-Kamil fi al-Ta'rikh*](https://archive.org/details/kamil-Tornberg), [Ibn ʿIdhārī](https://archive.org/details/bub_gb_MiyHAAAAMAAJ) | 19 | 27 | 46 |
-| Bretaña | 664–1919 | [Bede, *Historia Ecclesiastica*](https://www.gutenberg.org/cache/epub/38326/pg38326-images.html), [*Anglo-Saxon Chronicle*](https://en.wikisource.org/wiki/Anglo-Saxon_Chronicle), [John of Worcester, *Chronicon ex chronicis*](https://archive.org/details/florentiiwigorn00florgoog), [William of Malmesbury, *Historia Novella*](https://archive.org/details/stubdegestisregumanglorum1), [Henry of Huntingdon, *Historia Anglorum*](https://archive.org/details/henriciarchidia00unkngoog), [Gervase of Canterbury, *Chronica*](https://archive.org/details/thehistoricalworksofgerva1), [Matthew Paris, *Chronica Majora*](https://archive.org/details/matthiparisiensi03pari), [Thomas Walsingham, *Historia Anglicana*](https://archive.org/details/thomaewalsingham01wals), [Walter Bower, *Scotichronicon*](https://archive.org/details/scotichronicon-v-1-bks-1-2), John Lamont, John Nicoll, [Alice Thornton](https://archive.org/details/autobiographyofm00thor), [John Evelyn](https://archive.org/details/in.ernet.dli.2015.272771), [Halley](https://archive.org/details/bim_eighteenth-century_a-description-of-the-pas_halley-edmund_1715_0), [Baily](https://archive.org/details/paper-doi-10_1093_mnras_4_2_15), [De la Rue](https://archive.org/details/ontotalsolarecli00dela), [Lockyer](https://archive.org/details/contributionsto00lockgoog), Copeland, [Dyson](https://archive.org/details/philtrans06337895), Eddington | 31 | 8 | 39 |
-| Sacro Imperio | 806–1852 | [*Annales regni Francorum*](https://thelatinlibrary.com/annalesregnifrancorum.html), [*Annales Bertiniani*](https://archive.org/stream/annalesbertinian00wait/annalesbertinian00wait_djvu.txt), [*Annales Hildesheimenses*](https://www.dmgh.de/mgh_ss_3/index.htm), [*Annales Marbacenses*](https://www.dmgh.de/mgh_ss_rer_germ_9/index.htm), [Annalista Saxo](https://www.dmgh.de/mgh_ss_6/index.htm), [Regino of Prüm, *Chronicon*](https://www.dmgh.de/mgh_ss_rer_germ_50/), [Sigebert of Gembloux, *Chronicon*](https://www.dmgh.de/mgh_ss_6/index.htm), [Peter of Zittau, *Zbraslav Chronicle*](https://archive.org/details/fontesrerumbohem04emle), [Vavřinec of Březová, *Historia Hussitica*](https://archive.org/details/fontesrerumbohe00goog), [Gemma Frisius](https://archive.org/details/gemmaefrisiimedi00gemm), David Fabricius, [Kepler, *Ad Vitellionem Paralipomena*](https://archive.org/details/advitellionempar00kepl), [*De Stella Nova*](https://archive.org/details/10873675bsb), Heinsius, Rümker, Busch, Galle, d'Arrest, Wolf, Klinkerfues | 12 | 16 | 28 |
-| América | 1806–1918 | [Ferrer](https://archive.org/details/jstor-1004811), Maria Mitchell, Harkness, Gilman, Rogers, Young, Lockett, Willson, Seagrave, [Campbell](https://archive.org/details/jstor-984400), Hammond, Adams, [Stebbins](https://archive.org/details/jstor-984404), Morehouse, Pettit | 19 | 0 | 19 |
-| Babilonia | 1223–183 a. C. | [*Babylonian Astronomical Diaries*](http://oracc.museum.upenn.edu/adsd/), [Ptolemy, *Almagest*](https://archive.org/details/bub_gb_a9nvvbG-OOIC), [tablet BM 33066](https://cdli.earth/search?q=BM+33066), [Ugaritic tablet KTU 1.78](https://cdli.earth/search?q=RS+12.061) | 1 | 11 | 12 |
-| Italia | 1178–1852 | [Romuald II Guarna, *Chronicon*](https://www.dmgh.de/mgh_ss_19/), [Ristoro d'Arezzo, *La composizione del mondo*](https://archive.org/details/lacomposizionedelmondo), [Salimbene de Adam, *Cronica*](https://www.dmgh.de/mgh_ss_32/index.htm), [*Annales Placentini Gibellini*](https://www.dmgh.de/mgh_ss_18/), [*Chronicon Foroliviense*](https://archive.org/details/rerumitalicarums271mura), [Nicolò Barbaro, *Giornale dell'assedio di Costantinopoli*](https://vec.wikisource.org/wiki/Giornale_dell%27assedio_di_Costantinopoli_1453), [Gervase of Canterbury, *Chronica*](https://archive.org/details/thehistoricalworksofgerva1), [Clavius](https://archive.org/details/christophoriclau00clav_1), [Kepler, *De Stella Nova*](https://archive.org/details/10873675bsb), Secchi | 8 | 4 | 12 |
-| Siríaco | 512–1191 | [Michael the Syrian, *Chronicle*](https://archive.org/details/chroniquedemiche01mich) | 9 | 2 | 11 |
-| Francia | 1033–1905 | [Rodulfus Glaber, *Historiarum libri quinque*](https://archive.org/details/rodulfiglabrihis0000glab), [Robert of Torigny, *Chronica*](https://www.dmgh.de/mgh_ss_6/index.htm), [*Le Petit Thalamus de Montpellier*](https://archive.org/details/thalamusparvusmontpellierma), [Michel Pintoin, *Chronicorum Karoli Sexti*](https://gallica.bnf.fr/ark:/12148/bpt6k6224315z), Maraldi, Cassini, Janssen, Lescarbault, Štefánik | 8 | 2 | 10 |
-| Iberia | 939–1560 | [*Annales Castellani Antiquiores*](https://archive.org/details/espanasagradathe23flor), [*Anales Toledanos Primeros*](https://archive.org/details/espanasagradathe23flor), [*Crónica de Cerrato*](https://archive.org/details/espanasagradathe23flor), [*Chronicon Conimbricense*](https://archive.org/details/portugaliaemonumentahistoricascrv1), [Andrés Bernáldez, *Historia de los Reyes Católicos*](https://archive.org/details/historiadelosrey00bern), Ferdinand Columbus, *Historie*, [Clavius](https://archive.org/details/christophoriclau00clav_1) | 7 | 1 | 8 |
-| Armenia | 1099–1736 | [Matthew of Edessa](https://archive.org/details/bub_gb_YlkuAAAAQAAJ), [Gregory the Priest](https://archive.org/details/bub_gb_YlkuAAAAQAAJ), [Samuel of Ani, *Tables chronologiques*](https://archive.org/details/collectiondhist00arhagoog), [Arakel of Tabriz](https://archive.org/details/collectiondhist00arhagoog), [Abraham of Crete](https://archive.org/details/collectiondhist00arhagoog) | 4 | 3 | 7 |
-| Griego | 648 a. C. – 71 d. C. | [Archilochus, fr. 122 West](https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0060:bekker+page=1418b), [Herodotus, *Historiae*](https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0126:book=1:chapter=74), [Thucydides, *History of the Peloponnesian War*](https://en.wikisource.org/wiki/History_of_the_Peloponnesian_War/Book_7), [Diodorus Siculus, *Bibliotheca Historica*](https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Diodorus_Siculus/20A*.html), [Pappus of Alexandria, *Commentary on the Almagest*](https://archive.nyu.edu/bitstream/2451/61288/56/11.%20Carman.pdf), [Plutarch, *De facie in orbe lunae*](https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Moralia/The_Face_in_the_Moon*/home.html) | 6 | 1 | 7 |
-| Nórdico | 1030–1581 | [Snorri Sturluson, *Heimskringla*](https://www.gutenberg.org/files/598/598-h/598-h.htm), [Sturla Þórðarson, *Saga of Haakon Haakonsson*](https://archive.org/details/icelandicsagasot02stur), [Tycho Brahe, *Astronomiae Instauratae Progymnasmata*](https://archive.org/details/bub_gb_CVOItHLenPEC), [Gassendi](https://archive.org/details/den-kbd-pil-130018157889-001) | 3 | 2 | 5 |
-| Eslavo | 1185–1406 | [*Hypatian Chronicle*](https://archive.org/details/Complete_Collection_of_Russian_Chronicles_1923_Vol_2_Hypatian_Chronicle), [*Laurentian Chronicle*](https://archive.org/details/Complete_Collection_of_Russian_Chronicles_1926_Vol_1_Laurentian_Chronicle), [*Novgorod First Chronicle*](https://archive.org/details/chronicleofnovgo00michrich), [*Chronicle of Janko z Czarnkowa*](https://archive.org/details/monumentapoloni00bielgoog) | 4 | 0 | 4 |
-| Bizancio | 968–1453 | [Leo the Deacon, *Historia*](https://archive.org/details/corpusscriptoru12unkngoog), [Anna Komnene](https://en.wikisource.org/wiki/The_Alexiad), Pseudo-Sphrantzes, *Chronicon Maius* | 2 | 1 | 3 |
-| Rusia | 1748–1791 | Braun, Popov, Rumovsky, Inochodzov | 3 | 0 | 3 |
-| Roma | 190–168 a. C. | [Livy, *Ab Urbe Condita*](https://www.thelatinlibrary.com/livy/liv.37.shtml), [Plutarch, *Aemilius Paullus*](https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Plutarch/Lives/Aemilius*.html) | 1 | 1 | 2 |
-| Maya | 755, 859 | [*Dresden Codex*](https://www.famsi.org/mayawriting/codices/dresden.html) | 2 | 0 | 2 |
-| Hitita | 1312 a. C. | *Annals of Mursili II* | 1 | 0 | 1 |
-| Asiria | 763 a. C. | [*Limmu list*](https://oracc.museum.upenn.edu/saao/saas2/) | 1 | 0 | 1 |
-| Azteca | 1496 | *Codex Telleriano-Remensis* | 1 | 0 | 1 |
-| América Latina | 1923 | Joaquín Gallo | 1 | 0 | 1 |
+`<fenómeno>` toma uno de los valores `solar`, `lunar`, `occultation`, `conjunction`, `guest` y `comet`, que corresponden a las seis pestañas del panel lateral. `<civilización>` toma uno de 33 valores, por ejemplo `chinese`; véase [`civilizations.json`](../data/concordance/civilizations.json).
 
 ## Tablas
 
-Las tablas de eclipses comparten su motor de cálculo con [Substellar Atlas](https://github.com/Higashimado/SubstellarAtlas), mientras que los elementos proceden en su mayor parte de los cánones quinquemilenarios de NASA/Espenak ([5MCSE / 5MCLE](https://eclipse.gsfc.nasa.gov/)): 9 506 eclipses de Sol y 9 650 de Luna. El canon comienza en el año astronómico −1999, es decir 2000 a. C.; para el tramo anterior no existe canon, de modo que los elementos besselianos se calculan a partir de la efeméride [JPL DE441](https://ssd.jpl.nasa.gov/planets/eph_export.html), lo que añade 2 365 eclipses de Sol y 2 381 de Luna, cada uno con un error típico en longitud de entre 4,48° y 7,30°.
+Las tablas de eventos astronómicos abarcan los años −3000 a 1999 según la [numeración astronómica de años](https://es.wikipedia.org/wiki/Numeración_de_años_astronómica) y comprenden 11 871 eclipses de Sol y 12 031 eclipses de Luna. Los elementos besselianos de los eclipses de Sol, así como los números de saros y los valores de gamma de los eclipses de Luna, proceden del [*Five Millennium Canon* de eclipses de Sol y de Luna (5MCSE / 5MCLE)](https://eclipse.gsfc.nasa.gov/) de la NASA y F. Espenak. Las curvas de contacto se calculan con las herramientas geométricas de [SubstellarAtlas](https://github.com/Higashimado/SubstellarAtlas). Estos cánones empiezan en el 2000 a. C.; para los años anteriores, el proyecto obtiene sus propios elementos a partir de las efemérides [JPL DE441](https://ssd.jpl.nasa.gov/planets/eph_export.html), y la desviación típica de las longitudes resultantes oscila entre 4,48° y 7,30°.
 
-**Estructura**
+| Archivo | Contenido | Usado por | Entradas | Tamaño |
+|---|---|---|---:|---:|
+| [`data/eclipses/README.md`](../data/eclipses/README.md) | Descripción del formato | — | | |
+| [`data/eclipses/solar.json`](../data/eclipses/solar.json) | Índice de eclipses de Sol | [`js/eclipse-loader.js`](../js/eclipse-loader.js) | 11 871 | 9,7 MB |
+| [`data/eclipses/lunar.json`](../data/eclipses/lunar.json) | Índice de eclipses de Luna | [`js/eclipse-loader.js`](../js/eclipse-loader.js) | 12 031 | 9,7 MB |
+| [`data/eclipses/events/`](../data/eclipses/events/) `<fecha>.json` | Curvas de contacto y polinomios besselianos | [`js/eclipse.js`](../js/eclipse.js) | 11 871 | 386 MB |
+| [`data/eclipses/bessel-5mcse.json`](../data/eclipses/bessel-5mcse.json) | Elementos besselianos del 5MCSE | — | 9506 | 5,8 MB |
+| [`data/eclipses/bessel-ancient.json`](../data/eclipses/bessel-ancient.json) | Elementos besselianos calculados a partir de DE441 | — | 2365 | 2,1 MB |
 
-| Archivo | Contenido | Tamaño |
-|---|---|---|
-| [`data/eclipses/solar.json`](../data/eclipses/solar.json) | Índice solar | 11,871 entradas · 9.1 MB |
-| [`data/eclipses/lunar.json`](../data/eclipses/lunar.json) | Índice lunar | 12,031 entradas · 9.3 MB |
-| [`data/eclipses/events/`](../data/eclipses/events/) `<date>.json` | Curvas de contacto y polinomios besselianos | 11,871 archivos · 219 MB |
-| [`data/eclipses/bessel-5mcse.json`](../data/eclipses/bessel-5mcse.json) | Elementos NASA 5MCSE | 9,506 entradas |
+`<fecha>` es una fecha astronómica tal como la define la norma [ISO 8601](https://web.archive.org/web/20171019211402/https://www.loc.gov/standards/datetime/ISO_DIS%208601-1.pdf), por ejemplo `-000762-06-07` o `1931-10-11`.
 
 ## Concordancias
 
-Seis tablas de concordancia indexan los lugares, las fechas y los objetos nombrados en los registros; son ellas las que atan un registro a su suceso.
+Las tablas de concordancia unifican los metadatos de los objetos que las fuentes llaman por nombres distintos, como Yinghuo (荧惑) para Marte entre los astros o Yingtian (应天) para Nankín entre los lugares. Sirven de referencia para los campos correspondientes de los registros y de las tablas. Por ejemplo, [`gazetteer.json`](../data/concordance/gazetteer.json) contiene los nombres y coordenadas de los lugares de observación; [`xingguan.json`](../data/concordance/xingguan.json), los nombres, la extensión y el trazado de los asterismos chinos; y [`nianhao.json`](../data/concordance/nianhao.json), las eras chinas con su dinastía y el año astronómico correspondiente. Un mismo objeto puede tener abreviaturas y alias, o llevar un nombre concreto durante un periodo determinado; el campo `_meta` al principio de cada archivo define cómo se anotan.
 
-**Estructura**
+| Archivo | Contenido | Usado por | Entradas |
+|---|---|---|---:|
+| [`data/concordance/README.md`](../data/concordance/README.md) | Descripción del formato | — | |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Lugares | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 546 |
+| [`data/concordance/regions.json`](../data/concordance/regions.json) | Regiones | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 124 |
+| [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | Civilizaciones | [`js/atlas.js`](../js/atlas.js), [`js/seal.js`](../js/seal.js) | 33 |
+| [`data/concordance/organizations.json`](../data/concordance/organizations.json) | Nombres de instituciones | — | 52 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Nombres chinos de estrellas | — | 413 |
+| [`data/concordance/nianhao.json`](../data/concordance/nianhao.json) | Eras chinas | [`js/atlas.js`](../js/atlas.js) | 330 |
+| [`data/concordance/nengo.json`](../data/concordance/nengo.json) | Eras japonesas | [`js/atlas.js`](../js/atlas.js) | 241 |
 
-| Archivo | Contenido | Entradas |
-|---|---|---:|
-| [`data/duizhao/xingguan.json`](../data/duizhao/xingguan.json) | Objetos celestes | 391 |
-| [`data/duizhao/nianhao.json`](../data/duizhao/nianhao.json) | Eras chinas (140 BCE – 1911) | 330 |
-| [`data/duizhao/nengo.json`](../data/duizhao/nengo.json) | Eras japonesas (645 – act.) | 241 |
-| [`data/duizhao/diming.json`](../data/duizhao/diming.json) | Lugares de observación | 164 |
-| [`data/duizhao/wenming.json`](../data/duizhao/wenming.json) | Identidades de civilizaciones | 28 |
-| [`data/duizhao/quyu.json`](../data/duizhao/quyu.json) | Regiones geográficas | 124 |
+## Ejecución
+
+La parte visible del sitio es estática y no requiere compilación. La vista previa local necesita [Node.js](https://nodejs.org/). Tras clonar el repositorio, basta ejecutar en su raíz:
+
+```bash
+npm start
+```
+
+Después se abre <http://localhost:8002> en un navegador y se comprueba que el sitio se muestra correctamente.
+
+## Directorios
+
+- [`index.html`](../index.html), [`js/`](../js/), [`css/`](../css/): las páginas del sitio
+- [`vendor/`](../vendor/): bibliotecas de terceros
+- [`data/`](../data/): registros, tablas, concordancias y traducciones de la interfaz; convenciones en [`data/README.md`](../data/README.md)
+- [`licenses/`](../licenses/): textos completos de las licencias
+- [`serve.mjs`](../serve.mjs): servidor de vista previa local
 
 ## Créditos y licencia
 
-El código propio del proyecto se publica bajo [**GNU General Public License v3.0**](../LICENSE); [`data/records/`](../data/records/README.md) y [`data/duizhao/`](../data/duizhao/README.md) se publican bajo [**CC-BY-SA 4.0**](https://creativecommons.org/licenses/by-sa/4.0/). El código, los datos y las tipografías de terceros conservan sus respectivas licencias.
+El código propio del proyecto se publica bajo la [**GNU General Public License v3.0**](../LICENSE). [`data/records/`](../data/records/), [`data/eclipses/`](../data/eclipses/) y [`data/concordance/`](../data/concordance/) se publican bajo [**CC-BY-SA 4.0**](../licenses/data/CC-BY-SA-4.0.txt). El código, los datos y las tipografías de terceros conservan sus propias licencias; las atribuciones completas figuran en [`ATTRIBUTION.md`](../ATTRIBUTION.md).
 
-| Uso | Componente (versión) | Autor / Fuente | Licencia |
+| Uso | Componente (versión) | Autor o fuente | Licencia |
 |---|---|---|---|
-| Geometría de sombra | [SubstellarAtlas](https://github.com/Higashimado/SubstellarAtlas) | Higashimado | GPL-3.0 |
+| Geometría de la sombra | [SubstellarAtlas](https://github.com/Higashimado/SubstellarAtlas) | Higashimado | GPL-3.0 |
 | Motor cartográfico | [Leaflet](https://leafletjs.com/) 1.9.4 | Volodymyr Agafonkin | BSD-2-Clause |
 | Renderizado vectorial | [MapLibre GL JS](https://maplibre.org/) 5.24.0 | MapLibre | BSD-3-Clause |
-| Puente de capas | [maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet) 0.1.3 | MapLibre | ISC |
-| Filtrado temporal | [maplibre-gl-dates](https://github.com/OpenHistoricalMap/maplibre-gl-dates) 1.3.0 | OpenHistoricalMap | ISC |
-| Astronomía | [Astronomy Engine](https://github.com/cosinekitty/astronomy) 2.1.19 | Don Cross | MIT |
-| Canon de eclipses | [5MCSE / 5MCLE](https://eclipse.gsfc.nasa.gov/) | Fred Espenak (NASA GSFC) | Dominio público + atribución |
+| Puente entre capas | [maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet) 0.1.3 | MapLibre | ISC |
+| Filtrado por fecha | [maplibre-gl-dates](https://github.com/OpenHistoricalMap/maplibre-gl-dates) 1.3.0 | OpenHistoricalMap | CC0-1.0 |
+| Cálculo astronómico | [Astronomy Engine](https://github.com/cosinekitty/astronomy) 2.1.19 | Don Cross | MIT |
+| Cánones de eclipses | [5MCSE / 5MCLE](https://eclipse.gsfc.nasa.gov/) | Fred Espenak (NASA GSFC) | Dominio público; se solicita atribución |
 | Efemérides antiguas | [JPL DE441](https://ssd.jpl.nasa.gov/planets/eph_export.html) | JPL | Dominio público |
-| Rotación terrestre | [Stephenson, Morrison & Hohenkerk 2016](https://doi.org/10.1098/rspa.2016.0404) | Royal Society | CC BY-SA 4.0 |
+| Rotación terrestre | [Stephenson, Morrison & Hohenkerk 2016](https://doi.org/10.1098/rspa.2016.0404) | Royal Society | CC BY 4.0 |
+| Textos de origen | [Wikisource](https://wikisource.org/) | Colaboradores de Wikisource | CC-BY-SA 4.0 |
+| Textos de origen | [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), etc. | Instituciones depositarias | Dominio público |
 | Mapa base histórico | [OpenHistoricalMap](https://www.openhistoricalmap.org/) | Comunidad OHM | Datos CC0 |
 | Mapa base moderno | [CARTO](https://carto.com/) Positron · Voyager | CARTO | © CARTO |
 | Mapa base moderno | [OpenStreetMap](https://www.openstreetmap.org/) capa estándar | Colaboradores de OSM | ODbL |
 | Mapa base de relieve | [Esri World Shaded Relief](https://www.esri.com/) | Esri / USGS | © Esri |
-| Datos de mapa base | [OpenStreetMap](https://www.openstreetmap.org/copyright) | Colaboradores de OSM | ODbL |
-| Textos dinásticos | [Wikisource](https://zh.wikisource.org/) | Colaboradores de Wikisource | CC-BY-SA 4.0 |
-| Fuentes CJK | [Source Han Serif](https://github.com/adobe-fonts/source-han-serif) | Adobe | OFL |
-| Fuentes latinas | [Spectral](https://fonts.google.com/specimen/Spectral) | Production Type | OFL |
-| Serif multiescritura | [Noto Serif](https://fonts.google.com/noto) · Naskh Arabic · Serif Armenian · Serif Hebrew | Google | OFL |
-| Fuente de titulares | [KingHwaOldSong](https://fonts.zeoseven.com/) | ZeoSeven Fonts | véase [licenses](../licenses/) |
+| Datos del mapa base | [OpenStreetMap](https://www.openstreetmap.org/copyright) | Colaboradores de OSM | ODbL |
+| Tipografía CJK | [Source Han Serif](https://github.com/adobe-fonts/source-han-serif) | Adobe | OFL |
+| Tipografía latina | [Spectral](https://fonts.google.com/specimen/Spectral) | Production Type | OFL |
+| Tipografías con serifa | [Noto Serif](https://fonts.google.com/noto) · Naskh Arabic · Serif Armenian · Serif Hebrew | Google | OFL |
+| Tipografía de títulos | [KingHwaOldSong](https://fonts.zeoseven.com/) | ZeoSeven Fonts | Véase el [archivo de licencia](../licenses/fonts/KingHwaOldSong-LICENSE.md) |
 
-Cinco milenios forman un campo amplio, y las omisiones y los errores son inevitables. Nuevas fuentes, correcciones y argumentos sobre datación o identificación son bienvenidos: por favor abra una [issue](https://github.com/Higashimado/FiveMillenniaEclipses/issues).
+Con tantos registros, es inevitable que haya algunas omisiones y errores. Las adiciones, correcciones y objeciones respaldadas con pruebas son bienvenidos en las [issues](https://github.com/Higashimado/FiveMillenniaEclipses/issues).

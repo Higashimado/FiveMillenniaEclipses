@@ -1,10 +1,10 @@
 /** i18n.js — Centralized UI string translation system */
 const I18n = (() => {
   const SUPPORTED = ['zh-Hans', 'zh-Hant', 'en', 'fr', 'es', 'it', 'ja'];
-  // The locale whose dictionary backs any key the active one lacks, and the last
-  // resort when nothing else resolves. English, not Chinese: a missing key must
-  // never leak Han script into a French or Spanish reading. The seven locales are
-  // peers — none of them is the substrate the others are patched from.
+
+  // The locale whose dictionary backs any key the active one lacks. English, not
+  // Chinese: a missing key must never leak Han script into a French or Spanish
+  // reading. The seven locales are peers, none the substrate the others patch from.
   const FALLBACK = 'en';
   let _locale = FALLBACK;
   let _dict = {};
@@ -16,12 +16,10 @@ const I18n = (() => {
   // computed values (e.g. a contact's actual clock interval) the same way UI strings do.
   function _interp(str, params) {
     if (!params) return str;
+
     // Substitute through a CALLBACK, never a replacement string: $& / $` / $' inside a
-    // VALUE would otherwise be read as a substitution pattern and splice the surrounding
-    // text back in. Values here are data — record text, place names, citation fragments —
-    // and glossAttr inlines the result straight into an HTML attribute. One pass over the
-    // string also replaces the old per-key loop, which built a fresh RegExp per parameter.
-    // A placeholder the caller did not supply is left standing, as it always was.
+    // VALUE would otherwise be read as a substitution pattern. A placeholder the caller
+    // did not supply is left standing.
     return str.replace(/\{(\w+)\}/g, (m, k) => (k in params ? params[k] : m));
   }
 
@@ -31,24 +29,18 @@ const I18n = (() => {
     return _interp(str, params);
   }
 
-  // The English form of a key whatever the active locale is. For citing a work in a
-  // language the reader's locale has no apparatus for: a Dutch newspaper read on a
-  // Chinese page keeps a western citation rather than being fitted with 年月日 and 版,
-  // which is what the Chinese history journals themselves prescribe for a
-  // foreign-language source. English stands in as the western frame; a locale that has
-  // its own western frame never calls this.
+  // The English form of a key whatever the active locale is: for citing a work in a
+  // language the reader's locale has no citation apparatus for. A locale with its
+  // own western citation frame never calls this.
   function ten(key, params) {
     const str = _fallbackDict[key] ?? _dict[key];
     if (str == null) return key;
     return _interp(str, params);
   }
 
-  // Glossary lookup: a single `glossary.<slug>` namespace holding short
-  // encyclopedia-style term definitions, shared across panels and cards so
-  // one concept (magnitude, RA, …) is defined once and reused everywhere.
-  // Returns '' when the slug has no entry (so callers can no-op cleanly) —
-  // note this differs from t(), which echoes the key. Optional params interpolate
-  // like t()'s, so a gloss can splice in per-instance values.
+  // Glossary lookup: a single `glossary.<slug>` namespace holding short term
+  // definitions, shared across panels and cards. Returns '' when the slug has no
+  // entry — unlike t(), which echoes the key back.
   function gloss(slug, params) {
     const key = 'glossary.' + slug;
     const str = _dict[key] ?? _fallbackDict[key];
@@ -56,12 +48,8 @@ const I18n = (() => {
   }
 
   // HTML attribute form of gloss(): returns ` data-gloss="…"` (escaped) for inlining
-  // into a label/th/span open tag, or '' when the slug is unknown. The leading
-  // space lets call sites write `'<span class="label"' + glossAttr('ra') + '>'`.
-  // data-gloss (not native title=) so the hover renders glossary-tip.js's themed
-  // card — the site's one tooltip mechanism, no bare-white native boxes.
-  // `params` forwards to gloss()'s interpolation, so a card can name the instance
-  // it was opened on (the calendar gloss splices in that date's stored form).
+  // into a label/th/span open tag, or '' when the slug is unknown. data-gloss, not
+  // native title=, so the hover renders glossary-tip.js's themed card.
   function glossAttr(slug, params) {
     const str = gloss(slug, params);
     return str ? ' data-gloss="' + str.replace(/"/g, '&quot;') + '"' : '';
@@ -77,8 +65,8 @@ const I18n = (() => {
   async function init(locale) {
     _locale = SUPPORTED.includes(locale) ? locale : FALLBACK;
     try {
-      // Both dictionaries in one round trip — the fallback is needed on the very
-      // first render, so fetching it after the active one just delayed first paint.
+      // Both dictionaries in one round trip: the fallback is needed on the very first
+      // render, so it cannot be fetched behind the active one.
       if (_locale === FALLBACK) {
         _dict = _fallbackDict = await _loadDict(FALLBACK);
       } else {
@@ -118,10 +106,9 @@ const I18n = (() => {
     });
   }
 
-  // Publish the active locale to the document. Stamp the FULL BCP-47 tag, script subtag
-  // included: 'zh-Hans' and 'zh-Hant' are what let a browser pick the right Han glyph
-  // variants, so collapsing either to a bare 'zh' costs Chinese the one distinction every
-  // other locale keeps for free.
+  // Publish the active locale to the document. Stamp the FULL BCP-47 tag, script
+  // subtag included: 'zh-Hans'/'zh-Hant' let a browser pick the right Han glyph
+  // variant, a distinction a bare 'zh' would lose.
   function _stampLang() {
     document.documentElement.lang = _locale;
     document.body.dataset.lang = _locale;
@@ -143,15 +130,9 @@ const I18n = (() => {
     _subs.push(fn);
   }
 
-  // The document's own name and blurb, in the reader's language. The per-language
-  // shells under /en/ …/ja/ each stamp a <title> as they write the root document, but
-  // that is a one-shot at load: a switch made inside the page would otherwise leave the
-  // tab (and every og: card a reader shares from it) speaking whichever shell they
-  // arrived through. Written here so the name follows the locale like every other string.
-  //
-  // og:title takes the prose form, which for a non-Latin locale is bilingual — the same
-  // pairing the README's own heading uses. site.subtitle IS that Latin prose form, so a
-  // locale whose title already equals it (en) prints one name, not the same name twice.
+  // The document's own name and blurb, in the reader's language. Re-applied here
+  // because the per-language shells under /en/ …/ja/ stamp a <title> only once, at
+  // load. og:title pairs the localised name with site.subtitle (the Latin form).
   function _stampDocumentName() {
     const title = t('site.title');
     const latin = t('site.subtitle');
@@ -176,14 +157,14 @@ const I18n = (() => {
     document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
       el.setAttribute('aria-label', t(el.dataset.i18nAria));
     });
+
     // data-i18n-href: an off-site URL whose path carries the locale, written from a
-    // {lang} template in the markup. The template stays in the HTML so the destination
-    // is readable next to the link's other attributes; only the substitution needs to
-    // know which locale is live, and re-running it here keeps the href in step with a
-    // language switch instead of stranding the reader on the tag they arrived with.
+    // {lang} template in the markup. Re-running the substitution here keeps the href
+    // in step with a language switch instead of stranding the reader on the old tag.
     document.querySelectorAll('[data-i18n-href]').forEach((el) => {
       el.setAttribute('href', el.dataset.i18nHref.replace('{lang}', _locale));
     });
+
     // data-i18n-tip → data-tip (glossary-tip.js's compact .is-label chip), NOT a
     // native title=. Keeps static control labels on the site's one tooltip path.
     document.querySelectorAll('[data-i18n-tip]').forEach((el) => {
@@ -191,11 +172,9 @@ const I18n = (() => {
     });
   }
 
-  // Map one BCP-47 tag onto a supported locale, or '' when nothing matches.
-  // Chinese needs script resolution because the browser reports region, not script:
-  // zh-TW/HK/MO are Traditional, everything else Han-Chinese is Simplified. A bare
-  // 'zh' resolves to zh-Hans — the reading with by far the larger population, and the
-  // one the corpus's own primary translations are authored in.
+  // Map one BCP-47 tag onto a supported locale, or '' when nothing matches. Chinese
+  // needs script resolution because the browser reports region, not script: zh-TW/HK/MO
+  // are Traditional, everything else Han-Chinese Simplified; bare 'zh' resolves to zh-Hans.
   function _resolveTag(tag) {
     const raw = String(tag || '').trim();
     if (!raw) return '';
@@ -210,20 +189,8 @@ const I18n = (() => {
   }
 
   // ---- Pick: the One Locale Ladder ----
-  // t() resolves UI strings out of the loaded dictionaries; pick() resolves a DATA
-  // block carrying its own renderings — a place name, a civ name, a record
-  // translation, a source title. Both are keyed by BCP-47 tag.
-  //
-  // There is deliberately ONE ladder, and call sites must not hand-write their
-  // own: separately written ladders drift into different fallback orders, and the
-  // same entry then renders differently in the record card and the map popup.
-  //
-  // Han-script locales consult each other before English, because a reader of one
-  // Han script gets more from a neighbouring Han rendering than from a romanized
-  // or English one; ja leads with its own field because Japanese sometimes writes
-  // a different kanji form than either Chinese script (Gyeongju: 金城, not 庆州).
-  // Western locales stop at English — a French card must never fall through to
-  // Han script unless the caller explicitly asks via opts.zh.
+  // pick() resolves a DATA block (a place name, a civ name, a source title) keyed by
+  // BCP-47 tag. ONE ladder — call sites must not hand-write their own.
   const CHAIN = {
     'zh-Hans': ['zh-Hans', 'zh-Hant', 'en'],
     'zh-Hant': ['zh-Hant', 'zh-Hans', 'en'],
@@ -234,10 +201,12 @@ const I18n = (() => {
     it: ['it', 'en'],
   };
 
-  // Appended for western locales only on opt-in. Showing the original Han text is
-  // right for a record translation or a book title (better the source than a
-  // blank), and wrong for an editorial note (which would then read as if the
-  // editor wrote in Chinese to a French reader).
+  // Han-script locales consult each other before English; ja leads with its own
+  // field, since Japanese sometimes writes a different kanji form than either
+  // Chinese script. Western locales stop at English unless the caller sets opts.zh.
+
+  // Appended for western locales only on opt-in: right for a record translation or
+  // a book title (better the source than a blank), wrong for an editorial note.
   const ZH_TAIL = ['zh-Hant', 'zh-Hans'];
 
   /**
@@ -272,12 +241,8 @@ const I18n = (() => {
    * @param {{rom?:boolean, zh?:boolean}} [opts] passed through to pick.
    * @returns {string} '' when the two resolve to the same string.
    *
-   * A locale carrying no secondary value of its own inherits one down the chain, so
-   * a name that never changed IN THAT LOCALE comes back as its own restatement —
-   * "Bogor (now Bogor)". The data cannot pre-empt this by omitting the key: omission
-   * is what sends the ladder to the next locale, which for zh-Hans ends at en and
-   * puts Latin script inside a Chinese label. The equality therefore has to be
-   * tested after resolution, which is here, beside the ladder that causes it.
+   * A locale with no secondary value inherits one down the chain, so a name unchanged
+   * IN THAT LOCALE can come back as its own restatement; tested here, after resolution.
    */
   function pickDistinct(map, headMap, lang, opts) {
     const val = pick(map, lang, opts);
@@ -285,10 +250,9 @@ const I18n = (() => {
   }
 
   function detectLocale() {
-    // Language-in-path (highest priority): a per-language shell under /en/ …/ja/
-    // serves this app at /<lang>/, and the permalink writer stamps that segment.
-    // Read it first so a shared /<lang>/?… link cold-opens in that language.
-    // Longest match first (zh-Hans before bare zh).
+    // Language-in-path (highest priority): a per-language shell under /en/ …/ja/ serves
+    // this app at /<lang>/, and the permalink writer stamps that segment. Longest
+    // match first (zh-Hans before bare zh).
     const seg = location.pathname
       .replace(/\/index\.html$/, '')
       .match(/\/(zh-Hans|zh-Hant|zh-CN|zh|en|fr|es|it|ja)\/?$/);
@@ -303,9 +267,8 @@ const I18n = (() => {
     if (urlLang) return urlLang;
 
     // Otherwise negotiate against the reader's own browser preferences, in their
-    // stated order. No locale is privileged as the cold-open default — a Japanese
-    // browser opens in Japanese, an Italian one in Italian. FALLBACK closes the
-    // list for readers whose languages this atlas does not yet speak.
+    // stated order. No locale is privileged as the cold-open default; FALLBACK
+    // closes the list for readers whose languages this atlas does not yet speak.
     const prefs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
     for (const tag of prefs) {
       const hit = _resolveTag(tag);

@@ -16,14 +16,9 @@ body { height: 100vh; overflow: hidden; font-feature-settings: 'tnum' 1, 'lnum' 
 .multi{ font-family: var(--font-multi); }
 
 /* ---- Layout Budgets ---- */
-/* The shu'er (ear tab) width budget. Both #ev-strip and #ev-scrub are sized from it,
-   and the huamian column's floor is derived from it (see #frame), so the ear keeps its
-   full two-register width at every viewport: a narrow leaf clips the bankuang rather
-   than squeezing the ear's date/chronicle rows into an ellipsis. --ear-inset is the
-   ear's left offset plus the trailing gutter it keeps off the column edge.
-   See #ev-strip for what the 433px was measured against and how to re-measure it.
-   --huamian-min is the whole point: the map column's floor, and through #frame's
-   min-width the term that puts the ear into the leaf's overall minimum width. */
+/* --ear-w: widest rendered science row across all seven locales; remeasure it there,
+   not by eye. --ear-inset is the shu'er's (ear tab) left offset plus its trailing gutter.
+   --huamian-min floors the huamian column, which #frame's min-width must then include. */
 :root {
   --ear-w: 433px; --ear-inset: 40px;
   --huamian-min: calc(var(--ear-w) + var(--ear-inset));
@@ -41,25 +36,46 @@ body { height: 100vh; overflow: hidden; font-feature-settings: 'tnum' 1, 'lnum' 
 #frame {
   position: relative; margin: 0 14px 14px; border: var(--frame-rule) solid var(--frame, #443F33);
   display: grid; grid-template-rows: 1fr 117px;
+
   /* Floor the huamian column at the ear's budget rather than letting `1fr` collapse: the
      ear measures itself off THIS column, not off the leaf, so an uncapped 1fr makes the
      ear the first casualty of a narrow viewport. */
   grid-template-columns: minmax(var(--huamian-min), 1fr) var(--rail-w);
-  /* State the leaf's minimum here, in the two column budgets plus the rule (border-box).
-     It cannot be inferred: overflow:hidden below zeroes a grid item's automatic minimum
-     size, so without this the frame reports a width narrower than the tracks it holds and
-     the banxin rail is silently clipped off the right edge instead of widening the leaf. */
+
+  /* Overflow:hidden below zeroes a grid item's automatic minimum size, so min-width MUST
+     state the leaf's minimum explicitly, from the same column budgets plus the rule. */
   min-width: calc(var(--huamian-min) + var(--rail-w) + 2 * var(--frame-rule));
   min-height: 0; overflow: hidden;   /* huamian · banxin · banye / content · dijiao */
+  overflow: clip;   /* clip: unlike hidden, can't be scrolled into view by focus */
 }
-#frame::before {   /* inner thin rule: thick outer / thin inner (double rule, all four sides) */
+#frame::before {   /* inner rule of the double bankuang frame */
   content: ""; position: absolute; inset: 3px; border: 0.7px solid var(--frame, #443F33);
   pointer-events: none; z-index: 5;
 }
+
 /* Timeline collapsed → the dijiao row folds away and the huamian reclaims it. */
 body:has(#timeline.hidden) #frame { grid-template-rows: 1fr 0; }
 
-/* ---- the map is the huaxin (painting heart): fills #mapwrap, the col-1 grid cell ---- */
+/* Rail collapsed → the banye column folds away and drops out of the leaf's minimum width,
+   so a narrow window stops scrolling sideways once the rail is put away. */
+body:has(#library.hidden) #frame {
+  grid-template-columns: minmax(var(--huamian-min), 1fr) 0;
+  min-width: calc(var(--huamian-min) + 2 * var(--frame-rule));
+}
+#library.hidden { visibility: hidden; }
+/* Folding slides: the grid tracks ease to 0 and the rail, held at its own width, is pushed
+   out past the clipped right edge rather than squeezed. Armed by body.motion only after
+   boot, so the stored layout lands without a slide. */
+@media (prefers-reduced-motion: no-preference) {
+  body.motion #frame { transition: grid-template-columns .28s cubic-bezier(.4,0,.2,1), grid-template-rows .28s cubic-bezier(.4,0,.2,1); }
+  body.motion #library { transition: visibility 0s; }
+  body.motion #library.hidden { transition: visibility 0s .28s; }
+  body.motion .libtab, body.motion .tltab { animation: tab-in .22s ease-out .12s backwards; }
+  @keyframes tab-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+}
+
+/* ---- The Map (huaxin) ---- */
+/* Fills #mapwrap, the col-1 grid cell. */
 #mapwrap {
   grid-column: 1; grid-row: 1; position: relative; min-width: 0; min-height: 0;
   overflow: hidden; background: var(--ground, #F3EFE6);
@@ -69,17 +85,19 @@ body:has(#timeline.hidden) #frame { grid-template-rows: 1fr 0; }
   height: auto;   /* override style.css `#map { height:100% }` */
   background: var(--ground, #F3EFE6); z-index: 0;
 }
+
 /* Desaturate + gently warm the light basemap so it recedes (CARTO Positron principle). */
 .leaflet-tile-pane { filter: saturate(var(--map-sat, .80)) brightness(1.015) sepia(var(--map-sepia, .04)); }
 .leaflet-container { background: var(--ground, #E9E6DE); font-family: inherit; }
 
-/* ---- bottom-left map controls (zoom + attribution) ----
-   The map is now inset inside the bankuang (right rail + bottom lizhou), so its own
+/* ---- Bottom-left map controls (zoom + attribution) ---- */
+/* The map is now inset inside the bankuang (right rail + bottom lizhou), so its own
    bottom-left controls already ride clear of both panels — no manual offset. */
 .leaflet-control-zoom.leaflet-bar { border: 0.5px solid var(--hair, #D3CFC5); border-radius: 0; overflow: hidden; box-shadow: 0 2px 14px rgba(30,30,30,.10); }
 .leaflet-control-zoom a { background: var(--card, #F1EFE8); color: var(--ink-2, #565A5E); border-bottom-color: var(--hair, #D3CFC5); }
 .leaflet-control-zoom a:hover { background: var(--card, #F1EFE8); color: var(--ink, #2A2E33); }
 .leaflet-control-zoom a.leaflet-disabled { background: var(--card, #F1EFE8); color: var(--ink-3, #8B8F8C); }
+
 /* Attribution: song-paper chip (visibility is a basemap license requirement).
    Compound selector matches leaflet.css's own `.leaflet-container .leaflet-
    control-attribution` background rule, which outranks a bare class. */
@@ -90,27 +108,22 @@ body:has(#timeline.hidden) #frame { grid-template-rows: 1fr 0; }
 }
 .leaflet-control-attribution a { color: var(--accent, #4F8D74); }
 
-/* ---- catalog heading band (rail head): two full-bleed drawer rows + a separate tally column.
-   Row 1 jiehang ruled cells (after the day-table grids of juzhuliri, the annotated calendar):
-   the binary records/all-events view switch as two equal cells filling the option zone; active =
-   --paper-deep wash + ink, never an ink block (R14). Row 2 fuqian (collator's slips):
-   the N-way type filter as vertical-text paper slips hung from the rule between the
-   rows — the retired fore-edge shu'er's label, re-pasted inside the leaf. The total/current-era
-   tally sits in its own right column behind a vertical hairline, with NO rule
-   between its two lines, so neither count reads as belonging to one row. All rules
-   here are --hair — R2② reserves --frame for the bankuang now that the shu'er is gone. ---- */
+/* ---- Catalog Heading Band (Rail Head) ---- */
+/* Two rows — the records/all-events switch, then the type filter (fuqian slips) — plus
+   a tally column with no rule between its two lines. Every rule here is --hair; --frame
+   is reserved for the bankuang. */
 .rail-head { flex: none; display: flex; align-items: stretch; padding: 0; border-bottom: 0.7px solid var(--hair, #D3CFC5); }
-/* Fixed width, not flex:1 — #reccount's tally text length changes with n/era (未收
-   vs 凡一千二百五十六条 are real rendered strings), and a flexible rh-opts would visibly reflow with it. */
+
+/* Fixed width, not flex:1: #reccount's tally text length varies with n/era (e.g.
+   未收 (none recorded)), and a flexible rh-opts would visibly reflow with it. */
 .rh-opts { flex: 0 0 56%; min-width: 0; display: flex; flex-direction: column; }
-/* #modeseg id carried over → wireChrome()/applyLang() untouched. Its bottom rule is
-   the jiehang the slips hang from — inside .rh-opts, so it stops at the tally column. */
+
+/* The id is #modeseg, which wireChrome()/applyLang() select on. Its bottom rule is the
+   jiehang the slips hang from — inside .rh-opts, so it stops at the tally column. */
 #modeseg { display: flex; border-bottom: 0.7px solid var(--hair, #D3CFC5); }
-/* Asymmetric padding is an optical correction, not a spacing choice: inside a
-   line-height:1 box the strut (Spectral — see css/tokens.css) puts the baseline
-   0.798em down, so the CJK zi-shen-ge centers 0.082em ABOVE the line box's own center.
-   8.5/5.5 keeps the 27px box and drops the run 1.5px, landing zi-shen-ge on the center.
-   Retune both halves together if --font-text's leading family ever changes. */
+/* Asymmetric padding corrects Spectral's strut, which centers the CJK zi-shen-ge
+   0.082em above the line box's own center. Retune both halves together if
+   --font-text's leading family changes. */
 #modeseg .opt {
   flex: 1 1 0; font-family: var(--font-text); font-size: var(--fs-body); line-height: 1;
   background: none; border: 0; padding: 8.5px 0 5.5px; margin: 0; cursor: pointer; color: var(--ink-3, #8E887A);
@@ -120,13 +133,9 @@ body:has(#timeline.hidden) #frame { grid-template-rows: 1fr 0; }
 #modeseg .opt.on { background: var(--paper-deep, #EDE7D9); color: var(--ink, #2B2A26); font-weight: 600; box-shadow: inset 0 -2px 0 var(--spark, #B23A2E); }
 #modeseg .opt:not(.on):hover { color: var(--accent-ink, #3C6E5A); }
 #modeseg .opt:focus-visible { outline: 1.5px solid var(--accent, #4F8D74); outline-offset: -1px; }
-/* fuqian row. Vertical text keeps five slips ≈150px, so the horizontal scroll is a
-   safety net only (thin paper bar, .civscroll recipe). align-items:flex-start lets
-   the active slip hang lower than its shelf-mates. */
-/* Six slips of 25px have to sit in a 190px rail. Measured: gap 7 + padding 10 overruns by
-   7px, which buys a scrollbar for the width of a single gap — worse than a slightly denser
-   sheaf. gap 5 + padding 8 fits with room to spare, and a tighter sheaf is if anything
-   truer to the fuqian it draws on. Re-measure before adding a seventh type. */
+/* Vertical-text slips (fuqian) run ≈150px; six 25px-wide ones fit the rail with no
+   scrollbar. align-items:flex-start lets the active slip hang lower than its neighbors.
+   Remeasure before adding a seventh type. */
 #typeseg {
   display: flex; align-items: flex-start; justify-content: center; gap: 5px; padding: 0 8px 7px;
   overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--hair, #D3CFC5) transparent;
@@ -134,26 +143,17 @@ body:has(#timeline.hidden) #frame { grid-template-rows: 1fr 0; }
 #typeseg::-webkit-scrollbar { height: 5px; }
 #typeseg::-webkit-scrollbar-track { background: transparent; }
 #typeseg::-webkit-scrollbar-thumb { background: var(--hair, #D3CFC5); border-radius: 999px; }
-/* A slip is a strip of paper one shade brighter than the leaf, open at the top where
-   it "hangs" from the rule. FIXED height (not min-height: sideways Latin faces vary
-   by word width, and a floating slip length would out-drop the active one) — one
-   length for every locale, sized to the longest abbreviation; shorter faces center
-   with spare paper, as real slips carry. Active = longer drop + --paper-deep + a zhupi
-   bottom edge (R8: spark marks the current one only). */
+/* A slip is one shade brighter paper, open at the top where it hangs from the rule
+   above. Height is FIXED, not min-height, sized to the longest abbreviation: a floating
+   length would let the active slip drop further than its shelf-mates. */
 .slip {
   writing-mode: vertical-rl; font-family: var(--font-text);
   font-size: var(--fs-body); letter-spacing: .04em; line-height: 1;
   background: color-mix(in srgb, #fff 40%, var(--card, #F7F3EA)); color: var(--ink-2, #5A564C);
   border: 0.7px solid var(--hair, #D3CFC5); border-top: 0;   /* hung from the jiehang above */
-  /* Optical centring, same root cause as #modeseg .opt: the strut is the first
-     *available* family, and Source Han's unicode-range carries no U+0020, so it can
-     never set a line box — Spectral does, while the glyph drawn here is Han. Spectral's
-     baseline seats the Han em box ~0.17em off the line-box centre, and vertical-rl runs
-     the block axis right-to-left, so that lands as 2.2px of rightward drift at 13px.
-     Trade the padding across to walk the content box back, leaving the 25px box width
-     alone. Re-derive if --font-text's first family changes — measure it by overlaying
-     the slip on a scaleX(-1) copy of itself in difference blend and nulling the fringe;
-     range.getBoundingClientRect() lies here, reporting the line box, not the glyph. */
+  /* Optical centring: Spectral sets the line box (Source Han's unicode-range carries
+     no U+0020) while Han fills it; vertical-rl turns that mismatch into rightward
+     drift. Re-derive the padding split if --font-text's first family changes. */
   padding: 8px calc(5px + .17em) 8px calc(5px - .17em);
   height: 52px; margin: 0; cursor: pointer; flex: none;
   box-shadow: 0 1.5px 3px rgba(30,30,30,.07);
@@ -166,13 +166,10 @@ body:has(#timeline.hidden) #frame { grid-template-rows: 1fr 0; }
 }
 .slip:not(.on):hover { color: var(--accent-ink, #3C6E5A); border-color: var(--accent, #4F8D74); }
 .slip:focus-visible { outline: 1.5px solid var(--accent, #4F8D74); outline-offset: 1px; }
-/* Latin locales show sideways-rotated abbreviations (Sol./Lun./…). Only the optical
-   correction changes, never the size: Spectral draws these itself, so it is both strut
-   and glyph — there is no mismatch to correct, and the Han compensation above would tip
-   them the wrong way. Symmetric padding, same 10px total, so the box stays 25px wide in
-   every locale. The slip rail must not resize when the reader switches language; an
-   earlier --fs-micro step here made the Latin slips 2px narrower than the CJK ones and
-   made the whole shelf jump on the first render, before applyLang() had run. */
+
+/* Latin locales use symmetric padding (same 10px total): Spectral draws these labels
+   itself as both strut and glyph, so the Han compensation above does not apply. The
+   slip must stay 25px wide in every locale, or the shelf jumps before applyLang() runs. */
 body[data-lang="en"] .slip, body[data-lang="fr"] .slip,
 body[data-lang="es"] .slip, body[data-lang="it"] .slip {
   padding: 8px 5px;
@@ -186,40 +183,40 @@ body[data-lang="es"] .slip, body[data-lang="it"] .slip {
   background-size: 180px 180px; opacity: var(--grain-opacity, .07); mix-blend-mode: multiply;
 }
 .grain > * { position: relative; z-index: 1; }
+
 /* lianheng (laid-lines): faint horizontal paper texture on the shuming-ye + banye rail only
-   (per-panel per R15 — never over the map). ≤3% ink keeps text contrast intact. */
+   (per-panel, never over the map). ≤3% ink keeps text contrast intact. */
 #topbar::after, #library::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background: repeating-linear-gradient(0deg, rgba(43,42,38,.026) 0 0.7px, transparent 0.7px 7px);
 }
 
-/* ---- shuming-ye (title band): full-width paper strip wrapping the bankuang from above ---- */
+/* ---- Shuming-Ye (Title Band) ---- */
+/* Full-width paper strip wrapping the bankuang from above. */
 #topbar {
   grid-row: 1; height: 68px;
   display: flex; align-items: center; gap: 12px;
   background: transparent; padding: 0 18px;   /* paper shows through — no frosted bar */
-  z-index: 10;   /* grid-item z-index creates stacking context above #library (z-index:auto) so .isel-panel isn't occluded */
+  /* MUST outrank every #frame layer (reopen chips at 1200) so .isel-panel dropdowns cover them. */
+  z-index: 1300;
 }
+
 /* shuming-ye title: KingHwaOldSong display face (async CDN, falls back to Source Han Serif). */
-/* flex:none + nowrap: the mark is the one item in the band that must never be paid for.
-   As a shrinkable flex item it gave up width first when the band got crowded, and the
-   meiti (running head) under the hanzi broke into two lines — a wrapped wordmark reads
-   as a layout fault, where a search field 30px narrower reads as nothing at all. */
+/* flex:none + nowrap: if shrinkable the wordmark gives up width first, and its meiti
+   (running head) breaks into two lines, which reads as a layout fault, unlike a
+   narrower search field. */
 .wordmark { font-family: var(--font-display, serif); font-size: var(--fs-mark); font-weight: 400; letter-spacing: 4px; line-height: 1; padding-right: 4px; flex: none; white-space: nowrap; }
 .wordmark small { display: block; font-family: var(--font-text); font-size: var(--fs-micro); letter-spacing: 3px; color: var(--accent, #4F8D74); font-weight: 400; margin-top: 6px; }
 .vr { width: 0.5px; height: 28px; background: var(--hair, #D3CFC5); }
 
-/* Off-site links as jiehang (ruled columns): three cells of one column, divided by the
-   same hairline the .vr uses, because they are three doors out of the same book rather
-   than three unrelated controls. They sit at rest in ink — the band already carries a
-   search field and two switchers, and an exit is not a function. The only thing that
-   moves on hover is a zhilü rule under the label; a background wash here would make the
-   links outweigh the controls they sit beside. */
+/* Off-site links as jiehang (ruled columns), divided by the same hairline the .vr uses.
+   They sit at rest in ink; only a zhilü rule under the label moves on hover, so a
+   background wash never outweighs the controls beside them. */
 .lnk-rule { display: flex; align-items: center; flex: none; }
-/* The right padding is short by one tracking unit on purpose. letter-spacing adds its
-   space after EVERY character, the last one included, so a tracked label carries a
-   trailing void that belongs to no glyph: with equal padding the text sits visibly left
-   of centre in its cell, and the run reads as drifting left across three cells. */
+
+/* Right padding is short by one tracking unit on purpose: letter-spacing adds space
+   after the LAST character too, so equal padding would leave the text sitting visibly
+   left of centre. */
 .lnk-rule a {
   font-size: var(--fs-body); letter-spacing: .22em; color: var(--ink-2, #5A564C);
   text-decoration: none; padding: 4px calc(14px - .22em) 4px 14px; line-height: 1.4; white-space: nowrap;
@@ -228,15 +225,16 @@ body[data-lang="es"] .slip, body[data-lang="it"] .slip {
 .lnk-rule a + a { border-left: 0.5px solid var(--hair, #D3CFC5); }
 .lnk-rule a:hover { color: var(--accent-deep, #3C6E5A); border-bottom-color: var(--accent, #4F8D74); }
 .lnk-rule a:focus-visible { outline: 1.5px solid var(--accent, #4F8D74); outline-offset: 2px; }
+
 /* Latin labels are words, not two-glyph compounds: .22em tracking that reads as
-   composed spacing on 藏版 reads as a gap between letters on Repository, and the run
-   grows wide enough to crowd the search field. */
+   composed spacing on 藏版 (repository) reads as a gap between letters on Repository,
+   and the wider run crowds the search field. */
 body[data-lang="en"] .lnk-rule a, body[data-lang="fr"] .lnk-rule a,
 body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
   letter-spacing: .06em; padding: 4px calc(12px - .06em) 4px 12px;
 }
 
-/* Search: a square-cornered field with the magnifier tucked inside (fang-jiao, R16). */
+/* Search: a square-cornered field (fang-jiao) with the magnifier tucked inside. */
 .searchbox { display: flex; align-items: center; gap: 8px; flex: 0 1 340px; height: 36px; padding: 0 14px; background: var(--card, #F1EFE8); border: 0.5px solid var(--hair, #D3CFC5); }
 .searchbox:focus-within { border-color: var(--accent, #4F8D74); }
 .searchbox .search-ico { color: var(--ink-3, #8B8F8C); flex: none; }
@@ -249,10 +247,10 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 .iconselect { position: relative; display: inline-flex; align-items: center; gap: 5px; height: 36px; padding: 0 10px; border: 0.5px solid var(--hair, #D3CFC5); background: rgba(var(--panel, 241,239,232), .95); color: var(--ink-2, #565A5E); cursor: pointer; flex: none; }
 .iconselect:hover { border-color: var(--accent, #4F8D74); }
 .iconselect > select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; margin: 0; padding: 0; cursor: pointer; font-family: inherit; font-size: var(--fs-lead); -webkit-appearance: none; appearance: none; }
-/* Native <option> row: body text size (not the pill's larger UA default),
-   line-height + padding give it room on all sides (ref: SubstellarAtlas's
-   .rail-dropdown-item, which uses --fs-caption/13px + tight 3px/10px padding
-   for its compact custom menu; ours is a plain native popup so a touch airier). */
+
+/* Native <option> row: body text size, not the pill's larger UA default, with
+   line-height + padding giving it room on all sides. This is a plain native popup, so
+   it can afford to be airier than a compact custom menu would be. */
 .iconselect > select option { font-size: var(--fs-lead); line-height: 1.4; padding: 8px 18px; }
 .iconselect .caret { color: var(--ink-3, #8B8F8C); flex: none; transition: transform .15s; }
 .iconselect.isel-open .caret { transform: rotate(180deg); }
@@ -273,21 +271,21 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 }
 .isel-item:hover { background: var(--wash-subject); color: var(--accent-ink, #3C6E5A); }
 .isel-item[aria-selected="true"] { color: var(--accent-ink, #3C6E5A); }
-/* Keyboard cursor. A separate mark from aria-selected because the two say different
-   things while the panel is open: aria-selected is what the control currently holds,
-   .isel-cursor is only what the arrow keys are pointing at. Arrows move this mark and
-   nothing else; Enter is what commits it. Same wash as :hover, since it is the pointer's
-   counterpart. */
+
+/* Keyboard cursor, separate from aria-selected: aria-selected is what the control
+   holds, .isel-cursor is only what the arrow keys point at until Enter commits it.
+   Same wash as :hover, its pointer counterpart. */
 .isel-item.isel-cursor { background: var(--wash-subject); color: var(--accent-ink, #3C6E5A); }
 .glyph-lang { display: inline-flex; align-items: baseline; line-height: 1; color: var(--ink, #2A2E33); }
-/* 文/A is one drawn mark in two halves, so both sizes are glyph metrics, not type
-   steps (css/tokens.css) — the 15/14 pair is optical balance between a CJK ideograph
-   and an italic Latin cap, and tying either to the type scale would break the pairing. */
+
+/* The zh/A dual-glyph mark is one drawn mark in two halves, so both sizes are glyph
+   metrics, not type steps (css/tokens.css): the 15/14 pair balances a CJK ideograph
+   against an italic Latin cap. */
 .glyph-lang b { font-family: var(--font-text); font-size: 15px; font-weight: 700; }
 .glyph-lang i { font-family: var(--font-text); font-style: italic; font-size: 14px; font-weight: 600; margin-left: 1px; }
 .glyph-lang b::after { content: "/"; font-style: normal; font-weight: 400; color: var(--ink-3, #8B8F8C); margin: 0 1px; }
 
-/* ---- panel toggle tabs ---- */
+/* ---- Panel Toggle Tabs ---- */
 .tab {
   position: absolute; z-index: 1200; cursor: pointer;
   background: rgba(var(--panel, 241,239,232), .92); border: 0.5px solid var(--hair, #D3CFC5);
@@ -296,27 +294,49 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 }
 .tltab { bottom: 12px; left: 12px; }
 
-/* ---- permanent right rail (right-side title column) ---- */
-/* Flush to the right edge, full height, no collapse — the title column of the bankuang. */
+/* Rail reopen chip: the lizhou chip's twin, set vertically in the top-right corner clear of
+   both rules. Han stands upright, Latin turns with the column; the arrow is drawn here, not in
+   the label, so it stays upright and points at the rail in every script. */
+.libtab { grid-column: 1 / -1; grid-row: 1 / -1; top: 12px; right: 12px; font-family: inherit;   /* absolute grid child needs an explicit grid area */
+  writing-mode: vertical-rl; text-orientation: upright; padding: 11px 8.9px 11px 5.1px; gap: 0; letter-spacing: .1em; }   /* asymmetric pad recentres vertical Han's 1.9px drift */
+body:not([data-lang^="zh"]):not([data-lang="ja"]) .libtab { text-orientation: mixed; letter-spacing: normal; padding: 11px 7px; }
+body:not([data-lang^="zh"]):not([data-lang="ja"]) .libtab::after { left: 0; }
+.libtab::after { content: "▸"; text-orientation: upright; letter-spacing: 0; margin-top: 5px; position: relative; left: 1.9px;
+  height: 6px; display: flex; align-items: center; justify-content: center; }   /* hugs the ink to match the lizhou chip's 7px gap */
+.libtab:hover { color: var(--accent-ink, #3C6E5A); }
+
+/* Rail collapse ×, hover-only like .tl-close: a #frame child answering the rail's
+   hover through :has(). Its ::after bridges the gap so the pointer stays on it while
+   crossing to the rail. Two classes so the size outranks .iconbtn, declared further down. */
+.iconbtn.lib-close {
+  position: absolute; top: 10px; right: calc(var(--rail-w) + 10px); z-index: 1200;
+  width: 22px; height: 22px; font-size: var(--fs-body);
+  opacity: 0; pointer-events: none; transition: opacity .15s;
+}
+.lib-close::after { content: ""; position: absolute; top: -6px; bottom: -6px; left: 100%; width: 16px; }
+#frame:has(#library:hover) .lib-close,
+.lib-close:hover,
+.lib-close:focus-visible { opacity: 1; pointer-events: auto; }
+body:has(#library.hidden) .lib-close { display: none; }
+
+/* ---- Right Rail (Title Column) ---- */
+/* Flush to the right edge, full height — the title column of the bankuang. */
 #library {
-  grid-column: 2; grid-row: 1 / span 2; min-height: 0;
+  grid-column: 2; grid-row: 1 / span 2; min-height: 0; width: var(--rail-w); box-sizing: border-box;
   display: flex; flex-direction: column;
   background: var(--card, #F7F3EA); overflow: hidden;
-  border-left: 0.7px solid var(--frame, #443F33);   /* jiehang rule: huamian ↔ banye (was the seam's double rule) */
-  padding-right: 4px;   /* seat the list thumb inboard of the bankuang inner yuwei (#frame::before, inset 3px) — jiehang not touching the rail edge */
+  border-left: 0.7px solid var(--frame, #443F33);   /* jiehang rule: huamian ↔ banye */
+  padding-right: 4px;   /* seats the list thumb inboard of #frame::before's inset */
 }
 .lib-head { display: flex; align-items: center; gap: 8px; padding: 11px 13px; border-bottom: 0.5px solid var(--hair, #D3CFC5); }
 .lib-head .t { font-size: var(--fs-lead); font-weight: 700; letter-spacing: 1px; }
+
 /* 15px is a glyph metric (the × mark centred in a 26px box), not a type step. */
 .iconbtn { margin-left: auto; border: 0.5px solid var(--hair, #D3CFC5); background: var(--card, #F1EFE8); color: var(--ink-2, #565A5E); width: 26px; height: 26px; cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: inherit; }
-/* Tally heading (catalog tally): the rail head's own right column — total count headline (.rc-total)
-   over the current-era subset (.rc-era, dimmer/smaller so it reads as subordinate).
-   A vertical hairline fences it off from the option rows; no rule between its two
-   lines (the counts describe the whole list, not one row each). Both lines nowrap;
-   JS writes the two spans (updateReccount). gap keeps the two lines a tight group
-   (not stretched to match the outer margins); justify-content:center then splits
-   the remaining column height evenly above and below that group — even whitespace
-   without pulling the line pair apart. */
+
+/* Tally heading: total count (.rc-total) over the current-era subset (.rc-era, dimmer
+   and smaller). No rule between the two lines — they describe the whole list, not one
+   row each. JS writes both spans (updateReccount). */
 #reccount {
   flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 5px;
   text-align: right; white-space: nowrap; letter-spacing: .02em; overflow: hidden;
@@ -326,6 +346,7 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 #reccount .rc-era { font-size: var(--fs-note); color: var(--ink-3, #8B8F8C); }
 
 .facets { padding: 11px 13px 7px; border-bottom: 0.5px solid var(--hair, #D3CFC5); }
+
 /* One-line filter: type toggle (fixed) + horizontally-scrollable civ chips. */
 .filterrow { display: flex; align-items: center; gap: 10px; }
 .civscroll { display: flex; gap: 6px; overflow-x: auto; flex: 1; min-width: 0; padding-bottom: 2px; scrollbar-width: thin; scrollbar-color: var(--hair, #D3CFC5) transparent; }
@@ -338,58 +359,36 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 .reccount { font-size: var(--fs-body); color: var(--ink-note, #6F6A5C); margin-top: 9px; }
 
 /* banye row grid: records are jiehang-separated rows (wusilan), not boxed cards. Selection
-   marks a zhusilan (vermilion-thread column) down the right edge (punctuation dots flush right).
-   All .sel/.hl/.dimmed state paths are preserved — only the visual chrome changes. */
-/* Thin paper-toned scrollbar (mirrors .civscroll) so it recedes into the banye instead
-   of the fat system bar crossing the bankuang inner yuwei. #library's padding-right seats the
-   thumb inboard of that inner rule (no overlap). */
+   marks a zhusilan (vermilion-thread column) down the right edge. Thin paper-toned
+   scrollbar (mirrors .civscroll) recedes into the banye instead of the system bar. */
 .list { overflow-y: auto; padding: 0; flex: 1; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--hair, #D3CFC5) transparent; }
 .list::-webkit-scrollbar { width: 6px; }
 .list::-webkit-scrollbar-track { background: transparent; }
 .list::-webkit-scrollbar-thumb { background: var(--hair, #D3CFC5); border-radius: 999px; }
 .reccard { position: relative; background: none; border: 0; border-bottom: 0.7px solid var(--hair, #D3CFC5); border-radius: 0; padding: 10px 16px 10px 14px; margin: 0; cursor: pointer; transition: background .12s; }
+
 /* Hover lives further down, next to .hl — the two greens have to be read together. */
-/* Light warm vermilion wash, held pale enough that the note text over it still clears
-   4.5:1. The extra vertical padding is the expanded card only: a container may not hold
-   its parts closer to its own edge than they sit to each other, and expanded the parts
-   stand 14px apart. Vertical alone — changing the side padding would re-break the lines. */
+/* Light vermilion wash, held pale enough that the note text over it still clears 4.5:1.
+   Extra padding is vertical only, so the expanded card's parts sit 14px apart, no closer
+   to the card's own edge than they sit to each other. */
 .reccard.sel { background: var(--wash-sel); padding-top: 14px; padding-bottom: 14px; }
 .reccard.sel::after { content: ""; position: absolute; top: 8px; bottom: 8px; right: 5px; width: 2px; background: var(--thread-sel); }  /* zhusilan (vermilion-thread column) */
 .reccard.sel .rc-place { color: var(--spark, #B23A2E); }
 .rc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; min-width: 0; }
 .rc-place { font-size: var(--fs-lead); font-weight: 700; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* Elided modern gloss (fitPlaceLabels): the gloss is one indivisible unit, so a row
-   too narrow to hold it drops it whole rather than letting the ellipsis land inside
-   the modern name. The caret marks the absence — without it the row reads as a place
-   that simply has no modern name. Full label moves to the hover card's data-gloss,
-   which also makes the row focusable, so [data-gloss]'s cursor:help applies. */
+
+/* Elided modern gloss (fitPlaceLabels): a row too narrow to hold the gloss drops it whole
+   rather than letting the ellipsis land inside it. The caret marks the absence; the full
+   label moves to the hover card's data-gloss, whose cursor:help then applies. */
 .rp-mod.is-elided { display: none; }
 .rc-place.has-elision::after,
 .rp-place.has-elision::after { content: "\00a0›"; font-weight: 400; color: var(--ink-3, #8B8F8C); }
 .rc-place[data-gloss]:focus-visible,
 .rp-place[data-gloss]:focus-visible { outline: 1.5px solid var(--accent, #4F8D74); outline-offset: 1px; }
 .rc-year { flex: 0 0 auto; margin-left: auto; font-family: var(--font-text); font-size: var(--fs-body); color: var(--ink-2, #5A564C); white-space: nowrap; }  /* era tag never wraps */
-/* Predicted-but-unobserved flag: a vermilion quewei (hairline frame) around the era tag.
-   The mark this replaced was a zhuquan (small ring), which read wrong twice over — in an
-   annotated edition a pangquan means PRAISE, not doubt, and at 4.5px it vanished while the
-   eye ran down the rail. A frame is what the tradition sets around a graph the editor
-   cannot supply: an explicit "something is missing here".
-   The frame is a box-shadow, which draws outside the border box and so adds no layout
-   width, and the padding is cancelled by an equal negative margin — the era tag still
-   contributes its bare text width and cannot shift or truncate, which is the whole reason
-   the status pill this family began as was dropped. The frame overhangs 4.5px into the
-   card's 16px right padding, clearing the selected zhusilan (right:5px) by 6.5px.
-   Square corners: the rail carries no radius anywhere.
-   The frame says "this entry is flagged" and nothing more. Which of the three statuses
-   applies is deliberately left to the hover gloss (data-gloss) and note_i18n, so a scan
-   down the rail carries one bit rather than three.
-   Named for the mark, not the register: the rail card's .rc-year and the marker popup's
-   .rp-year both take this class, so the same record cannot read clean on the map and
-   flagged in the list.
-   Both registers are named in the selector to raise it to two classes. Both .rc-year and
-   .rp-year set margin-left:auto, and .rp-year is declared further down this file — at equal
-   specificity it would win the cascade and drop the left negative margin, leaving the frame's
-   left padding uncompensated and eating 4.5px off the place name. */
+/* Predicted-but-unobserved flag: a vermilion quewei (frame) drawn as a box-shadow, its
+   padding cancelled by an equal negative margin so the tag's own text width is unchanged.
+   .rc-year and .rp-year MUST share this selector, or the later .rp-year rule wins the cascade. */
 .rc-year.era-quewei,
 .rp-year.era-quewei {
   padding: 1.5px 4.5px; margin: -1.5px -4.5px;
@@ -397,43 +396,55 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
   color: var(--ink, #2B2A26);
   cursor: help;
 }
-/* ---- The four parts of a record ---- */
-/* A record reads as translation → original → source → editor's note, and the rail card
-   and the marker popup must set all four identically. Declare each part ONCE, naming both
-   registers in the selector — never a .rc-… rule here and a matching .rp-… rule beside the
-   popup frame. Two declarations of one part are two values waiting to disagree, and the
-   reader meets both registers on the same record. Only what is genuinely popup-only
-   (.rp width, .rp-head's flex row) is declared apart, further down.
 
-   Vertical rhythm is one inequality: paragraphs inside a part sit closer than the parts
-   do, and the parts sit closer than two cards. Measure the visible white, not the margin
-   — a leading of 1.7 hands every line about .35em of half-leading, counted at BOTH sides
-   of a boundary. At these sizes a paragraph break comes to ~18px and the 14px part gap to
-   ~22–23px. That margin over the paragraph is deliberately modest because space is not
-   the only thing marking these boundaries: the quotation rule starts, the indent stops,
-   the type drops a step, the source line carries its own label, a hairline precedes the
-   note. Space only has to agree with the hierarchy, not carry it alone.
+/* Optical centring for Han and kana: the frame centres on the symmetric line box, but Han
+   glyphs carry no descender and sit above its centre. Move the negative margins with the
+   padding shift, or the cancellation this family depends on breaks. Latin needs no correction. */
+html:is([lang^="zh"], [lang^="ja"]) :is(.rc-year, .rp-year).era-quewei {
+  padding-top: 2px; padding-bottom: 1px;
+  margin-top: -2px; margin-bottom: -1px;
+}
 
-   The rule down the left marks the QUOTED matter — the original — and never the citation.
-   An attribution stands outside the quotation it names, set smaller and carrying no mark
-   of its own: the block-quotation element's own definition puts it outside, and print
-   practice from the Chicago manual to the Chinese history journals sets the extract apart
-   and drops the source below it plain. So the source line stays flush with the
-   translation, and nothing but the original is ever ruled or indented. */
+/* ---- The Four Parts Of A Record ---- */
+/* translation → original → source → editor's note. The rail card and the marker popup
+   MUST set all four identically: declare each part once, naming both .rc-… and .rp-…
+   in the same selector. The rule down the left marks the QUOTED original, never the note. */
 .rc-trans, .rp-trans { font-size: var(--fs-lead); color: var(--ink, #2B2A26); line-height: 1.7; margin: 0 0 14px; }
+
 /* 2px + 10px = the 14px part gap, so the quoted block is inset as far as it is spaced. */
 .rc-orig, .rp-orig { font-size: var(--fs-body); color: var(--ink-note, #6F6A5C); line-height: 1.7; border-left: 2px solid var(--hair, #D3CFC5); padding-left: 10px; }
+
+/* Kinsoku: `strict` applies the full CJK prohibition set (closing brackets, small kana,
+   sound marks), not the browser's loose default. A break offered by a space before a mark
+   is removed earlier, where that space is hardened to U+00A0 before the text is set. */
+.rc-trans, .rc-orig, .rc-src, .rc-note,
+.rp-trans, .rp-orig, .rp-src, .rp-note,
+.rec-tab th, .rec-tab td { line-break: strict; }
+
 /* A heading binds to what follows, so the head sits closer than part-to-part. The
    collapsed rail row keeps its own tighter value (see .rc-top) — folded, head plus
    one clamped line is a single index row, not a head over four parts. */
 .reccard.sel .rc-top, .rp-head { margin-bottom: 10px; }
-/* Paragraph rhythm for every record text, card and popup alike. The gap between
-   paragraphs must read as wider than the gap between lines or the break is invisible:
-   at a leading of 1.7 the lines already sit .7em apart, so a paragraph adds .6em on top
-   of that. Space between paragraphs OR a first-line indent, never both — this sets
-   space, so nothing here indents. */
+
+/* Paragraph rhythm, card and popup alike: at a leading of 1.7 lines already sit .7em
+   apart, so a paragraph adds .6em on top. Space OR a first-line indent, never both —
+   this sets space, so nothing here indents. */
 .rc-trans p, .rc-orig p, .rp-trans p, .rp-orig p { margin: 0; }
 .rc-trans p + p, .rc-orig p + p, .rp-trans p + p, .rp-orig p + p { margin-top: .6em; }
+
+/* ---- Headings the paper set inside one report ---- */
+/* A mid-article head parts a long report into stretches; set as an ordinary paragraph
+   it reads as a stray sentence, so it takes weight and a wider gap above than the
+   paragraph rule sets. No larger size: it is a head inside quoted matter, not of the card. */
+.rc-trans p.rec-mid, .rc-orig p.rec-mid, .rp-trans p.rec-mid, .rp-orig p.rec-mid {
+  font-weight: 700;
+  margin-top: 1.2em;
+}
+.rc-trans p.rec-mid + p, .rc-orig p.rec-mid + p,
+.rp-trans p.rec-mid + p, .rp-orig p.rec-mid + p { margin-top: .3em; }
+.rc-trans p.rec-mid:first-child, .rc-orig p.rec-mid:first-child,
+.rp-trans p.rec-mid:first-child, .rp-orig p.rec-mid:first-child { margin-top: 0; }
+
 
 /* ---- Tables the source itself set ---- */
 /* A meteorological register keeps its columns. The wrapper scrolls on its own so a
@@ -444,29 +455,33 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 .rec-tab th, .rec-tab td { padding: 2px 10px 2px 0; text-align: left; white-space: nowrap; vertical-align: baseline; }
 .rec-tab th { font-weight: 700; border-bottom: 0.5px solid var(--hair, #D3CFC5); padding-bottom: 3px; }
 .rec-tab tbody tr:first-child td { padding-top: 4px; }
+
 /* Readings line up on their last digit only when they share a tabular figure width. */
-.rec-tab td { font-variant-numeric: tabular-nums; }                       /* original = de-emphasised (R9) */
+.rec-tab td { font-variant-numeric: tabular-nums; }                       /* original = de-emphasised */
+/* A log-of-events cell holds a whole clause; nowrap there would widen the table past the
+   card into horizontal scroll, so the prose column alone wraps. The readings keep
+   nowrap: their columns are the point of a table. */
+.rec-tab td.rec-tab-prose { white-space: normal; max-width: 28em; }
+
 /* Citation: small-type jiazhu, flush with the translation, and carrying no mark of its
    own — its label already names it, and a rule here would claim it as quoted matter. */
 .rc-src, .rp-src { font-size: var(--fs-note); color: var(--ink-note, #6F6A5C); margin-top: 14px; line-height: 1.5; }
-/* The note is the atlas speaking, not the source. It sits at the citation's size and ink,
-   and in Han and kana it cannot be set in italic — the shipped faces carry no italic cut,
-   so the slant is stood down for those locales at the foot of this stylesheet. That leaves
-   the hairline as the only thing telling the two voices apart there: it is load-bearing,
-   not decoration. The space is split across it so the pair still stands one part gap
-   apart rather than two. */
+
+/* The note sits at the citation's size and ink. It cannot be set in italic for Han and
+   kana (the shipped faces carry no italic cut; see the foot of this file), so the hairline
+   alone tells the two voices apart there. */
 .rc-note, .rp-note { font-size: var(--fs-note); color: var(--ink-note, #6F6A5C); font-style: italic; margin-top: 7px; padding-top: 7px; border-top: 0.7px solid var(--hair, #D3CFC5); line-height: 1.5; }
 
-/* ---- collapsed summary vs expanded detail (bound to .sel) ----
-   Unselected cards are compact: seal + place + year (.rc-top) plus a one-line
-   translation preview. Original / source / note stay hidden until the card is
-   selected. select() toggles .sel in place (no DOM rebuild), so expand/collapse,
-   single-card exclusivity, and scroll-into-view all reuse that path for free. */
+/* ---- Collapsed summary vs expanded detail (bound to .sel) ---- */
+/* Unselected cards are compact: seal + place + year plus a one-line translation preview.
+   select() toggles .sel in place (no DOM rebuild), so expand/collapse and
+   scroll-into-view all reuse that one path. */
 .reccard:not(.sel) .rc-orig:not(.solo),
 .reccard:not(.sel) .rc-src,
 .reccard:not(.sel) .rc-note { display: none; }
 .reccard:not(.sel) .rc-trans { overflow: hidden; margin-bottom: 0; }
 .reccard.sel .rc-trans { overflow: visible; }
+
 /* Collapsed, the preview is the report's FIRST paragraph clamped to one line — the clamp
    sits on the paragraph, not on its container: a -webkit-box whose children are blocks
    counts them, not their lines, and lets the whole first paragraph through. */
@@ -476,87 +491,58 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 .reccard:not(.sel) .rc-orig.solo p:first-child {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden;
 }
-/* A source already in the viewer's language carries no separate translation line, so the
-   collapsed card shows the original in its place — same one-line clamp, and set in the
-   translation's ink and size so the shelf reads as one column of cards, not two.
-   The quotation rule and its indent stand down for the same reason the vermilion does
-   below: in a shelf of unruled preview lines, one ruled row would read as the only quoted
-   record on the leaf. Both come back the moment the card expands. */
+
+/* A source already in the viewer's language shows the original in place of a translation
+   line, same clamp, set in the translation's ink and size. The quotation rule and its
+   indent stand down here too, and come back the moment the card expands. */
 .reccard:not(.sel) .rc-orig.solo {
   overflow: hidden;
   font-size: var(--fs-lead); color: var(--ink, #2B2A26);
   border-left: 0; padding-left: 0;
 }
-/* The eclipse-phrase mark belongs to the original's reading apparatus, not the preview:
-   in this stand-in role the line must be indistinguishable from a translation line, so the
-   vermilion is stood down here and comes back the moment the card expands. */
-.reccard:not(.sel) .rc-orig.solo mark.hl {
+
+/* The term mark pairs the original's word with the translation's; the collapsed preview
+   line carries no such pairing, so the vermilion stands down on it until the card expands. */
+.reccard:not(.sel) .rc-orig.solo mark.hl,
+.reccard:not(.sel) .rc-trans mark.hl {
   color: inherit; font-weight: inherit; border-bottom: 0;
 }
 
-/* ---- all-events log: load chevrons + event cards ----
-   Ported from SubstellarAtlas's .eclipse-load-more / .eclipse-card, reskinned from
-   the dark lapidary gold to the Song-painting light-wash tokens (var(--card/hair/accent/spark)). */
-/* Load-earlier / load-later = quiet full-width jiehang drawers (not boxed buttons): they
-   span the whole rail (left-to-right, no side margin), read as a hairline row like a jiehang, and
-   recede to ink-3 until hovered (faint zhilü wash, same recipe as .reccard:hover). The
-   hairline sits on the LIST side of each — earlier borders its bottom, later its top. */
+/* ---- All-Events Log: Chevrons And Cards ---- */
+/* Load-earlier / load-later are quiet full-width jiehang drawers, not boxed buttons,
+   receding to ink-3 until hovered. The hairline sits on the LIST side of each — earlier
+   borders its bottom, later its top. */
 .ec-load { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; color: var(--ink-3, #8B8F8C); padding: 4px 0; margin: 0; cursor: pointer; transition: background .1s, color .1s; }
 .ec-load-earlier { border-bottom: 0.7px solid var(--hair, #D3CFC5); }
 .ec-load-later { border-top: 0.7px solid var(--hair, #D3CFC5); }
-.ec-load[hidden] { display: none; }  /* author display:flex would otherwise beat the UA [hidden] rule */
+.ec-load[hidden] { display: none; }  /* MUST outrank the display:flex above */
 .ec-load svg { display: block; opacity: .7; }
 .ec-load:hover { background: var(--wash-subject); color: var(--accent, #4F8D74); }
 .ec-load:hover svg { opacity: 1; }
 .ec-load:disabled { opacity: .38; cursor: default; }
 .ec-load:disabled:hover { background: transparent; color: var(--ink-3, #8B8F8C); }
-.ec-load.ec-load-flash { background: var(--wash-subject); color: var(--accent, #4F8D74); }  /* wheel-autoload pulse — fires with the pointer off the drawer, so sharing the subject tier reads as one language, not two */
+.ec-load.ec-load-flash { background: var(--wash-subject); color: var(--accent, #4F8D74); }  /* wheel-autoload pulse: shares the hover subject tier */
 .ev-loading { padding: 18px 11px; font-size: var(--fs-body); color: var(--ink-note, #6F6A5C); text-align: center; }
+
 /* Empty shelf: the quiet note shown when the current type/filters match nothing —
    the clickable occultation/guest-star/comet slips land here until such records are collected. */
 .list-empty { padding: 24px 14px; font-size: var(--fs-body); color: var(--ink-note, #6F6A5C); text-align: center; letter-spacing: .04em; }
-/* All-events as jiehang rows, stated only by the right-edge zhusilan — the same one mark
-   the record rail flies, so the two shelves read as one apparatus. A 3px left rail used to
-   double every state here, and a rail that is grey in the resting state draws a second
-   vertical line down a page whose whole grammar is "one thread marks the entry in hand".
-   The 3px it occupied is folded into padding-left, so the glyph column does not shift. */
+
+/* All-events rows use the same right-edge zhusilan the record rail flies, so the two
+   shelves read as one apparatus. No left rail: its 3px is folded into padding-left
+   instead, so the glyph column sits where it would have. */
 .evcard { position: relative; display: flex; gap: 11px; padding: 9px 12px 9px 12px; background: none; border: 0; border-bottom: 0.7px solid var(--hair, #D3CFC5); border-radius: 0; margin: 0; cursor: pointer; transition: background .12s; }
 .evcard.sel { background: var(--wash-sel); }
 .evcard.sel::after { content: ""; position: absolute; top: 8px; bottom: 8px; right: 5px; width: 2px; background: var(--thread-sel); }  /* zhusilan (vermilion-thread column) */
-/* ---- Two greens and a red: linkage, subject, selection ----
-   The rail carries exactly four states: red (committed), deep green (subject), pale green
-   (linkage), bare (unrelated). The wash values live in the card state ladder tokens; what
-   this block decides is which selector earns which tier.
-   The LINKAGE tier reaches a card two ways, and both mean the same thing — "this entry
-   belongs to the eclipse currently in question". .hl is the transient route: a band hover,
-   or a hover on any one card, lights every card of that same eclipse. .linked is the
-   standing route: while an event is selected, its other records stay lit with the pointer
-   nowhere near the rail, which is the only thing that keeps "who else recorded this" on
-   screen after the click. They are separate classes because their lifecycles are
-   independent — setEventHighlight strips .hl on every mouseleave, so a shared class would
-   let the pointer erase the selection's linkage.
-   What carries the linkage answer is the accent thread down the card's right edge (::after,
-   one geometry for both rails), not the wash; the wash is only a whisper behind the thread.
-   Every point spent on it comes straight out of the gap that separates the hovered card from
-   its lit siblings.
-   :hover is the SUBJECT tier — exactly one card at a time, so it carries the heavier wash
-   AND the only accent-ink title in the rail. The thread splits along the same seam: a hover
-   always lights its own card too, so every lit set contains exactly one hovered card.
-   Siblings get the thread at 45% — enough to be counted, not enough to compete — and the
-   hovered card alone gets it at full accent. Without that split both cards in a two-record
-   eclipse fly identical threads and the pointer's position stops being legible from the rail.
-   :hover comes after the linkage rules to win the equal-specificity tie inside a lit set,
-   and its thread rule no longer names .hl: a hover does imply .hl today, but leaning on that
-   made the subject tier depend on a class it does not own.
-   Every rule carries :not(.sel) because any of them can land on the selected card (a band
-   covers all its records; the pointer can rest on the red one; .linked is applied to the
-   whole matching set), and they all sit later in the file than the .sel rules — without the
-   guard the vermilion selection repaints green. Selection is committed and outranks a
-   pointer. */
+/* ---- Two Greens And A Red: Linkage, Subject, Selection ---- */
+/* Priority: red (.sel) > deep green (:hover, subject) > pale green (.hl/.linked) > bare.
+   .hl and .linked stay separate: .hl clears on mouseleave, so merging them would erase
+   the selection's standing linkage. Every rule needs :not(.sel), or .sel repaints green. */
 .reccard.hl:not(.sel),
 .reccard.linked:not(.sel),
 .evcard.hl:not(.sel),
 .evcard.linked:not(.sel) { background: var(--wash-link); }
+
 /* One geometry for all three green threads (hover included, so the subject thread can draw
    even if .hl is not on the card), then the colour splits linkage from subject below. */
 .reccard.hl:not(.sel)::after,
@@ -568,31 +554,29 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 .reccard:hover:not(.sel),
 .evcard:hover:not(.sel) { background: var(--wash-subject); }
 .reccard:hover:not(.sel)::after,
-.evcard:hover:not(.sel)::after { background: var(--thread-subject); }
+.evcard:hover:not(.sel)::after { background: var(--thread-subject); }   /* MUST NOT also key off .hl */
 .reccard:hover:not(.sel) .rc-place { color: var(--accent-ink, #3C6E5A); }
 .evcard .ec-glyph { flex: 0 0 auto; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; line-height: 0; }
 .evcard .ec-body { flex: 1 1 auto; min-width: 0; }
 .ec-row1 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-/* Corner seal (ya-jiao yin): civ seals pushed to the right edge of the date row. Wraps
-   to its own line when the date text is long (e.g. "前 762 年 6 月 7 日"). */
+
+/* Corner seal (ya-jiao yin): pushed to the right edge of the date row, wrapping to its
+   own line when the localized date text is long (e.g. a full CJK era date). */
 .ec-seals { margin-left: auto; display: inline-flex; align-items: center; gap: 3px; flex-wrap: nowrap; align-self: center; line-height: 0; }
 .ec-seals svg { display: block; width: 15px; height: 15px; flex-shrink: 0; }
 .ec-date { font-size: var(--fs-lead); font-weight: 700; color: var(--ink, #2B2A26); font-variant-numeric: tabular-nums; }
-/* greatest-eclipse timestamp + coordinates — folded secondary row (matching SubstellarAtlas), solar shows coordinates / lunar timestamp only. */
+
+/* Folded secondary row: greatest-eclipse timestamp + coordinates; solar shows
+   coordinates only, lunar shows timestamp only. */
 .ec-peak { font-size: var(--fs-note); color: var(--ink-2, #5A564C); margin-top: 2px; font-variant-numeric: tabular-nums; font-family: var(--font-text); }
 .ec-peak .mid { color: var(--ink-3, #B7B1A3); font-style: normal; margin: 0 .35em; }
 .ec-peak .unc { color: var(--ink-3, #8B8F8C); font-style: italic; }  /* ± longitude uncertainty */
 .ec-row2 { font-size: var(--fs-body); color: var(--ink-2, #5A564C); margin-top: 2px; }
 .ec-kind { color: var(--ink, #2B2A26); }
-/* One source-link idiom everywhere: ink-coloured, dotted underline.
-   The `.leaflet-container` prefix is not decoration — Leaflet ships `.leaflet-container a
-   { color: #0078a8 }`, which outweighs a lone class, so inside a marker popup the same
-   citation used to render as a blue web link while the rail card rendered it as ink.
-   Draw the rule with a text-decoration, never a border-bottom: an inline border is box
-   geometry and joins the scrollable-overflow region without joining the parent block's
-   auto height, so on the last line of a record it pushes past the popup's bottom edge and
-   arms overflow-y:auto on a card that otherwise fits. A decoration is ink and costs the
-   box nothing. */
+
+/* Ink-coloured dotted underline everywhere. The `.leaflet-container` prefix MUST stay,
+   or Leaflet's own same-specificity rule renders this link blue inside a popup. Use
+   text-decoration, not border-bottom, which is box geometry and can force overflow-y:auto. */
 .src-link,
 .leaflet-container .src-link { color: inherit; text-decoration: underline dotted; text-decoration-thickness: 1px; text-underline-offset: 2px; }
 .src-link:hover,
@@ -600,24 +584,25 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 .src-via { color: var(--ink-2, #5A564C); font-size: .9em; opacity: .8; }
 .rp-mod { color: var(--ink-3, #8B8F8C); font-weight: 400; font-size: .92em; }  /* light （今 modern-city） suffix on place name */
 
-/* ---- timeline (lizhou, time axis), a horizontal ruler anchored to the bottom (dijiao) ---- */
-/* No card frame — just the axis strip, positioned via absolute inset; it stops
-   at the rail's left edge so the rail runs the full right side uninterrupted. */
+/* ---- Timeline (Lizhou) ---- */
+/* A horizontal ruler anchored to the bottom (dijiao). No card frame — just the axis
+   strip, stopping at the rail's left edge so the rail runs the full right side. */
 #timeline {
   grid-column: 1; grid-row: 2; position: relative; min-width: 0;
   border-top: 0.7px solid var(--frame, #443F33);   /* jiehang boundary between huamian and dijiao */
   transition: transform .28s cubic-bezier(.4,0,.2,1), opacity .2s;
 }
+
 /* Collapses by sliding down off the bottom. */
 #timeline.hidden { transform: translateY(calc(100% + 20px)); opacity: 0; pointer-events: none; }
 /* Close button lives outside the axis, above its top-left corner. It's a
    hover-only overlay: :hover on #timeline also matches while the pointer is
    over this descendant, so once faded in it stays clickable. */
-.tl-close { position: absolute; top: -30px; left: 0; z-index: 2; width: 22px; height: 22px; font-size: var(--fs-body); opacity: 0; pointer-events: none; transition: opacity .15s; }
-/* Invisible hit-bridge spanning the gap down to the axis's top edge — without
-   it, the mouse crosses dead space between the button and the axis and the
-   button fades out (pointer-events:none inherits down, so it's inert until
-   #timeline:hover flips it on) before it can be reached. */
+.tl-close { position: absolute; top: -30px; left: 10px;   /* same inset .lib-close uses from the top rule */
+  z-index: 2; width: 22px; height: 22px; font-size: var(--fs-body); opacity: 0; pointer-events: none; transition: opacity .15s; }
+
+/* Invisible hit-bridge spanning the gap to the axis's top edge: without it, the pointer
+   crosses dead space and the button fades before #timeline:hover can be reached. */
 .tl-close::after { content: ""; position: absolute; left: -4px; right: -4px; top: 100%; height: 10px; }
 #timeline:hover .tl-close { opacity: 1; pointer-events: auto; }
 /* No SVG-wide background — the color lives only on the narrow interactive
@@ -628,6 +613,7 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
 .tl-rangeyr { font-weight: 600; letter-spacing: .3px; }
 .tl-nowyr { font-weight: 600; letter-spacing: .3px; }   /* current-time readout, capping the yuwei */
 .tl-fine { font-size: var(--fs-note); }
+
 /* hover tip: year + record count under the cursor, above the strip */
 #tl-tip {
   position: absolute; bottom: calc(100% + 6px); transform: translateX(-50%); display: none;
@@ -636,18 +622,20 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
   white-space: nowrap; pointer-events: none; z-index: 3; box-shadow: 0 2px 8px rgba(30,30,30,.12);
 }
 
-/* ---- map markers: seal in a drop-shadow wrapper ---- */
+/* ---- Map Markers ---- */
+/* A seal in a drop-shadow wrapper. */
 .rec-mk { background: none; border: 0; }
-/* Arrival and departure fade. The LOD grid is world-anchored, so a seal only ever
-   enters or leaves because the reader crossed a real threshold — the fade marks
-   that, and nothing else blinks. mk-in is cleared on the next frame; mk-out is held
-   for the removal delay the marker ledger schedules (keep the two durations equal). */
+
+/* Arrival/departure fade: the LOD grid is world-anchored, so a seal only enters or
+   leaves on a real threshold crossing. mk-in clears on the next frame; mk-out holds for
+   the marker ledger's removal delay — keep the two durations equal. */
 .rec-mk[data-site] { transition: opacity .2s ease; }
 .rec-mk.mk-in, .rec-mk.mk-out { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   .rec-mk[data-site] { transition: none; }
 }
 .mk-pulse { position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; border: 2px solid var(--spark, #CE564C); pointer-events: none; }
+
 /* Marker lit by a related band's hover (zhilü ring). */
 .rec-mk.mk-hl { outline: 2px solid var(--accent, #4F8D74); outline-offset: 1px; border-radius: 50%; }
 @media (prefers-reduced-motion: no-preference) {
@@ -655,12 +643,14 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
   @keyframes pulse { 0%,100% { opacity: .5; transform: scale(.5); } 50% { opacity: 0; transform: scale(1.05); } }
 }
 .civdot { display: inline-block; border-radius: 50%; flex: none; }
+
 /* site-stack count badge (top-right corner of the seal) */
 .mk-count {
   position: absolute; top: -7px; right: -8px; min-width: 15px; height: 15px; padding: 0 3px;
   border-radius: 2px; background: var(--card, #F1EFE8); border: 0.5px solid var(--hair, #D3CFC5);
   color: var(--ink-2, #565A5E); font-size: var(--fs-micro); line-height: 14px; text-align: center; pointer-events: none;
 }
+
 /* spiderfied member: year label beside the seal (era readable at a glance) */
 .mk-yr {
   position: absolute; left: calc(100% + 5px); top: 50%; transform: translateY(-50%);
@@ -668,43 +658,33 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
   text-shadow: 0 0 3px var(--card, #F1EFE8), 0 0 3px var(--card, #F1EFE8);
 }
 
-/* ---- record popup card (song palette) ---- */
+/* ---- Record Popup Card (Song Palette) ---- */
 .records-popup .leaflet-popup-content-wrapper { background: var(--card, #F1EFE8); color: var(--ink, #2A2E33); border: 0.5px solid var(--hair, #D3CFC5); border-radius: 0; box-shadow: 0 5px 22px rgba(30,30,30,.18); }
-/* Cap over-long record popups and let the content scroll (matches SubstellarAtlas's
-   scroll-container approach), so a long original text can't run off the viewport. */
-.records-popup .leaflet-popup-content { margin: 14px 12px; font-family: inherit; line-height: 1.5; max-height: clamp(200px, 60vh, 420px); overflow-y: auto; overscroll-behavior: contain; }
+
+/* The inset splits between margin and padding: this box CLIPS on all sides, and the era
+   tag's vermilion frame overhangs 5.3px past the card edge, so it MUST land on padding
+   (inside the clip), never on margin. Keep at least 6px of padding on every side. */
+.records-popup .leaflet-popup-content { margin: 7px 5px; padding: 7px; font-family: inherit; line-height: 1.5; max-height: clamp(200px, 60vh, 420px); overflow-y: auto; overscroll-behavior: contain; }
 .records-popup .leaflet-popup-tip { background: var(--card, #F1EFE8); border: 0.5px solid var(--hair, #D3CFC5); }
 .records-popup a.leaflet-popup-close-button { color: var(--ink-3, #8B8F8C); }
 .rp { min-width: 210px; max-width: 280px; }
-/* Only the popup's own frame is set here. Its four text parts — translation, original,
-   source, note — take the shared rules up in the records-card section, and adding a
-   .rp-trans/.rp-orig/.rp-src/.rp-note declaration here would silently beat them: same
-   specificity, later in the file. That is exactly how the two registers drifted apart
-   once. The head's margin-bottom is shared for the same reason; only its flex row is
-   local, because the popup seats the seal a pixel tighter than the rail row does. */
+
+/* Only the popup's own frame is set here. Its four text parts take the shared rules in
+   the records-card section above; a .rp-trans/.rp-orig/.rp-src/.rp-note rule here would
+   silently outrank them (same specificity, later in the file) and let the two drift apart. */
 .rp-head { display: flex; align-items: center; gap: 7px; min-width: 0; }
 .rp-place { font-size: var(--fs-lead); font-weight: 700; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rp-year { flex: 0 0 auto; margin-left: auto; font-family: var(--font-text); font-size: var(--fs-body); color: var(--ink-2, #5A564C); white-space: nowrap; }  /* era tag never wraps */
-/* eclipse phrase = zhupi spark underline, uniform across scripts (R6). */
+/* eclipse phrase = zhupi spark underline, uniform across scripts. */
 mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 600; border-bottom: 1px solid var(--spark, #B23A2E); padding: 0; }
 
-/* ---- shu'er (ear tab, #ev-strip) -------------------------------------------
-   Hangs from the bankuang top rule at the left (butterfly-binding fold-out index): ink tab
-   "Today View" (jinguan) + eclipse-disk dot mark + two stacked registers ┃ ‹ › ×.
-     · science row (l1): bold ISO date · type · magnitude — --font-text, tabular numerals.
-     · chronicle row (l2): tianwenzhi-style dating — Chinese era year + lunisolar ganzhi
-                     new/full-moon markers; the new/full anchor rubricated in zhupi.
-   The glyph centers vertically against the register pair (req-1). Appears while
-   state.selEv is set; detail stays in the .evcard inline. */
-/* Width budget, measured empirically across 7 locales + a spread of real records
-   (not eyeballed) — re-measured after ja picked up the kanji/digit spacing rule
-   (req-3 below), which made ja's own BCE l1 the new widest realistic case (~253px:
-   "紀元前 143 年 8 月 25 日 · 金環日食 · 食分 1.00", vs ~200px for a typical CE
-   entry like 1185 igor-1). --ear-w covers that with a small margin. text-overflow:
-   ellipsis (already in place) is the designed fallback for the rarer combinations
-   (e.g. a hybrid-type event at the corpus's deepest BCE end), not a width target.
-   The huamian column is floored at this budget (see #frame), so the min() below lands
-   on --ear-w at every viewport; the percentage arm is a guard, not the usual case. */
+/* ---- Shu'er (Ear Tab, #ev-strip) ---- */
+/* Ink tab hanging from the bankuang top rule: "Today View" (jinguan) + eclipse-disk mark
+   plus two stacked registers — l1 science row (date · type · magnitude), l2 chronicle
+   row (era year + lunisolar ganzhi). Appears while state.selEv is set. */
+/* --ear-w must cover the widest science row any locale can produce; measure across all
+   seven, not by eye, and remeasure if a locale's spacing changes. text-overflow:ellipsis
+   is the fallback for rarer combinations, never a width target. */
 #ev-strip { position: absolute; top: 0; left: 18px;
   z-index: 1150; pointer-events: auto; width: min(var(--ear-w), calc(100% - var(--ear-inset)));
   display: flex; align-items: stretch;
@@ -714,60 +694,55 @@ mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 60
   #ev-strip { animation: ear-drop .18s ease-out; }
   @keyframes ear-drop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 }
-/* Right padding carries the same optical correction as .slip (see there for the why and
-   for how to re-measure): Spectral sets the line box, Han fills it, and vertical-rl turns
-   the mismatch into rightward drift — 2.5px at 12px here. align-items:center recentres
-   the content box, so the padding spends double the drift to buy it back. */
+
+/* Right padding carries the same optical correction as .slip (see there): Spectral sets
+   the line box, Han fills it, vertical-rl turns the mismatch into rightward drift.
+   align-items:center recentres the box, so padding spends double the drift to buy it back. */
 .ev-strip-tab { flex: none; writing-mode: vertical-rl; text-orientation: upright;
   width: 26px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;
   padding: 9.5px 5px 6.5px 0; background: var(--frame, #443F33); color: var(--card, #F7F3EA);
   font-size: var(--fs-note); letter-spacing: .25em; user-select: none; }
-/* Western tab: a short shu-ji (book-spine) style rotated label (text-orientation:mixed) — smaller,
-   tight tracking, same fixed width as the CJK tab so the strip never jitters across
-   locales (req-1); align-items:center above already centers it on the cross (physical
-   horizontal) axis once the width stops tracking content length. Spectral draws this
-   label itself, so it is both strut and glyph — drop the CJK optical correction, which
-   would only tip a Latin tab off centre. */
+
+/* Western tab: a shorter shu-ji (book-spine) rotated label, fixed to the same width as
+   the CJK tab so the strip never jitters across locales. Spectral draws this label itself
+   as both strut and glyph, so drop the CJK optical correction, which would tip it off centre. */
 .ev-strip-tab.is-latin { text-orientation: mixed; font-size: var(--fs-micro); letter-spacing: .02em;
   line-height: 1.1; overflow: hidden; padding-right: 0; }
+
 /* body centers the glyph against the two-line register block (centered against both rows).
-   Right padding trimmed vs the left (req-3): the left side still needs the full
-   12px for the tab/glyph's own breathing room, but the right side is exactly the
-   text-to-nav gap the strip was measured to have too much of. */
+   Right padding is trimmed against the left on purpose: the left side carries the
+   tab/glyph's own breathing room, the right side only the text-to-nav gap. */
 .ev-strip-body { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 11px; padding: 10.5px 8px 7.5px 12px; }
 .ev-strip-glyph { flex: 0 0 auto; line-height: 0; }
-/* The strip sits inside the Leaflet container; be explicit that its text is
-   selectable/copyable, not part of the drag surface (req-1 — paired with the
-   disableClickPropagation call in js/atlas.js that stops the mousedown from
-   bubbling into Leaflet's own drag handler in the first place). */
+
+/* Text here is selectable/copyable, not part of the drag surface — paired with
+   disableClickPropagation (js/atlas.js), which stops the mousedown reaching Leaflet's
+   own drag handler. */
 .ev-strip-lines { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 1px;
   cursor: text; user-select: text; -webkit-user-select: text; }
-/* Explicit line-heights, tight enough that the register gap still reads smaller than
-   the text-to-edge margins (req-4), but generous enough (1.55 — Spectral's own ascent+
-   descent box needs it, measured empirically, not just eyeballed) that ordinary text
-   never clips against the overflow:hidden box regardless of content (req-5: g/y/j
-   descenders, but the overshoot turned out to be a fixed per-line font-metric gap,
-   not something that only appears with descender glyphs — it showed up even on an
-   all-digit string). l1/l2 now share one font family
-   and size (req-6) — the science/chronicle contrast comes from weight + color only,
-   not from mismatched type sizes that read as "top big / bottom small" one way in
-   CJK and the opposite way in Latin (different font metrics at 12 vs 13px). */
+
+/* Line-heights are explicit: tight enough that the register gap reads smaller than the
+   text-to-edge margins, generous enough for Spectral's own ascent+descent box. l1/l2
+   share ONE family and size; the science/chronicle contrast is weight and colour only. */
 .ev-strip-l1 { min-width: 0; font-family: var(--font-text); font-size: var(--fs-body);
   line-height: 1.55; color: var(--ink, #2B2A26); font-variant-numeric: tabular-nums;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ev-strip-l1 b { font-weight: 600; }
-/* Whole science row reads in one ink (req-7): type/magnitude no longer get a lighter
-   --ink-2, so the line doesn't read part-black/part-grey. */
+
+/* The whole science row reads in ONE ink: a lighter --ink-2 on type/magnitude makes the
+   line read part-black, part-grey. */
 .ev-strip-type, .ev-strip-mag { color: var(--ink, #2B2A26); }
-/* Chronicle row: same family/size as l1 now — contrast against the science row comes from the
-   lighter --ink-2 color (whole line, uniform) instead of a smaller type size. */
+
+/* Chronicle row: same family and size as l1 — its contrast against the science row comes
+   from the lighter --ink-2 alone, uniform across the whole line, never from type size. */
 .ev-strip-l2 { min-width: 0; font-family: var(--font-text); font-size: var(--fs-body);
   line-height: 1.55; letter-spacing: .04em; color: var(--ink-2, #5A564C);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ev-anchor { color: var(--spark, #B23A2E); }
-/* xiang-bi bai-kou (nose/blank-mouth gutters): each control sits in its own banxin channel —
-   a blank-mouth hairline on the left with short nail-head rules biting in from the top & bottom.
-   Glyphs are SVG on a shared 24×24 viewBox + one stroke-width, so ‹ › × read at an identical size, centered. */
+
+/* xiang-bi bai-kou (nose/blank-mouth gutters): each control sits in its own banxin
+   channel, a hairline on the left with nail-head rules top and bottom. Glyphs are SVG
+   on one shared viewBox and stroke-width, so ‹ › × read at an identical size. */
 .ev-strip-nav { flex: 0 0 auto; display: flex; align-items: stretch; }
 .ev-strip-nav button { position: relative; width: 28px; align-self: stretch; padding: 0;
   border: 0; border-left: .7px solid var(--hair, #D3CFC5); background: none; cursor: pointer;
@@ -783,14 +758,13 @@ mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 60
 .ev-strip-nav button:disabled svg { opacity: .32; }
 @media (pointer: coarse) { .ev-strip-nav button { width: 40px; } }
 
-/* ---- ruled slat (#ev-scrub) — intraday time scrubber (js/ev-scrub.js) ---------
-   Hangs a slim ruled slat directly under the shu'er: drag the zhupi yuwei (or ⏵) to
-   sweep TimeState across the event's [first contact, last contact] window; the live
-   shadow/moon redraws via eclipse.js's TimeState subscriber. An accessory, not a panel —
-   transparent, ear-width, left-aligned; the ⏵ sits under the "Today View" tab. `top` is
-   set in js/ev-scrub.js to the ear's bottom (its height tracks the chronicle row). */
+/* ---- Ruled Slat (#ev-scrub) ---- */
+/* Intraday time scrubber (js/ev-scrub.js): drag the zhupi yuwei (or ⏵) to sweep TimeState
+   across [first contact, last contact]; the live shadow/moon redraws via eclipse.js's
+   TimeState subscriber. `top` is set in js/ev-scrub.js to the ear's bottom. */
 #ev-scrub { position: absolute; left: 18px; z-index: 1150; pointer-events: auto;
   width: min(var(--ear-w), calc(100% - var(--ear-inset))); background: none; }
+
 /* 20px sizes the ⏵ glyph itself, not text — outside the type scale by design. */
 .scrub-play { position: absolute; left: 0; top: 0; bottom: 0; z-index: 1;
   border: 0; background: none; padding: 0; margin: 0; cursor: pointer; line-height: 1;
@@ -798,26 +772,30 @@ mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 60
   display: flex; align-items: center; justify-content: center; }
 .scrub-play:hover { color: var(--spark, #B23A2E); }
 #ev-scrub svg { display: block; width: 100%; cursor: ew-resize; touch-action: none; }
+/* The slat stays transparent over the map; its ink carries a paper halo instead, the
+   same cartographic label treatment the isoline labels use, so labels and ticks read
+   over curves, place names and tiles. */
+#ev-scrub svg text {
+  paint-order: stroke; stroke: var(--card, #F7F3EA); stroke-width: 3px; stroke-linejoin: round;
+}
+.scrub-play { text-shadow: 0 0 3px var(--card, #F7F3EA), 0 0 3px var(--card, #F7F3EA); }
 
 /* ---- Inline Selected-Event Detail ---- */
-/* Built by js/event-panel.js, placed by js/atlas.js. Jiazhu dual-row format: the
-   event's folded science strips + an always-visible contact-time table + linked
-   records, rendered inside the selected all-events card's .ec-detail. It must stay
-   inline rather than float, or it fights the click-a-point observe-popup for the
-   same map airspace. The card wraps so the detail spans full width below
-   the glyph+body summary; the .ec-* / .ep-* rows below are emitted by the
-   builders in event-panel.js. */
+/* Built by js/event-panel.js, placed by js/atlas.js: folded science strips + a
+   contact-time table + linked records, inside .ec-detail. It MUST stay inline rather
+   than float, or it fights the click-a-point observe-popup for the same map airspace. */
 .ec-detail { display: none; flex-basis: 100%; min-width: 0; }
 .evcard.expanded { flex-wrap: wrap; row-gap: 4px; cursor: default; }
 .evcard.expanded .ec-detail { display: block; }
 
-/* mid-seam "·" small-text band — SA join(' · ') wrap; label-muted / value-bright two-level rhythm. */
+/* mid-seam "·" band (SA join(' · ')): label-muted / value-bright two-level rhythm. */
 .ec-sci-wrap { border-top: 0.5px solid var(--hair, #D3CFC5); padding-top: 4px; margin-top: 4px; }
 .ec-sci2 { font-size: var(--fs-body); line-height: 1.62; color: var(--ink, #2B2A26); font-variant-numeric: tabular-nums; margin-top: 2px; }
 .ec-sci2 .k { color: var(--ink-2, #5A564C); }
 .ec-sci2 .mid { color: var(--ink-3, #B7B1A3); font-style: normal; margin: 0 .35em; }
 
-/* Contact-time table — always visible (no fold): P-key lead column · CJK-name column · date+time+UTC merged column; greatest-eclipse row zhupi-brightened. */
+/* Contact-time table, always visible: P-key · CJK name · date+time+UTC merged column;
+   greatest-eclipse row zhupi-brightened. */
 .ec-contacts { margin: 4px 0 0; }
 .ec-contacts + .ec-sci-wrap { border-top: none; padding-top: 0; }  /* no repeat divider below the contact table */
 .ec-ct { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -826,20 +804,15 @@ mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 60
 .ec-ct .k { color: var(--ink-2, #5A564C); width: 7.5em; letter-spacing: .05em; }
 .ec-ct .v { color: var(--ink, #2B2A26); font-variant-numeric: tabular-nums; font-family: var(--font-text); }
 .ec-ct .ct-peak .pk, .ec-ct .ct-peak .k, .ec-ct .ct-peak .v { color: var(--spark, #B23A2E); font-weight: 600; }
-/* The 7.5em label column is measured on the longest Western label ("Annul. begins",
-   "1.er contacto"). CJK labels run 3 glyphs (zh) and 4 (ja) including letter-spacing's
-   1.05em step, so at 7.5em they trail dead space AND squeeze the time column against
-   the selected card's zhusilan (.evcard.sel::after, right:5px). One width for both:
-   the zh column at its own 3-glyph minimum reads visibly tighter than ja's, so zh
-   takes ja's 4-glyph width too rather than the two scripts' rows setting a different
-   rhythm inside the same table. The time column is left-aligned inside its own cell,
-   so narrowing the label column walks the timestamp left off the thread rather than
-   reflowing it. Keep table-layout:fixed — letting the table auto-size would wrap the
-   timestamp instead of clipping it. */
+
+/* The 7.5em label column fits the longest Western label. zh and ja CJK columns share
+   ONE narrower width too, rather than setting different rhythms for the two scripts.
+   Keep table-layout:fixed — auto-sizing would wrap the timestamp instead of clipping it. */
 body[data-lang^="zh"] .ec-ct .k,
 body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 
-/* Record-section jiehang heading = tally (once per expanded card) + seal + place side-by-side (no year, at-a-glance "who recorded it where"). */
+/* Record-section heading: tally + seal + place side-by-side (no year), for a quick
+   "who recorded it where". */
 .ec-recs2 { margin-top: 9px; }
 .ec-recs-div { display: flex; align-items: baseline; gap: 9px; font-size: var(--fs-note); color: var(--ink-note, #696353); letter-spacing: .05em; margin-bottom: 3px; font-family: var(--font-text); }
 .ec-recs-div::after { content: ""; flex: 1 1 auto; align-self: center; border-top: 0.7px solid var(--hair, #D3CFC5); }
@@ -848,214 +821,134 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 .ec-recs-icons .ep-rec-icon:hover { box-shadow: 0 0 0 1px var(--accent, #4F8D74) inset; }
 .ec-recs-icons .ep-rec-place { flex: none; font-size: var(--fs-note); color: var(--ink, #2B2A26); white-space: nowrap; }
 .seal { display: block; flex: none; }
-/* Optical centring, not layout: align-items:center already centres the SVG box
-   against the flex row, and the seal square itself is drawn centred in its own
-   viewBox (js/seal.js, rect inset 1.5 on a 24 square) — so the box IS centred.
-   What's left is the Han glyph's ink sitting off the box centre, because
-   --font-text's strut comes from Spectral (first in the unicode-range stack) while
-   the glyph itself renders from Source Han Serif CN; the two faces don't share
-   ascent/descent, so the glyph's ink centre and the line box's geometric centre
-   never coincided even before this rule. Measured per surface (Range.getBoundingClientRect
-   vs. the seal's own rect, at each surface's own seal/text size) rather than derived,
-   because the offset depends on which face the browser actually shaped with. */
+
+/* Optical centring, not layout: the seal's SVG box is already centred (js/seal.js), but
+   its Han glyph's ink sits off that centre because --font-text's strut (Spectral) and the
+   shaped glyph (Source Han Serif CN) don't share ascent/descent. Offset is per surface. */
 .ec-recs-icons .seal { position: relative; top: -1.5px; }
 .rp-head .seal,
 .rc-top .seal { position: relative; top: -0.5px; }
 
-/* ---- click-a-point local observation popup (js/observe-popup.js) ----
-   Classic fortune-slip (xiao-jian) format: brow-band (place + phase + jiazhu) at top →
-   figure (shixiangtu, left) · text (contact times, right) side-by-side, divided by a rule;
-   a single fine zhupi line at greatest eclipse. Solar/lunar/none-visible states share one layout frame.
-   All type here comes from the scale in css/tokens.css. It did not always: this card
-   once ran 8–9.5px against a 14px house body — three to four steps below every other
-   surface — which put the schematic's own 12px axis ticks ABOVE the contact times in
-   the visual hierarchy. --fs-note is the floor now, and the SVG's 12px sits level
-   with it (an axis tick and a jiazhu annotation are the same rank), never above. */
+/* ---- Click-A-Point Local Observation Popup (js/observe-popup.js) ---- */
+/* Fortune-slip (xiao-jian) format: brow-band (place + phase + jiazhu) over a
+   figure/text pair, divided by a rule. --fs-note is this card's FLOOR: any smaller and
+   the schematic's own 12px axis ticks would outrank the contact times. */
 .observe-popup .leaflet-popup-content-wrapper { background: var(--card, #F1EFE8); color: var(--ink, #2A2E33); border: 0.5px solid var(--hair, #D3CFC5); border-radius: 0; box-shadow: 0 5px 22px rgba(30,30,30,.18); }
 .observe-popup .leaflet-popup-content { margin: 0; font-family: inherit; font-size: var(--fs-body); line-height: 1.5; max-height: clamp(200px, 62vh, 440px); overflow-y: auto; overscroll-behavior: contain; }
 .observe-popup .leaflet-popup-tip { background: var(--card, #F1EFE8); border: 0.5px solid var(--hair, #D3CFC5); }
-.observe-popup a.leaflet-popup-close-button { color: var(--ink-3, #8B8F8C); z-index: 2; }
 
-/* Brow-band — approximation seal + heading (place name, with its modern name as a
-   parenthetical) + coordinates + phase label, all on one line (banxin background wash).
-   Heading uses --fs-lead/700 = .rc-place, matching the records card title tier:
-   this card is one leaf of "visible from this location", so it shares the same tier;
-   coordinates are jiazhu, using --fs-note regular weight, matching .rc-src tier.
-   Coordinates were originally on a second row, now merged into the heading row —
-   the date is already below in the forecast, magnitude moved to the shixiangtu corner tag,
-   leaving only coordinates on that row, not enough to stand alone, so merged.
-
-   ONE anchor on this line, not two. The heading and the phase label once shared
-   --fs-lead/700 and were told apart by ink colour alone; two bold marks of equal size
-   read as equal rank, and a reader could not tell which was the subject and which the
-   finding. The phase now steps down to jiazhu size and earns its rank from vermilion
-   ink plus shupai (letterspaced) setting — the classical emphasis device, which unlike
-   a second bold does not compete for the eye's first fixation.
-
-   Spacing is derived from the zi-shen-ge: seal→heading half a cell, name-run→coordinates
-   one full cell (the classic rule for separating inline levels in woodblock texts).
-   With --font-brow in place those gaps finally out-measure the word space inside a
-   heading (3.6 < 7 < 14 px); under --font-display the word space was 7.1px and a
-   two-word place name broke its own tier apart. */
-.op-brow { background: var(--paper-deep, #EDE7D9); border-bottom: 0.6px solid var(--hair, #D3CFC5); padding: 8px 12px; padding-right: 26px; }
-/* Cross-axis CENTRE, not baseline, and no per-element vertical-align anywhere below.
-   Every box on this line takes its line-box baseline from the same strut (Spectral —
-   see css/tokens.css), so at 14px and 12px each one's ink sits ~0.8px above its own
-   box centre; equal offsets mean centring the boxes centres the ink. The predecessor
-   baseline-aligned the row and then pushed the 12px tiers down 0.11em to flush their
-   ink BOTTOMS against a CJK heading — correct for hanzi, but a Latin heading has no
-   zi-shen-ge to flush against, so every Western locale rendered the coordinates 1.5px
-   below the title's baseline. Measured across seven locales, centre alignment leaves
-   a 0.00px heading-to-phase delta with no correction term at all. */
-.op-head { display: flex; align-items: center; gap: 0; }
-/* Approximation seal — a region-level match (yuezhi) is named by its nearest geographic
-   region rather than by a place, and the seal says so. It is a drawn object, deliberately
-   outside the type scale (as .observer-x/.scrub-play are in css/tokens.css), 1¼ zi-shen-ge
-   = 17.5px tall; the glyph inside IS on the scale at --fs-lead, because the seal qualifies
-   the heading rather than competing with it.
-   Square is a MINIMUM, not a fixed width: one hanzi fills a square, but the Latin-script
-   marker is "c." (circa) and two characters rattle inside one, so the box grows with its
-   content. Height, rule weight and ink stay identical, so the two scripts read as one
-   object at two widths rather than as two different marks.
-   It no longer carries a vertical-align: as a flex item on a centred cross axis the
-   browser places it, and the only correction left is the glyph's own ink offset below. */
-.op-mark {
-  flex: none;
-  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
-  min-width: calc(var(--fs-lead) * 1.25); height: calc(var(--fs-lead) * 1.25);
-  padding: 0 0.22em;
-  margin-right: calc(var(--fs-lead) / 2);
-  font-family: var(--font-text); font-size: var(--fs-lead); font-weight: 400; line-height: 1;
-  color: var(--ink-note, #696353); border: 0.7px solid var(--hair, #D3CFC5);
+/* The close button is absolutely positioned against the popup wrapper, so it must be told
+   where the brow band's centre is. .op-head's declared row height keeps that figure valid
+   with or without a seal; re-measure both if the band's padding or row height changes. */
+.observe-popup a.leaflet-popup-close-button {
+  top: 7.25px; right: 4px;
+  color: var(--ink-3, #8B8F8C); z-index: 2;
 }
-/* The one place a script-specific constant survives, because the two markers really do
-   sit differently inside their em box. Padding moves flex-centred content by half what
-   it adds, hence twice the measured offset in each case:
-   · CJK 约 / 約 — a zi-shen-ge sits 0.082em ABOVE the line-box centre under the Spectral
-     strut (css/tokens.css derives that figure), so the glyph is pushed back down.
-   · Latin c. — lowercase ink lives between baseline and x-height, 0.078em BELOW the
-     centre, so it is lifted instead.
-   Both were measured from canvas ink bounds, not estimated; re-measure if either face
-   or --fs-lead changes. */
-.op-brow:lang(zh) .op-mark,
-.op-brow:lang(ja) .op-mark { padding-top: 0.164em; }
-.op-brow:lang(en) .op-mark,
-.op-brow:lang(fr) .op-mark,
-.op-brow:lang(es) .op-mark,
-.op-brow:lang(it) .op-mark { padding-bottom: 0.156em; }
 
-/* The heading. No region/site colour split: the seal is already the marker, and saying
-   the same thing twice made an approximate name look like a lesser one.
-   Shrinkable with an ellipsis so a long exonym ("Nord-Est de la Chine") yields width to
-   the finding rather than pushing it out of the card. */
+/* Brow-band: heading (--fs-lead, matching .rc-place) plus a coordinate parenthetical
+   (--fs-note, matching .rc-src). Heading and phase label MUST share identical setting;
+   vermilion alone tells them apart. Every box here takes --font-brow, never --font-text. */
+.op-brow {
+  --op-gap: calc(var(--fs-lead) * 0.75);
+  --op-ink-rise: calc(var(--fs-lead) * 0.1);
+  background: var(--paper-deep, #EDE7D9); border-bottom: 0.6px solid var(--hair, #D3CFC5);
+  padding: 8px 12px; padding-right: 26px;
+}
+
+/* Centre the INK, not the boxes: Han ink sits 0.1em above its line-box centre under the
+   Spectral strut. Move padding, not the row, so the band's height and the close button's
+   offset stay valid. CJK only — a Latin heading's ink centre has no one figure to shift by. */
+.op-brow:lang(zh),
+.op-brow:lang(ja) {
+  padding-top: calc(8px + var(--op-ink-rise));
+  padding-bottom: calc(8px - var(--op-ink-rise));
+}
+
+/* Cross-axis CENTRE, not baseline; no per-element vertical-align below. Every box shares
+   Spectral's strut, so equal ink offsets mean centring the boxes also aligns their ink —
+   a baseline-aligned row would need a per-tier nudge that breaks Western locales. */
+/* Row height is DECLARED (1¼ zi-shen-ge), not inherited from the tallest box: content
+   varies (name unresolved, parenthetical absent), and the close button is positioned
+   against a single figure that must hold for every state. */
+.op-head { display: flex; align-items: center; gap: 0; min-height: calc(var(--fs-lead) * 1.25); }
+
+/* The heading: no region/site colour split, since an approximate name is still the answer
+   to "where". Shrinkable with an ellipsis so a long exonym yields width to the finding.
+   Pairs with .op-phase — keep weight, size and tracking in step, or both anchors drift. */
 .op-place {
   min-width: 0; flex: 0 1 auto;
-  font-family: var(--font-brow); font-size: var(--fs-lead); font-weight: 700;
+  font-family: var(--font-brow); font-size: var(--fs-lead); font-weight: 600;
+  -webkit-text-stroke: var(--brow-stroke) currentColor;
   line-height: 1.2; color: var(--ink, #2A2E33);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-/* Modern name is PART of the place name, not a peer of it, so it follows as a
-   parenthetical inside the heading rather than as a third tier with a gap of its own —
-   the same treatment and the same seven-language key the records card uses
-   (js/atlas.js placeLabel, .rp-mod). The parenthesis is its separator. */
-.op-mod { font-family: var(--font-text); font-size: var(--fs-note); font-weight: 400; color: var(--ink-3, #8B8F8C); }
-/* Coordinates are the single tier break on this line, so they take one full cell of air.
-   Face and figures come from .num, which every data column on the site shares. */
+
+/* Coordinates are a parenthetical of the name, not a column: no left margin, the brackets
+   (text from the popup builder) supply the separation. Lining figures, but NOT tabular: this
+   element must not take the site-wide .num class, since there is no column to line up. */
 .op-coord {
-  flex: none;
-  font-size: var(--fs-note); font-weight: 400; color: var(--ink-note, #696353);
-  margin-left: var(--fs-lead); margin-right: var(--fs-lead);
+  flex: none; font-family: var(--font-brow); font-feature-settings: 'lnum' 1;
+  font-size: var(--fs-note); font-weight: 400; line-height: 1.2; color: var(--ink, #2A2E33);
+  margin-right: var(--op-gap);
   letter-spacing: 0.01em;
 }
-/* Before PlaceName.load() resolves there is no name yet. The coordinates do NOT stand in
-   as a 14px/700 heading in that window: the slot collapses and they keep coordinate
-   styling, so digits are set exactly one way on this card, by construction. */
-.op-place:empty { display: none; }
-.op-place:empty + .op-coord { margin-left: 0; }
 
-/* Current eclipse phase = now → zhupi (vermilion), pinned to the gutter by margin-left:auto
-   so the eye has one fixed right anchor across every state. Minimum separation from the
-   coordinates is THEIR margin-right, not padding here — padding would sit inside this box
-   and the rule below would run out under it.
-   The rule is text-decoration, not border-bottom: a border is box geometry and pushed this
-   element's ink centre 1.7px below the heading's, which is what made the line look
-   untidy in the first place. A decoration draws below the baseline and costs the box nothing. */
+/* Before PlaceName.load() resolves there is no name yet. Coordinates do NOT stand in as
+   a --fs-lead heading in that window: the slot collapses and they keep their own styling. */
+.op-place:empty { display: none; }
+
+/* Current eclipse phase, pinned to the gutter by margin-left:auto for a fixed right
+   anchor. Set exactly as the heading is, so vermilion ink and a hairline rule are the only
+   things marking it as the finding. Use text-decoration, not border-bottom. */
 .op-phase {
   flex: none; margin-left: auto;
-  font-family: var(--font-text); font-size: var(--fs-note); font-weight: 600;
+  font-family: var(--font-brow); font-size: var(--fs-lead); font-weight: 600;
+  -webkit-text-stroke: var(--brow-stroke) currentColor;
   line-height: 1.2; color: var(--spark, #B23A2E); white-space: nowrap;
-  /* Weight 600 + 1px rule to match the greatest-eclipse zhupi row in the contact
-     table below (.op-contacts tr.op-ct-peak: same font-weight, box-shadow inset
-     0 -1px 0) -- glyph stroke and rule are the same ink-relation as that row (this
-     line's finding, that row's instant) and should read as one weight, not two. */
-  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px;
 }
-/* Tracking lives on the inner span so its negative right margin can pull the outer box in
-   to the last glyph's ink. Without it the rule runs on under the trailing letterspace and
-   overshoots the gutter by a quarter em. CJK takes the wider shupai step: hanzi carry their
-   own sidebearings, so 0.16em reads as barely-set where 0.26em reads as deliberate. */
-.op-phase > span { letter-spacing: 0.16em; margin-right: -0.16em; }
-.op-brow:lang(zh) .op-phase > span,
-.op-brow:lang(ja) .op-phase > span { letter-spacing: 0.26em; margin-right: -0.26em; }
-.op-phase.op-none { color: var(--ink-3, #8B8F8C); font-weight: 400; text-decoration-color: var(--hair, #D3CFC5); }
 
-/* Figure + text side by side — shixiangtu (figure) | contact times (text), divided by a rule.
-   Figure column 240px: the shixiangtu is drawn against a 320-unit viewport, but renderSchematic
-   now accepts {colPx, textPx} and applies a textScale back-solve inside user coordinates
-   (js/eclipse-glyph.js), so the figure scales with the column while font size stays at
-   12px = --fs-note. The column no longer dictates card width — the old "need 12px → must
-   give 320px" chain is broken; do not restore the old 580px card comment.
-   Card width uses max-content: the CJK-name column of the contact table is 3 chars ("半影始")
-   in zh and "Annul. begins" in en — roughly double in width. Rather than fixing one number
-   that clips some locale or leaves others with a gap, let content dictate width
-   (Leaflet maxWidth 600 is the ceiling; zh-Hans ≈ 510, en ≈ 570). */
+/* The label keeps its own span for the no-phase state below; it carries no tracking, so
+   the box ends on the last glyph's ink and the gutter stays exactly .op-brow's padding. */
+/* No phase = no finding, so the label recedes in INK only. It keeps the pair's weight and
+   size: a state that also re-set its type would make the band change shape as the clock
+   crosses a contact, which is the one thing a fixed right anchor must not do. */
+.op-phase.op-none { color: var(--ink-3, #8B8F8C); text-decoration-color: var(--hair, #D3CFC5); }
+
+/* Figure + text side by side, divided by a rule. renderSchematic (js/eclipse-glyph.js)
+   back-solves a textScale from {colPx, textPx}, so the figure scales with its column and
+   does NOT dictate card width; max-content lets the contact table's name column decide it. */
 .op-body { width: max-content; max-width: 100%; box-sizing: border-box; display: grid; grid-template-columns: 254px max-content; gap: 0; padding: 8px 12px 9px; }
+
 /* No width here: the item stretches to fill the 254px track, and border-box takes the
-   14px gutter out of that — leaving exactly FIG_PX (240) of content for the SVG. Setting
-   width:240px instead would have border-box eat the gutter out of the 240, rendering the
-   figure at 226 while observe-popup.js still told the glyph it had 240, and the labels
-   would land at 11.3px instead of 12. Track width = FIG_PX + padding-right. */
+   14px gutter out of that, leaving exactly FIG_PX for the SVG. Setting a width instead
+   would eat the gutter out of it and render the SVG narrower than FIG_PX. */
 .op-fig { position: relative; align-self: start; min-width: 0; padding-right: 14px; }
 .op-fig .ecl-diagram, .op-fig .op-diagram { margin: 0; padding: 0; border: none; display: block; }
 .op-fig .ecl-schematic, .op-fig svg { max-width: 100%; height: auto; display: block; }
 .op-fig-note { font-size: var(--fs-note); color: var(--ink-3, #8B8F8C); text-align: center; margin-top: 4px; letter-spacing: .04em; }
-/* Magnitude corner tag — figure caption anchored at the top-right of the shixiangtu
-   (diagram branch only; op-fig-note is op-diagram's own fallback note — the two never coexist).
-   align-self:start aligns op-fig's top edge with op-say (thead), so top:0 lands level with the header row. */
+
+/* Magnitude corner tag, diagram branch only (op-fig-note is op-diagram's own fallback
+   note; the two never coexist). align-self:start on op-fig aligns its top edge with
+   op-say, so top:0 here lands level with the header row. */
 .op-fig-mag { position: absolute; top: 0; right: 14px; font-size: var(--fs-note); color: var(--ink-note, #696353); font-variant-numeric: tabular-nums; line-height: 1.2; z-index: 1; text-align: right; }
+
 /* stretch (not align-self:center) so the jiehang rule runs the full leaf height; the content
    centres itself inside instead. Centring the item would shorten its border-left and
    leave the rule stopping mid-air. */
 .op-say { min-width: 0; padding-left: 15px; border-left: 0.6px solid var(--frame, #443F33); display: flex; flex-direction: column; justify-content: flex-start; }
-/* No figure (not-visible-here forecast) — single column; the four-row forecast has no
-   figure to sit beside, so drop the gutter and let it size itself.
-   width:auto (not the base max-content) because .op-brow is a plain block sibling that
-   always fills the popup's real width (Leaflet measures content once and fixes the
-   container to that px value); .op-body sized to its OWN max-content can end up
-   narrower than .op-brow once the forecast is just bare dates, and then sits flush-left
-   with the date column's "right edge" short of the popup's true edge. 1fr lets the
-   single column (and, through it, .op-forecast's value column below) stretch to fill
-   whatever width the popup actually is, so the date lands flush at the real edge. */
-/* padding-right 20 (+ .op-fc-row's own 2 below = 22) matches .op-brow's padding-right:22
-   exactly, so the date column's right edge lines up with "not visible/phase" text above it — both
-   are the same close-button clearance, just split across two different elements. */
+
+/* No-figure (not-visible-here) forecast: single column, gutter dropped. width:auto, not
+   the base max-content — .op-body sized to its own max-content can end up narrower than
+   .op-brow's fixed popup width once the forecast is just bare dates. */
+/* This padding plus .op-fc-row's own MUST equal .op-brow's padding-right: both are the
+   same close-button clearance, split across two elements. */
 .op-body--full { grid-template-columns: 1fr; width: auto; padding-right: 20px; }
 .op-body--full .op-say { padding-left: 0; border-left: none; }
 
-/* Contact-time table — P-key · CJK name · [shichen = local apparent time] · UTC · altitude;
-   a fine zhupi line at greatest eclipse.
-   Column order pk|k|… matches the event card .ec-ct (app.css .ec-ct .pk/.k/.v).
-   Two bugs, both fixed — do not revert:
-   1. The table was simultaneously under two opposing constraints: .op-contacts{width:100%}
-      forced it to fill the text column, while .op-ct-alt{width:1%} forced the last column
-      to its minimum; leftover space had nowhere to go and all piled up between the P-key
-      and shichen columns, squeezing the right three columns together (the user-visible
-      "uneven column spacing"). Fixed: no width constraints here — table sizes to content,
-      column spacing set only by the td padding below → 10px, uniform, locale-independent.
-   2. The base row used the shorthand padding: 2px 0, whose (0,1,1) specificity beat the
-      per-column .op-ct-* (0,1,0) rules, zeroing all left padding. Fixed: only one td rule
-      touches padding here, per-column rules handle only color/alignment — specificity
-      collision cannot recur. */
+/* Contact-time table: P-key · CJK name · shichen · UTC · altitude; column order matches
+   .ec-ct. NO width declarations here — the table sizes to content, and only ONE td rule
+   may touch padding, or a shorthand there would zero every .op-ct-* padding. */
 .op-contacts { border-collapse: collapse; }
 .op-contacts td { padding: 2px 10px 2px 0; white-space: nowrap; font-size: var(--fs-body); line-height: 1.55; vertical-align: baseline; }
 .op-ct-key { color: var(--ink-3, #8B8F8C); font-family: var(--font-text); }
@@ -1063,13 +956,14 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 .op-ct-sc { color: var(--ink-note, #696353); letter-spacing: .04em; cursor: help; }   /* shichen (local apparent time) — gloss-on-hover */
 .op-ct-time { color: var(--ink, #2A2E33); text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-text); cursor: help; }  /* UTC — gloss-on-hover */
 .op-ct-alt { color: var(--ink-3, #8B8F8C); text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-text); padding-right: 0; }
-/* next/prev-day marker for UTC crossing midnight. Greatest eclipse can fall the day
-   after first contact (e.g. 22:59→00:26→02:07); without a date shown on the card there
-   is no way to tell. Local apparent time (shichen column) does not cross midnight,
-   so the marker appears only in the UTC column. */
+
+/* next/prev-day marker for UTC crossing midnight (greatest eclipse can fall the day
+   after first contact). The shichen column never crosses midnight, so the marker
+   appears only here. */
 .op-ct-day { font-style: normal; font-family: var(--font-text); color: var(--ink-3, #8B8F8C); font-weight: 400; margin-left: 3px; }
-/* Table header — the event card has no column heads, so there is no existing precedent;
-   borrow the jiehang heading style from .ec-recs-div: --fs-note / ink-note / letter-spacing .05em / font-text / underline hairline. */
+
+/* Table header borrows the jiehang heading style from .ec-recs-div, since the event
+   card has no column heads of its own to match. */
 .op-contacts thead td { padding-top: 0; padding-bottom: 3px; font-size: var(--fs-note); font-family: var(--font-text); font-weight: 400; color: var(--ink-note, #696353); letter-spacing: .05em; border-bottom: 0.7px solid var(--hair, #D3CFC5); cursor: default; }
 .op-contacts tbody tr:first-child td { padding-top: 4px; }
 .op-contacts tr.op-ct-peak { box-shadow: inset 0 -1px 0 var(--spark, #B23A2E); }  /* greatest-eclipse fine zhupi line */
@@ -1077,39 +971,45 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 .op-contacts tr.op-ct-peak .op-ct-sc, .op-contacts tr.op-ct-peak .op-ct-time { color: var(--spark, #B23A2E); font-weight: 600; }
 .op-contacts tr.op-ct-below td { color: var(--ink-3, #8B8F8C); opacity: .6; }   /* body below the horizon here */
 
-/* Duration jiazhu — central/partial eclipse (lunar: total/partial/penumbral).
-   Appended below the contact table, separated by a hairline.
-   Same tier as the table (--fs-body) — event card .ec-ct and .ec-sci2 are the same tier, matching that convention. */
+/* Duration jiazhu (central/partial eclipse; lunar: total/partial/penumbral), appended
+   below the contact table. Same tier as the table (--fs-body), matching .ec-ct/.ec-sci2. */
 .op-dur { margin-top: 6px; padding-top: 5px; border-top: 0.5px solid var(--hair, #D3CFC5); font-size: var(--fs-body); color: var(--ink-note, #696353); font-variant-numeric: tabular-nums; }
 .op-dur .k { color: var(--ink-3, #8B8F8C); }
 .op-dur .mid { font-style: normal; color: var(--ink-3, #8B8F8C); margin: 0 4px; }
 .op-dur .v { font-family: var(--font-text); color: var(--ink-2, #5A564C); }
 
-/* No-eclipse view — "not visible here" + next-visible forecast (four types).
-   Figure zone shows below-horizon, text zone lists forecast, layout frame unchanged.
-   The four row labels vary in length (5 vs 7 chars in zh): the old flex+space-between
-   had each row fill card width independently — the widest row set the card width while
-   the other rows had uneven mid-section gaps. Fixed with grid + subgrid: the label and
-   value columns are sized from all four rows together, card width is correct, and all
-   four values align naturally. */
+/* No-eclipse view: "not visible here" + a four-type forecast. Row labels vary in length,
+   so the rows MUST share ONE grid via subgrid, or the widest row sets the card width while
+   the rest open uneven gaps down the middle. */
 .op-note { font-size: var(--fs-body); font-style: italic; color: var(--ink-2, #5A564C); margin: 0 0 6px; }
 .op-forecast { display: grid; grid-template-columns: max-content 1fr; }
 .op-fc-row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; gap: 12px; padding: 3px 2px; font-size: var(--fs-body); }
 .op-fc-row .op-k { color: var(--ink-note, #696353); }
 .op-fc-row .op-v { justify-self: end; text-align: right; color: var(--ink, #2A2E33); font-variant-numeric: tabular-nums; font-family: var(--font-text); }
 .op-fc-row .op-v.op-none { color: var(--ink-3, #8B8F8C); }
-.op-fc { cursor: pointer; }
-.op-fc:hover { background: var(--card, #F7F3EA); box-shadow: 0 0 0 1px var(--accent, #4F8D74) inset; color: var(--accent-ink, #3C6E5A); }  /* hover = accent, spark reserved for now/selected (R8) */
 
-/* ---- shixiangtu (eclipse phase diagram) contact-trajectory schematic (js/eclipse-glyph.js renderSchematic) ----
-   Ported from SubstellarAtlas. Solar stacks a stat bar above the alt-az plot; lunar
-   overlays a corner readout on the shadow-ring diagram. Colours use popup tokens. */
+/* Numeral cells of a CJK date (the popup builder emits them), width in ch: four for a
+   year, two for a month or day. Right-aligned, so 年月日 (year/month/day) line up down
+   the column whatever the digit counts are. */
+.op-fc-row .op-v .op-dy,
+.op-fc-row .op-v .op-dm,
+.op-fc-row .op-v .op-dd { display: inline-block; text-align: right; }
+.op-fc-row .op-v .op-dy { min-width: 4ch; }
+.op-fc-row .op-v .op-dm,
+.op-fc-row .op-v .op-dd { min-width: 2ch; }
+.op-fc { cursor: pointer; }
+.op-fc:hover { background: var(--card, #F7F3EA); box-shadow: 0 0 0 1px var(--accent, #4F8D74) inset; color: var(--accent-ink, #3C6E5A); }  /* hover = accent; spark is reserved for now/selected */
+
+/* ---- Shixiangtu contact-trajectory schematic (js/eclipse-glyph.js renderSchematic) ---- */
+/* Solar stacks a stat bar above the alt-az plot; lunar overlays a corner readout on
+   the shadow-ring diagram. Colours use popup tokens. */
 .ecl-diagram { position: relative; margin: 4px 0 8px; padding-top: 4px; display: flex; justify-content: center; border-top: 0.5px solid var(--hair, #D3CFC5); }
 .ecl-schematic { max-width: 100%; height: auto; }
 .ecl-skypath { display: block; }
 .ecl-diagram--solar { flex-direction: column; align-items: center; }
+
 /* Sky-path disc hover: reveal a reference crosshair + highlighted altitude read-out
-   (hover = accent, spark reserved for now/selected per R8). CSS overrides the inline
+   (hover = accent, spark reserved for now/selected). CSS overrides the inline
    fill so the always-on azimuth tick + P-label highlight on hover too. */
 .ecl-skp-cross { stroke: var(--accent, #4F8D74); stroke-width: 0.8; stroke-opacity: 0.55; stroke-dasharray: 3 3; opacity: 0; pointer-events: none; transition: opacity 0.12s ease; }
 .ecl-skp-hialt { fill: var(--accent, #4F8D74); opacity: 0; pointer-events: none; transition: opacity 0.12s ease; }
@@ -1118,10 +1018,10 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 .ecl-skp-pt:hover .ecl-skp-az { opacity: 1; fill: var(--accent, #4F8D74); }
 .ecl-skp-pt:hover .ecl-skp-label { fill: var(--accent, #4F8D74); }
 
-/* ---- Glossary tooltip (js/glossary-tip.js) — the site's one tooltip: a themed
-   "definition card" for [data-gloss] terms and a compact .is-label chip for
-   [data-tip] control names. No native title= is emitted anywhere on the site.
-   Read-only, positioned via fixed coords from JS. ---- */
+/* ---- Glossary tooltip (js/glossary-tip.js) ---- */
+/* The site's one tooltip: a themed "definition card" for [data-gloss] terms and a
+   compact .is-label chip for [data-tip] control names. No native title= is emitted
+   anywhere on the site. Read-only, positioned via fixed coords from JS. */
 [data-gloss] { cursor: help; }
 .glossary-tip {
   position: fixed; z-index: 10001; pointer-events: none;
@@ -1135,7 +1035,13 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
   user-select: text; -webkit-user-select: text;
 }
 .glossary-tip.is-visible { opacity: 1; }
-/* Only a real mouse lands on the card (to drag-select its text); touch/hidden keep pointer-events:none. */
+
+/* Head word, in the same vermilion as the record's own phenomenon phrase, so one colour
+   means "this is the named thing" everywhere. Plain var(--spark), not a derived colour —
+   data-skin sits on body, and a :root-level colour-mix would bake in one skin's value. */
+.glossary-tip .gt-term { color: var(--spark, #B23A2E); font-weight: 600; }
+
+/* Only a real mouse lands on the card, to drag-select its text; touch keeps pointer-events:none. */
 @media (hover: hover) and (pointer: fine) {
   .glossary-tip.is-visible:not(.is-label) { pointer-events: auto; cursor: text; }
 }
@@ -1145,30 +1051,25 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 
 /* Observer pin at the clicked point. */
 .observer-pin { display: flex; align-items: center; justify-content: center; }
+
 /* ✛ pin and ★ greatest-eclipse mark: 16px sizes a drawn glyph, not text. */
 .observer-x { color: var(--spark, #CE564C); font-size: 16px; line-height: 1; text-shadow: 0 0 2px rgba(255,255,255,.9), 0 0 2px rgba(255,255,255,.9); }
 
-/* Library focus: while an event is selected, cards OUTSIDE it recede. Opacity answers one
-   question only — does this card belong to the selected eclipse — and cards that do never
-   recede, however many of them share it. A middle tier used to sit here, dropping the lit
-   siblings to .62 whenever the pointer was on one of them, back when "not dimmed" alone
-   could not say which of them was the subject. The standing .linked green now says it in
-   colour, so the middle tier was answering an already-answered question in a channel that
-   reads as "less relevant" — the one thing a sibling record is not.
-   Hovering a receded card promotes it: the pointer declares a subject, and a subject cannot
-   simultaneously be filed as unrelated (its green wash would otherwise come through at 38%
-   as a muddy smear rather than a highlight). */
-#list.event-focus .reccard.dimmed,
-#list.event-focus .evcard.dimmed { opacity: .38; transition: opacity .15s; }
-#list.event-focus .reccard.dimmed:hover,
-#list.event-focus .evcard.dimmed:hover { opacity: 1; }
+/* Library focus: while an event is selected, cards outside it recede by ink (text to
+   --ink-note, still 4.5:1), never by card opacity. No middle tier for the lit siblings.
+   Hovering a receded card promotes it, since the pointer declares a subject. */
+#list.event-focus .reccard.dimmed:not(:hover) *,
+#list.event-focus .evcard.dimmed:not(:hover) * { color: var(--ink-note, #696353); }
+#list.event-focus .reccard.dimmed:not(:hover) mark.hl { border-bottom-color: transparent; }
+#list.event-focus .reccard.dimmed:not(:hover) .rc-year.era-quewei { box-shadow: 0 0 0 0.8px var(--ink-note, #696353); }
+#list.event-focus .reccard.dimmed:not(:hover) .seal,
+#list.event-focus .evcard.dimmed:not(:hover) .ec-glyph,
+#list.event-focus .evcard.dimmed:not(:hover) .ec-seals { opacity: .35; filter: grayscale(1); }
+#list.event-focus .reccard.dimmed *,
+#list.event-focus .evcard.dimmed * { transition: color .15s, opacity .15s, filter .15s; }
 
-/* The right rail is now permanent (always reserved) and the lizhou (timeline) is a bottom
-   ruler that no longer competes for horizontal centering, so the base rule's
-   map-gutter centering holds at every width — the old dock-aware @media block
-   is obsolete and has been removed. */
 
-/* ---- eclipse contact-curve labels (referenced by eclipse.js) ---- */
+/* ---- Eclipse Contact-Curve Labels (referenced by eclipse.js) ---- */
 .iso-mag-label, .eclipse-edge-label {
   color: var(--ink, #2A2E33); font-size: var(--fs-body);
   text-shadow: 0 0 3px var(--card, #F1EFE8), 0 0 3px var(--card, #F1EFE8);
@@ -1176,11 +1077,10 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 }
 .eclipse-greatest-marker { color: var(--eclipse-visibility, #3F8378); font-size: 16px; }
 
-/* ---- Out-of-window notice (js/ui.js _showClampHint) ----
-   Brief paper chip shown when a requested time is redirected onto the service
-   window (−3000…1999). Same card/spark idiom as .glossary-tip; bottom-centre,
-   above the lizhou (timeline axis), under the tip layer (z 10001). Fades via .show; when hidden
-   it is display:none so it never intercepts pointer events. */
+/* ---- Out-of-window notice (js/ui.js _showClampHint) ---- */
+/* Brief paper chip shown when a requested time is redirected onto the service window.
+   Same card/spark idiom as .glossary-tip. Fades via .show; hidden state is display:none
+   so it never intercepts pointer events. */
 #range-clamp-hint {
   position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 8px);
   z-index: 9000; pointer-events: none;
@@ -1197,12 +1097,9 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 #range-clamp-hint.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---- No synthetic obliques in CJK ---- */
-/* Han and kana have no italic tradition and the shipped faces carry no italic cut, so
-   font-style: italic makes the browser shear the upright glyphs — a slanted rectangle
-   that reads as a rendering fault, not as emphasis. These runs are already set apart by
-   size and colour, which is the whole distinction they need; the slant only ever carried
-   the Latin half. Keyed off the locale on <html> (set by i18n.js), so the same rules keep
-   their italics in the four Latin-script languages. */
+/* The shipped Han and kana faces carry no italic cut, so font-style: italic would shear
+   the upright glyphs into a rendering fault. Keyed off the locale on <html> (set by
+   i18n.js); the four Latin-script languages keep their italics. */
 html:is([lang^="zh"], [lang^="ja"]) :is(.rc-note, .rp-note, .op-note, .eclipse-edge-label) {
   font-style: normal;
 }

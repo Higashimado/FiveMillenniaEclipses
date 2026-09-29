@@ -108,12 +108,12 @@ body {
   color: var(--accent-gold);
 }
 
-/* ---- Contact-curve overlay markers (greatest-eclipse star + lunar contact
-   labels) — drawn by Eclipse.drawContactCurves() when an event is selected. */
-/* Sizes for these three live in css/app.css (.iso-mag-label/.eclipse-edge-label
-   and .eclipse-greatest-marker) — same specificity, later file, so app.css always
-   won and the declarations that used to sit here (19px here vs 16px there; 12px
-   here vs 13px there) never rendered. Kept in one place rather than two. */
+/* ---- Contact-curve overlay markers ---- */
+/* Greatest-eclipse star + lunar contact labels — drawn by
+   Eclipse.drawContactCurves() when an event is selected. */
+/* Sizes for these three are declared ONLY in css/app.css (.iso-mag-label,
+   .eclipse-edge-label, .eclipse-greatest-marker). That file loads later at equal
+   specificity, so a size set here would never render — keep them in one place. */
 .eclipse-greatest-marker {
   background: transparent !important;
   border: none !important;
@@ -173,14 +173,15 @@ body {
   box-shadow: 0 2px 8px rgba(30, 30, 30, 0.12);
   white-space: nowrap;
 }
+
 /* Cover all four Leaflet arrow directions so the tip never shows a white stub */
 .eclipse-curve-tooltip.leaflet-tooltip-top::before    { border-top-color:    rgba(var(--panel, 241,239,232), .95) !important; }
 .eclipse-curve-tooltip.leaflet-tooltip-bottom::before { border-bottom-color: rgba(var(--panel, 241,239,232), .95) !important; }
 .eclipse-curve-tooltip.leaflet-tooltip-left::before   { border-left-color:   rgba(var(--panel, 241,239,232), .95) !important; }
 .eclipse-curve-tooltip.leaflet-tooltip-right::before  { border-right-color:  rgba(var(--panel, 241,239,232), .95) !important; }
 
-/* Glossary term labels carry a native title tooltip; a help cursor signals that
-   hovering reveals an explanation. Title attributes do not block text selection. */
+/* A help cursor signals that hovering a glossed term reveals an explanation. The
+   explanation itself is the site's own tooltip card, never a native title attribute. */
 .info-row .label[title],
 .tt-label[title],
 .info-block-title[title],

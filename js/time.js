@@ -24,12 +24,11 @@ const TimeState = (() => {
     subscribers.forEach((fn) => fn(date));
   }
 
-  // ---- Valid range clamp + out-of-range notification ----
-  // All date mutations funnel through here so the service window cannot be escaped:
-  // −3000-01-01 … 1999-12-31 UTC, astronomical years, the span the catalogue covers.
-  // Date.UTC is safe for these two literals in particular — it mis-maps only years 0–99,
-  // and JS Date reaches ±273790 years from 1970, so −3000 sits well inside. Wherever the
-  // year is a variable instead, build the instant with setUTCFullYear.
+  // ---- Valid Range Clamp And Out-Of-Range Notification ----
+
+  // All date mutations funnel through here so the service window cannot be escaped.
+  // Date.UTC is safe for these two literals only because it mis-maps years 0–99;
+  // wherever the year is a variable instead, build the instant with setUTCFullYear.
   const _RANGE_MIN = Date.UTC(-3000, 0, 1, 0, 0, 0);
   const _RANGE_MAX = Date.UTC(1999, 11, 31, 23, 59, 59); // service window −3000…1999 (≈5 millennia)
   const _rangeSubs = [];
@@ -86,13 +85,8 @@ const TimeState = (() => {
       _commitBaseline(new Date(date));
     },
 
-    // ---- Timezone ----
+    // ---- Playback ----
 
-    // ---- Preset jumps (adjust baseline, reset slider) ----
-
-    // ---- Playback (60 fps loop, configurable speed multiplier) ----
-    // Each frame advances simulated time by `baseSecondsPerFrame * speed`.
-    // 1× ≈ 1 simulated minute per real second; 16× compresses ~16 minutes/sec.
     _playInterval: null,
     _playSpeed: 1,
 
@@ -103,16 +97,17 @@ const TimeState = (() => {
     startPlayback(speed) {
       if (typeof speed === 'number') this._playSpeed = speed;
       if (this._playInterval) return;
-      // `_playSpeed` is the simulated-to-real ratio (spec 4.3):
-      //   1x = realtime, 60x = 1 minute/sec, 360x = 6 minutes/sec.
-      // Real frame interval is 50 ms (20 fps), so simulated ms per frame =
-      // _playSpeed * 50.
+
+      // `_playSpeed` is the simulated-to-real ratio: 1x is realtime, 60x is one
+      // simulated minute per real second. The frame interval is fixed at 50 ms,
+      // so each tick advances `_playSpeed * 50` simulated ms.
       const frameMs = 50;
       const self = this;
       this._playInterval = setInterval(function () {
         const next = new Date(_compute().getTime() + self._playSpeed * frameMs);
         const r = _clampWithFlag(next);
         self.setTime(r.date);
+
         // Hitting a boundary auto-stops playback and notifies once, rather than
         // pinning at the edge and re-firing the range event every frame.
         if (r.clamped) {
@@ -129,34 +124,30 @@ const TimeState = (() => {
       }
     },
 
-    // ---- Formatting ----
-
-    // ---- Range lock (for eclipse playback windows) ----
+    // ---- Range Lock ----
     // When a lock is active the slider's effective range narrows to the
     // window. Subscribers can read `lockedRange` to size their own controls.
     _lockedRange: null,
     get lockedRange() {
       return this._lockedRange;
     },
-    // `anchor` is where the slider should sit at 0 offset — pass the event's
-    // greatest-eclipse instant. Without it the baseline falls on the window's
-    // midpoint, which is NOT greatest: the contact window is asymmetric about G
-    // (1179-09-10 is 43m12s from c1 to G but 42m17s from G to c4), so the
-    // midpoint sat ~28s early and the read-out disagreed with the card and the
-    // scrubber's own G tick by a whole displayed minute.
+    // `anchor` is where the slider sits at 0 offset — always pass the event's greatest-
+    // eclipse instant. The contact window is asymmetric, so its midpoint would put the
+    // read-out at odds with the event card and the scrubber's G tick.
     lockRange(from, to, anchor) {
       if (!(from instanceof Date) || !(to instanceof Date)) return;
       if (to <= from) return;
-      // Clamp both ends to the service window — the one setter that writes
-      // baseline outside the central _clampWithFlag funnel. In-window event
-      // data never trips this, but a lock built from out-of-range times (or a
-      // future extended catalog) must not let baseline escape −3000…1999.
+
+      // Clamp both ends to the service window — the one setter that writes baseline
+      // outside the central _clampWithFlag funnel, since a lock built from
+      // out-of-range times must not let baseline escape it either.
       const cf = _clampWithFlag(from),
         ct = _clampWithFlag(to);
       from = cf.date;
       to = ct.date;
       if (to <= from) return;
       this._lockedRange = { from: new Date(from), to: new Date(to) };
+
       // Re-anchor baseline on G so the ±slider stays centered on greatest
       // eclipse; midpoint only as a fallback when no anchor is supplied.
       const a = anchor instanceof Date ? _clampWithFlag(anchor).date : null;

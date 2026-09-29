@@ -5,10 +5,8 @@
  * decides WHICH event's contact curves to show, and calls the reused Eclipse
  * controller's selectEvent(). The heavy rendering stays in eclipse.js.
  *
- * The two index files (solar.json + lunar.json) are loaded whole, and only the
- * per-event curve files are fetched on demand. Chunking the index itself — by
- * century, derived from the indexes' own event_date fields — would slot in behind
- * this same public API, and no such chunked index ships today.
+ * The two index files (solar.json + lunar.json) are loaded whole; only the
+ * per-event curve files are fetched on demand.
  */
 
 const EclipseLoader = (() => {
@@ -38,6 +36,7 @@ const EclipseLoader = (() => {
     lunar.forEach((e) => {
       e._kind = 'lunar';
     });
+
     // Clip to the service window Y0 = -3000 … Y1 = 1999 (matches atlas.js / time.js).
     // Parse the leading year from extended-ISO date strings (e.g. "-001999-06-08").
     const inWindow = (e) => {
@@ -47,6 +46,7 @@ const EclipseLoader = (() => {
     _all = solar.concat(lunar).filter(inWindow);
     _all.forEach((e) => {
       e._peakMs = _peakMs(e);
+
       // Outer-contact window bounds in ms — classifySolar / solarLocalContacts
       // scan [_p1Ms, _p4Ms]. Solar reads p1/p4 (ISO); lunar reads times.p1/p4.
       const p1 = e._kind === 'solar' ? e.p1 : e.times && e.times.p1;
@@ -119,13 +119,10 @@ const EclipseLoader = (() => {
     _map = map;
     _ctl = ctl;
     await _loadIndexes();
-    // Land in ambient-overview mode (no selection). No auto-selectNearest — the
-    // live footprint and the selected-event layer are user-triggered; overview
-    // shows only band washes. selectNearest stays part of the API for callers.
-    // URL restore (the ?date= deep-link AND the full permalink) is centralized in
-    // js/permalink.js, applied once at the end of boot() after Atlas is ready, so
-    // it is NOT handled here (a read here would double-apply / race Atlas.state).
-    // No prev/next jump buttons in this UI; next()/prev() remain as public API.
+
+    // Lands in ambient-overview mode: no auto-selectNearest, since the live footprint
+    // and selected-event layer are user-triggered. URL restore is centralized in
+    // js/permalink.js instead, applied once at the end of boot after Atlas is ready.
   }
 
   return { init, selectByDate, selectNearest, selectIndex, deselect, next, prev, all, selected, peakMs };

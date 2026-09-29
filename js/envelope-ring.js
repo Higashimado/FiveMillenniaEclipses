@@ -3,9 +3,9 @@
  *
  * Public API: EnvelopeRing.{splitOnNull, asCompact, buildEnvelopeRings}.
  *
- * Why its own file rather than living inside eclipse.js: it carries a CJS footer so the
- * off-line regression harness can require the chainer directly. Every other module here is
- * a `<script defer>` IIFE with no export, and so cannot be exercised outside a browser.
+ * Why its own file rather than living inside eclipse.js: it must stay requirable as CJS,
+ * so the chainer can be exercised outside a browser. Every other module here is a
+ * `<script defer>` IIFE with no export and cannot be.
  *
  * Fragments are gated on ARC SPAN, never on point count. The curve data ships already
  * thinned by a Ramer-Douglas-Peucker pass, after which a straight 100° arc can survive on
@@ -15,13 +15,13 @@
 const EnvelopeRing = (() => {
   'use strict';
 
-  // Tuned constants — validated against all 6304 umbral-envelope events; do not adjust.
-  const MIN_FRAG_DEG = 0.35; // fragment arc-span threshold (replaces length >= 4)
+  // Tuned constants, validated across the whole umbral-envelope catalogue; do not adjust.
+  const MIN_FRAG_DEG = 0.35; // fragment arc-span threshold, in degrees of arc
   const MAX_JOIN_DEG = 15; // max allowed gap when chaining fragments
   const MIN_LOOP_SPAN = 1.0; // minimum arc-span for a finished loop to be accepted
   const COVER_MIN = 0.9; // a fill is ok only if loops cover ≥90% of total arc
 
-  // ---- geometric helpers ----
+  // ---- Geometric Helpers ----
 
   // Approximate great-circle distance in degrees (lat-lng Euclidean with longitude wrap).
   function gapDeg(p, q) {
@@ -54,7 +54,7 @@ const EnvelopeRing = (() => {
     return ring;
   }
 
-  // ---- public helpers (re-exported for eclipse.js callers) ----
+  // ---- Public Helpers ----
 
   // Split a curve at null sentinels — the build script inserts null between
   // contiguous segments when the source data has a real time gap.
@@ -74,26 +74,18 @@ const EnvelopeRing = (() => {
     return segs;
   }
 
-  // Convert legacy {t, lat, lng} object lists to compact [lat, lng] arrays.
+  // Convert a {t, lat, lng} object list to compact [lat, lng] arrays; array input passes through.
   function asCompact(pts) {
     if (!pts || !pts.length) return [];
     if (Array.isArray(pts[0])) return pts;
     return pts.map((p) => (p == null ? null : [p.lat, p.lng]));
   }
 
-  // ---- main export ----
+  // ---- Main Export ----
 
-  // Re-chain the null-split segments of the closed umbral envelope back into one
-  // or more closed rings. Returns:
-  //   { rings, raw, dropped, loops, cover, maxGapDeg, ok }
-  //
-  // rings   — array of [lat,lng][] rings, longitude-unwrapped for polygon fill
-  // raw     — number of fragments before filtering
-  // dropped — number of fragments removed by the arc-span gate
-  // loops   — number of candidate loops extracted by the chainer
-  // cover   — fraction of total arc-length covered by accepted rings (0–1)
-  // maxGapDeg — largest end-to-end closure gap among accepted rings
-  // ok      — true when ≥1 ring passes all QC gates and cover ≥ COVER_MIN
+  // Re-chain the null-split segments of the closed umbral envelope back into one or
+  // more closed rings. rings are longitude-unwrapped for polygon fill; ok is true
+  // only when ≥1 ring passes all QC gates and cover ≥ COVER_MIN.
   function buildEnvelopeRings(compactPts) {
     const result = { rings: [], raw: 0, dropped: 0, loops: 0, cover: 0, maxGapDeg: null, ok: false };
 
@@ -121,9 +113,9 @@ const EnvelopeRing = (() => {
       used[s0] = true;
       let chain = segs[s0].slice();
 
-      // Grow the chain: at each step probe both chain[0] (head) and chain[end] (tail)
-      // against all remaining fragments' start and end points — pick the globally
-      // closest attachment. This is the bidirectional fix for the spike artifact.
+      // Probe both chain[0] (head) and chain[end] (tail) against every remaining
+      // fragment's endpoints, then take the globally closest attachment: growing one
+      // end only joins a fragment across a larger gap than necessary.
       let improved = true;
       while (improved) {
         improved = false;
@@ -138,9 +130,11 @@ const EnvelopeRing = (() => {
           const seg = segs[i];
           const s0pt = seg[0],
             sNpt = seg[seg.length - 1];
+
           // Attach to tail (fwd / rev)
           const dTF = gapDeg(tail, s0pt),
             dTR = gapDeg(tail, sNpt);
+
           // Attach to head (fwd / rev)
           const dHF = gapDeg(head, sNpt),
             dHR = gapDeg(head, s0pt);
@@ -234,7 +228,8 @@ const EnvelopeRing = (() => {
   return { splitOnNull, asCompact, buildEnvelopeRings };
 })();
 
-// CJS footer: lets the off-line regression harness require the chainer directly.
+// CJS footer — this module must stay requirable outside a browser.
 if (typeof module !== 'undefined' && module.exports) module.exports = EnvelopeRing;
+
 // Browser global.
 if (typeof window !== 'undefined') window.EnvelopeRing = EnvelopeRing;
