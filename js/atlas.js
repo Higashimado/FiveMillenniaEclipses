@@ -230,13 +230,16 @@ const Atlas = (() => {
     // The term stops at the verb: in 日有食之、既 (there was an eclipse of it; 既 opens a new
     // clause) neither the object pronoun 之 nor the clause marker 既 belongs to the mark.
     // DATE_RI keeps a day-number's own 日 from opening the eclipse word that follows it.
-    DATE_RI + '日月[食蝕蚀]|[日月]有?[食蝕蚀]',
+    DATE_RI + '日月[食蝕蚀]|[日月][有亦]?[食蝕蚀]',
     'nisshoku|il-sik|nhật thực|yuè shí|rì yǒu shí|hi ni shoku',
     'khusif\\p{L}*|ἐξελείφθη|νὺξ ἐγένετο|ἔκλειψ\\p{L}*|ἐκλείψ\\p{L}*',
     // Arabic kasafa / khasafa with whatever vowel points the transcription carries.
     '[\\p{L}\\p{M}]*[كخ]\\p{M}*س\\p{M}*و?\\p{M}*ف[\\p{L}\\p{M}]*',
     ...LATIN_ECLIPSE,
     'attal\\p{L}*|AN\\.MI|dies\\s+quasi\\s+nox',
+    // Latin chronicles: Solis facta defectio (an eclipse of the Sun took place), sol et luna
+    // defecerunt (Sun and Moon failed), luna fuscatur (the Moon is darkened).
+    '(?<!\\p{L})(?:defecti\\p{L}*|defec(?:it|erunt)|defici\\p{L}*|fuscat\\p{L}*)',
   ];
 
   // Bare 蝕/蚀 (eclipse-graph variants) lights only on a line whose phenomenon is already an
@@ -254,15 +257,35 @@ const Atlas = (() => {
   // Transients: the nouns name the object, the verbs name the approach. 守/入/合/會 (ordinary
   // prose otherwise) light only when the line's phenomenon is an approach; never widen this
   // group to eclipse lines, where those characters are not what the entry records.
-  const TRANSIENT_WORDS = ['客星|彗星|孛星|星孛|彗孛|妖星|[長长]星|流星', '[犯掩守入聚合會会]'];
+  const TRANSIENT_NOUNS =
+    '客星|彗星|孛星|星孛|彗孛|妖星|[長长]星|流星|(?<!\\p{L})(?:stella\\s+)?com[eè]t\\p{L}*(?:\\s+sidus)?';
+
+  // Star and body names as regex alternations, filled by setStarNames; until then the gated
+  // verbs match nothing. `pre` drops one-character asterisms such as 人 (Man), too common a
+  // word to vouch for the verb after it.
+  const STAR = { cjk: '(?!)', pre: '(?!)', latin: '(?!)' };
+
+  // 入 (enter) and 合 (join) light only next to a star or body, as in 太白入房 (Venus entered
+  // Fang). 會稽山 (Mount Kuaiji) stays dark, and so does 兵入 (troops enter) of an omen; 曰入
+  // (says entered) quotes the verb and lights.
+  const _cjkVerbs = () => [
+    '[犯掩守]',
+    // 月食熒惑 (the Moon ate Mars) records an occultation: only 食 (eat) is the verb.
+    '(?<=[日月])[食蝕蚀](?=' + STAR.cjk + ')',
+    '(?<![兵出])(?<=' + STAR.pre + ')[入聚合會会]',
+    '(?<![兵出])[入聚合會会](?=[于於]?(?:' + STAR.cjk + '))',
+    '(?<=[曰云謂谓])入',
+    // A Latin-script source names the conjunction or occultation by its noun.
+    '(?<!\\p{L})(?:conjonctions?|conjunctions?|coniunct\\p{L}*|occult\\p{L}*)(?!\\p{L})',
+  ];
 
   // The CJK kinds and contacts of an eclipse — e.g. 食甚 (greatest eclipse) — as newspapers
-  // and translations name them. Every 食 slot also takes 蝕/蚀 (variant graphs); a kind
-  // compound precedes the bare contacts so each lights whole, and XIANG excludes 相 (likeness).
-  const XIANG = '相(?![同似当當反近符])';
+  // and translations name them. Every 食 slot also takes 蝕/蚀 (variant graphs); a kind compound
+  // precedes the bare contacts so each lights whole. XIANG skips 相 (aspect) as in 食相并 (joined).
+  const XIANG = '相(?![同似当當反近符并並])';
   const CJK_CONTACT = [
     CJK_HEDGE + '(?:皆既|金[環环]|部分|半影|[全偏环環])[日月]?[食蚀蝕](?:' + XIANG + '|期|[帯帶带])?' + CJK_HEDGE_AFTER,
-    CJK_HEDGE + '(?:' + DATE_RI + '日月|[日月](?:[全偏环環]|有|[当當])?)[食蚀蝕]' + CJK_HEDGE_AFTER,
+    CJK_HEDGE + '(?:' + DATE_RI + '日月|[日月](?:[全偏环環]|[有亦]|[当當])?)[食蚀蝕]' + CJK_HEDGE_AFTER,
     CJK_HEDGE + '皆既' + CJK_HEDGE_AFTER,
     '[食蚀蝕](?:[甚既]|' + XIANG + ')|初[亏虧食蚀蝕]|[复復][圆圓円]|(?<![生新而])生光(?!芒)',
   ];
@@ -273,30 +296,131 @@ const Atlas = (() => {
   // ordinary words in a translation, which is modern prose, so this vocabulary is its own.
   const TRANS_ECLIPSE_WORDS = [...CJK_CONTACT, ...LATIN_ECLIPSE];
 
-  // Bare 入/守/合 (ordinary modern prose otherwise) light only as the compounds a translation
-  // renders 掩犯 (approach) with, and 守 only right after the star that keeps station. Bare 犯
+  // Bare 守 (keep station) lights only right after the star that keeps it. Bare 犯 (trespass)
   // stays lit: modern prose has no neutral reading of it on a transient line.
-  const TRANS_APPROACH_WORDS = [
-    '[掩凌侵冲衝干]犯|犯|逼近|留守|(?<=星)守|[移进進行皆]入|掩食|掩[蔽入没]|[合聚会會][于於]|俱[会會]|会合|會合',
-    '接近|侵犯|掩蔽|掩[っいう]|留ま(?:っ[たて]|り|る)|入(?:っ[たて]|り|る)',
-    '(?<!\\p{L})(?:approach\\p{L}*|enter(?:ed|s|ing)?|occult\\p{L}*|kept\\s+station|conjunction|massed|invaded|trespass\\p{L}*|linger\\p{L}*)(?!\\p{L})',
-    '(?<!\\p{L})(?:approch\\p{L}*|entr(?:ée?s?|a|èrent)|rest(?:ée?s?|a)|occult\\p{L}*|conjonction|mass(?:ée?s?|èrent)|rassembl\\p{L}*|envahi\\p{L}*|empiét\\p{L}*)(?!\\p{L})',
-    '(?<!\\p{L})(?:acerc\\p{L}*|entr(?:ó|aron|ado)|permaneci\\p{L}*|ocult\\p{L}*|conjunción|agrup\\p{L}*|congreg\\p{L}*|invadi\\p{L}*)(?!\\p{L})',
-    '(?<!\\p{L})(?:avvicin\\p{L}*|entr(?:at[aoie]|ò|arono)|rimast[aoie]|occult\\p{L}*|congiunzion\\p{L}*|raggruppat\\p{L}*|radun\\p{L}*|invas[aoie])(?!\\p{L})',
+  const TRANS_OCCULT_WORDS = [
+    '[掩凌侵冲衝干]犯|犯|逼近|留守|(?<=星)守|掩食|掩[蔽入没过過]|接近|侵犯|掩蔽|掩[っいう]|留ま(?:っ[たて]|り|る)',
+    '(?<!\\p{L})(?:approach\\p{L}*|occult\\p{L}*|kept\\s+station|invaded|trespass\\p{L}*|linger\\p{L}*)(?!\\p{L})',
+    '(?<!\\p{L})(?:approch\\p{L}*|rest(?:ée?s?|a)|occult\\p{L}*|envahi\\p{L}*|empiét\\p{L}*)(?!\\p{L})',
+    '(?<!\\p{L})(?:acerc\\p{L}*|permaneci\\p{L}*|ocult\\p{L}*|invadi\\p{L}*)(?!\\p{L})',
+    '(?<!\\p{L})(?:avvicin\\p{L}*|rimast[aoie]|occult\\p{L}*|invas[aoie])(?!\\p{L})',
   ];
 
-  const TRANS_TRANSIENT_WORDS = [
+  // The entering and gathering verbs light only next to a star or body name, as "entered
+  // Fang" does; an omen's troops entering stay dark, and a verb quoted as a word lights, as
+  // 'said "entered"' does.
+  const _latinVerb = (verb) =>
+    '(?<!\\p{L})(?:' +
+    verb +
+    ")(?=(?:(?:\\s+|(?<='))(?:into|in|at|with|the|dans|en|avec|la|le|les|l|el|los|las|con|nella|nel|nello|negli|nelle|il|lo|gli|a|à|al|alla|de|di|du|des|del|della|all|both|tous|toutes|ensemble|todos|todas|juntos|tutti|tutte|insieme|space|area|between|great|star|stars|determinative|of|espace|entre|grande?|mayor|maggiore|enclosure|enceinte|recinto|étoile|espacio|estrella|spazio|tra|fra|stella)(?!\\p{L})'?){0,5}\\s*(?:" +
+    STAR.latin +
+    ')(?!\\p{L}))|(?<=[«“"]\\s?)(?:' +
+    verb +
+    ')(?=\\s?[»”"])';
+
+  const _gatherWords = () => [
+    '(?<!兵[将將马馬]?)(?:[移进進行皆]入|[合聚会會][于於])(?=' + STAR.cjk + ')',
+    '(?<=[说說説曰]「?)移入',
+    '(?<=' + STAR.pre + ')(?:[会會]合|俱[会會])',
+    '(?<!兵[がは][^、。]{0,8})(?<=(?:' + STAR.cjk + ')(?:の間)?[にへ])入(?:っ[たて]|り|る)',
+    '入る(?=と)',
+    '(?<=(?:' + STAR.cjk + ')[でにと])会合',
+    // The conjunction itself lights wherever it is named: 相合 (conjoin) and 会合 (meet), the
+    // Japanese 合 (conjunction) as noun or verb stem, and the noun in the Latin-script locales.
+    '相合|[会會]合',
+    '(?<=[のでが])合(?=[。、とにでがは])',
+    '(?<![りいし])合(?=にな|とな|すれ|した)',
+    '(?<!\\p{L})(?:conjunctions?|conjonctions?|conjunci(?:ón|ones)|congiunzion[ei])(?!\\p{L})',
+    _latinVerb('enter(?:ed|s|ing)?|massed'),
+    _latinVerb('entr(?:ée?s?|a|èrent)|mass(?:ée?s?|èrent)|rassembl\\p{L}*'),
+    _latinVerb('entr(?:ó|aron|ado)|agrup\\p{L}*|congreg\\p{L}*'),
+    _latinVerb('entr(?:at[aoie]|ò|arono)|raggrupp\\p{L}*|radun\\p{L}*'),
+  ];
+
+  const TRANS_TRANSIENT_NOUNS = [
     '彗星|客星|孛星|星孛|彗孛|妖星|[長长]星|流星|箒星',
     'com[eè]t\\p{L}*|cometa\\p{L}*|broom[- ]?stars?|guest\\s+stars?',
     'étoiles?\\s+invitées?|estrellas?\\s+(?:huésped|invitadas?)|stell[ae]\\s+ospit[ei]',
-    ...TRANS_APPROACH_WORDS,
   ];
 
+  // The transient expressions name stars, so they are built again once the names arrive.
   const _phraseRe = (parts) => new RegExp(parts.join('|'), 'giu');
+  const ECLIPSE_ONLY_RE = new RegExp('^(?:' + ECLIPSE_WORDS.concat(CJK_CONTACT).join('|') + ')$', 'iu');
   const ECLIPSE_RE = _phraseRe(ECLIPSE_WORDS.concat(CJK_CONTACT, ECLIPSE_BARE));
-  const TRANSIENT_RE = _phraseRe(ECLIPSE_WORDS.concat(TRANSIENT_WORDS));
   const TRANS_ECLIPSE_RE = _phraseRe(TRANS_ECLIPSE_WORDS);
-  const TRANS_TRANSIENT_RE = _phraseRe(TRANS_ECLIPSE_WORDS.concat(TRANS_TRANSIENT_WORDS));
+  let TRANSIENT_RE, TRANS_APPROACH_RE, TRANS_TRANSIENT_RE;
+  const _buildTransientRe = () => {
+    const approach = [...TRANS_OCCULT_WORDS, ..._gatherWords()];
+
+    // An eclipse word followed by a star name yields to the verb 食 (eat) above.
+    const eclipse = '(?![日月][有亦]?[食蝕蚀](?:' + STAR.cjk + '))(?:' + ECLIPSE_WORDS.join('|') + ')';
+    TRANSIENT_RE = _phraseRe([eclipse, TRANSIENT_NOUNS, ..._cjkVerbs()]);
+    TRANS_APPROACH_RE = _phraseRe(TRANS_ECLIPSE_WORDS.concat(approach));
+    TRANS_TRANSIENT_RE = _phraseRe(TRANS_ECLIPSE_WORDS.concat(TRANS_TRANSIENT_NOUNS, approach));
+  };
+  _buildTransientRe();
+
+  // Longest first, so a name wins over any shorter name it begins with.
+  const _alt = (names) =>
+    [...new Set(names.filter(Boolean))]
+      .sort((a, b) => b.length - a.length)
+      .map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|') || '(?!)';
+
+  function setStarNames(xingguanJson, bodiesJson) {
+    const cjk = [];
+    const pre = [];
+    const latin = [];
+    const isCjk = (n) => /[㐀-鿿]/.test(n);
+    Object.entries((xingguanJson && xingguanJson.xingguan) || {}).forEach(([key, e]) => {
+      [key, e.hant, e.ja, ...(e.alias || [])]
+        .filter((n) => n && isCjk(n))
+        .forEach((n) => {
+          cjk.push(n);
+          if (n.length > 1) pre.push(n);
+        });
+      if (e.rom) latin.push(e.rom);
+      const proper = e.modern && e.modern.proper;
+      if (proper) latin.push(...Object.values(proper).filter((n) => !isCjk(n)));
+    });
+    Object.values((bodiesJson && bodiesJson.bodies) || {}).forEach((b) => {
+      (b.alias || []).forEach((n) => pre.push(n) && cjk.push(n));
+      if (b.token === 'planet') return;
+      Object.entries(b).forEach(([k, n]) => {
+        if (k === 'token' || k === 'kind' || k === 'alias' || !n) return;
+        if (isCjk(n)) cjk.push(n) && pre.push(n);
+        else latin.push(n.replace(/^(?:the|la|le|il)\s+/i, ''));
+      });
+    });
+    STAR.cjk = _alt(cjk);
+    STAR.pre = _alt(pre);
+    STAR.latin = _alt(latin);
+    _buildTransientRe();
+    Object.entries((xingguanJson && xingguanJson.xingguan) || {}).forEach(([key, e]) => {
+      STAR_REF[key] = [key, e];
+      if (e.modern && e.modern.hip) STAR_REF[e.modern.hip] = [key, e];
+    });
+  }
+
+  // [key, xingguan entry] by key and by HIP number, for a separation's star reference.
+  const STAR_REF = {};
+
+  // CJK reads the entry's own name; Western reads a star's Bayer designation, else the entry's
+  // catalogue designation (M44), else its romanization (Bi), keeping the event list short.
+  function starName(ref, lang) {
+    if (!STAR_REF[ref]) return '';
+    const [key, e] = STAR_REF[ref];
+    if (/^(zh|ja)/.test(lang)) {
+      const name = lang === 'ja' ? e.ja : lang === 'zh-Hant' ? e.hant : key;
+      return (name || key).replace(/\(.*\)$/, '');
+    }
+
+    // A HIP ref names one star (Bayer letter); a key names the asterism (romanization),
+    // so 积尸 (Corpse Qi) reads Jishi, never its catalogue number M44.
+    const m = e.modern || {};
+    return typeof ref === 'number' ? m.bayer || m.designation || e.rom || '' : e.rom || m.bayer || m.designation || '';
+  }
+
   const _esc = (s) =>
     String(s || '')
       .replace(/&/g, '&amp;')
@@ -305,7 +429,7 @@ const Atlas = (() => {
 
   // Inline ' data-gloss="…"' for a glossary slug (empty when unknown / I18n absent),
   // feeding the shared glossary-tip.js hover card — same contract as I18n.glossAttr.
-  const _gloss = (slug) => (typeof I18n !== 'undefined' && I18n.glossAttr ? I18n.glossAttr(slug) : '');
+  const _gloss = (slug, params) => (typeof I18n !== 'undefined' && I18n.glossAttr ? I18n.glossAttr(slug, params) : '');
 
   // The same lookup as _gloss but returning the sentence rather than the attribute, for
   // the one case that composes two glosses into a third before inlining it.
@@ -316,8 +440,47 @@ const Atlas = (() => {
   // two — an unmarked phrase is a worse failure than one extra mark on a line nobody typed.
   const _isEclipse = (type) => type === 'solar' || type === 'lunar';
   const _mark = (m) => '<mark class="hl">' + m + '</mark>';
-  const highlightPhrase = (s, type) => _esc(s).replace(_isEclipse(type) ? ECLIPSE_RE : TRANSIENT_RE, _mark);
-  const highlightTrans = (s, type) => _esc(s).replace(_isEclipse(type) ? TRANS_ECLIPSE_RE : TRANS_TRANSIENT_RE, _mark);
+
+  // An eclipse line lights only its own body's term; the other body's term stays dark. A term
+  // naming both bodies ("eclipse of the sun or moon") or neither (kasafa) lights on either line.
+  // Transient lines are exempt: 月食昴 (the moon eclipsing the Pleiades) is the approach recorded.
+  const SUN_BODY = /日|nisshoku|nhật|rì|il-sik|sol|zon|sun|sonne/iu;
+  const MOON_BODY = /月|yuè|lun|moon|maan|mond/iu;
+  const _otherBodyOnly = (m, type) =>
+    type === 'solar' ? MOON_BODY.test(m) && !SUN_BODY.test(m) : SUN_BODY.test(m) && !MOON_BODY.test(m);
+
+  // A lit approach verb carries its glossary entry, matched on the verb's root in each
+  // script. Order matters: 掩犯 (occulted) defines as 掩, 移入 (moved into) as 入.
+  const VERB_GLOSS = [
+    ['verb_occult', /掩|^[食蝕蚀]$|occult|ocult/iu],
+    ['verb_keep', /守|留|station|linger|rest[ée]|resta|permaneci|rimast/iu],
+    ['verb_enter', /入|enter|entr[éeaóò]/iu],
+    ['verb_gather', /聚|mass|rassembl|agrup|congreg|raggrupp|radun/iu],
+    ['verb_conjunction', /[合会會]|conjunc|conjonc|congiun/iu],
+    ['verb_appulse', /犯|凌|侵|[冲衝干]|近|approach|approch|acerc|avvicin|invad|invas|envahi|empiét|trespass/iu],
+  ];
+  const _verbMark = (m) => {
+    const hit = VERB_GLOSS.find(([, re]) => re.test(m));
+    return hit ? '<mark class="hl"' + _gloss(hit[0]) + '>' + m + '</mark>' : _mark(m);
+  };
+
+  const _markFor = (type) => (m) =>
+    _isEclipse(type) ? (_otherBodyOnly(m, type) ? m : _mark(m)) : ECLIPSE_ONLY_RE.test(m) ? _mark(m) : _verbMark(m);
+
+  const highlightPhrase = (s, type) => _esc(s).replace(_isEclipse(type) ? ECLIPSE_RE : TRANSIENT_RE, _markFor(type));
+  const highlightTrans = (s, type) =>
+    _esc(s).replace(
+      _isEclipse(type)
+        ? TRANS_ECLIPSE_RE
+        : type === 'appulse' || type === 'conjunction'
+          ? TRANS_APPROACH_RE
+          : TRANS_TRANSIENT_RE,
+      _markFor(type)
+    );
+
+  // An era name in the text carries the era's sentence as a hover card (Notes.calendarNames).
+  const eraNames = (html, textLang, lang, skip) =>
+    typeof Notes !== 'undefined' ? Notes.calendarNames(html, textLang, lang, _noteKey(lang), skip) : html;
   const _hasCJK = (s) => /[㐀-鿿぀-ヿ가-힣]/.test(String(s || ''));
 
   // A pipe-parted line is a table row. One pipe is enough — a two-column register (a time
@@ -375,7 +538,7 @@ const Atlas = (() => {
   // The source line at the same index must pass the same tests too; when the two do not part
   // into the same number of lines, nothing corroborates and no heading is marked, since a
   // wrongly marked head is a lie about the source.
-  const _MID_CLOSE = /[.!?:;,。！？：；，、…)）\]】"']$/;
+  const _MID_CLOSE = /[.!?:;,。！？：；，、…)）\]】"'—]$/;
   const _MID_QUOTE_TAIL = /[»”」』]$/;
   const _MID_INNER = /[,，:：…｜|]|\[…\]/;
   const _MID_WORD = /[A-Za-zÀ-ÿͰ-῿㐀-鿿]/;
@@ -388,10 +551,21 @@ const Atlas = (() => {
   };
 
   const _isMidHeading = (seq, i) => {
-    if (i === 0 || i + 1 >= seq.length || seq.length < 3) return false;
+    // Line 0 counts too: a report split off at a run-in crosshead opens on it.
+    if (i + 1 >= seq.length) return false;
     if (!_midShape(seq[i])) return false;
     return _midShape(seq[i + 1]) || seq[i + 1].length >= 2 * seq[i].length;
   };
+
+  // A crosshead set in capitals is a head whatever it closes on ("ASTRONOMERS IN ALBANY.",
+  // "IN HUDSON AND SYRACUSE,"): the capitals mark it on the page. Two words of two letters
+  // keep out a column header ("H. M. SEC.") and an initialled signature ("A. A. NIJLAND.").
+  const _capsHead = (seq, i) => {
+    const s = seq[i];
+    if (i + 1 >= seq.length || s.length > 45 || s.includes('|') || /\p{Ll}/u.test(s)) return false;
+    return (s.match(/\p{L}{2,}/gu) || []).length >= 2 && seq[i + 1].length >= 2 * s.length;
+  };
+  const _shortLine = (s) => s.length <= (_MID_CJK.test(s) ? 20 : 45) && !s.includes('|');
 
   // ---- Line-Start And Line-End Guard ----
 
@@ -415,17 +589,19 @@ const Atlas = (() => {
   function paraHtml(text, renderLine, orig) {
     // Runs the line-start guard here, once, rather than at each of the three call sites below,
     // and before the renderer: the renderer emits markup, which the guard would misread.
-    const render = (s) => renderLine(hardenBreaks(s));
+    const render = (s) => fnLinks(renderLine(hardenBreaks(s)));
     const split = (s) =>
       String(s || '')
         .split('\n')
         .map((x) => x.trim())
         .filter(Boolean);
-    const lines = split(text);
+    const lines = markFootnotes(split(text));
     const src = split(orig);
     const heads =
       src.length === lines.length
-        ? lines.map((_, i) => _isMidHeading(lines, i) && _isMidHeading(src, i))
+        ? lines.map(
+            (_, i) => (_isMidHeading(lines, i) && _isMidHeading(src, i)) || (_capsHead(src, i) && _shortLine(lines[i]))
+          )
         : lines.map(() => false);
     const out = [];
     let run = [];
@@ -445,7 +621,18 @@ const Atlas = (() => {
       else run.forEach((r) => out.push('<p>' + render(r.s) + '</p>'));
       run = [];
     };
+    const notes = [];
     lines.forEach((line, i) => {
+      const fn = _fnKey(line, i);
+      if (fn) {
+        notes.push('<p data-fn="' + _esc(fn) + '">' + render(line) + '</p>');
+        return;
+      }
+      if (_isBreak(line)) {
+        flush();
+        out.push('<p class="rec-break">' + line.replace(/[\s]/g, '') + '</p>');
+        return;
+      }
       if (_isRow(line)) {
         run.push({ s: line });
         return;
@@ -454,7 +641,60 @@ const Atlas = (() => {
       out.push(heads[i] ? '<p class="rec-mid">' + render(line) + '</p>' : '<p>' + render(line) + '</p>');
     });
     flush();
+    if (notes.length) out.push('<div class="rec-fn">' + notes.join('') + '</div>');
     return out.join('');
+  }
+
+  // ---- The Source's Own Footnotes ----
+
+  // A paragraph opening on a footnote figure ((¹), (1), 1), *), **), a bare asterisk) is the
+  // author's footnote. Never the first paragraph, where a numbered extract begins, and never
+  // a row of asterisks alone, which is a section break.
+  const _FN_HEAD = /^(?:[(（]\s*(?:\d{1,2}|[¹²³⁴⁵⁶⁷⁸⁹⁰]+|[*＊]+)\s*[)）]|\d{1,2}[)）]|[*＊†‡]+[)）]?)/;
+
+  // The figure's identity, the same in the body and in the footnote: `(¹)`, `¹` and `1)`
+  // all key as 1, `*)` and `＊` as *.
+  function _fnNorm(mark) {
+    return mark
+      .replace(/[()（）\s]/g, '')
+      .replace(/＊/g, '*')
+      .replace(/[¹²³⁴⁵⁶⁷⁸⁹⁰]/g, (c) => '1234567890'['¹²³⁴⁵⁶⁷⁸⁹⁰'.indexOf(c)]);
+  }
+
+  // A paragraph of asterisks alone (`* * *`, `⁂`) is a section break.
+  function _isBreak(line) {
+    return /^[\s*＊⁂]+$/.test(line) && /[*＊⁂]/.test(line);
+  }
+
+  function _fnKey(line, i) {
+    if (i === 0 || _isBreak(line)) return '';
+    const m = line.replace('\ue008', '').match(_FN_HEAD);
+    return m ? _fnNorm(m[0]) : '';
+  }
+
+  // Wraps each body figure that a footnote answers to in placeholders for fnLinks(). A figure
+  // of digits must follow a word and close a clause (`Einstein.2)`), so a count in
+  // parentheses is never taken for one.
+  function markFootnotes(lines) {
+    const keys = new Set(lines.map((l, i) => _fnKey(l, i)).filter(Boolean));
+    if (!keys.size) return lines;
+    const fig =
+      /(?<![*＊\d(（])(?:[(（](?:[¹²³⁴⁵⁶⁷⁸⁹⁰]+|[*＊]+)[)）]|[*＊]+[)）]?|[¹²³⁴⁵⁶⁷⁸⁹⁰]+|(?<=[^\s\d]\s?)\d{1,2}[)）](?=[\s.,;:。，；：．]|$))(?![*＊\d])/g;
+    return lines.map((line, i) => {
+      if (_fnKey(line, i)) return '\ue008' + line;
+      return line.replace(fig, (m) => (keys.has(_fnNorm(m)) ? '\ue006' + m + '\ue007' : m));
+    });
+  }
+
+  // The placeholders after escaping: a body figure becomes a link to its footnote, and the
+  // footnote's own marker is dropped.
+  function fnLinks(html) {
+    return html
+      .replace(/\ue008/g, '')
+      .replace(
+        /\ue006([^\ue007]+)\ue007/g,
+        (_, m) => '<a href="#" class="fnlink" data-fn="' + _esc(_fnNorm(m)) + '">' + m + '</a>'
+      );
   }
 
   // Visibility buckets that mean nothing stood above the horizon to be seen. low-sun, grazing
@@ -480,9 +720,8 @@ const Atlas = (() => {
     const sky = _SKY_GLOSS[rec.vis] ? _glossText(_SKY_GLOSS[rec.vis]) : '';
     const both = claim && sky ? _glossText('status_pair', { claim, sky }) : claim || sky;
 
-    // The claim's head word rides along so the hover card can set it in vermilion. status_pair
-    // MUST interpolate {claim} first, so the joined two-axis card still opens on it; the sky
-    // axis carries no head word of its own.
+    // The claim's term rides along so the hover card can set it in vermilion; the sky axis
+    // carries no term of its own.
     const term = claim ? _glossText('claim_' + rec.claim + '.term') : '';
     const attr =
       (both ? ' data-gloss="' + both.replace(/"/g, '&quot;') + '"' : '') +
@@ -571,8 +810,7 @@ const Atlas = (() => {
     const parts = (dateStr[0] === '-' ? dateStr.slice(1) : dateStr).split('-').length;
     const cal = _civilYmd(ymd, parts);
     if (!(isZh(lang) || lang === 'ja')) return _westernSciDate(dateStr, cal, parts);
-    const pre = isZh(lang) ? '前 ' : '紀元前 ';
-    let s = (cal.y <= 0 ? pre + (1 - cal.y) : String(cal.y)) + ' 年';
+    let s = (cal.y <= 0 ? '前 ' + (1 - cal.y) : String(cal.y)) + ' 年';
     if (parts >= 2) s += ' ' + cal.m + ' 月';
     if (parts >= 3) s += ' ' + cal.d + ' 日';
     return s;
@@ -622,7 +860,13 @@ const Atlas = (() => {
     if (!ymd || typeof I18n === 'undefined' || !I18n.glossAttr) return '';
     const parts = (dateStr[0] === '-' ? dateStr.slice(1) : dateStr).split('-').length;
     if (!_civilYmd(ymd, parts).julian) return '';
-    return I18n.glossAttr('cal_julian', { date: _gregEquivReadable(dateStr, lang || state.lang) });
+
+    // The zh templates leave {date} flush against Han; a CE date opens with a digit, which
+    // the han-latin-spacing-zh rule sets off with one space, while a BCE date opens with Han.
+    const lg = lang || state.lang;
+    let date = _gregEquivReadable(dateStr, lg);
+    if (/^zh/.test(lg) && /^[0-9]/.test(date)) date = ' ' + date;
+    return I18n.glossAttr('cal_julian', { date });
   }
 
   // Canonicalize an extended-ISO date to the NASA 5MCSE display form: sign + 4-digit
@@ -638,15 +882,17 @@ const Atlas = (() => {
   }
 
   // Chronicle-line bare-year fallback for a year no nianhao/nengo era covers (deep BCE): reads
-  // in Han numerals, e.g. 前七三五 (BCE 735), to match the all-Han prose line, so unlike
+  // in Han numerals, e.g. 公元前七三五年 (BCE 735), to match the all-Han prose line, so unlike
   // displayYear it inserts no digit/kanji boundary space.
   function chronicleYear(lang, y) {
-    if (isZh(lang)) return y <= 0 ? '公元前' + cjkDigits(1 - y) : '公元' + cjkDigits(y);
-    return y <= 0 ? '紀元前' + cjkDigits(1 - y) : cjkDigits(y) + '年';
+    if (isZh(lang)) return (y <= 0 ? '公元前' + cjkDigits(1 - y) : '公元' + cjkDigits(y)) + '年';
+    return (y <= 0 ? '紀元前' + cjkDigits(1 - y) : cjkDigits(y)) + '年';
   }
 
+  // Chinese past the last dynasty carries no 近现代 (modern era) label, whose width would run into the
+  // saros cell at the end of the row.
   function chronicleYearLabel(lang, y) {
-    const e = eraLabel(lang, y);
+    const e = isZh(lang) && y >= 1912 ? '' : eraLabel(lang, y);
     const yr = chronicleYear(lang, y);
     return e ? e + ' · ' + yr : yr;
   }
@@ -676,8 +922,8 @@ const Atlas = (() => {
   // ---- Chronicle Line For The Shu'er ----
 
   // CJK (zh/ja): reign-era + reckoned lunisolar date, closed by shuo (solar-eclipse syzygy) or
-  // wang (lunar eclipse), rubricated vermilion (zhu). Western: cultural period + year only,
-  // since l1 already carries the Julian-calendar day.
+  // wang (lunar eclipse), rubricated vermilion (zhu). Western: cultural period + the date,
+  // which leaves l1 to the event alone.
   function chronicleStr(y, kind, dateStr, lang, precision, lunarMonth, peakIso) {
     if (y == null) return '';
 
@@ -722,9 +968,11 @@ const Atlas = (() => {
       return _esc(prefix); // year precision (or no recorded month): reign-year only
     }
 
-    // Western: cultural period + year, and no day. l1 already carries the Julian-calendar
-    // day, so spelling one out here would print the same date twice.
-    return _esc(yearLabel(lang, y));
+    // Western: cultural period + the full date, whose year stands in for the period's own.
+    // l1 then holds the event alone, which a long star or planet name needs the width for.
+    const era = eraLabel(lang, y);
+    const date = '<span' + _calGlossFor(dateStr, lang) + '>' + _esc(_sciDate(dateStr, lang)) + '</span>';
+    return era ? _esc(era) + ' · ' + date : date;
   }
 
   // Line-1 tail for a jingguan transient slip: identified → 超新星 (supernova) or 彗星 (comet)
@@ -742,6 +990,80 @@ const Atlas = (() => {
       '</span>' +
       ' · <span class="ev-strip-mag">' +
       _esc(desig) +
+      '</span>'
+    );
+  }
+
+  // An occultation whose closest approach is past this means the subject or position was
+  // misread. Conjunctions are exempt: a lodge can be 30° wide.
+  const SEP_TRUSTED_DEG = 10;
+
+  function sepTrusted(sep) {
+    return !!(sep && sep.event && (sep.ruler === 'pair' || sep.closest_deg <= SEP_TRUSTED_DEG));
+  }
+
+  // The glossary entry defining the computed event's verb; four or more bodies meeting is a
+  // gathering, two or three a conjunction.
+  function sepEventGloss(sep) {
+    if (sep.event !== 'conjunction') return 'verb_' + sep.event;
+    return (sep.bodies || []).length > 3 ? 'verb_gather' : 'verb_conjunction';
+  }
+
+  // The event's name as mark_separation.py computes it, never the source's verb.
+  function separationEvent(sep, lang) {
+    const bodies = sep.bodies || [];
+    const names = bodies.map((b) => T('sep.body.' + b));
+    const many = bodies.length === 2 ? 'two' : bodies.length === 3 ? 'three' : 'many';
+
+    // A star target the concordance names in all seven locales gets its name (named);
+    // an unnamed one reads as a bare star.
+    let family = bodies.length === 1 ? (sep.star ? 'named' : 'star') : many;
+
+    // CJK names each body of a three-body conjunction, as 金木合土 (Venus and Jupiter conjoin
+    // Saturn); western scripts count them.
+    if (family === 'three' && sep.event === 'conjunction' && /^(zh|ja)/.test(lang)) family = 'listed';
+    const count = bodies.length + (bodies.indexOf('the_moon') >= 0 ? 'm' : '');
+
+    // English names a two-body conjunction attributively, "Mercury–Moon conjunction", where
+    // "the Moon" loses its article. No other locale's body names start with "the ".
+    if (family === 'two' && sep.event === 'conjunction') {
+      names.forEach((n, i) => (names[i] = n.replace(/^the /, '')));
+    }
+    let out = T('sep.ev.' + family + '.' + sep.event, {
+      a: names[0],
+      b: names[1] || '',
+      c: names[2] || '',
+      n: bodies.length > 2 ? T('sep.count.' + count) : '',
+      s: sep.star ? starName(sep.star, lang) : '',
+    });
+
+    // A three-character Chinese name takes 星 (planet) after its first planet, as 金犯火
+    // (Venus trespasses Mars) does; before a star's name the planet always takes it, as in
+    // 金星犯轩辕大星 (Venus trespasses the Great Star of Xuanyuan).
+    if (/^zh/.test(lang) && family === 'named') out = out.replace(/^[水金火木土]/, '$&星');
+    else if (/^zh/.test(lang) && out.length === 3) out = out.replace(/[水金火木土]/, '$&星');
+    return out.charAt(0).toUpperCase() + out.slice(1);
+  }
+
+  // Line-1 tail for an occultation or conjunction slip: the computed event and the least
+  // separation that night. Records the ephemeris could not be asked about fall back to
+  // unconfirmed.
+  function separationL1(trec, lang) {
+    const sep = trec && trec.sep;
+    const deg = sep && sep.closest_deg;
+    if (!sepTrusted(sep)) {
+      return ' · <span class="ev-strip-type">' + _esc(T('transient.unconfirmed')) + '</span>';
+    }
+    const fmt = (n) => n.toLocaleString(lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const dist = T('sep.distance', { deg: fmt(deg) });
+    return (
+      ' · <span class="ev-strip-type"' +
+      _gloss(sepEventGloss(sep)) +
+      '>' +
+      _esc(separationEvent(sep, lang)) +
+      '</span>' +
+      ' · <span class="ev-strip-mag">' +
+      _esc(dist) +
       '</span>'
     );
   }
@@ -823,6 +1145,69 @@ const Atlas = (() => {
       .split('')
       .map((c) => D[+c])
       .join('');
+  }
+
+  // Decimal Han numeral below 1000 in the juan-number style: 11 → 十一 (eleven), 106 → 一百六
+  // (one hundred six), 160 → 一百六十 (one hundred sixty). The zero after the hundreds is
+  // dropped, as in 卷第一百六 (juan 106).
+  function cjkDecimal(n) {
+    const D = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+    n = Math.abs(Math.round(n));
+    if (n === 0) return D[0];
+    const h = Math.floor(n / 100);
+    const t = Math.floor((n % 100) / 10);
+    const u = n % 10;
+    let s = h ? D[h] + '百' : '';
+    if (t) s += (t === 1 && !h ? '' : D[t]) + '十';
+    if (u) s += D[u];
+    return s;
+  }
+
+  // Roman numerals for a positive integer: 106 → CVI (the Western saros label).
+  function _roman(n) {
+    const R = [
+      [1000, 'M'],
+      [900, 'CM'],
+      [500, 'D'],
+      [400, 'CD'],
+      [100, 'C'],
+      [90, 'XC'],
+      [50, 'L'],
+      [40, 'XL'],
+      [10, 'X'],
+      [9, 'IX'],
+      [5, 'V'],
+      [4, 'IV'],
+      [1, 'I'],
+    ];
+    let s = '';
+    for (const [v, r] of R) for (; n >= v; n -= v) s += r;
+    return s;
+  }
+
+  // 1-based rank of an eclipse among the catalogue's members of its saros series, by date.
+  // Solar and lunar series share numbers, so the series key carries the kind. Rebuilt only
+  // when the catalogue size changes, so a call made mid-load does not freeze a short count.
+  let _sarosRank = null;
+  let _sarosRankN = -1;
+  function sarosOrdinal(e) {
+    const all = EclipseLoader.all();
+    if (all.length !== _sarosRankN) {
+      _sarosRankN = all.length;
+      const groups = new Map();
+      for (const x of all) {
+        if (x.saros == null) continue;
+        const k = x._kind + '|' + x.saros;
+        if (!groups.has(k)) groups.set(k, []);
+        groups.get(k).push(x);
+      }
+      _sarosRank = new Map();
+      for (const list of groups.values()) {
+        list.sort((a, b) => a._peakMs - b._peakMs);
+        list.forEach((x, i) => _sarosRank.set(x.date + '|' + x._kind, i + 1));
+      }
+    }
+    return _sarosRank.get(e.date + '|' + e._kind) || null;
   }
 
   // Ordinal place-value spelling for volumes and reign years, e.g. 四十九 (forty-nine).
@@ -927,7 +1312,7 @@ const Atlas = (() => {
     const e = eras[found];
     if (e.gap) return null;
     const reign = yr - e.y + 1;
-    return e.n + (reign === 1 ? '元年' : cjkOrdinal(reign) + '年');
+    return (e.ja || e.nt) + (reign === 1 ? '元年' : cjkOrdinal(reign) + '年');
   }
 
   // Normalise two strings for de-dup comparison: collapse whitespace, unify smart
@@ -953,7 +1338,69 @@ const Atlas = (() => {
   function transLine(rec, lang, cls) {
     const t = transText(rec, lang);
     if (!t || _sameText(t, rec.orig || '')) return '';
-    return '<div class="' + cls + '">' + paraHtml(t, (s) => highlightTrans(s, rec.type), rec.orig) + '</div>';
+    const shownLang = rec.textMap && Object.keys(rec.textMap).find((k) => rec.textMap[k] === t);
+    const ns = shownLang ? cardNotes(rec, lang) : [];
+    const marks = ns.length ? Notes.transMarks(t, ns, shownLang) : [];
+    const marked = markTrans(t, rec.supplied, shownLang, marks);
+    const skip = ns.length ? Notes.glossedPhrases(ns, shownLang) : [];
+    const html = paraHtml(
+      marked,
+      (s) => eraNames(highlightTrans(s, rec.type), shownLang || lang, lang, skip),
+      rec.orig
+    );
+    return (
+      '<div class="' +
+      cls +
+      '" lang="' +
+      _esc(shownLang || lang) +
+      '">' +
+      suppliedSpans(ns.length ? Notes.supMarks(html, ns) : html, shownLang || lang) +
+      '</div>'
+    );
+  }
+
+  // Words the translation adds (an era carried over, an omitted subject) are bracketed by CSS
+  // per script, and the note superscripts sit in the same text. All go in as placeholders
+  // before escaping and highlighting and become markup after, so none splits an entity.
+  const SUP_OPEN = '';
+  const SUP_CLOSE = '';
+
+  // The [start, end) of each supplied span within the translation `text` of locale `lang`.
+  function suppliedRanges(text, units, lang) {
+    return Supplied.ranges(text, units, lang);
+  }
+
+  // The translation with its supplied spans bracketed and `marks` ({pos, ns}, from
+  // Notes.transMarks) set in. At one offset a closing bracket comes first, then the note mark,
+  // then an opening bracket, so a mark after a supplied word falls outside its brackets.
+  function markTrans(text, units, lang, marks) {
+    if (!lang) return text;
+    const at = [];
+    suppliedRanges(text, units, lang).forEach(([a, b]) => {
+      at.push([a, 2, SUP_OPEN]);
+      at.push([b, 0, SUP_CLOSE]);
+    });
+    marks.forEach((m) => at.push([m.pos, m.rank, m.str]));
+    at.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+    let out = '';
+    let from = 0;
+    at.forEach(([pos, , str]) => {
+      out += text.slice(from, pos) + str;
+      from = pos;
+    });
+    out += text.slice(from);
+
+    // Adjacent spans share one pair of brackets instead of one pair each.
+    return out.split(SUP_CLOSE + SUP_OPEN).join('');
+  }
+
+  // Round brackets in Chinese and Japanese (GB/T 15834 4.9.3.1), square elsewhere. They are
+  // characters of the text, so a copy or a find takes them along.
+  const suppliedBrackets = (lang) => (/^(zh|ja)/.test(lang || '') ? ['（', '）'] : ['[', ']']);
+
+  function suppliedSpans(html, lang) {
+    const [open, close] = suppliedBrackets(lang);
+    return html.replace(//g, '<span class="supplied">' + open).replace(//g, close + '</span>');
   }
 
   // The translation to show, or the original when this locale has none — a card
@@ -1346,14 +1793,144 @@ const Atlas = (() => {
     return T('atlas.src') + head + body + (loc.tail ? join + loc.tail : '') + suffix;
   }
 
-  // ---- Card Note ----
+  // ---- Card Notes ----
 
-  // A note is the project's own editorial voice, so a western locale shows English or
-  // nothing, never falling through to the Chinese note (no { zh: true }, unlike transText,
-  // where the Han original is the thing worth showing).
-  function noteLabel(rec, lang) {
-    const txt = I18n.pick(rec.noteI18n, lang);
-    return txt ? _esc(txt) : '';
+  // The sentence patterns of the locale being rendered, which search also asks for in
+  // English under any reader locale. A miss comes back as null rather than as the key, so
+  // js/notes.js can tell an absent sentence pattern from a present one.
+  const _noteKey = (lang) => (k) => I18n.tIn(lang, k);
+
+  // A record's notes rendered in one locale, numbered in reading order. Kept on the record
+  // per locale: the card, the popup and the search haystack all read the same rendering.
+  function cardNotes(rec, lang) {
+    if ((!rec.notes && !rec.marks) || typeof Notes === 'undefined') return [];
+    rec._notes = rec._notes || {};
+    if (!rec._notes[lang]) {
+      const t = transText(rec, lang);
+      const shown = t && !_sameText(t, rec.orig || '') ? t : '';
+      const transLang = shown && rec.textMap ? Object.keys(rec.textMap).find((k) => rec.textMap[k] === shown) : '';
+      rec._notes[lang] = Notes.render(
+        {
+          notes: (rec.notes || []).concat(rec.marks ? Notes.dateUnits(rec.marks, rec.textMap, rec.orig) : []),
+          text_orig: rec.orig,
+          text_zh: rec.textMap ? rec.textMap['zh-Hans'] || '' : '',
+          trans: transLang ? shown : '',
+          trans_lang: transLang,
+        },
+        lang,
+        _noteKey(lang)
+      );
+    }
+    return rec._notes[lang];
+  }
+
+  // The superscript after a header field or the source line: every unit anchored there.
+  function noteMark(rec, lang, at) {
+    const ns = cardNotes(rec, lang).filter((u) => u.at === at && u.html);
+    return ns.length
+      ? Notes.supHtml(
+          ns.map((u) => u.n),
+          ns
+        )
+      : '';
+  }
+
+  // The original text with its superscripts. The marks go in as placeholders before the text
+  // is escaped and highlighted, and become markup after, so no mark splits an entity or a tag.
+  function origHtml(rec, lang) {
+    const ns = cardNotes(rec, lang);
+    const text = ns.length ? Notes.markOrig(rec.orig, ns) : rec.orig;
+    const html = paraHtml(text, (s) => eraNames(highlightPhrase(s, rec.type), 'orig', lang), rec.orig);
+    return ns.length ? Notes.supMarks(html, ns) : html;
+  }
+
+  // The notes area: a numbered list whose numbers match the superscripts.
+  function noteList(rec, lang, cls) {
+    const ns = cardNotes(rec, lang).filter((u) => u.html && !u.hover);
+    if (!ns.length) return '';
+    const back = (n) => '<a href="#" class="nback" data-n="' + n + '">↑</a> ';
+    return (
+      '<ol class="' +
+      cls +
+      '">' +
+      ns
+        .map(
+          (u) =>
+            '<li value="' +
+            u.n +
+            '" data-n="' +
+            u.n +
+            '"><span class="nnum">[' +
+            u.n +
+            ']</span>' +
+            back(u.n) +
+            u.html +
+            '</li>'
+        )
+        .join('') +
+      '</ol>'
+    );
+  }
+
+  // ---- Note And Footnote Links ----
+
+  // One delegated listener serves every card and popup. The jump stays inside the record it
+  // was clicked in and never touches location.hash, which the permalink owns.
+  function flash(el) {
+    el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    el.classList.remove('n-flash');
+    void el.offsetWidth;
+    el.classList.add('n-flash');
+  }
+
+  function onNoteLink(e) {
+    const a = e.target.closest && e.target.closest('a.nlink, a.nback, a.fnlink');
+    if (!a) return;
+    const box = a.closest('.reccard, .rp');
+    if (!box) return;
+    e.preventDefault();
+    const n = a.dataset.n;
+    let to = null;
+    if (a.classList.contains('nlink'))
+      to = box.querySelector('.rc-note li[data-n="' + n + '"], .rp-note li[data-n="' + n + '"]');
+    else if (a.classList.contains('nback')) to = box.querySelector('a.nlink[data-n="' + n + '"]');
+    else {
+      const text = a.closest('.rc-trans, .rc-orig, .rp-trans, .rp-orig');
+      to = text && text.querySelector('.rec-fn p[data-fn="' + CSS.escape(a.dataset.fn) + '"]');
+    }
+    if (to) flash(to);
+  }
+
+  // Search reads the notes as rendered in the reader's locale and in English, the fallback
+  // every locale shares, with the markup stripped.
+  function noteHay(rec) {
+    if (!rec.notes && !rec.marks) return '';
+    const lang = state.lang;
+    if (rec._noteHay && rec._noteHay.lang === lang) return rec._noteHay.text;
+    const parts = cardNotes(rec, lang).concat(lang === 'en' ? [] : cardNotes(rec, 'en'));
+    const text = parts.map((u) => u.html.replace(/<[^>]+>/g, '')).join(' ');
+    rec._noteHay = { lang, text };
+    return text;
+  }
+
+  // The translations and the original as the card shows them, supplied brackets and note numbers
+  // included, so a search finds what a copy takes. Marked in the reader's locale, memoised.
+  function shownHay(rec) {
+    if (!rec.supplied && !rec.notes && !rec.marks) return rec.textHay;
+    const lang = state.lang;
+    if (rec._shownHay && rec._shownHay.lang === lang) return rec._shownHay.text;
+    const ns = cardNotes(rec, lang);
+    const plain = (s, l) => {
+      const [open, close] = suppliedBrackets(l);
+      return Notes.plainMarks(s).split(SUP_OPEN).join(open).split(SUP_CLOSE).join(close);
+    };
+    const parts = Object.entries(rec.textMap || {}).map(([k, t]) =>
+      plain(markTrans(t, rec.supplied, k, ns.length ? Notes.transMarks(t, ns, k) : []), k)
+    );
+    if (ns.length) parts.push(Notes.plainMarks(Notes.markOrig(rec.orig, ns)));
+    const text = parts.join(' ');
+    rec._shownHay = { lang, text };
+    return text;
   }
 
   // ---- State (ORBIS Single Source) ----
@@ -1425,16 +2002,14 @@ const Atlas = (() => {
   let CIV_NAMES = {}; // civ → civilizations.json row, for the civ-name search
   let PRESENT_CIVS = []; // civs actually present (ordered by Seal.CIVS)
 
-  // record_id → visibility.json row (solar/lunar only), machine-derived from the event
-  // geometry and observing site, never hand-written: the source's own claim lives on the
-  // record as source_claim, and the two are read side by side.
+  // record_id → visibility.json row, machine-derived; no row means visible. The source's own
+  // claim lives on the record as source_claim, and the two are read side by side.
   let VIS = {};
-  let NIANHAO = null; // lazy-loaded Chinese reign-era table (nianhao.json)
-  let NENGO = null; // lazy-loaded Japanese era-name table (nengo.json)
+  let NIANHAO = null; // Chinese reign-era line of data/concordance/eras.json
+  let NENGO = null; // Japanese era line of data/concordance/eras.json
 
-  // Place concordance keyed by place_key, the canonical form; a record inlines observed_at
-  // only when it overrides that form, since the build strips inline place names and _map
-  // below inverts that strip at read time.
+  // Place concordance keyed by place_key, the sole source of a record's place name and
+  // coordinates; _map below reads it for every record.
   let GAZ = {};
 
   // Flatten rather than take Object.values: a civ row may nest an `eras` array of
@@ -1516,12 +2091,10 @@ const Atlas = (() => {
   let SOURCES = {};
 
   function _map(r) {
-    // gazetteer.json (via GAZ) is the sole display authority for place: a record carries no
-    // inline name or i18n block, only place.key, plus an observed_at when the true vantage
-    // point differs from the gazetteer's canonical site for that key.
+    // gazetteer.json (via GAZ) is the sole authority for place: a record carries only
+    // place.key.
     const placeKey = r.place.key || '';
     const g = GAZ[placeKey] || {};
-    const ll = r.place.observed_at || g;
 
     // The gazetteer entry is already the display block; the numeric lat/lon/since/until
     // alongside name/modern/aliases are ignored by both the label and the search haystack.
@@ -1558,8 +2131,12 @@ const Atlas = (() => {
 
     const textMap = r.text || null; // BCP-47 locale map
     const translit = r.translit || ''; // romanization of text_orig, where authored
-    const noteI18n = r.note || null; // BCP-47 locale map, usually absent
-    const ident = r.object || null; // {key, designation?, basis?}
+    const notes = r.notes && r.notes.length ? r.notes : null; // typed note units, usually absent
+    const supplied = r.supplied && r.supplied.length ? r.supplied : null; // words the translation adds
+
+    // The foreign era years and unequal hours the translations print, each a hover card.
+    const marks = r.date && (r.date.epoch || r.date.hour) ? r.date : null;
+    const ident = r.object || null; // {key, designation?}
     const datePrecision = (r.date || {}).precision || 'day';
 
     return {
@@ -1571,8 +2148,8 @@ const Atlas = (() => {
       dateVerbatim: (r.date || {}).verbatim || '', // the source's own date wording, searchable
       ekey: r.event_key || '', // hand-verified "one phenomenon" link (see linkKey)
       place: placeName,
-      lat: ll.lat,
-      lon: ll.lon,
+      lat: g.lat,
+      lon: g.lon,
       orig: r.text_orig || '',
       cjk: _hasCJK(r.text_orig),
       translit,
@@ -1587,8 +2164,9 @@ const Atlas = (() => {
       conf: r.confidence || null,
       claim: r.source_claim || null,
       vis: (VIS[r.record_id] || {}).bucket || null,
-      noteI18n,
-      noteHay: Object.values(noteI18n || {}).join(' '),
+      notes,
+      marks,
+      supplied,
       // Searching a civ by ANY of its seven names. Filled here rather than back-filled
       // after load, so a deferred shard's records are as searchable as the boot ones.
       civHay: _civHay(r.civilization),
@@ -1603,6 +2181,7 @@ const Atlas = (() => {
       datePrecision,
       lunarMonth: r.lunar_month ?? null,
       skyPos: r.sky_position || '', // occultation target, used by transientGlyph
+      sep: r.separation || null, // {deg, uncertainty_deg, ruler}, see separationL1
       imp: 0,
     };
   }
@@ -1634,6 +2213,34 @@ const Atlas = (() => {
       _statusHayMap[key] = words.join(' ');
     }
     return _statusHayMap[key];
+  }
+
+  // The event's type name as the ear prints it, so "Moon–Jiao appulse" or "Total solar
+  // eclipse" finds its records. Memoised per record for the active locale.
+  let _eclKindMap = null;
+  let _eclKindLen = -1;
+
+  function _typeHay(r) {
+    const lang = state.lang;
+    if (r._typeHay && r._typeHay.lang === lang) return r._typeHay.text;
+    let text = '';
+    if (r.type === 'solar' || r.type === 'lunar') {
+      const all = window.EclipseLoader && EclipseLoader.all ? EclipseLoader.all() : [];
+      if (_eclKindLen !== all.length) {
+        _eclKindLen = all.length;
+        _eclKindMap = new Map(all.map((e) => [e.date + '|' + e._kind, e]));
+      }
+      const e = _eclKindMap.get(r.date + '|' + r.type);
+      const kindKey = e ? String(e.kind || '').toLowerCase() : '';
+      if (kindKey) text = T('eclipse.type.' + r.type + '.' + kindKey);
+      else return ''; // events may still be loading: leave the memo empty
+    } else if (r.type === 'appulse' || r.type === 'conjunction') {
+      if (sepTrusted(r.sep)) text = separationEvent(r.sep, lang);
+    } else {
+      text = transientL1(r, lang).replace(/<[^>]*>/g, ' ');
+    }
+    r._typeHay = { lang, text };
+    return text;
   }
 
   // The forms a reader may type for a stored date: the stored Gregorian one and, before the 1582
@@ -1773,7 +2380,7 @@ const Atlas = (() => {
       .replace(/#M\d+:([^#]*)#/g, '$1');
   }
 
-  // A BCE year in any locale's written form ("763 BCE", "763 av. J.-C.", 763 after 前 (before) or
+  // A BCE year in any locale's written form ("763 BCE", "763 AEC", 763 after 前 (before) or
   // 紀元前 (before the era)) becomes the astronomical year: 763 BCE → -762.
   function _bceToAstro(q) {
     const astro = (n) => '-' + (+n - 1);
@@ -1824,11 +2431,13 @@ const Atlas = (() => {
       r.srcHay,
       r.orig,
       r.textHay,
+      shownHay(r),
       r.translit,
-      r.noteHay,
+      noteHay(r),
       r.civHay,
       r.dateVerbatim,
       _statusHay(r),
+      _typeHay(r),
     ]
       .join(' ')
       .toLowerCase();
@@ -2060,11 +2669,13 @@ const Atlas = (() => {
       Seal.svg(rec.civ, 16, Seal.name(rec.civ, state.lang, rec.year)) +
       '<span class="rp-place">' +
       placeLabel(rec, state.lang) +
+      noteMark(rec, state.lang, 'place') +
       '</span>' +
       '<span' +
       eraAttrs(rec, 'rp-year') +
       '>' +
       yearLabel(state.lang, rec.year) +
+      noteMark(rec, state.lang, 'year') +
       '</span></div>';
     return (
       '<div class="rp">' +
@@ -2073,12 +2684,13 @@ const Atlas = (() => {
       '<div class="rp-orig ' +
       (rec.cjk ? '' : 'multi') +
       '">' +
-      paraHtml(rec.orig, (s) => highlightPhrase(s, rec.type), rec.orig) +
+      origHtml(rec, state.lang) +
       '</div>' +
       '<div class="rp-src">' +
       sourceLabel(rec, state.lang) +
+      noteMark(rec, state.lang, 'source') +
       '</div>' +
-      (noteLabel(rec, state.lang) ? '<div class="rp-note">' + noteLabel(rec, state.lang) + '</div>' : '') +
+      noteList(rec, state.lang, 'rp-note') +
       '</div>'
     );
   }
@@ -3648,11 +4260,13 @@ const Atlas = (() => {
         Seal.svg(rec.civ, 18, Seal.name(rec.civ, state.lang, rec.year)) +
         '<span class="rc-place">' +
         placeLabel(rec, state.lang) +
+        noteMark(rec, state.lang, 'place') +
         '</span>' +
         '<span' +
         eraAttrs(rec, 'rc-year') +
         '>' +
         yearLabel(state.lang, rec.year) +
+        noteMark(rec, state.lang, 'year') +
         '</span></div>' +
         trans +
         '<div class="rc-orig ' +
@@ -3662,12 +4276,13 @@ const Atlas = (() => {
         // `solo` lets it stand in for the missing preview, set in the translation's style.
         (trans ? '' : ' solo') +
         '">' +
-        paraHtml(rec.orig, (s) => highlightPhrase(s, rec.type), rec.orig) +
+        origHtml(rec, state.lang) +
         '</div>' +
         '<div class="rc-src">' +
         sourceLabel(rec, state.lang) +
+        noteMark(rec, state.lang, 'source') +
         '</div>' +
-        (noteLabel(rec, state.lang) ? '<div class="rc-note">' + noteLabel(rec, state.lang) + '</div>' : '');
+        noteList(rec, state.lang, 'rc-note');
 
       // A drag to select the source text (or a click on the citation link) must
       // NOT be hijacked into a card-select: that redraws the list and would wipe
@@ -3975,11 +4590,12 @@ const Atlas = (() => {
         ? EclipseGlyph.render(e, { size: 30, idPrefix: 'strip-' })
         : '';
 
-    // Line-1 tail after the date: for an eclipse, type + magnitude; for a transient,
+    // Line-1 tail after the date: for an eclipse, type + magnitude + saros; for a transient,
     // modern name + designation|unconfirmed (see transientL1).
     let l1extra;
     if (isTransient) {
-      l1extra = transientL1(trec, state.lang);
+      l1extra =
+        kind === 'appulse' || kind === 'conjunction' ? separationL1(trec, state.lang) : transientL1(trec, state.lang);
     } else {
       const kindKey = e ? String(e.kind || '').toLowerCase() : '';
       const typeLabel = kindKey ? T('eclipse.type.' + kind + '.' + kindKey) : '';
@@ -3999,6 +4615,40 @@ const Atlas = (() => {
         (magStr ? ' · <span class="ev-strip-mag"' + _gloss('ecl_magnitude') + '>' + _esc(magStr) + '</span>' : '');
     }
 
+    // Saros cells flush right: series number over this eclipse's rank in its series, Han
+    // digits in CJK, Roman in Western scripts. Negative series take 负/負 (negative) in Han
+    // and U+2212 before the Roman; series zero is N (Bede's nulla).
+    const sarosNum = e && e.saros != null && !isTransient ? +e.saros : null;
+    const hanNum = isZh(state.lang) || state.lang === 'ja';
+    const hanNeg = state.lang === 'zh-Hans' ? '负' : '負';
+
+    // 第 (ordinal prefix) takes no zero or negative, so Han series ≤ 0 drop the template.
+    const sarosStr =
+      sarosNum == null
+        ? ''
+        : hanNum && sarosNum <= 0
+          ? (sarosNum < 0 ? hanNeg : '') + cjkDecimal(sarosNum)
+          : T('ear.saros', {
+              n: hanNum
+                ? cjkDecimal(sarosNum)
+                : sarosNum === 0
+                  ? 'N'
+                  : (sarosNum < 0 ? '−' : '') + _roman(Math.abs(sarosNum)),
+            });
+    const sarosOrd = sarosNum == null ? null : sarosOrdinal(e);
+    const sarosOrdStr = sarosOrd == null ? '' : T('ear.saros.ord', { n: hanNum ? cjkDecimal(sarosOrd) : sarosOrd });
+
+    // Han scripts read series and rank as one phrase on the chronicle row (第一〇六之四二);
+    // Western keeps the series on the science row.
+    const sarosL1 = hanNum ? '' : sarosStr;
+
+    // Both scripts gloss the cells with one sentence that spells out series and rank.
+    const sarosGloss =
+      sarosNum == null || sarosOrd == null
+        ? ''
+        : _gloss('saros_entry_' + kind, { series: String(sarosNum).replace('-', '−'), ord: sarosOrd });
+    const sarosL2 = hanNum ? sarosStr + sarosOrdStr : sarosOrdStr;
+
     // Chronicle line (shilu): reign-era + reckoned lunisolar/ganzhi (CJK) or period + year
     // (Western), already HTML. The peak instant is what the CJK branch shifts into East-8;
     // solar and lunar events file it under different keys, and transients have none.
@@ -4012,6 +4662,13 @@ const Atlas = (() => {
       isTransient ? trec && trec.lunarMonth : null,
       peakIso
     );
+
+    // CJK opens l1 with the date; Western moved it to l2 (see chronicleStr), so l1 drops
+    // the leading separator.
+    const cjk = isZh(state.lang) || state.lang === 'ja';
+    const l1 = cjk
+      ? '<b' + _calGlossFor(dateStr, state.lang) + '>' + _esc(_sciDate(dateStr, state.lang)) + '</b>' + l1extra
+      : l1extra.replace(/^ · /, '');
 
     // shu'er label: CJK/ja keep the upright vertical jingguan; Western get a short spine label
     // so long words (fr "Maintenant") can't overflow the tab. ear.now.short is deliberately
@@ -4033,14 +4690,20 @@ const Atlas = (() => {
       glyph +
       '</span>' +
       '<span class="ev-strip-lines">' +
-      '<span class="ev-strip-l1"><b' +
-      _calGlossFor(dateStr, state.lang) +
-      '>' +
-      _esc(_sciDate(dateStr, state.lang)) +
-      '</b>' +
-      l1extra +
+      '<span class="ev-strip-row">' +
+      '<span class="ev-strip-l1">' +
+      l1 +
       '</span>' +
-      (chronicle ? '<span class="ev-strip-l2">' + chronicle + '</span>' : '') +
+      (sarosL1 ? '<span class="ev-strip-l1 ev-strip-saros"' + sarosGloss + '>' + _esc(sarosL1) + '</span>' : '') +
+      '</span>' +
+      (chronicle || sarosL2
+        ? '<span class="ev-strip-row">' +
+          '<span class="ev-strip-l2">' +
+          chronicle +
+          '</span>' +
+          (sarosL2 ? '<span class="ev-strip-l2 ev-strip-saros"' + sarosGloss + '>' + _esc(sarosL2) + '</span>' : '') +
+          '</span>'
+        : '') +
       '</span>' +
       '</span>' +
       '<span class="ev-strip-nav">' +
@@ -4133,6 +4796,12 @@ const Atlas = (() => {
     winEnd = Math.min(recs.length, idx + INITIAL_AFTER);
     winSeedKey = seedKeyNow(); // claim the window for this exact filter fingerprint
     return true;
+  }
+
+  // The seed key omits the focus, so a focus restored from a link after first paint would keep
+  // the window seeded on the default year; dropping the key makes the next render re-seed.
+  function reseedList() {
+    winSeedKey = null;
   }
 
   // Select an event (record or not): drive the engine's contact curves via EclipseLoader
@@ -4684,7 +5353,7 @@ const Atlas = (() => {
     const full = {
       solar: T('atlas.solar'),
       lunar: T('atlas.lunar'),
-      occultation: T('atlas.fut.occultation'),
+      appulse: T('atlas.fut.appulse'),
       conjunction: T('atlas.fut.conjunction'),
       guest: T('atlas.fut.guest'),
       comet: T('atlas.fut.comet'),
@@ -4693,7 +5362,7 @@ const Atlas = (() => {
       ? {
           solar: T('atlas.type.solar'),
           lunar: T('atlas.type.lunar'),
-          occultation: T('atlas.type.occultation'),
+          appulse: T('atlas.type.appulse'),
           conjunction: T('atlas.type.conjunction'),
           guest: T('atlas.type.guest'),
           comet: T('atlas.type.comet'),
@@ -4895,6 +5564,7 @@ const Atlas = (() => {
       },
       true
     );
+    document.addEventListener('click', onNoteLink);
 
     // Popup markup is inserted only when the popup opens, so the place row cannot
     // be measured any earlier than this.
@@ -4919,14 +5589,11 @@ const Atlas = (() => {
     // GAZ and SOURCES must be loaded before _map() runs. Never pass a cache override
     // here: no-store re-downloads the whole corpus on every reload.
     // prettier-ignore
-    const [sitesJson, nianJson, nengoJson, civsJson, regionsJson, manifestJson, sourcesJson, visJson] = await Promise.all([
+    const [sitesJson, erasJson, civsJson, regionsJson, manifestJson, sourcesJson, visJson, calJson, termsJson, personsJson, bodiesJson, xingguanJson] = await Promise.all([
       fetch('data/concordance/gazetteer.json')
         .then((r) => r.json())
         .catch(() => null),
-      fetch('data/concordance/nianhao.json')
-        .then((r) => r.json())
-        .catch(() => null),
-      fetch('data/concordance/nengo.json')
+      fetch('data/concordance/eras.json')
         .then((r) => r.json())
         .catch(() => null),
       fetch('data/concordance/civilizations.json')
@@ -4944,7 +5611,23 @@ const Atlas = (() => {
       fetch('data/records/visibility.json')
         .then((r) => r.json())
         .catch(() => null),
+      fetch('data/concordance/calendars.json')
+        .then((r) => r.json())
+        .catch(() => null),
+      fetch('data/concordance/terms.json')
+        .then((r) => r.json())
+        .catch(() => null),
+      fetch('data/concordance/persons.json')
+        .then((r) => r.json())
+        .catch(() => null),
+      fetch('data/concordance/bodies.json')
+        .then((r) => r.json())
+        .catch(() => null),
+      fetch('data/concordance/xingguan.json')
+        .then((r) => r.json())
+        .catch(() => null),
     ]);
+    setStarNames(xingguanJson, bodiesJson);
 
     // Populate SOURCES lookup keyed by source slug (used by _map to resolve source.key).
     if (sourcesJson && sourcesJson.sources) {
@@ -4953,6 +5636,22 @@ const Atlas = (() => {
       });
     }
     GAZ = (sitesJson && sitesJson.places) || {};
+
+    // The tables a note's slots name things from; set before any card renders a note.
+    if (typeof Notes !== 'undefined') {
+      Notes.setData({
+        calendars: (calJson && calJson.calendars) || {},
+        terms: (termsJson && termsJson.terms) || {},
+        sources: SOURCES,
+        persons: (personsJson && personsJson.persons) || {},
+        bodies: (bodiesJson && bodiesJson.bodies) || {},
+        stars: (xingguanJson && xingguanJson.xingguan) || {},
+        places: GAZ,
+      });
+    }
+
+    // The era names and the subject spans a record's supplied tokens expand through.
+    if (typeof Supplied !== 'undefined') Supplied.setData({ eras: erasJson, bodies: bodiesJson });
 
     // Must be populated before any _map() runs: a record mapped ahead of this reads its
     // visibility as null and ships unflagged, which is the silent half of the failure the
@@ -4970,8 +5669,8 @@ const Atlas = (() => {
     // be set before any _map() runs — boot shard or deferred one.
     CIV_NAMES = (civsJson && civsJson.civs) || {};
     if (typeof Seal !== 'undefined') Seal.setNames(CIV_NAMES);
-    NIANHAO = nianJson;
-    NENGO = nengoJson;
+    NIANHAO = (erasJson && erasJson.lines && erasJson.lines.zh) || null;
+    NENGO = (erasJson && erasJson.lines && erasJson.lines.ja) || null;
     MANIFEST = manifestJson;
 
     // The civ chip row and the LOD rarity weight both describe the whole corpus, not the
@@ -5162,6 +5861,7 @@ const Atlas = (() => {
     ensureRecord,
     selectEvent,
     refresh: renderAll,
+    reseedList,
     state,
     recordsForEvent,
     focusYear,

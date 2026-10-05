@@ -234,7 +234,10 @@ const Permalink = (() => {
           const fy = Number(params.get('f'));
 
           // Clamp the focus year to the domain so focusN stays within [0, 1].
-          if (!isNaN(fy)) S.focusN = (Math.max(Y0, Math.min(Y1, fy)) - Y0) / SPAN;
+          if (!isNaN(fy)) {
+            S.focusN = (Math.max(Y0, Math.min(Y1, fy)) - Y0) / SPAN;
+            if (A.reseedList) A.reseedList();
+          }
         }
       });
 

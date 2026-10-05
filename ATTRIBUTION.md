@@ -80,7 +80,7 @@ The project's own code is released under [GPL-3.0](LICENSE). [`data/records/`](d
 
 | 文件 | 内容 | 来源 |
 |---|---|---|
-| [`xingguan.json`](data/concordance/xingguan.json) | 中国星官、二十八宿与恒星的名称、别名与现代星名 | 提取自 SubstellarAtlas 的 [`data/sky/`](https://github.com/Higashimado/SubstellarAtlas/tree/main/data/sky)，其上游来源为维基百科与 Wikidata、Stellarium 的 `constellations.cn`，以及 HYG 与 SIMBAD 恒星数据，均为 CC-BY-SA；`src: hand` 与 `planets` 部分为本库原创 |
+| [`xingguan.json`](data/concordance/xingguan.json) | 中国星官、二十八宿与恒星的名称、别名与现代星名 | 提取自 SubstellarAtlas 的 [`data/sky/`](https://github.com/Higashimado/SubstellarAtlas/tree/main/data/sky)，其上游来源为维基百科与 Wikidata、Stellarium 的 `constellations.cn`，以及 HYG 与 SIMBAD 恒星数据，均为 CC-BY-SA；`src: hand` 条目为本库原创 |
 
 ---
 
@@ -160,4 +160,4 @@ The concordance tables used by the project are stored in [`data/concordance/`](d
 
 | File | Content | Source |
 |---|---|---|
-| [`xingguan.json`](data/concordance/xingguan.json) | Names, alternative names and modern identifications of Chinese asterisms, lunar mansions and stars | Extracted from [`data/sky/`](https://github.com/Higashimado/SubstellarAtlas/tree/main/data/sky) of SubstellarAtlas, whose upstream sources are Wikipedia and Wikidata, the `constellations.cn` file of Stellarium, and the HYG and SIMBAD star data, all CC-BY-SA; the `src: hand` entries and the `planets` section are the project's own |
+| [`xingguan.json`](data/concordance/xingguan.json) | Names, alternative names and modern identifications of Chinese asterisms, lunar mansions and stars | Extracted from [`data/sky/`](https://github.com/Higashimado/SubstellarAtlas/tree/main/data/sky) of SubstellarAtlas, whose upstream sources are Wikipedia and Wikidata, the `constellations.cn` file of Stellarium, and the HYG and SIMBAD star data, all CC-BY-SA; the `src: hand` entries are the project's own |

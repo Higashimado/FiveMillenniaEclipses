@@ -66,6 +66,8 @@ Entries from DE441 elements also carry `source`, `sigma_deltat_sec`, `_sigma_lon
 | `bessel` | `t0_tdt_hours`, `delta_t_seconds`, `tan_f1`, `tan_f2`, `polynomials` (`x`, `y`, `d`, `l1`, `l2`, `mu`), `_source` (`NASA-5MCSE` or `DE441`) |
 | `path_confidence`, `schema_version` | As in `solar.json` |
 
+Files from DE441 elements also carry `source` and `sigma_deltat_sec`, as in `solar.json`.
+
 ## bessel-5mcse.json, bessel-ancient.json
 
 Header keys: `_` (units and sign conventions), `source`, `source_url`, `generated_from`, `count`. `eclipses` is an array with one object per eclipse:

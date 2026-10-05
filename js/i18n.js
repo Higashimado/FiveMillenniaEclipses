@@ -38,6 +38,13 @@ const I18n = (() => {
     return _interp(str, params);
   }
 
+  // A key in a named locale, or null when that locale's dictionary lacks it. Only the
+  // active locale and English are loaded, so any other locale also answers null.
+  function tIn(locale, key) {
+    const dict = locale === _locale ? _dict : locale === FALLBACK ? _fallbackDict : null;
+    return (dict && dict[key]) ?? null;
+  }
+
   // Glossary lookup: a single `glossary.<slug>` namespace holding short term
   // definitions, shared across panels and cards. Returns '' when the slug has no
   // entry — unlike t(), which echoes the key back.
@@ -280,6 +287,7 @@ const I18n = (() => {
   return {
     t,
     ten,
+    tIn,
     pick,
     pickDistinct,
     gloss,

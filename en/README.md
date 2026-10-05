@@ -31,19 +31,19 @@ Clicking a seal on the map or an entry in the list opens **event details**. In t
 
 ## Records
 
-The corpus currently holds 13,159 records of celestial phenomena, and their English translations total about 490,000 words. The records come from 381 sources in 23 languages, among them Classical Chinese, Dutch, French, English, Latin, Arabic and Greek. They were taken from more than 20 digital libraries, including [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), the [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), the [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) and [NASA ADS](https://ui.adsabs.harvard.edu/). Every text quoted is in the public domain.
+The corpus currently holds 13,156 records of celestial phenomena, and their English translations total about 560,000 words. The records come from 387 sources in 23 languages, among them Classical Chinese, Dutch, French, English, Latin, Arabic and Greek. They were taken from more than 20 digital libraries, including [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), the [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), the [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) and [NASA ADS](https://ui.adsabs.harvard.edu/). Every text quoted is in the public domain.
 
 ### Genres
 
-By purpose and form, the records fall into four broad classes, Histories, Newspapers, Learned writings and Miscellanea, which divide further into 19 subgenres. The subgenre is stored in the `genre` field of [`sources.json`](../data/records/sources.json). The classes differ in style, subject, length and level of detail; see [`SOURCES.md`](../SOURCES.md) for the full list of sources.
+By purpose and form, the records fall into four broad classes, Histories, Newspapers, Learned writings and Miscellanea, which divide further into 22 subgenres. The subgenre is stored in the `genre` field of [`sources.json`](../data/records/sources.json). The classes differ in style, subject, length and level of detail; see [`SOURCES.md`](../SOURCES.md) for the full list of sources.
 
 | Class | Subgenres | Sources | Records | Share of records | English words | Share of words | Period |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Histories | 6 | 92 | 12,012 | 91.3% | 245,234 | 50.2% | 720 BCE – 1911 |
-| Newspapers | 6 | 186 | 1,000 | 7.6% | 218,416 | 44.7% | 1834 – 1941 |
-| Learned writings | 3 | 55 | 55 | 0.4% | 17,786 | 3.6% | 1715 – 1923 |
-| Miscellanea | 4 | 50 | 92 | 0.7% | 7,145 | 1.5% | 2137 BCE – 1842 |
-| **Total** | **19** | **381** | **13,159** | | **488,581** | | **2137 BCE – 1941** |
+| Histories | 6 | 103 | 11,949 | 90.8% | 311,166 | 55.2% | 720 BCE – 1911 |
+| Newspapers | 6 | 186 | 1,003 | 7.6% | 220,964 | 39.2% | 1834 – 1941 |
+| Learned writings | 3 | 57 | 57 | 0.4% | 18,950 | 3.4% | 1715 – 1923 |
+| Miscellanea | 7 | 45 | 147 | 1.1% | 12,159 | 2.2% | 2137 BCE – 1842 |
+| **Total** | **22** | **387** | **13,156** | | **563,239** | | **2137 BCE – 1941** |
 
 **Histories** are chiefly the official histories of China, Japan, Korea and Vietnam, joined by chronicles from Western Asia and Europe. Their entries run in unbroken series, are systematically classified and follow a set format; the [Treatise on Astronomy in the *History of Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) is a typical example. **Newspapers** belong to the modern era and come from many hands and points of view, ranging from lively scenes of townspeople in the street to editorials and essays that read the sky as a comment on public affairs. **Learned writings** are the work of astronomers and other scholars and go into great detail; the most consequential of them are the 1919 eclipse observations that confirmed general relativity, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). **Miscellanea** take in classics, historical works, poems, diaries, letters and clay tablets, such as the line of the *Classic of Poetry* rendered by Legge as "The sun was eclipsed; a thing of very evil omen." All of the earliest records belong to this class, though the dates and places assigned to many of them are disputed.
 
@@ -60,7 +60,7 @@ The record data are stored as JSONL under [`data/records/`](../data/records/), g
 | [`data/records/visibility.json`](../data/records/visibility.json) | Visibility | [`js/atlas.js`](../js/atlas.js) |
 | [`data/records/`](../data/records/) `<phenomenon>/<civilization>.jsonl` | The records | [`js/atlas.js`](../js/atlas.js) |
 
-`<phenomenon>` is one of `solar`, `lunar`, `occultation`, `conjunction`, `guest` and `comet`, matching the six tabs of the side panel. `<civilization>` is one of 33 values such as `chinese`; see [`civilizations.json`](../data/concordance/civilizations.json).
+`<phenomenon>` is one of `solar`, `lunar`, `appulse`, `conjunction`, `guest` and `comet`, matching the six tabs of the side panel. `<civilization>` is one of 33 values such as `chinese`; see [`civilizations.json`](../data/concordance/civilizations.json).
 
 ## Tables
 
@@ -79,18 +79,17 @@ The tables of astronomical events cover the years −3000 to 1999 in [astronomic
 
 ## Concordance
 
-The concordance tables unify the metadata of objects that different sources know by different names, such as Yinghuo (荧惑) for Mars among celestial objects, or Yingtian (应天) for Nanjing among places. They are the authority behind the related fields of the records and the tables. For example, [`gazetteer.json`](../data/concordance/gazetteer.json) holds the names and coordinates of the places of observation, [`xingguan.json`](../data/concordance/xingguan.json) holds the names, extents and connecting lines of the Chinese asterisms, and [`nianhao.json`](../data/concordance/nianhao.json) holds the Chinese era names with their dynasties and the corresponding astronomical years. An object may have short forms and aliases, or bear a particular name during a particular span of time; the `_meta` field at the head of each file defines how these are recorded.
+The concordance tables unify the metadata of objects that different sources know by different names, such as Yinghuo (荧惑) for Mars among celestial objects, or Yingtian (应天) for Nanjing among places. They are the authority behind the related fields of the records and the tables. For example, [`gazetteer.json`](../data/concordance/gazetteer.json) holds the names and coordinates of the places of observation, [`xingguan.json`](../data/concordance/xingguan.json) holds the names, extents and connecting lines of the Chinese asterisms, and [`eras.json`](../data/concordance/eras.json) holds the Chinese, Japanese, Vietnamese and Western Xia era names with their dynasties and the corresponding astronomical years. An object may have short forms and aliases, or bear a particular name during a particular span of time; the `_meta` field at the head of each file defines how these are recorded.
 
 | File | Contents | Used by | Entries |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | Format notes | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Places | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 546 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Places | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 565 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | Regions | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | Civilizations | [`js/atlas.js`](../js/atlas.js), [`js/seal.js`](../js/seal.js) | 33 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | Institution names | — | 52 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Chinese star names | — | 413 |
-| [`data/concordance/nianhao.json`](../data/concordance/nianhao.json) | Chinese era names | [`js/atlas.js`](../js/atlas.js) | 330 |
-| [`data/concordance/nengo.json`](../data/concordance/nengo.json) | Japanese era names | [`js/atlas.js`](../js/atlas.js) | 241 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Chinese star names | — | 407 |
+| [`data/concordance/eras.json`](../data/concordance/eras.json) | Era names | [`js/atlas.js`](../js/atlas.js) | 830 |
 
 ## Running locally
 

@@ -1,7 +1,7 @@
 {
   "_meta": {
     "title": "Civilization names in seven languages",
-    "scope": "Display names for every civilization key used by the record corpus. Names only; the colours and ornaments a reader may see next to them are not part of this table.",
+    "scope": "Display names for the civilization keys of the record corpus.",
     "fields": "key = civilization identifier. zh-Hans = Simplified Chinese. zh-Hant = Traditional Chinese. en = English display name. fr = French. es = Spanish. it = Italian. ja = Japanese. eras = optional list of era-specific name overrides, each carrying the same seven locale keys plus a half-open astronomical-year range [since, until); a record dated inside the range wears the override, every other record wears the row's own span name.",
     "provenance": "Hand-compiled. Names follow the usage established in historical and astronomical scholarship in each language. Japanese prefers kanji, with katakana used for Indo-European names that have no kanji form.",
     "count": {
@@ -21,7 +21,7 @@
     "hittite": {"zh-Hans": "赫梯", "zh-Hant": "赫梯", "en": "Hittite", "fr": "Hittite", "es": "Hitita", "it": "Ittita", "ja": "ヒッタイト"},
     "arab": {"zh-Hans": "阿拉伯", "zh-Hant": "阿拉伯", "en": "Islamic", "fr": "Arabe", "es": "Árabe", "it": "Arabo", "ja": "アラビア"},
     "armenian": {"zh-Hans": "亚美尼亚", "zh-Hant": "亞美尼亞", "en": "Armenia", "fr": "Arménie", "es": "Armenia", "it": "Armenia", "ja": "アルメニア"},
-    "syriac": {"zh-Hans": "叙利亚", "zh-Hant": "敘利亞", "en": "Syriac", "fr": "Syriaque", "es": "Siríaco", "it": "Siriaco", "ja": "シリア"},
+    "syriac": {"zh-Hans": "叙利亚", "zh-Hant": "敍利亞", "en": "Syriac", "fr": "Syriaque", "es": "Siríaco", "it": "Siriaco", "ja": "シリア"},
     "indian": {"zh-Hans": "印度", "zh-Hant": "印度", "en": "India", "fr": "Inde", "es": "India", "it": "India", "ja": "インド"},
     "greek": {"zh-Hans": "希腊", "zh-Hant": "希臘", "en": "Greek", "fr": "Grec", "es": "Griego", "it": "Greco", "ja": "ギリシャ"},
     "roman": {"zh-Hans": "罗马", "zh-Hant": "羅馬", "en": "Rome", "fr": "Rome", "es": "Roma", "it": "Roma", "ja": "ローマ"},

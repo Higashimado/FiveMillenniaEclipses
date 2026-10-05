@@ -1,0 +1,23 @@
+{
+  "_meta": {
+    "title": "The Moon and the planets named in the records, in seven languages",
+    "scope": "The Moon, the five planets, the five together and one of the five left unidentified. Stars, asterisms and lunar lodges are the entries of xingguan.json.",
+    "fields": "key = body identifier, the value a record's object.key carries where it names one body. kind = moon, planet, or planets for the five together. token = the value of a supplied subject=<token> unit, present where the translations supply the body as the subject of a clause. alias = the names the sources write for the body, ancient, variant-glyph and modern, in the forms the texts print. zh-Hans / zh-Hant / en / fr / es / it / ja = the name as the translations print it, all seven required.",
+    "provenance": "The names are the forms the translations of the record corpus print; the aliases are the names the sources of the corpus use. Original to this project.",
+    "count": {
+      "bodies": 8
+    },
+    "license": "CC-BY-SA-4.0",
+    "updated": "2026-10-03"
+  },
+  "bodies": {
+    "the_moon": {"kind": "moon", "token": "moon", "alias": ["月", "太陰"], "zh-Hans": "月亮", "zh-Hant": "月亮", "en": "the Moon", "fr": "la Lune", "es": "la Luna", "it": "la Luna", "ja": "月"},
+    "the_five_planets": {"kind": "planets", "alias": ["五星"], "zh-Hans": "五星", "zh-Hant": "五星", "en": "the five planets", "fr": "les cinq planètes", "es": "los cinco planetas", "it": "i cinque pianeti", "ja": "五惑星"},
+    "one_of_the_five_planets": {"kind": "planet", "token": "planet", "alias": ["五緯之一"], "zh-Hans": "五纬之一", "zh-Hant": "五緯之一", "en": "one of the five planets", "fr": "l'une des cinq planètes", "es": "uno de los cinco planetas", "it": "uno dei cinque pianeti", "ja": "五惑星のいずれか"},
+    "mercury": {"kind": "planet", "token": "mercury", "alias": ["辰星", "水星", "水"], "zh-Hans": "水星", "zh-Hant": "水星", "en": "Mercury", "fr": "Mercure", "es": "Mercurio", "it": "Mercurio", "ja": "水星"},
+    "venus": {"kind": "planet", "token": "venus", "alias": ["太白", "金星", "金", "大白", "長庚", "长庚", "啓明", "启明"], "zh-Hans": "金星", "zh-Hant": "金星", "en": "Venus", "fr": "Vénus", "es": "Venus", "it": "Venere", "ja": "金星"},
+    "mars": {"kind": "planet", "token": "mars", "alias": ["熒惑", "火星", "火", "荧惑"], "zh-Hans": "火星", "zh-Hant": "火星", "en": "Mars", "fr": "Mars", "es": "Marte", "it": "Marte", "ja": "火星"},
+    "jupiter": {"kind": "planet", "token": "jupiter", "alias": ["歲星", "歲", "岁", "木星", "木", "岁星"], "zh-Hans": "木星", "zh-Hant": "木星", "en": "Jupiter", "fr": "Jupiter", "es": "Júpiter", "it": "Giove", "ja": "木星"},
+    "saturn": {"kind": "planet", "token": "saturn", "alias": ["填星", "鎮星", "土星", "土", "鎭星"], "zh-Hans": "土星", "zh-Hant": "土星", "en": "Saturn", "fr": "Saturne", "es": "Saturno", "it": "Saturno", "ja": "土星"}
+  }
+}

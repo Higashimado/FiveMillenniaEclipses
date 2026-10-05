@@ -31,19 +31,19 @@
 
 ## 史料
 
-本库目前存有天象记录共 13 159 条，汉译文本约 53 万字。记录引自 381 种来源，涉汉文、荷兰语、法语、英语、拉丁语、阿拉伯语、希腊语等 23 种语言，取自 [维基文库](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[台灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[德意志历史文献集成 dMGH](https://www.dmgh.de/) 与 [NASA ADS](https://ui.adsabs.harvard.edu/) 等 20 余个数字图书馆，所引文本版权均为公有。
+本库目前存有天象记录共 13 156 条，汉译文本约 56 万字。记录引自 387 种来源，涉汉文、荷兰语、法语、英语、拉丁语、阿拉伯语、希腊语等 23 种语言，取自 [维基文库](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[台灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[德意志历史文献集成 dMGH](https://www.dmgh.de/) 与 [NASA ADS](https://ui.adsabs.harvard.edu/) 等 20 余个数字图书馆，所引文本版权均为公有。
 
 ### 体裁
 
-依目的和形式的不同，本库记录的体裁可大致分为“史册”“报刊”“学志”“杂录”四类，此下再细分 19 种小类。小类记于 [`sources.json`](../data/records/sources.json) 的 `genre` 字段。不同体裁的记录风格、主题、篇幅及详略各不相同，详见 [`SOURCES.md`](../SOURCES.md)．
+依目的和形式的不同，本库记录的体裁可大致分为“史册”“报刊”“学志”“杂录”四类，此下再细分 22 种小类。小类记于 [`sources.json`](../data/records/sources.json) 的 `genre` 字段。不同体裁的记录风格、主题、篇幅及详略各不相同，详见 [`SOURCES.md`](../SOURCES.md)．
 
 | 类别 | 小类 | 来源 | 条数 | 条数占比 | 汉译字数 | 字数占比 | 年代 |
 |---|---:|---:|---:|---:|---:|---:|---|
-| 史册 | 6 | 92 | 12 012 | 91.3% | 214 267 | 40.5% | 前 720 – 1911 |
-| 报刊 | 6 | 186 | 1 000 | 7.6% | 281 643 | 53.3% | 1834 – 1941 |
-| 学志 | 3 | 55 | 55 | 0.4% | 23 852 | 4.5% | 1715 – 1923 |
-| 杂录 | 4 | 50 | 92 | 0.7% | 8 737 | 1.7% | 前 2137 – 1842 |
-| **合计** | **19** | **381** | **13 159** | | **528 499** | | **前 2137 – 1941** |
+| 史册 | 6 | 103 | 11 949 | 90.8% | 238 665 | 42.5% | 前 720 – 1911 |
+| 报刊 | 6 | 186 | 1 003 | 7.6% | 281 545 | 50.2% | 1834 – 1941 |
+| 学志 | 3 | 57 | 57 | 0.4% | 25 157 | 4.5% | 1715 – 1923 |
+| 杂录 | 7 | 45 | 147 | 1.1% | 16 029 | 2.9% | 前 2137 – 1842 |
+| **合计** | **22** | **387** | **13 156** | | **561 396** | | **前 2137 – 1941** |
 
 **史册**以中、日、朝、越官修史书为主体，兼收西亚、欧洲编年史，载录连续、分类齐全、格式规整，典例有如[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)。**报刊**是近代产物，来源丰富、视角多样，既有富生活气息的市民群像，又有以天象喻事之社论杂文。**学志**为专业人士撰写，记录翔实、影响深远，最重要的莫如 1919 年验证广义相对论之日食观测 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895)．**杂录**则含经书、史著、诗歌、日记、书信与泥板等，如《诗经》之“日有食之，亦孔之醜”，上古记录尽出于此，然其所系年月、地点多有争议。
 
@@ -60,7 +60,7 @@
 | [`data/records/visibility.json`](../data/records/visibility.json) | 可见性 | [`js/atlas.js`](../js/atlas.js) |
 | [`data/records/`](../data/records/) `<天象>/<文明>.jsonl` | 记录原件 | [`js/atlas.js`](../js/atlas.js) |
 
-`<天象>` 可取 `solar`、`lunar`、`occultation`、`conjunction`、`guest`、`comet`，与右栏的六类浮签一致。`<文明>` 可取 `chinese` 等 33 种，详见 [`civilizations.json`](../data/concordance/civilizations.json)．
+`<天象>` 可取 `solar`、`lunar`、`appulse`、`conjunction`、`guest`、`comet`，与右栏的六类浮签一致。`<文明>` 可取 `chinese` 等 33 种，详见 [`civilizations.json`](../data/concordance/civilizations.json)．
 
 ## 全表
 
@@ -79,18 +79,17 @@
 
 ## 对照
 
-本库的对照表用于统一多源异名对象的元数据信息，如天文对象的“荧惑”之于“火星”，地理对象的“应天”之于“南京”等，以作史料和全表相关字段的凭据。例如，[`gazetteer.json`](../data/concordance/gazetteer.json) 存放天象记录中观测地的名称、坐标，[`xingguan.json`](../data/concordance/xingguan.json) 存放星官的名称、范围与连线，[`nianhao.json`](../data/concordance/nianhao.json) 存放中国年号的名称、朝代及对应的天文纪年。同一对象或有简写、别名，或在不同的时间范围内有特定名称，详见各文件头部 `_meta` 字段的定义。
+本库的对照表用于统一多源异名对象的元数据信息，如天文对象的“荧惑”之于“火星”，地理对象的“应天”之于“南京”等，以作史料和全表相关字段的凭据。例如，[`gazetteer.json`](../data/concordance/gazetteer.json) 存放天象记录中观测地的名称、坐标，[`xingguan.json`](../data/concordance/xingguan.json) 存放星官的名称、范围与连线，[`eras.json`](../data/concordance/eras.json) 存放中、日、越、西夏年号的名称、朝代及对应的天文纪年。同一对象或有简写、别名，或在不同的时间范围内有特定名称，详见各文件头部 `_meta` 字段的定义。
 
 | 文件 | 内容 | 调用 | 条目 |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | 格式说明 | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 546 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 565 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | 区域 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | 文明 | [`js/atlas.js`](../js/atlas.js)、[`js/seal.js`](../js/seal.js) | 33 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | 机构名称 | — | 52 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | 中国星名 | — | 413 |
-| [`data/concordance/nianhao.json`](../data/concordance/nianhao.json) | 中国年号 | [`js/atlas.js`](../js/atlas.js) | 330 |
-| [`data/concordance/nengo.json`](../data/concordance/nengo.json) | 日本元号 | [`js/atlas.js`](../js/atlas.js) | 241 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | 中国星名 | — | 407 |
+| [`data/concordance/eras.json`](../data/concordance/eras.json) | 年号 | [`js/atlas.js`](../js/atlas.js) | 830 |
 
 ## 运行
 

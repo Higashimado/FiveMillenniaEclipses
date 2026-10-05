@@ -20,7 +20,7 @@ body { height: 100vh; overflow: hidden; font-feature-settings: 'tnum' 1, 'lnum' 
    not by eye. --ear-inset is the shu'er's (ear tab) left offset plus its trailing gutter.
    --huamian-min floors the huamian column, which #frame's min-width must then include. */
 :root {
-  --ear-w: 433px; --ear-inset: 40px;
+  --ear-w: 530px; --ear-inset: 40px;
   --huamian-min: calc(var(--ear-w) + var(--ear-inset));
   --rail-w: 344px; --frame-rule: 1.7px;
 }
@@ -470,7 +470,44 @@ html:is([lang^="zh"], [lang^="ja"]) :is(.rc-year, .rp-year).era-quewei {
 /* The note sits at the citation's size and ink. It cannot be set in italic for Han and
    kana (the shipped faces carry no italic cut; see the foot of this file), so the hairline
    alone tells the two voices apart there. */
-.rc-note, .rp-note { font-size: var(--fs-note); color: var(--ink-note, #6F6A5C); font-style: italic; margin-top: 7px; padding-top: 7px; border-top: 0.7px solid var(--hair, #D3CFC5); line-height: 1.5; }
+.rc-note, .rp-note { font-size: var(--fs-note); color: var(--ink-note, #6F6A5C); font-style: italic; margin: 7px 0 0; padding: 7px 0 0 1.7em; border-top: 0.7px solid var(--hair, #D3CFC5); line-height: 1.5; list-style: none; }
+.rc-note li + li, .rp-note li + li { margin-top: 2px; }
+.rc-note li, .rp-note li { position: relative; }
+
+/* A title inside an italic note turns roman, the usual reversal of emphasis. */
+:is(.rc-note, .rp-note) i { font-style: normal; }
+
+/* The note number after the word it explains, in the note's ink. */
+/* Words a translation supplies that the source does not write: round brackets in Chinese and
+   Japanese (GB/T 15834 4.9.3.1), square brackets in the Western locales. */
+sup.nref { font-size: var(--fs-micro); line-height: 0; vertical-align: super; font-style: normal; font-weight: normal; margin-left: 1px; }
+
+/* Vermilion, the ink of the selection thread: an editor's mark in red, as in a printed
+   commentary. */
+sup.nref a, a.nback { color: var(--spark, #B23A2E); text-decoration: none; }
+sup.nref a:hover, a.nback:hover, a.fnlink:hover { text-decoration: underline; }
+
+/* The list numbers match the bracketed marks in the text; they hang in the left margin as real text. */
+.nnum { position: absolute; right: 100%; padding-right: .4em; white-space: nowrap; font-style: normal; }
+a.nback { font-style: normal; }
+
+/* The source's own footnotes: under a rule as wide as the text, one size down. Their
+   figures keep the source's form and ink, linked but unmarked until hovered. */
+.rec-fn { margin-top: .8em; padding-top: .5em; font-size: var(--fs-note); position: relative; }
+.rec-fn::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: 0.7px solid var(--hair, #D3CFC5); }
+.rec-fn p + p { margin-top: .3em; }
+a.fnlink { color: inherit; text-decoration: none; }
+
+/* A cited work's title links to the edition consulted, in the note's ink, underlined faintly. */
+a.wlink { color: inherit; text-decoration: underline; text-decoration-color: var(--hair, #D3CFC5); text-underline-offset: 2px; }
+a.wlink:hover { text-decoration-color: currentColor; }
+
+/* A row of asterisks set as the source sets it: a centred, spaced section break. */
+.rec-break { text-align: center; letter-spacing: .9em; text-indent: .9em; color: var(--ink-note, #696353); margin: .6em 0; }
+
+/* The entry a link lands on glows once. */
+.n-flash { animation: n-flash 1.6s ease-out; }
+@keyframes n-flash { from { background: var(--hair-2, #E0DCD2); } to { background: transparent; } }
 
 /* ---- Collapsed summary vs expanded detail (bound to .sel) ---- */
 /* Unselected cards are compact: seal + place + year plus a one-line translation preview.
@@ -478,7 +515,8 @@ html:is([lang^="zh"], [lang^="ja"]) :is(.rc-year, .rp-year).era-quewei {
    scroll-into-view all reuse that one path. */
 .reccard:not(.sel) .rc-orig:not(.solo),
 .reccard:not(.sel) .rc-src,
-.reccard:not(.sel) .rc-note { display: none; }
+.reccard:not(.sel) .rc-note,
+.reccard:not(.sel) .rec-fn { display: none; }
 .reccard:not(.sel) .rc-trans { overflow: hidden; margin-bottom: 0; }
 .reccard.sel .rc-trans { overflow: visible; }
 
@@ -487,10 +525,19 @@ html:is([lang^="zh"], [lang^="ja"]) :is(.rc-year, .rp-year).era-quewei {
    counts them, not their lines, and lets the whole first paragraph through. */
 .reccard:not(.sel) .rc-trans p ~ p,
 .reccard:not(.sel) .rc-orig.solo p ~ p { display: none; }
-.reccard:not(.sel) .rc-trans p:first-child,
-.reccard:not(.sel) .rc-orig.solo p:first-child {
+
+/* A table the source set is no preview line: it waits for the card to expand. The clamp
+   counts first-of-type, so it still lands on the first paragraph when a table stands ahead. */
+.reccard:not(.sel) .rc-trans .rec-tabwrap,
+.reccard:not(.sel) .rc-orig.solo .rec-tabwrap { display: none; }
+.reccard:not(.sel) .rc-trans p:first-of-type,
+.reccard:not(.sel) .rc-orig.solo p:first-of-type {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden;
 }
+
+/* The note list is folded with the rest of the detail, so a superscript on the collapsed
+   card (year, place, a preview line) would point at a number nobody can read. */
+.reccard:not(.sel) sup.nref { display: none; }
 
 /* A source already in the viewer's language shows the original in place of a translation
    line, same clamp, set in the translation's ink and size. The quotation rule and its
@@ -512,7 +559,7 @@ html:is([lang^="zh"], [lang^="ja"]) :is(.rc-year, .rp-year).era-quewei {
 /* Load-earlier / load-later are quiet full-width jiehang drawers, not boxed buttons,
    receding to ink-3 until hovered. The hairline sits on the LIST side of each — earlier
    borders its bottom, later its top. */
-.ec-load { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; color: var(--ink-3, #8B8F8C); padding: 4px 0; margin: 0; cursor: pointer; transition: background .1s, color .1s; }
+.ec-load { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; background: transparent; border: 0; color: var(--ink-3, #8B8F8C); padding: 5px 0; margin: 0; cursor: pointer; transition: background .1s, color .1s; }
 .ec-load-earlier { border-bottom: 0.7px solid var(--hair, #D3CFC5); }
 .ec-load-later { border-top: 0.7px solid var(--hair, #D3CFC5); }
 .ec-load[hidden] { display: none; }  /* MUST outrank the display:flex above */
@@ -729,6 +776,14 @@ mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 60
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ev-strip-l1 b { font-weight: 600; }
 
+/* Each row pairs a register with its saros cell, flush right: the series number beside the
+   science row, the rank within the series beside the chronicle row. The cell takes its
+   row's type and never yields; the register truncates first. */
+.ev-strip-row { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.ev-strip-row > :first-child { flex: 1 1 auto; }
+.ev-strip-row > .ev-strip-saros { flex: none; overflow: visible; font-weight: 400; }
+.ev-strip-row > .ev-strip-l1.ev-strip-saros { font-weight: 600; }
+
 /* The whole science row reads in ONE ink: a lighter --ink-2 on type/magnitude makes the
    line read part-black, part-grey. */
 .ev-strip-type, .ev-strip-mag { color: var(--ink, #2B2A26); }
@@ -943,7 +998,9 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
    .op-brow's fixed popup width once the forecast is just bare dates. */
 /* This padding plus .op-fc-row's own MUST equal .op-brow's padding-right: both are the
    same close-button clearance, split across two elements. */
-.op-body--full { grid-template-columns: 1fr; width: auto; padding-right: 20px; }
+/* Block, not a one-column grid: Chrome drops the subgrid rows' gap from a nested grid's
+   intrinsic width, so Leaflet measured the popup 22px short and a scrollbar appeared. */
+.op-body--full { display: block; width: auto; padding-right: 20px; }
 .op-body--full .op-say { padding-left: 0; border-left: none; }
 
 /* Contact-time table: P-key · CJK name · shichen · UTC · altitude; column order matches
@@ -985,7 +1042,7 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 .op-forecast { display: grid; grid-template-columns: max-content 1fr; }
 .op-fc-row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; gap: 12px; padding: 3px 2px; font-size: var(--fs-body); }
 .op-fc-row .op-k { color: var(--ink-note, #696353); }
-.op-fc-row .op-v { justify-self: end; text-align: right; color: var(--ink, #2A2E33); font-variant-numeric: tabular-nums; font-family: var(--font-text); }
+.op-fc-row .op-v { justify-self: end; text-align: right; white-space: nowrap; color: var(--ink, #2A2E33); font-variant-numeric: tabular-nums; font-family: var(--font-text); }
 .op-fc-row .op-v.op-none { color: var(--ink-3, #8B8F8C); }
 
 /* Numeral cells of a CJK date (the popup builder emits them), width in ch: four for a
@@ -1023,6 +1080,11 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
    compact .is-label chip for [data-tip] control names. No native title= is emitted
    anywhere on the site. Read-only, positioned via fixed coords from JS. */
 [data-gloss] { cursor: help; }
+
+/* An era name in a record's text: a dotted underline says it can be looked up, and the
+   wash on hover marks exactly which words the card explains. */
+.ngloss { border-bottom: 1px dotted var(--ink-3, #8B8F8C); border-radius: 2px; transition: background-color 0.12s; }
+.ngloss:hover { background: color-mix(in srgb, var(--accent, #4F8D74) 24%, transparent); border-bottom-color: var(--accent-ink, #3C6E5A); }
 .glossary-tip {
   position: fixed; z-index: 10001; pointer-events: none;
   max-width: min(260px, calc(100vw - 16px)); white-space: normal;

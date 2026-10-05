@@ -16,8 +16,8 @@
       "description": "Globally unique across ALL files, enforced by the corpus validator. Convention: <source-slug>-<phenomenon>-<NN>, e.g. xintangshu-tianwen-occultation-0390."
     },
     "phenomenon": {
-      "enum": ["solar", "lunar", "comet", "guest", "occultation", "conjunction"],
-      "description": "Also the directory a record is routed to, one per phenomenon. solar/lunar = eclipses; comet/guest/occultation/conjunction = transients. Replaces the old dual eclipse_type/phenomenon keys. conjunction (合聚) is several bodies gathered at one place — 「太白、辰星、歲星合于張」 — which the treatises record under their own headings (五緯合聚) and which is not one body grazing another; occultation would assert a subject and a target where the source names neither."
+      "enum": ["solar", "lunar", "comet", "guest", "appulse", "conjunction"],
+      "description": "Also the directory a record is routed to, one per phenomenon. solar/lunar = eclipses; comet/guest/appulse/conjunction = transients. Replaces the old dual eclipse_type/phenomenon keys. conjunction (合聚) is several bodies gathered at one place — 「太白、辰星、歲星合于張」 — which the treatises record under their own headings (五緯合聚) and which is not one body grazing another; occultation would assert a subject and a target where the source names neither."
     },
     "event_date": {
       "type": "string",
@@ -44,18 +44,31 @@
       "properties": {
         "verbatim": {
           "type": "string",
-          "description": "The date exactly as the source text states it (reign era + reckoning), e.g. '十二年閏二月庚辰朔'. Absent only for records with no textual date apparatus (rare western entries where event_date derives from the source's own Gregorian/Julian date)."
+          "description": "The record's date as text_orig writes it: a stretch of text_orig copied character for character, from the first date word the date is read from to the record's own day, e.g. '閏二月庚辰朔' or 'gisteren'. What the source carries over from an earlier entry (the reign era, the year, the month) is not in it; the record's supplied tokens era=, year= and month= state it, and build/lib/han_dates.py reads the two together. A date word the source miswrites stays as written; an emendation note anchored in the stretch corrects it, and the reader and the supplied tokens follow the correction. Absent when text_orig writes no date of the record's own; a newspaper's issue date is source.locus.issue."
         },
         "precision": {
           "enum": ["day", "month", "year"],
           "description": "How far event_date can be trusted. month precision => event_date's day segment is a nominal placeholder, not attested — see lunar_month for the source's own calendar month."
         },
         "basis": {
-          "enum": [
-            "explicit", "sexagenary_forward_scan", "civil_day_number", "era_midpoint", "year_only",
-            "approximate", "scholarly_consensus", "reverse_match_nasa", "reverse_match_ae"
-          ],
-          "description": "How event_date/date.verbatim was converted to the calendar. explicit = source gives a directly-usable calendar date. sexagenary_forward_scan = the 干支 ganzhi cycle forward-scanned from a reign-year start (the historical-China default). civil_day_number = the source numbers the day within its lunar month (七月二十二日) instead of naming it by ganzhi, so the day is counted from the month start rather than scanned for; administrative paperwork dates this way where annalistic histories do not. era_midpoint = only 'in the Nth reign, mid-period' is known. reverse_match_nasa/ae = eclipse identified by matching the record's description against the NASA 5MCSE/5MCLE canon or an AE-computed path, not by calendrical reckoning of the record's own date — this is the ONLY basis where an eclipse record's identification depends on data/eclipses/*.json, and the family most in need of reading against data/records/visibility.json: the matcher takes the global peak and never checks local visibility."
+          "enum": ["calendar", "canon", "scholarship", "estimate"],
+          "description": "Where event_date comes from. calendar = the source gives the date, in its own words or through its context (a reign era carried from the preceding entry, a newspaper's issue date with \"yesterday\"), converted by its calendar. canon = the source's date is insufficient and the eclipse was identified by matching the record against the computed catalogue (data/eclipses/*.json); this family is the one most in need of reading against data/records/visibility.json, since the matcher takes the global peak and never checks local visibility. scholarship = a scholar's dating is adopted. estimate = only an approximate time is known (mid-reign, a year)."
+        },
+        "epoch": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^[a-z][a-z-]*:[0-9]+$"},
+          "description": "Each year of a foreign era the text prints, as <calendar>:<year> (hijri:244), the calendar a key of data/concordance/calendars.json that counts years. js/notes.js (dateUnits) gives every place a translation prints the year the era's hover card, where the era's name does not already stand beside it."
+        },
+        "hour": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^(day|night):([1-9]|1[0-2])$"},
+          "description": "Each unequal hour the text prints, as day:<n> for the n-th twelfth of daylight counted from sunrise or night:<n> for the n-th twelfth of the night counted from sunset (canonical, Byzantine and Arabic reckonings alike). js/notes.js (dateUnits) gives every place a translation prints the hour a hover card with the modern clock hour it falls about."
+        },
+        "verbatim_checked": {
+          "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "The day verbatim was read against the base text and found to agree with it in year, intercalation, month and sexagenary day, while the sky contradicts the record (the Moon far from the lodge it names). The discrepancy is the source's own; the date stays as the source gives it. The check moon-far-from-lodge reads it."
         }
       }
     },
@@ -70,21 +83,15 @@
     "place": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["key", "basis"],
       "properties": {
         "key": {
           "type": "string",
-          "description": "Key into data/concordance/gazetteer.json .places. Present on nearly every record; a place.key value is the sole authority on display name, dynasty period, and aliases — see gazetteer.json's `aliases` field for historical alternate names (e.g. 汴梁 for bianjing). No per-record name/i18n override exists (removed 2026-07-24 — it was 44.8% dead weight)."
-        },
-        "observed_at": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["lat", "lon"],
-          "properties": { "lat": {"type": "number"}, "lon": {"type": "number"} },
-          "description": "OVERRIDE of gazetteer.json's coordinates — a genuinely different observation point than the gazetteer's canonical site for this place.key (or the record has no place.key at all)."
+          "description": "Key into data/concordance/gazetteer.json .places, the sole authority on display name, coordinates, dynasty period and aliases. No per-record name or coordinate override exists: a site the gazetteer lacks gets its own gazetteer entry."
         },
         "basis": {
-          "enum": ["attested", "inferred"],
-          "description": "How the place is known, mirroring date.basis and object.basis. 'inferred' means the source names no observing site and the key is an editorial default — the six ibn al-Athīr entries take Baghdad that way. It matters because a visibility verdict computed at an inferred site tests the inference, not the record. Absent = unasserted."
+          "enum": ["named", "capital", "region", "context"],
+          "description": "How the place is known. named = the text names the site (for a newspaper, the dateline or body). capital = a court record that names no site, filed at the seat of the court. region = the text names a commandery, province or kingdom, and key is the settlement that was its seat in the period of the record. context = inferred from anything else (the chronicler's town, the paper's city). The visibility check tests named and capital records only: a verdict computed at a region's seat or at an inferred site tests the inference, not the record."
         }
       }
     },
@@ -111,7 +118,7 @@
             "column": {"type": "string", "description": "A serial's standing column or department, the named division the paper prints under the same name issue after issue (LOCAL AND GENERAL., GEMENGDE BERICHTEN., Échos, 漢口信息), with any instalment number it carries (Zaterdagavondpraatjes. — CCXVI). Cited after the issue date, 《申报》1882年5月22日，“漢口信息” — the 《历史研究》 newspaper rule — where `section` is cited before the paper. A piece that has a headline of its own under the column keeps that headline in `section`. Verbatim, never translated."},
             "part": {"type": "string", "description": "The numbered fascicle of a category whose name the source title already carries: 宋會要輯稿 cites 瑞異二之一 as the title's 瑞異, part 二, leaf 一. Written in Han as the edition writes it; the leaf goes in 'page'."},
             "annal": {"type": "string", "description": "The year-entry of a chronicle: 's.a. 840' is stored as '840', 'era MCCXXIX' as 'MCCXXIX', 昭公二十一年 as written."},
-            "era": {"type": "string", "enum": ["spanish", "anno-mundi"], "description": "The epoch 'annal' is counted from when it is not the Common Era: the Spanish era (CE + 38) or the Byzantine anno mundi (CE + 5508)."},
+            "era": {"type": "string", "enum": ["spanish", "anno-mundi"], "description": "The epoch 'annal' is counted from when it is not the Common Era: the Spanish era (CE + 38) or an anno mundi, Alexandrian (CE + 5492) or Byzantine (CE + 5508)."},
             "reign": {"type": "string", "description": "The reign whose records contain the entry (憲宗實錄 in 朝鮮王朝實錄; 莊公 in 春秋經)."},
             "year": {"type": "string", "description": "The regnal year within a reign (五年), used with 'reign'."},
             "folio": {"type": "string", "description": "Manuscript leaf, recto/verso suffix included: '40v'."},
@@ -141,15 +148,11 @@
       "properties": {
         "key": {
           "type": "string",
-          "description": "For occultation/comet/guest: the celestial object per data/concordance/xingguan.json .planets (moon/mars/venus/jupiter/saturn) or a comet/nova designation. Replaces the old bloated 'identification' block (212 distinct values collapsed to this + designation)."
+          "description": "For appulse/comet/guest: the celestial object per data/concordance/xingguan.json .planets (moon/mars/venus/jupiter/saturn) or a comet/nova designation. Replaces the old bloated 'identification' block (212 distinct values collapsed to this + designation)."
         },
         "designation": {
           "type": "string",
           "description": "A modern catalogue identification (comet/nova designation), where established by scholarship. Rare (18 records in the pre-migration corpus)."
-        },
-        "basis": {
-          "type": "string",
-          "description": "Free-text note on how/whether the object identification was made, ONLY when it says something beyond the phenomenon-level default (e.g. a genuine ephemeris cross-check). The boilerplate '位置可反算但本期未做星历验证' is NOT carried forward — its meaning is now the absence of this field."
         }
       }
     },
@@ -173,7 +176,12 @@
       "properties": {
         "deg": {"type": "number", "minimum": 0, "maximum": 180, "description": "True angular separation in degrees, at noon UT on event_date."},
         "uncertainty_deg": {"type": "number", "minimum": 0, "description": "How much of that is ignorance: half the body's own daily motion, since the record gives a day and no hour, plus parallax where it matters. For the Moon this reaches some 4 degrees and routinely exceeds deg itself — a lunar reading below it says nothing about how close the body came, and a consumer must compare the two before treating deg as a measurement."},
-        "ruler": {"enum": ["named-star", "member-star"], "description": "What it was measured to: the single star the record names, or the nearest member of the group it names."}
+        "ruler": {"enum": ["planet", "named-star", "member-star", "pair"], "description": "What it was measured to: the planet the record names as its target, the single star the record names, or the nearest member of the group it names; for a conjunction, pair: the widest pair among the bodies it names, with both bodies' daily motion in uncertainty_deg."},
+        "closest_deg": {"type": "number", "minimum": 0, "maximum": 180, "description": "Least topocentric separation in degrees seen from the record's place, sampled every ten minutes through the local civil day, preferring moments with the Sun 6 degrees down and every body above the horizon."},
+        "event": {"enum": ["occult", "appulse", "conjunction", "keep", "apart"], "description": "What the computation, not the source, finds at that moment: occult = the discs overlap; appulse = within 1 degree of the disc's edge (for the Moon, a quarter degree out from the centre closest_deg measures); conjunction = the bodies gathered in one lunar lodge, or three or more across two adjacent ones; keep = an outer planet near its target within days of a station; apart = none of these. Names the event on the atlas slip."},
+        "bodies": {"type": "array", "items": {"enum": ["the_moon", "mercury", "venus", "mars", "jupiter", "saturn"]}, "minItems": 1, "description": "The bodies in naming order: for occult the nearer body first; otherwise fastest first (Moon, Mercury, Venus, Mars, Jupiter, Saturn), with the Moon moved last in a conjunction. A single body means its target is a star."},
+        "star": {"oneOf": [{"type": "integer", "minimum": 1}, {"type": "string", "minLength": 1}], "description": "For a star target, its entry in data/concordance/xingguan.json (asterisms.target_key): the HIP number when the record names a single star (毕宿五, 轩辕大星), else the key of the asterism the named part belongs to (毕宿右股北第四星 gives 毕宿). CJK locales show the entry's name; Western ones show the star's Bayer designation, else the entry's catalogue designation (M44), else its romanization (Bi)."},
+        "unseen": {"const": true, "description": "No moment that day had the Sun down and every body above the horizon; closest_deg is then the least separation at any hour."}
       }
     },
     "significance": {
@@ -207,15 +215,258 @@
       },
       "description": "BCP-47-keyed translations, one prose rendering of text_orig per locale. zh-Hans is authoritative and required; the other 6 are filled by the multilingual build pass (the validator's completeness gate: once any record has fr, ALL must)."
     },
-    "note": {
+    "supplied": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"oneOf": [{"$ref": "#/$defs/suppliedToken"}, {"$ref": "#/$defs/supplied"}]},
+      "description": "Words a translation adds that text_orig does not write: the era name, year, month or day carried over from context, an omitted subject or object, or a word needed for sense. A word the translations print in the usual form is a token (era=hongwu, year=23, month=3, month=i4, subject=moon) that expands through data/concordance/eras.json, data/concordance/bodies.json and the ordinals of js/supplied.js; any other span is a written-out unit. The translation strings stay plain; the card wraps each listed span and adds the brackets (round brackets in Chinese and Japanese, square brackets in the Western locales). Checked by build/stage5_pack/validate_supplied.py."
+    },
+    "notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/note"},
+      "description": "Editorial notes as typed units, each anchored to a word of text_orig, a header field, the source line or the whole record. js/notes.js renders them into numbered sentences in all seven locales from the note.* patterns of data/i18n/<locale>/ui.json and the concordance tables; the card puts a superscript at each anchor."
+    }
+  },
+  "$defs": {
+    "suppliedToken": {
+      "type": "string",
+      "pattern": "^(era=[a-z0-9]+(-[a-z0-9]+)*|year=[1-9][0-9]?|month=i?([1-9]|1[0-2])|subject=[a-z]+)$",
+      "description": "A supplied span written as a token: era=<key> (the entry of data/concordance/eras.json whose k, or lowercased accent-free rom, is the key), year=N (the ordinal year of the reign), month=N (the lunar month; month=iN the intercalary one) or subject=<token> (an entry of data/concordance/bodies.json carrying that token). The token stands for the span of each of the seven locales and every one must occur in its translation."
+    },
+    "supplied": {
       "type": "object",
       "additionalProperties": false,
+      "required": [
+        "kind",
+        "text"
+      ],
       "properties": {
-        "zh-Hans": {"type": "string"}, "zh-Hant": {"type": "string"},
-        "en": {"type": "string"}, "fr": {"type": "string"},
-        "es": {"type": "string"}, "it": {"type": "string"}, "ja": {"type": "string"}
+        "kind": {
+          "enum": [
+            "era",
+            "year",
+            "month",
+            "day",
+            "subject",
+            "object",
+            "word"
+          ]
+        },
+        "text": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "enum": [
+              "zh-Hans",
+              "zh-Hant",
+              "en",
+              "fr",
+              "es",
+              "it",
+              "ja"
+            ]
+          },
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "s",
+                  "n"
+                ],
+                "properties": {
+                  "s": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "n": {
+                    "type": "integer",
+                    "minimum": 2
+                  }
+                }
+              }
+            ]
+          }
+        }
       },
-      "description": "Editorial annotation shown in the card's apparatus line (calendar-basis caveats, source provenance, textual cross-checks) — same locale-map shape as text, but optional and usually much shorter. Western locales must NOT fall back to zh-Hans (js/atlas.js noteLabel); they fall back to en only."
+      "description": "One supplied span. text maps a locale to the exact substring of that locale's translation; {s, n} names the n-th occurrence when the substring occurs more than once before it. zh-Hant may be omitted: it is derived from zh-Hans by opencc."
+    },
+    "noteText": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "zh-Hans": {
+          "type": "string",
+          "minLength": 1
+        },
+        "zh-Hant": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fr": {
+          "type": "string",
+          "minLength": 1
+        },
+        "es": {
+          "type": "string",
+          "minLength": 1
+        },
+        "it": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ja": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "noteName": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "$ref": "#/$defs/noteText"
+        }
+      ]
+    },
+    "noteQuote": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "s",
+            "n"
+          ],
+          "properties": {
+            "s": {
+              "type": "string",
+              "minLength": 1
+            },
+            "n": {
+              "type": "integer",
+              "minimum": 2
+            }
+          }
+        }
+      ]
+    },
+    "noteAnchor": {
+      "oneOf": [
+        {
+          "enum": [
+            "place",
+            "year",
+            "source",
+            "record"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "orig"
+          ],
+          "properties": {
+            "orig": {
+              "type": "string",
+              "minLength": 1
+            },
+            "n": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "tr": {
+              "type": "object",
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "zh-Hans": {
+                  "$ref": "#/$defs/noteQuote"
+                },
+                "zh-Hant": {
+                  "$ref": "#/$defs/noteQuote"
+                },
+                "en": {
+                  "$ref": "#/$defs/noteQuote"
+                },
+                "fr": {
+                  "$ref": "#/$defs/noteQuote"
+                },
+                "es": {
+                  "$ref": "#/$defs/noteQuote"
+                },
+                "it": {
+                  "$ref": "#/$defs/noteQuote"
+                },
+                "ja": {
+                  "$ref": "#/$defs/noteQuote"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "note": {
+      "description": "One note unit: a type, a sub-case, an anchor and the slots its sentence pattern (note.<type>.<sub> in data/i18n/<locale>/ui.json) fills. Generated from js/notes.js by node tools/render-notes.mjs --schema; the format is documented in .claude/skills/assign-attributes/references/notes.md.",
+      "oneOf": [
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","calendar"],"properties":{"type":{"const":"calendar_gloss"},"sub":{"const":"epoch"},"at":{"$ref":"#/$defs/noteAnchor"},"calendar":{"type":"string","minLength":1}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","calendar","month"],"properties":{"type":{"const":"calendar_gloss"},"sub":{"const":"month"},"at":{"$ref":"#/$defs/noteAnchor"},"calendar":{"type":"string","minLength":1},"month":{"type":"integer"},"span":{"$ref":"#/$defs/noteName"},"refer":{"const":true}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","calendar"],"properties":{"type":{"const":"calendar_gloss"},"sub":{"const":"used"},"at":{"$ref":"#/$defs/noteAnchor"},"calendar":{"type":"string","minLength":1},"region":{"$ref":"#/$defs/noteName"},"until":{"type":"integer"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","author","calendar"],"properties":{"type":{"const":"calendar_gloss"},"sub":{"const":"dual"},"at":{"$ref":"#/$defs/noteAnchor"},"author":{"oneOf":[{"type":"string","minLength":1},{"$ref":"#/$defs/noteText"}]},"calendar":{"type":"string","minLength":1}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","wrong","right"],"properties":{"type":{"const":"emendation"},"sub":{"const":"replace"},"at":{"$ref":"#/$defs/noteAnchor"},"wrong":{"type":"string","minLength":1},"wrong_gloss":{"$ref":"#/$defs/noteName"},"right":{"type":"string","minLength":1},"right_gloss":{"$ref":"#/$defs/noteName"},"ref":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]},"hedge":{"const":true},"cause":{"enum":["graphic","misprint","sense","misidentified_star"]}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","anchor"],"properties":{"type":{"const":"emendation"},"sub":{"const":"omit"},"at":{"$ref":"#/$defs/noteAnchor"},"anchor":{"type":"string","minLength":1},"anchor_gloss":{"$ref":"#/$defs/noteName"},"right":{"type":"string","minLength":1},"right_gloss":{"$ref":"#/$defs/noteName"},"ref":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","wrong"],"properties":{"type":{"const":"emendation"},"sub":{"const":"interpolate"},"at":{"$ref":"#/$defs/noteAnchor"},"wrong":{"type":"string","minLength":1},"wrong_gloss":{"$ref":"#/$defs/noteName"},"ref":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]},"premise":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","wrong"],"properties":{"type":{"const":"emendation"},"sub":{"const":"misprint"},"at":{"$ref":"#/$defs/noteAnchor"},"wrong":{"type":"string","minLength":1},"wrong_gloss":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","wrong","right","wrong_sense","right_sense"],"properties":{"type":{"const":"emendation"},"sub":{"const":"misread"},"at":{"$ref":"#/$defs/noteAnchor"},"wrong":{"type":"string","minLength":1},"wrong_gloss":{"$ref":"#/$defs/noteName"},"right":{"type":"string","minLength":1},"right_gloss":{"$ref":"#/$defs/noteName"},"wrong_sense":{"$ref":"#/$defs/noteName"},"right_sense":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","fact","wrong"],"properties":{"type":{"const":"emendation"},"sub":{"const":"spurious"},"at":{"$ref":"#/$defs/noteAnchor"},"fact":{"$ref":"#/$defs/noteName"},"wrong":{"type":"string","minLength":1},"wrong_gloss":{"$ref":"#/$defs/noteName"},"ref":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","right","part","wrong"],"properties":{"type":{"const":"emendation"},"sub":{"const":"conflation"},"at":{"$ref":"#/$defs/noteAnchor"},"right":{"type":"string","minLength":1},"right_gloss":{"$ref":"#/$defs/noteName"},"part":{"type":"string","minLength":1},"part_gloss":{"$ref":"#/$defs/noteName"},"wrong":{"type":"string","minLength":1},"wrong_gloss":{"$ref":"#/$defs/noteName"},"ref":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","term"],"properties":{"type":{"const":"glossary_term"},"sub":{"const":"term"},"at":{"$ref":"#/$defs/noteAnchor"},"term":{"type":"string","minLength":1}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","meaning"],"properties":{"type":{"const":"source_notation"},"sub":{"const":"symbol"},"at":{"$ref":"#/$defs/noteAnchor"},"sign":{"$ref":"#/$defs/noteName"},"meaning":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","what"],"properties":{"type":{"const":"source_notation"},"sub":{"const":"lacuna"},"at":{"$ref":"#/$defs/noteAnchor"},"what":{"$ref":"#/$defs/noteName"},"mark":{"enum":["ellipsis","dashes","brackets","asterisks","blank","box","bracketed_ellipsis"]}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","figure"],"properties":{"type":{"const":"source_notation"},"sub":{"const":"figure"},"at":{"$ref":"#/$defs/noteAnchor"},"figure":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","field","basis"],"properties":{"type":{"const":"date_basis"},"sub":{"const":"inferred"},"at":{"$ref":"#/$defs/noteAnchor"},"field":{"enum":["year","month","day","time","weekday","place","observer"]},"basis":{"$ref":"#/$defs/noteName"},"work":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","work"],"properties":{"type":{"const":"date_basis"},"sub":{"const":"authority"},"at":{"$ref":"#/$defs/noteAnchor"},"work":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]},"value":{"$ref":"#/$defs/noteName"},"others":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","calendar"],"properties":{"type":{"const":"time_reckoning"},"sub":{"const":"sunset"},"at":{"$ref":"#/$defs/noteAnchor"},"calendar":{"type":"string","minLength":1}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","observer","stated","actual"],"properties":{"type":{"const":"time_reckoning"},"sub":{"const":"noon_counted"},"at":{"$ref":"#/$defs/noteAnchor"},"observer":{"oneOf":[{"type":"string","minLength":1},{"$ref":"#/$defs/noteText"}]},"stated":{"$ref":"#/$defs/noteName"},"actual":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","place","scale"],"properties":{"type":{"const":"time_reckoning"},"sub":{"const":"time_scale"},"at":{"$ref":"#/$defs/noteAnchor"},"place":{"oneOf":[{"type":"string","minLength":1},{"$ref":"#/$defs/noteText"}]},"scale":{"enum":["mean","apparent","standard","sidereal"]},"astronomical":{"const":true}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","hour"],"properties":{"type":{"const":"time_reckoning"},"sub":{"const":"day_hour"},"at":{"$ref":"#/$defs/noteAnchor"},"hour":{"type":"integer"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","hour"],"properties":{"type":{"const":"time_reckoning"},"sub":{"const":"night_hour"},"at":{"$ref":"#/$defs/noteAnchor"},"hour":{"type":"integer"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","role"],"properties":{"type":{"const":"entity_gloss"},"sub":{"const":"role"},"at":{"$ref":"#/$defs/noteAnchor"},"role":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","description"],"properties":{"type":{"const":"entity_gloss"},"sub":{"const":"description"},"at":{"$ref":"#/$defs/noteAnchor"},"description":{"$ref":"#/$defs/noteName"},"ref":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","description"],"properties":{"type":{"const":"entity_gloss"},"sub":{"const":"nature"},"at":{"$ref":"#/$defs/noteAnchor"},"description":{"$ref":"#/$defs/noteName"},"subject":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","word"],"properties":{"type":{"const":"entity_gloss"},"sub":{"const":"unclear"},"at":{"$ref":"#/$defs/noteAnchor"},"word":{"type":"string","minLength":1},"word_gloss":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","by","fact","claim"],"properties":{"type":{"const":"computation_check"},"sub":{"const":"claim"},"at":{"$ref":"#/$defs/noteAnchor"},"by":{"anyOf":[{"enum":["computation","prediction"]},{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}]},"fact":{"$ref":"#/$defs/noteName"},"claim":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","by","subject","value"],"properties":{"type":{"const":"computation_check"},"sub":{"const":"verdict"},"at":{"$ref":"#/$defs/noteAnchor"},"by":{"anyOf":[{"enum":["computation","prediction"]},{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}]},"subject":{"$ref":"#/$defs/noteName"},"value":{"$ref":"#/$defs/noteName"},"affirm":{"const":true}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","predictor","event"],"properties":{"type":{"const":"computation_check"},"sub":{"const":"wrong_night"},"at":{"$ref":"#/$defs/noteAnchor"},"predictor":{"oneOf":[{"type":"string","minLength":1},{"$ref":"#/$defs/noteText"}]},"event":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","by","period","eclipse"],"properties":{"type":{"const":"computation_check"},"sub":{"const":"unseen"},"at":{"$ref":"#/$defs/noteAnchor"},"by":{"anyOf":[{"enum":["computation","prediction"]},{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}]},"period":{"$ref":"#/$defs/noteName"},"eclipse":{"enum":["solar","lunar"]}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","by","period","missing"],"properties":{"type":{"const":"computation_check"},"sub":{"const":"absent"},"at":{"$ref":"#/$defs/noteAnchor"},"by":{"anyOf":[{"enum":["computation","prediction"]},{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}]},"period":{"$ref":"#/$defs/noteName"},"missing":{"$ref":"#/$defs/noteName"},"conclusion":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","by","object","star","deg"],"properties":{"type":{"const":"computation_check"},"sub":{"const":"distance"},"at":{"$ref":"#/$defs/noteAnchor"},"by":{"anyOf":[{"enum":["computation","prediction"]},{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}]},"object":{"$ref":"#/$defs/noteName"},"star":{"$ref":"#/$defs/noteName"},"deg":{"type":"number"},"word":{"type":"string","minLength":1},"word_gloss":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","total","kind","index"],"properties":{"type":{"const":"related_record"},"sub":{"const":"series"},"at":{"$ref":"#/$defs/noteAnchor"},"series":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]},"year":{"type":"integer"},"total":{"type":"integer"},"kind":{"$ref":"#/$defs/noteName"},"index":{"type":"integer"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","when","event"],"properties":{"type":{"const":"historical_context"},"sub":{"const":"context"},"at":{"$ref":"#/$defs/noteAnchor"},"when":{"$ref":"#/$defs/noteName"},"event":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","who","view"],"properties":{"type":{"const":"scholarly_view"},"sub":{"const":"view"},"at":{"$ref":"#/$defs/noteAnchor"},"who":{"$ref":"#/$defs/noteName"},"view":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","witness","variant"],"properties":{"type":{"const":"variant_reading"},"sub":{"const":"variant"},"at":{"$ref":"#/$defs/noteAnchor"},"witness":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]},"variant":{"type":"string","minLength":1},"variant_gloss":{"$ref":"#/$defs/noteName"},"sense":{"$ref":"#/$defs/noteName"}}},
+          {"type":"object","additionalProperties":false,"required":["type","at","sub","witness","variant","adopted_from"],"properties":{"type":{"const":"variant_reading"},"sub":{"const":"adopted"},"at":{"$ref":"#/$defs/noteAnchor"},"witness":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]},"variant":{"type":"string","minLength":1},"variant_gloss":{"$ref":"#/$defs/noteName"},"adopted_from":{"oneOf":[{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]},{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string","minLength":1},{"type":"object","additionalProperties":false,"required":["source"],"properties":{"source":{"type":"string"},"page":{"type":["string","integer"]}}}]}},{"$ref":"#/$defs/noteText"}]}}}
+        ]
     }
   }
 }

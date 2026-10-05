@@ -608,7 +608,7 @@ window.EclipseGlyph = (function () {
       );
     }
     if (kind === 'conjunction') return _conjunctionGlyph(s, rec);
-    if (kind !== 'occultation') {
+    if (kind !== 'appulse') {
       // guest star — supernova emblem, crop to central 130×130 burst region.
       return (
         '<svg viewBox="75 75 130 130" width="' +
@@ -1257,5 +1257,13 @@ window.EclipseGlyph = (function () {
     }
   }
 
-  return { render, renderLocal, renderSchematic, lunarStats, lunarMagnitude, lunarShadowAt, transientGlyph };
+  return {
+    render,
+    renderLocal,
+    renderSchematic,
+    lunarStats,
+    lunarMagnitude,
+    lunarShadowAt,
+    transientGlyph,
+  };
 })();

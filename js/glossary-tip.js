@@ -74,24 +74,35 @@
 
   // Assembled from nodes, never from a markup string: only the double quote was escaped
   // on the value's way into the attribute, so assigning it as HTML is an injection site.
-  // A term that is not the literal head of the text is ignored, never searched for.
+  // The term is set in vermilion at its first occurrence, wherever the sentence puts it.
   function fill(el, text, term) {
     el.textContent = '';
-    if (!term || text.indexOf(term) !== 0) {
+    const at = term ? text.indexOf(term) : -1;
+    if (at < 0) {
       el.textContent = text;
       return;
     }
-    const head = document.createElement('b');
-    head.className = 'gt-term';
-    head.textContent = term;
-    el.appendChild(head);
-    el.appendChild(document.createTextNode(text.slice(term.length)));
+    const mark = document.createElement('b');
+    mark.className = 'gt-term';
+    mark.textContent = term;
+    el.appendChild(document.createTextNode(text.slice(0, at)));
+    el.appendChild(mark);
+    el.appendChild(document.createTextNode(text.slice(at + term.length)));
+  }
+
+  // A card ends without a full stop. A Latin period stays where the last word is an
+  // abbreviation (a. C., d.C., p.m.): two letters or fewer, or a dot inside the word.
+  function bare(text) {
+    if (!text) return text;
+    if (/[。．]$/.test(text)) return text.slice(0, -1);
+    const m = /(\S+)\.$/.exec(text);
+    return m && !m[1].includes('.') && m[1].replace(/\P{L}/gu, '').length > 2 ? text.slice(0, -1) : text;
   }
 
   function show(target) {
     // Data-gloss → encyclopedic definition card; data-tip → compact name-label
     // chip (control/layer names). The card style differs via .is-label.
-    const text = target.getAttribute('data-gloss') || target.getAttribute('data-tip');
+    const text = bare(target.getAttribute('data-gloss') || target.getAttribute('data-tip'));
     if (!text) return;
     cancelHide();
     activeEl = target;
