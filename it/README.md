@@ -14,10 +14,10 @@
 
 La pagina principale si compone di quattro parti: la barra superiore, la mappa, la linea del tempo e il pannello laterale. La linea del tempo corre lungo il margine inferiore, il pannello laterale occupa il lato destro.
 
-- **Barra superiore**: la casella di ricerca filtra i documenti per testo originale, traduzione, nota, fonte, toponimo, data o civiltà, e i menu cambiano la mappa di base e la lingua dell'interfaccia.
-- **Mappa**: [OpenHistoricalMap](https://www.openhistoricalmap.org/) è la mappa di base predefinita, e i suoi elementi cambiano con l'epoca visualizzata. Dei sigilli indicano la civiltà e il luogo di osservazione di ciascun documento.
-- **Linea del tempo**: una cronologia a occhio di pesce con fuoco regolabile, tacche degli anni e confini dei grandi periodi. I punti segnano il momento in cui ciascun documento fu osservato.
-- **Pannello laterale**: la vista Documenti elenca le testimonianze dei fenomeni e la vista Tavole gli eventi astronomici. Le schede in cima al pannello passano da un tipo di fenomeno all'altro.
+- **Barra superiore**: la casella di ricerca cerca nel testo originale, nella traduzione, nelle note, nella fonte, nel toponimo, nella data, nella civiltà e in altri campi dei documenti, e i menu a destra cambiano la mappa di base e la lingua.
+- **Mappa**: [OpenHistoricalMap](https://www.openhistoricalmap.org/) è la mappa di base predefinita, e i suoi elementi cambiano con l'epoca visualizzata. Dei sigilli sulla mappa indicano la civiltà e il luogo di osservazione di ciascun documento.
+- **Linea del tempo**: una cronologia a occhio di pesce che dilata gli anni vicini al fuoco e comprime quelli lontani. Il fuoco è regolabile, e la linea porta le tacche degli anni e i confini dei grandi periodi. I punti segnano il momento in cui ciascun documento fu osservato.
+- **Pannello laterale**: la vista Documenti elenca le testimonianze dei fenomeni e la vista Tavole gli eventi astronomici. Le schede in cima al pannello passano da un tipo di fenomeno all'altro, e il riquadro in alto a destra mostra il numero totale di voci.
 
 Un clic su un sigillo della mappa o su una voce dell'elenco apre il **dettaglio dell'evento**. In questa modalità:
 
@@ -26,7 +26,7 @@ Un clic su un sigillo della mappa o su una voce dell'elenco apre il **dettaglio 
 - Un clic su un punto qualsiasi della mappa apre una finestra a comparsa con lo schema dell'eclissi e la tabella dei contatti calcolati per quel luogo.
 
 <p align="center">
-  <img src="../docs/demo/event_detail_map_it.png" width="100%">
+  <img src="../docs/demo/event_history_solar_map_it.png" width="100%">
 </p>
 
 ## Documenti
@@ -46,6 +46,10 @@ Per scopo e forma, i documenti si dividono in quattro grandi classi, «Annali»,
 | **Totale** | **22** | **387** | **13.156** | | **543.203** | | **2137 a.C. – 1941** |
 
 Gli **Annali** sono soprattutto le storie ufficiali di Cina, Giappone, Corea e Vietnam, affiancate da cronache dell'Asia occidentale e d'Europa. Le loro registrazioni formano serie ininterrotte, sono classificate in modo sistematico e seguono una forma costante; ne è un esempio tipico il [Trattato di astronomia della *Storia dei Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053). La **Stampa** appartiene all'età moderna e nasce da molte mani e da punti di vista assai diversi, da vivaci scene di vita cittadina a editoriali e articoli di commento che leggono il cielo come allegoria dell'attualità. Gli **Scritti scientifici** sono opera di astronomi e altri studiosi e scendono in grande dettaglio; il più importante è quello delle osservazioni dell'eclissi del 1919 che confermarono la relatività generale, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). La **Miscellanea** comprende classici, opere storiche, poesie, diari, lettere e tavolette d'argilla, come il verso del *Classico delle poesie* «Il sole si è oscurato, presagio di grande sventura». Tutte le testimonianze più antiche appartengono a questa classe, benché le date e i luoghi loro attribuiti siano spesso controversi.
+
+<p align="center">
+  <img src="../docs/demo/event_history_lunar_map_it.png" width="100%">
+</p>
 
 ### Struttura
 
@@ -77,9 +81,13 @@ Le tavole degli eventi astronomici coprono gli anni da −3000 a 1999 secondo la
 
 `<data>` è una data astronomica secondo la norma [ISO 8601](https://web.archive.org/web/20171019211402/https://www.loc.gov/standards/datetime/ISO_DIS%208601-1.pdf), per esempio `-000762-06-07` o `1931-10-11`.
 
+<p align="center">
+  <img src="../docs/demo/table_solar_map_it.png" width="100%">
+</p>
+
 ## Concordanze
 
-Le tavole di concordanza unificano i metadati degli oggetti che le fonti chiamano con nomi diversi, come Yinghuo (荧惑) per Marte tra gli astri o Yingtian (应天) per Nanchino tra i luoghi. Fanno fede per i campi corrispondenti dei documenti e delle tavole. Per esempio, [`gazetteer.json`](../data/concordance/gazetteer.json) contiene i nomi e le coordinate dei luoghi di osservazione, [`xingguan.json`](../data/concordance/xingguan.json) i nomi, l'estensione e il tracciato degli asterismi cinesi, e [`eras.json`](../data/concordance/eras.json) le ere cinese, giapponese, vietnamita e dei Xia Occidentali con la loro dinastia e l'anno astronomico corrispondente. Uno stesso oggetto può avere abbreviazioni e alias, o portare un nome particolare in un determinato periodo; il campo `_meta` in testa a ciascun file definisce come annotarli.
+Le tavole di concordanza unificano i metadati degli oggetti che le fonti chiamano con nomi diversi, come Yinghuo (荧惑) per Marte tra gli astri o Yingtian (应天) per Nanchino tra i luoghi. Fanno fede per i campi corrispondenti dei documenti e delle tavole. Per esempio, [`gazetteer.json`](../data/concordance/gazetteer.json) contiene i nomi e le coordinate dei luoghi di osservazione, [`xingguan.json`](../data/concordance/xingguan.json) i nomi, l'estensione e il tracciato degli asterismi cinesi, e [`eras.json`](../data/concordance/eras.json) le ere cinese, coreana, giapponese, vietnamita e dei Xia Occidentali con la loro dinastia e l'anno astronomico corrispondente. Altre tavole riguardano persone, calendari, termini e altro; il campo `_meta` in testa a ciascun file ne riporta le definizioni.
 
 | File | Contenuto | Usato da | Voci |
 |---|---|---|---:|
@@ -87,9 +95,15 @@ Le tavole di concordanza unificano i metadati degli oggetti che le fonti chiaman
 | [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Luoghi | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 565 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | Regioni | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | Civiltà | [`js/atlas.js`](../js/atlas.js), [`js/seal.js`](../js/seal.js) | 33 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | Nomi di persone | [`js/atlas.js`](../js/atlas.js) | 41 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | Nomi di istituzioni | — | 52 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Nomi cinesi delle stelle | — | 407 |
-| [`data/concordance/eras.json`](../data/concordance/eras.json) | Ere | [`js/atlas.js`](../js/atlas.js) | 830 |
+| [`data/concordance/terms.json`](../data/concordance/terms.json) | Termini | [`js/atlas.js`](../js/atlas.js) | 71 |
+| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendari | [`js/atlas.js`](../js/atlas.js) | 14 |
+| [`data/concordance/eras.json`](../data/concordance/eras.json) | Ere | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 830 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Nomi cinesi delle stelle | [`js/atlas.js`](../js/atlas.js) | 407 |
+| [`data/concordance/bodies.json`](../data/concordance/bodies.json) | Nomi degli astri | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 8 |
+
+Le tavole lette da [`js/atlas.js`](../js/atlas.js) servono a disegnare la pagina: sigilli, toponimi, finestre a comparsa, note e così via.
 
 ## Avvio
 

@@ -14,10 +14,10 @@
 
 メインページは上部バー、地図、歴軸、事象欄の四つの部分からなり、歴軸は下に、事象欄は右に置かれています。
 
-- **上部バー**：検索欄では原文・訳文・注釈・出典・地名・時期・文明などを手がかりに記録を絞り込めます。選択メニューでは背景地図と表示言語を切り替えます。
-- **地図**：既定の背景地図は [OpenHistoricalMap](https://www.openhistoricalmap.org/) で、地図上の要素は年代に応じて変わります。印章は各記録の属する文明と観測地点を示します。
-- **歴軸**：焦点を調節できる魚眼タイムラインで、年の目盛りと時代の境界を備え、丸印が各記録の観測時期を示します。
-- **事象欄**：史料・全表の二つの表示があり、それぞれ天象記録と天文事象を一覧にします。欄の上端の付箋で天象の種類を切り替えます。
+- **上部バー**：検索欄では記録の原文・訳文・脚注・出典・地名・時期・文明などを検索できます。右側の選択メニューでは背景地図と表示言語を切り替えます。
+- **地図**：既定の背景地図は [OpenHistoricalMap](https://www.openhistoricalmap.org/) で、地図上の要素は年代に応じて変わります。地図上の印章は各記録の属する文明と観測地点を示します。
+- **歴軸**：焦点の近くを広く、遠くを狭く描く魚眼タイムラインです。焦点を調節でき、年の目盛りと時代の境界を備え、丸印が各記録の観測時期を示します。
+- **事象欄**：史料・全表の二つの表示があり、それぞれ天象記録と天文事象を一覧にします。欄の上端の付箋で天象の種類を切り替え、右上の枠には件数の合計を表示します。
 
 地図上の印章や一覧の項目をクリックすると、**事象詳細**モードに入ります。このモードでは次のものが表示されます。
 
@@ -26,7 +26,7 @@
 - 地図上の任意の地点をクリックすれば事象ポップアップが開き、その地点について計算した食況図と食程表が示されます。
 
 <p align="center">
-  <img src="../docs/demo/event_detail_map_ja.png" width="100%">
+  <img src="../docs/demo/event_history_solar_map_ja.png" width="100%">
 </p>
 
 ## 史料
@@ -46,6 +46,10 @@
 | **合計** | **22** | **387** | **13,156** | | **847,713** | | **前2137 – 1941** |
 
 **史書**は中国・日本・朝鮮・ベトナムの官撰史書を中心に、西アジアやヨーロッパの年代記も収めます。記載は途切れることなく連なり、体系的に分類され、書式も定まっています。典型例は[『宋史』天文志](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)です。**新聞**は近代に生まれたもので、書き手も視点もさまざまです。生活感あふれる市井の人々の姿を描いた記事もあれば、天象に託して時事を論じる社説や評論もあります。**学術**は天文学者ら専門家の手になる記録で、きわめて詳細です。とりわけ影響が大きいのは、一般相対性理論を検証した 1919 年の日食観測 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895) です。**雑録**は経書・史書・詩歌・日記・書簡・粘土板などを含みます。たとえば『詩経』の「日之を食する有り、亦孔だ之れ醜し」がそれで、最古の記録はすべてこの分類に属しますが、その年月や地点には異論の多いものも少なくありません。
+
+<p align="center">
+  <img src="../docs/demo/event_history_lunar_map_ja.png" width="100%">
+</p>
 
 ### 構成
 
@@ -77,9 +81,13 @@
 
 `<日付>` は [ISO 8601](https://web.archive.org/web/20171019211402/https://www.loc.gov/standards/datetime/ISO_DIS%208601-1.pdf) が定める天文学的日付で、`-000762-06-07`、`1931-10-11` のように書きます。
 
+<p align="center">
+  <img src="../docs/demo/table_solar_map_ja.png" width="100%">
+</p>
+
 ## 対照
 
-本データベースの対照表は、出典によって呼び名の異なる対象のメタデータを統一するためのものです。天体なら「熒惑」と「火星」、地名なら「応天」と「南京」といった対応を定め、史料と全表の関連フィールドの根拠とします。たとえば [`gazetteer.json`](../data/concordance/gazetteer.json) には天象記録の観測地の名称と座標、[`xingguan.json`](../data/concordance/xingguan.json) には星官の名称・範囲・連線、[`eras.json`](../data/concordance/eras.json) には中国・日本・ベトナム・西夏の年号の名称・王朝と対応する天文学的紀年を収めています。同じ対象に略称や別名があったり、時期によって固有の名称をもったりすることもあり、その扱いは各ファイル冒頭の `_meta` フィールドで定義しています。
+本データベースの対照表は、出典によって呼び名の異なる対象のメタデータを統一するためのものです。天体なら「熒惑」と「火星」、地名なら「応天」と「南京」といった対応を定め、史料と全表の関連フィールドの根拠とします。たとえば [`gazetteer.json`](../data/concordance/gazetteer.json) には天象記録の観測地の名称と座標、[`xingguan.json`](../data/concordance/xingguan.json) には星官の名称・範囲・連線、[`eras.json`](../data/concordance/eras.json) には中国・朝鮮・日本・ベトナム・西夏の年号の名称・王朝と対応する天文学的紀年を収めています。このほか人名・暦法・術語などの表があります。詳しくは各ファイル冒頭の `_meta` フィールドの定義を参照してください。
 
 | ファイル | 内容 | 読み込み元 | 件数 |
 |---|---|---|---:|
@@ -87,9 +95,15 @@
 | [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 565 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | 地域 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | 文明 | [`js/atlas.js`](../js/atlas.js)、[`js/seal.js`](../js/seal.js) | 33 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | 人名 | [`js/atlas.js`](../js/atlas.js) | 41 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | 機関名 | — | 52 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | 中国の星名 | — | 407 |
-| [`data/concordance/eras.json`](../data/concordance/eras.json) | 年号 | [`js/atlas.js`](../js/atlas.js) | 830 |
+| [`data/concordance/terms.json`](../data/concordance/terms.json) | 術語 | [`js/atlas.js`](../js/atlas.js) | 71 |
+| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | 暦法 | [`js/atlas.js`](../js/atlas.js) | 14 |
+| [`data/concordance/eras.json`](../data/concordance/eras.json) | 年号 | [`js/atlas.js`](../js/atlas.js)、[`js/supplied.js`](../js/supplied.js) | 830 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | 中国の星名 | [`js/atlas.js`](../js/atlas.js) | 407 |
+| [`data/concordance/bodies.json`](../data/concordance/bodies.json) | 天体名 | [`js/atlas.js`](../js/atlas.js)、[`js/supplied.js`](../js/supplied.js) | 8 |
+
+[`js/atlas.js`](../js/atlas.js) が読み込む対照表は、印章・地名・ポップアップ・脚注などページの描画に使われます。
 
 ## 実行
 

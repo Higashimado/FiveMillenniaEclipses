@@ -14,10 +14,10 @@
 
 La page principale se compose de quatre parties : la barre supérieure, la carte, la frise et le panneau latéral. La frise occupe le bas de la page, le panneau latéral la droite.
 
-- **Barre supérieure** : le champ de recherche filtre les documents par texte original, traduction, note, source, nom de lieu, date ou civilisation ; les menus changent le fond de carte et la langue de l'interface.
-- **Carte** : [OpenHistoricalMap](https://www.openhistoricalmap.org/) sert de fond par défaut, et ses éléments évoluent avec l'époque affichée. Des sceaux indiquent la civilisation et le lieu d'observation de chaque document.
-- **Frise** : une chronologie à effet fish-eye, au foyer réglable, graduée en années et marquée des limites des grandes périodes. Des points y situent la date d'observation de chaque document.
-- **Panneau latéral** : la vue Documents recense les observations et la vue Tables les événements astronomiques. Des onglets en haut du panneau font passer d'un type de phénomène à l'autre.
+- **Barre supérieure** : le champ de recherche porte sur le texte original, la traduction, les notes, la source, le nom de lieu, la date, la civilisation et d'autres champs des documents ; les menus de droite changent le fond de carte et la langue.
+- **Carte** : [OpenHistoricalMap](https://www.openhistoricalmap.org/) sert de fond par défaut, et ses éléments évoluent avec l'époque affichée. Des sceaux posés sur la carte indiquent la civilisation et le lieu d'observation de chaque document.
+- **Frise** : une chronologie à effet fish-eye, qui dilate les années proches du foyer et resserre les plus lointaines. Le foyer est réglable, et la frise est graduée en années et marquée des limites des grandes périodes. Des points y situent la date d'observation de chaque document.
+- **Panneau latéral** : la vue Documents recense les observations et la vue Tables les événements astronomiques. Des onglets en haut du panneau font passer d'un type de phénomène à l'autre, et le cadre en haut à droite affiche le nombre total d'entrées.
 
 Un clic sur un sceau de la carte ou sur une entrée de la liste ouvre le **détail de l'événement**. Dans ce mode :
 
@@ -26,7 +26,7 @@ Un clic sur un sceau de la carte ou sur une entrée de la liste ouvre le **déta
 - Un clic en un point quelconque de la carte ouvre une fenêtre contextuelle avec le schéma de l'éclipse et le tableau des contacts calculés pour ce lieu.
 
 <p align="center">
-  <img src="../docs/demo/event_detail_map_fr.png" width="100%">
+  <img src="../docs/demo/event_history_solar_map_fr.png" width="100%">
 </p>
 
 ## Documents
@@ -46,6 +46,10 @@ Selon leur but et leur forme, les documents se répartissent en quatre grandes c
 | **Total** | **22** | **387** | **13 156** | | **592 935** | | **2137 av. J.-C. – 1941** |
 
 Les **Annales** sont avant tout les histoires officielles de la Chine, du Japon, de la Corée et du Viêt Nam, complétées par des chroniques d'Asie occidentale et d'Europe. Leurs relevés forment des séries ininterrompues, classées avec méthode et de forme régulière, à l'exemple du [Traité d'astronomie de l'*Histoire des Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053). La **Presse** appartient à l'époque moderne ; elle émane de multiples plumes et de points de vue très divers, des scènes de rue pleines de vie aux éditoriaux et aux chroniques qui font du ciel un commentaire sur l'actualité. Les **Écrits savants** sont l'œuvre d'astronomes et d'autres savants et entrent dans un grand détail ; le plus marquant est le recueil des observations de l'éclipse de 1919 qui ont confirmé la relativité générale, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). Les **Mélanges** rassemblent classiques, ouvrages d'histoire, poèmes, journaux intimes, lettres et tablettes d'argile, comme ce vers du *Classique des vers* : « Le soleil s'est éclipsé, présage des plus funestes ». Tous les témoignages les plus anciens relèvent de cette classe, mais les dates et les lieux qu'on leur attribue sont souvent discutés.
+
+<p align="center">
+  <img src="../docs/demo/event_history_lunar_map_fr.png" width="100%">
+</p>
 
 ### Structure
 
@@ -77,9 +81,13 @@ Les tables d'événements astronomiques couvrent les années −3000 à 1999 en 
 
 `<date>` est une date astronomique au sens de la norme [ISO 8601](https://web.archive.org/web/20171019211402/https://www.loc.gov/standards/datetime/ISO_DIS%208601-1.pdf), par exemple `-000762-06-07` ou `1931-10-11`.
 
+<p align="center">
+  <img src="../docs/demo/table_solar_map_fr.png" width="100%">
+</p>
+
 ## Concordances
 
-Les tables de concordance unifient les métadonnées des objets que les sources désignent sous des noms différents : Yinghuo (荧惑) pour Mars parmi les astres, Yingtian (应天) pour Nankin parmi les lieux. Elles font autorité pour les champs correspondants des documents et des tables. Ainsi, [`gazetteer.json`](../data/concordance/gazetteer.json) contient les noms et les coordonnées des lieux d'observation, [`xingguan.json`](../data/concordance/xingguan.json) les noms, l'étendue et le tracé des astérismes chinois, et [`eras.json`](../data/concordance/eras.json) les ères chinoises, japonaises, vietnamiennes et des Xia occidentaux avec leur dynastie et l'année astronomique correspondante. Un même objet peut avoir des abréviations et des alias, ou porter un nom particulier sur une période donnée ; le champ `_meta` en tête de chaque fichier définit la manière de les noter.
+Les tables de concordance unifient les métadonnées des objets que les sources désignent sous des noms différents : Yinghuo (荧惑) pour Mars parmi les astres, Yingtian (应天) pour Nankin parmi les lieux. Elles font autorité pour les champs correspondants des documents et des tables. Ainsi, [`gazetteer.json`](../data/concordance/gazetteer.json) contient les noms et les coordonnées des lieux d'observation, [`xingguan.json`](../data/concordance/xingguan.json) les noms, l'étendue et le tracé des astérismes chinois, et [`eras.json`](../data/concordance/eras.json) les ères chinoises, coréennes, japonaises, vietnamiennes et des Xia occidentaux avec leur dynastie et l'année astronomique correspondante. D'autres tables couvrent les personnes, les calendriers, les termes, etc. ; le champ `_meta` en tête de chaque fichier en donne les définitions.
 
 | Fichier | Contenu | Utilisé par | Entrées |
 |---|---|---|---:|
@@ -87,9 +95,15 @@ Les tables de concordance unifient les métadonnées des objets que les sources 
 | [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Lieux | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 565 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | Régions | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | Civilisations | [`js/atlas.js`](../js/atlas.js), [`js/seal.js`](../js/seal.js) | 33 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | Noms de personnes | [`js/atlas.js`](../js/atlas.js) | 41 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | Noms d'institutions | — | 52 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Noms d'étoiles chinois | — | 407 |
-| [`data/concordance/eras.json`](../data/concordance/eras.json) | Ères | [`js/atlas.js`](../js/atlas.js) | 830 |
+| [`data/concordance/terms.json`](../data/concordance/terms.json) | Termes | [`js/atlas.js`](../js/atlas.js) | 71 |
+| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendriers | [`js/atlas.js`](../js/atlas.js) | 14 |
+| [`data/concordance/eras.json`](../data/concordance/eras.json) | Ères | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 830 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Noms d'étoiles chinois | [`js/atlas.js`](../js/atlas.js) | 407 |
+| [`data/concordance/bodies.json`](../data/concordance/bodies.json) | Noms d'astres | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 8 |
+
+Les tables lues par [`js/atlas.js`](../js/atlas.js) servent au rendu de la page : sceaux, noms de lieux, infobulles, notes, etc.
 
 ## Lancement
 

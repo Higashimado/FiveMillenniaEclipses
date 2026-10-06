@@ -159,6 +159,18 @@ const Basemaps = (() => {
     layer.getAttribution = function () {
       return this.options.attribution || '';
     };
+
+    // The plugin freezes the GL canvas from zoomstart to zoomend. A flyTo cut short by a same-zoom
+    // setView (a permalink restore over a selection's fly) never fires zoomend, leaving the canvas
+    // offset with a blank strip beside it, so every finished move releases the freeze.
+    const events = layer.getEvents;
+    layer.getEvents = function () {
+      return Object.assign(events.call(this), {
+        moveend() {
+          if (this._zooming && this._map && !this._map._animatingZoom) this._zoomEnd();
+        },
+      });
+    };
     return layer;
   }
 

@@ -1126,9 +1126,16 @@ const Atlas = (() => {
       : 0;
 
     // Empty shelf: 「未收」 reads better than the account-book 「凡零条」; era line omitted.
-    const fmtN = (n) => (isZh(state.lang) ? cjkCount(n) : String(n));
-    const total = T('atlas.count.total', { n: fmtN(arr.length) });
-    const eraStr = e && m ? T('atlas.count.era', { era: e[0], n: fmtN(m) }) : '';
+    // Han counts are spelled out (一万一千八百七十一) while each line fits the pane's ten
+    // characters; if either line would overflow, both switch to digit-by-digit (一一八七一).
+    const lines = (fmtN) => [
+      T('atlas.count.total', { n: fmtN(arr.length) }),
+      e && m ? T('atlas.count.era', { era: e[0], n: fmtN(m) }) : '',
+    ];
+    let [total, eraStr] = lines(isZh(state.lang) ? cjkCount : String);
+    if (isZh(state.lang) && (total.length > 10 || eraStr.length > 10)) {
+      [total, eraStr] = lines(cjkDigits);
+    }
     cnt.innerHTML = arr.length
       ? '<span class="rc-total">' +
         _esc(total) +
@@ -1145,6 +1152,41 @@ const Atlas = (() => {
       .split('')
       .map((c) => D[+c])
       .join('');
+  }
+
+  // Cardinal place-value spelling up to 99999, e.g. 一万一千八百七十一 (eleven thousand eight
+  // hundred seventy-one); an internal 零 (zero) fills a gap, e.g. 一千零六 (one thousand and six).
+  function cjkCount(n) {
+    const CH = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+    const U = ['', '十', '百', '千'];
+    n = Math.abs(Math.round(n));
+    if (n === 0) return CH[0];
+    if (n >= 100000) return String(n);
+
+    // A leading 十 (ten) drops its 一 (one) only at the very start: 十五 (fifteen), but
+    // 一万零一十五 (ten thousand and fifteen).
+    const seg = (v, lead) => {
+      let out = '',
+        zero = false;
+      for (let pl = 3; pl >= 0; pl--) {
+        const d = Math.floor(v / Math.pow(10, pl)) % 10;
+        if (d === 0) {
+          if (out) zero = true;
+          continue;
+        }
+        if (zero) {
+          out += CH[0];
+          zero = false;
+        }
+        out += lead && pl === 1 && d === 1 && !out ? U[pl] : CH[d] + U[pl];
+      }
+      return out;
+    };
+    const wan = Math.floor(n / 10000),
+      rem = n % 10000;
+    let str = wan ? seg(wan, true) + '万' : '';
+    if (rem) str += (wan && rem < 1000 ? CH[0] : '') + seg(rem, !wan);
+    return str;
   }
 
   // Decimal Han numeral below 1000 in the juan-number style: 11 → 十一 (eleven), 106 → 一百六
@@ -1226,42 +1268,6 @@ const Atlas = (() => {
       return CH[h] + '百' + (r < 10 && r > 0 ? '零' + CH[r] : r ? cjkOrdinal(r) : '');
     }
     return String(n); // fallback for >999 (won't occur in this use)
-  }
-
-  // Cardinal place-value spelling for the fan-N-tiao tally, up to 9999 plus one 万 (ten-thousand)
-  // group, Arabic beyond. An internal 零 (zero) fills a gap, e.g. 一千零六 (one thousand and six).
-  function cjkCount(n) {
-    const CH = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-    const U = ['', '十', '百', '千'];
-    n = Math.abs(Math.round(n));
-    if (n === 0) return CH[0];
-    if (n >= 100000) return String(n); // beyond corpus scale
-    const seg = (m) => {
-      // 0..9999 with internal 零 (zero)
-      let out = '',
-        zero = false;
-      for (let pl = 3; pl >= 0; pl--) {
-        const d = Math.floor(m / Math.pow(10, pl)) % 10;
-        if (d === 0) {
-          if (out) zero = true;
-          continue;
-        }
-        if (zero) {
-          out += CH[0];
-          zero = false;
-        }
-        out += pl === 1 && d === 1 && !out ? U[pl] : CH[d] + U[pl]; // 十五 (fifteen), no bare 一 (one) prefix
-      }
-      return out;
-    };
-    const wan = Math.floor(n / 10000),
-      rem = n % 10000;
-    let str = wan ? seg(wan) + '万' : '';
-    if (rem) {
-      if (wan && rem < 1000) str += CH[0];
-      str += seg(rem);
-    }
-    return str;
   }
 
   // Nianhao lookup: returns e.g. "清光绪十六年" for zh-Hans/zh-Hant, null otherwise.

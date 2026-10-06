@@ -16,10 +16,10 @@
 
 网站主页面由顶栏、地图、历轴、右栏四部分组成，历轴居下，右栏居右：
 
-- **顶栏**：搜索框可匹配原文、译文、注释、来源、地名、时间、文明等以筛选记录，选项框可切换地图底图和界面语言
-- **地图**：[OpenHistoricalMap](https://www.openhistoricalmap.org/) 为默认底图，地图要素随年代变化，印章标示记录的所属文明与观测地点
-- **历轴**：鱼眼时间轴，焦点可调节，附有年份刻度与朝代分界，圆点标示记录的观测时间
-- **右栏**：分史料、全表两种视图，分别列出天象记录与天文事件，栏顶浮签用于切换天象类型
+- **顶栏**：搜索框可匹配记录的原文、译文、脚注、来源、地名、时间、文明等，右侧选项框则用于切换底图和语言
+- **地图**：[OpenHistoricalMap](https://www.openhistoricalmap.org/) 为默认底图，地图要素随年代变化，图上印章标示记录的所属文明与观测地点
+- **历轴**：近疏远密的鱼眼时间轴，焦点可调节，附有年份刻度与朝代分界，圆点标示记录的观测时间
+- **右栏**：分史料、全表，分别列出天象记录与天文事件，栏顶浮签用于切换天象类型，右上窗格则显示条目总数
 
 点击地图上的印章或列表中的条目，即可进入**事件详情**模式，该模式下：
 
@@ -27,11 +27,9 @@
 - 书耳会列出事件的概况数据与干支纪日，书耳下的拨盘可逐时播放影锥投影
 - 点击地图上的任意地点，将显示事件弹窗，上附该地推算的食况图与食程表
 
-
 <p align="center">
-  <img src="docs/demo/event_detail_map_zh-Hans.png" width="100%">
+  <img src="docs/demo/event_history_solar_map_zh-Hans.png" width="100%">
 </p>
-
 
 ## 史料
 
@@ -50,6 +48,10 @@
 | **合计** | **22** | **387** | **13 156** | | **561 396** | | **前 2137 – 1941** |
 
 **史册**以中、日、朝、越官修史书为主体，兼收西亚、欧洲编年史，载录连续、分类齐全、格式规整，典例有如[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)。**报刊**是近代产物，来源丰富、视角多样，既有富生活气息的市民群像，又有以天象喻事之社论杂文。**学志**为专业人士撰写，记录翔实、影响深远，最重要的莫如 1919 年验证广义相对论之日食观测 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895)．**杂录**则含经书、史著、诗歌、日记、书信与泥板等，如《诗经》之“日有食之，亦孔之醜”，上古记录尽出于此，然其所系年月、地点多有争议。
+
+<p align="center">
+  <img src="docs/demo/event_history_lunar_map_zh-Hans.png" width="100%">
+</p>
 
 ### 结构
 
@@ -81,9 +83,13 @@
 
 `<日期>` 为 [ISO 8601](https://web.archive.org/web/20171019211402/https://www.loc.gov/standards/datetime/ISO_DIS%208601-1.pdf) 定义的天文日期，如 `-000762-06-07`、`1931-10-11`．
 
+<p align="center">
+  <img src="docs/demo/table_solar_map_zh-Hans.png" width="100%">
+</p>
+
 ## 对照
 
-本库的对照表用于统一多源异名对象的元数据信息，如天文对象的“荧惑”之于“火星”，地理对象的“应天”之于“南京”等，以作史料和全表相关字段的凭据。例如，[`gazetteer.json`](data/concordance/gazetteer.json) 存放天象记录中观测地的名称、坐标，[`xingguan.json`](data/concordance/xingguan.json) 存放星官的名称、范围与连线，[`eras.json`](data/concordance/eras.json) 存放中、日、越、西夏年号的名称、朝代及对应的天文纪年。同一对象或有简写、别名，或在不同的时间范围内有特定名称，详见各文件头部 `_meta` 字段的定义。
+本库的对照表用于统一多源异名对象的元数据信息，如天文对象的“荧惑”之于“火星”，地理对象的“应天”之于“南京”等，以作史料和全表相关字段的凭据。例如，[`gazetteer.json`](data/concordance/gazetteer.json) 存放天象记录中观测地的名称、坐标，[`xingguan.json`](data/concordance/xingguan.json) 存放星官的名称、范围与连线，[`eras.json`](data/concordance/eras.json) 存放中、朝、日、越、西夏年号的名称、朝代及对应的天文纪年。另有人名、历法、术语等表。详见各文件头部 `_meta` 字段的定义。
 
 | 文件 | 内容 | 调用 | 条目 |
 |---|---|---|---:|
@@ -91,9 +97,15 @@
 | [`data/concordance/gazetteer.json`](data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](js/atlas.js)、[`js/place-name.js`](js/place-name.js) | 565 |
 | [`data/concordance/regions.json`](data/concordance/regions.json) | 区域 | [`js/atlas.js`](js/atlas.js)、[`js/place-name.js`](js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](data/concordance/civilizations.json) | 文明 | [`js/atlas.js`](js/atlas.js)、[`js/seal.js`](js/seal.js) | 33 |
+| [`data/concordance/persons.json`](data/concordance/persons.json) | 人物名称 | [`js/atlas.js`](js/atlas.js) | 41 |
 | [`data/concordance/organizations.json`](data/concordance/organizations.json) | 机构名称 | — | 52 |
-| [`data/concordance/xingguan.json`](data/concordance/xingguan.json) | 中国星名 | — | 407 |
-| [`data/concordance/eras.json`](data/concordance/eras.json) | 年号 | [`js/atlas.js`](js/atlas.js) | 830 |
+| [`data/concordance/terms.json`](data/concordance/terms.json) | 术语 | [`js/atlas.js`](js/atlas.js) | 71 |
+| [`data/concordance/calendars.json`](data/concordance/calendars.json) | 历法 | [`js/atlas.js`](js/atlas.js) | 14 |
+| [`data/concordance/eras.json`](data/concordance/eras.json) | 年号 | [`js/atlas.js`](js/atlas.js)、[`js/supplied.js`](js/supplied.js) | 830 |
+| [`data/concordance/xingguan.json`](data/concordance/xingguan.json) | 中国星名 | [`js/atlas.js`](js/atlas.js) | 407 |
+| [`data/concordance/bodies.json`](data/concordance/bodies.json) | 天体名称 | [`js/atlas.js`](js/atlas.js)、[`js/supplied.js`](js/supplied.js) | 8 |
+
+在 [`js/atlas.js`](js/atlas.js) 调用的对照表会用于页面渲染，即印章、地名、悬浮窗及脚注等。
 
 ## 运行
 
@@ -148,10 +160,10 @@ npm start
 
 The main page has four parts: the top bar, the map, the timeline and the side panel. The timeline runs along the bottom and the side panel sits on the right.
 
-- **Top bar**: the search box filters records by original text, translation, note, source, place name, date or civilization, and the menus switch the basemap and the interface language.
-- **Map**: [OpenHistoricalMap](https://www.openhistoricalmap.org/) is the default basemap, and its features change with the period shown. Seals mark the civilization and the place of observation of each record.
-- **Timeline**: a fisheye timeline with an adjustable focus, year ticks and period boundaries. Dots mark the times at which records were observed.
-- **Side panel**: the Records view lists the records of phenomena and the Tables view lists the astronomical events. Tabs at the top of the panel switch between types of phenomena.
+- **Top bar**: the search box matches a record's original text, translation, footnotes, source, place name, date, civilization and more, and the menus on the right switch the basemap and the language.
+- **Map**: [OpenHistoricalMap](https://www.openhistoricalmap.org/) is the default basemap, and its features change with the period shown. Seals on the map mark the civilization and the place of observation of each record.
+- **Timeline**: a fisheye timeline that spreads out the years near its focus and packs the distant ones closer together. The focus is adjustable, and the axis carries year ticks and period boundaries. Dots mark the times at which records were observed.
+- **Side panel**: the Records view lists the records of phenomena and the Tables view lists the astronomical events. Tabs at the top of the panel switch between types of phenomena, and the pane at the top right shows the total number of entries.
 
 Clicking a seal on the map or an entry in the list opens **event details**. In this mode:
 
@@ -160,7 +172,7 @@ Clicking a seal on the map or an entry in the list opens **event details**. In t
 - Clicking any place on the map opens an event popup with the eclipse diagram and the timetable of contacts computed for that place.
 
 <p align="center">
-  <img src="docs/demo/event_detail_map_en.png" width="100%">
+  <img src="docs/demo/event_history_solar_map_en.png" width="100%">
 </p>
 
 ## Records
@@ -180,6 +192,10 @@ By purpose and form, the records fall into four broad classes, Histories, Newspa
 | **Total** | **22** | **387** | **13,156** | | **563,239** | | **2137 BCE – 1941** |
 
 **Histories** are chiefly the official histories of China, Japan, Korea and Vietnam, joined by chronicles from Western Asia and Europe. Their entries run in unbroken series, are systematically classified and follow a set format; the [Treatise on Astronomy in the *History of Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) is a typical example. **Newspapers** belong to the modern era and come from many hands and points of view, ranging from lively scenes of townspeople in the street to editorials and essays that read the sky as a comment on public affairs. **Learned writings** are the work of astronomers and other scholars and go into great detail; the most consequential of them are the 1919 eclipse observations that confirmed general relativity, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). **Miscellanea** take in classics, historical works, poems, diaries, letters and clay tablets, such as the line of the *Classic of Poetry* rendered by Legge as "The sun was eclipsed; a thing of very evil omen." All of the earliest records belong to this class, though the dates and places assigned to many of them are disputed.
+
+<p align="center">
+  <img src="docs/demo/event_history_lunar_map_en.png" width="100%">
+</p>
 
 ### Structure
 
@@ -211,9 +227,13 @@ The tables of astronomical events cover the years −3000 to 1999 in [astronomic
 
 `<date>` is an astronomical date as defined by [ISO 8601](https://web.archive.org/web/20171019211402/https://www.loc.gov/standards/datetime/ISO_DIS%208601-1.pdf), such as `-000762-06-07` or `1931-10-11`.
 
+<p align="center">
+  <img src="docs/demo/table_solar_map_en.png" width="100%">
+</p>
+
 ## Concordance
 
-The concordance tables unify the metadata of objects that different sources know by different names, such as Yinghuo (荧惑) for Mars among celestial objects, or Yingtian (应天) for Nanjing among places. They are the authority behind the related fields of the records and the tables. For example, [`gazetteer.json`](data/concordance/gazetteer.json) holds the names and coordinates of the places of observation, [`xingguan.json`](data/concordance/xingguan.json) holds the names, extents and connecting lines of the Chinese asterisms, and [`eras.json`](data/concordance/eras.json) holds the Chinese, Japanese, Vietnamese and Western Xia era names with their dynasties and the corresponding astronomical years. An object may have short forms and aliases, or bear a particular name during a particular span of time; the `_meta` field at the head of each file defines how these are recorded.
+The concordance tables unify the metadata of objects that different sources know by different names, such as Yinghuo (荧惑) for Mars among celestial objects, or Yingtian (应天) for Nanjing among places. They are the authority behind the related fields of the records and the tables. For example, [`gazetteer.json`](data/concordance/gazetteer.json) holds the names and coordinates of the places of observation, [`xingguan.json`](data/concordance/xingguan.json) holds the names, extents and connecting lines of the Chinese asterisms, and [`eras.json`](data/concordance/eras.json) holds the Chinese, Korean, Japanese, Vietnamese and Western Xia era names with their dynasties and the corresponding astronomical years. Further tables cover persons, calendars, terms and more. The `_meta` field at the head of each file gives the definitions.
 
 | File | Contents | Used by | Entries |
 |---|---|---|---:|
@@ -221,9 +241,15 @@ The concordance tables unify the metadata of objects that different sources know
 | [`data/concordance/gazetteer.json`](data/concordance/gazetteer.json) | Places | [`js/atlas.js`](js/atlas.js), [`js/place-name.js`](js/place-name.js) | 565 |
 | [`data/concordance/regions.json`](data/concordance/regions.json) | Regions | [`js/atlas.js`](js/atlas.js), [`js/place-name.js`](js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](data/concordance/civilizations.json) | Civilizations | [`js/atlas.js`](js/atlas.js), [`js/seal.js`](js/seal.js) | 33 |
+| [`data/concordance/persons.json`](data/concordance/persons.json) | Person names | [`js/atlas.js`](js/atlas.js) | 41 |
 | [`data/concordance/organizations.json`](data/concordance/organizations.json) | Institution names | — | 52 |
-| [`data/concordance/xingguan.json`](data/concordance/xingguan.json) | Chinese star names | — | 407 |
-| [`data/concordance/eras.json`](data/concordance/eras.json) | Era names | [`js/atlas.js`](js/atlas.js) | 830 |
+| [`data/concordance/terms.json`](data/concordance/terms.json) | Terms | [`js/atlas.js`](js/atlas.js) | 71 |
+| [`data/concordance/calendars.json`](data/concordance/calendars.json) | Calendars | [`js/atlas.js`](js/atlas.js) | 14 |
+| [`data/concordance/eras.json`](data/concordance/eras.json) | Era names | [`js/atlas.js`](js/atlas.js), [`js/supplied.js`](js/supplied.js) | 830 |
+| [`data/concordance/xingguan.json`](data/concordance/xingguan.json) | Chinese star names | [`js/atlas.js`](js/atlas.js) | 407 |
+| [`data/concordance/bodies.json`](data/concordance/bodies.json) | Celestial body names | [`js/atlas.js`](js/atlas.js), [`js/supplied.js`](js/supplied.js) | 8 |
+
+The tables read by [`js/atlas.js`](js/atlas.js) feed the rendering of the page: seals, place names, tooltips, footnotes and so on.
 
 ## Running locally
 

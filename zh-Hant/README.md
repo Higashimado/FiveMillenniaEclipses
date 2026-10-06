@@ -14,10 +14,10 @@
 
 網站主頁面由頂欄、地圖、歷軸、右欄四部分組成，歷軸居下，右欄居右：
 
-- **頂欄**：搜尋框可匹配原文、譯文、註釋、來源、地名、時間、文明等以篩選記錄，選項框可切換地圖底圖和介面語言
-- **地圖**：[OpenHistoricalMap](https://www.openhistoricalmap.org/) 為預設底圖，地圖要素隨年代變化，印章標示記錄的所屬文明與觀測地點
-- **歷軸**：魚眼時間軸，焦點可調節，附有年份刻度與朝代分界，圓點標示記錄的觀測時間
-- **右欄**：分史料、全表兩種檢視，分別列出天象記錄與天文事件，欄頂浮簽用於切換天象類型
+- **頂欄**：搜尋框可匹配記錄的原文、譯文、腳註、來源、地名、時間、文明等，右側選項框則用於切換底圖和語言
+- **地圖**：[OpenHistoricalMap](https://www.openhistoricalmap.org/) 為預設底圖，地圖要素隨年代變化，圖上印章標示記錄的所屬文明與觀測地點
+- **歷軸**：近疏遠密的魚眼時間軸，焦點可調節，附有年份刻度與朝代分界，圓點標示記錄的觀測時間
+- **右欄**：分史料、全表，分別列出天象記錄與天文事件，欄頂浮簽用於切換天象類型，右上窗格則顯示條目總數
 
 點選地圖上的印章或列表中的條目，即可進入**事件詳情**模式，該模式下：
 
@@ -26,7 +26,7 @@
 - 點選地圖上的任意地點，將顯示事件彈出視窗，上附該地推算的食況圖與食程表
 
 <p align="center">
-  <img src="../docs/demo/event_detail_map_zh-Hant.png" width="100%">
+  <img src="../docs/demo/event_history_solar_map_zh-Hant.png" width="100%">
 </p>
 
 ## 史料
@@ -46,6 +46,10 @@
 | **合計** | **22** | **387** | **13 156** | | **561 396** | | **前 2137 – 1941** |
 
 **史冊**以中、日、朝、越官修史書為主體，兼收西亞、歐洲編年史，載錄連續、分類齊全、格式規整，典例有如[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)。**報刊**是近代產物，來源豐富、視角多樣，既有富生活氣息的市民群像，又有以天象喻事之社論雜文。**學志**為專業人士撰寫，記錄翔實、影響深遠，最重要的莫如 1919 年驗證廣義相對論之日食觀測 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895)．**雜錄**則含經書、史著、詩歌、日記、書信與泥板等，如《詩經》之「日有食之，亦孔之醜」，上古記錄盡出於此，然其所繫年月、地點多有爭議。
+
+<p align="center">
+  <img src="../docs/demo/event_history_lunar_map_zh-Hant.png" width="100%">
+</p>
 
 ### 結構
 
@@ -77,9 +81,13 @@
 
 `<日期>` 為 [ISO 8601](https://web.archive.org/web/20171019211402/https://www.loc.gov/standards/datetime/ISO_DIS%208601-1.pdf) 定義的天文日期，如 `-000762-06-07`、`1931-10-11`．
 
+<p align="center">
+  <img src="../docs/demo/table_solar_map_zh-Hant.png" width="100%">
+</p>
+
 ## 對照
 
-本庫的對照表用於統一多源異名對象的後設資料，如天文對象的「熒惑」之於「火星」，地理對象的「應天」之於「南京」等，以作史料和全表相關欄位的憑據。例如，[`gazetteer.json`](../data/concordance/gazetteer.json) 存放天象記錄中觀測地的名稱、座標，[`xingguan.json`](../data/concordance/xingguan.json) 存放星官的名稱、範圍與連線，[`eras.json`](../data/concordance/eras.json) 存放中、日、越、西夏年號的名稱、朝代及對應的天文紀年。同一對象或有簡寫、別名，或在不同的時間範圍內有特定名稱，詳見各檔案頭部 `_meta` 欄位的定義。
+本庫的對照表用於統一多源異名對象的後設資料，如天文對象的「熒惑」之於「火星」，地理對象的「應天」之於「南京」等，以作史料和全表相關欄位的憑據。例如，[`gazetteer.json`](../data/concordance/gazetteer.json) 存放天象記錄中觀測地的名稱、座標，[`xingguan.json`](../data/concordance/xingguan.json) 存放星官的名稱、範圍與連線，[`eras.json`](../data/concordance/eras.json) 存放中、朝、日、越、西夏年號的名稱、朝代及對應的天文紀年。另有人名、曆法、術語等表。詳見各檔案頭部 `_meta` 欄位的定義。
 
 | 檔案 | 內容 | 呼叫 | 條目 |
 |---|---|---|---:|
@@ -87,9 +95,15 @@
 | [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地點 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 565 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | 區域 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | 文明 | [`js/atlas.js`](../js/atlas.js)、[`js/seal.js`](../js/seal.js) | 33 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | 人物名稱 | [`js/atlas.js`](../js/atlas.js) | 41 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | 機構名稱 | — | 52 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | 中國星名 | — | 407 |
-| [`data/concordance/eras.json`](../data/concordance/eras.json) | 年號 | [`js/atlas.js`](../js/atlas.js) | 830 |
+| [`data/concordance/terms.json`](../data/concordance/terms.json) | 術語 | [`js/atlas.js`](../js/atlas.js) | 71 |
+| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | 曆法 | [`js/atlas.js`](../js/atlas.js) | 14 |
+| [`data/concordance/eras.json`](../data/concordance/eras.json) | 年號 | [`js/atlas.js`](../js/atlas.js)、[`js/supplied.js`](../js/supplied.js) | 830 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | 中國星名 | [`js/atlas.js`](../js/atlas.js) | 407 |
+| [`data/concordance/bodies.json`](../data/concordance/bodies.json) | 天體名稱 | [`js/atlas.js`](../js/atlas.js)、[`js/supplied.js`](../js/supplied.js) | 8 |
+
+在 [`js/atlas.js`](../js/atlas.js) 調用的對照表會用於頁面渲染，即印章、地名、懸浮窗及腳註等。
 
 ## 執行
 
