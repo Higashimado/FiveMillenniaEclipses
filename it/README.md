@@ -31,7 +31,7 @@ Un clic su un sigillo della mappa o su una voce dell'elenco apre il **dettaglio 
 
 ## Documenti
 
-Il corpus conta oggi 13.156 documenti su fenomeni celesti, e la loro traduzione italiana raggiunge circa 540.000 parole. Provengono da 387 fonti in 23 lingue, tra cui il cinese classico, il neerlandese, il francese, l'inglese, il latino, l'arabo e il greco. I testi sono stati tratti da oltre 20 biblioteche digitali, tra cui [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), la [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), i [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) e [NASA ADS](https://ui.adsabs.harvard.edu/). Tutti i testi citati sono di pubblico dominio.
+Il corpus conta oggi 13.195 documenti su fenomeni celesti, e la loro traduzione italiana raggiunge circa 550.000 parole. Provengono da 387 fonti in 23 lingue, tra cui il cinese classico, il neerlandese, il francese, l'inglese, il latino, l'arabo e il greco. I testi sono stati tratti da oltre 20 biblioteche digitali, tra cui [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), la [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), i [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) e [NASA ADS](https://ui.adsabs.harvard.edu/). Tutti i testi citati sono di pubblico dominio.
 
 ### Generi
 
@@ -39,11 +39,11 @@ Per scopo e forma, i documenti si dividono in quattro grandi classi, «Annali»,
 
 | Classe | Sottogeneri | Fonti | Documenti | Quota di documenti | Parole in italiano | Quota di parole | Periodo |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Annali | 6 | 103 | 11.949 | 90,8% | 300.241 | 55,3% | 720 a.C. – 1911 |
-| Stampa | 6 | 186 | 1003 | 7,6% | 213.572 | 39,3% | 1834 – 1941 |
-| Scritti scientifici | 3 | 57 | 57 | 0,4% | 18.210 | 3,4% | 1715 – 1923 |
-| Miscellanea | 7 | 45 | 147 | 1,1% | 11.180 | 2,1% | 2137 a.C. – 1842 |
-| **Totale** | **22** | **387** | **13.156** | | **543.203** | | **2137 a.C. – 1941** |
+| Annali | 6 | 103 | 11.948 | 90,5% | 300.841 | 54,3% | 720 a.C. – 1911 |
+| Stampa | 6 | 186 | 1043 | 7,9% | 220.707 | 39,9% | 1834 – 1941 |
+| Scritti scientifici | 3 | 57 | 57 | 0,4% | 20.487 | 3,7% | 1715 – 1923 |
+| Miscellanea | 7 | 45 | 147 | 1,1% | 11.713 | 2,1% | 2137 a.C. – 1842 |
+| **Totale** | **22** | **387** | **13.195** | | **553.748** | | **2137 a.C. – 1941** |
 
 Gli **Annali** sono soprattutto le storie ufficiali di Cina, Giappone, Corea e Vietnam, affiancate da cronache dell'Asia occidentale e d'Europa. Le loro registrazioni formano serie ininterrotte, sono classificate in modo sistematico e seguono una forma costante; ne è un esempio tipico il [Trattato di astronomia della *Storia dei Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053). La **Stampa** appartiene all'età moderna e nasce da molte mani e da punti di vista assai diversi, da vivaci scene di vita cittadina a editoriali e articoli di commento che leggono il cielo come allegoria dell'attualità. Gli **Scritti scientifici** sono opera di astronomi e altri studiosi e scendono in grande dettaglio; il più importante è quello delle osservazioni dell'eclissi del 1919 che confermarono la relatività generale, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). La **Miscellanea** comprende classici, opere storiche, poesie, diari, lettere e tavolette d'argilla, come il verso del *Classico delle poesie* «Il sole si è oscurato, presagio di grande sventura». Tutte le testimonianze più antiche appartengono a questa classe, benché le date e i luoghi loro attribuiti siano spesso controversi.
 
@@ -92,13 +92,13 @@ Le tavole di concordanza unificano i metadati degli oggetti che le fonti chiaman
 | File | Contenuto | Usato da | Voci |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | Descrizione del formato | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Luoghi | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 565 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Luoghi | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 573 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | Regioni | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | Civiltà | [`js/atlas.js`](../js/atlas.js), [`js/seal.js`](../js/seal.js) | 33 |
-| [`data/concordance/persons.json`](../data/concordance/persons.json) | Nomi di persone | [`js/atlas.js`](../js/atlas.js) | 41 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | Nomi di persone | [`js/atlas.js`](../js/atlas.js) | 76 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | Nomi di istituzioni | — | 52 |
-| [`data/concordance/terms.json`](../data/concordance/terms.json) | Termini | [`js/atlas.js`](../js/atlas.js) | 71 |
-| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendari | [`js/atlas.js`](../js/atlas.js) | 14 |
+| [`data/concordance/terms.json`](../data/concordance/terms.json) | Termini | [`js/atlas.js`](../js/atlas.js) | 86 |
+| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendari | [`js/atlas.js`](../js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](../data/concordance/eras.json) | Ere | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 830 |
 | [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Nomi cinesi delle stelle | [`js/atlas.js`](../js/atlas.js) | 407 |
 | [`data/concordance/bodies.json`](../data/concordance/bodies.json) | Nomi degli astri | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 8 |

@@ -59,15 +59,6 @@
            both FiveMillenniaEclipses and 五千年日月食 (the site's Chinese name). Unlike this
            wordmark, the tab title and og: card are dynamic, stamped by I18n.applyDOM(). -->
       <div class="wordmark" lang="zh-Hans">五千年日月食<small lang="en">FIVE MILLENNIA ECLIPSES</small></div>
-
-      <!-- Off-site links as jiehang (ruled columns): repository · guide · companion atlas.
-           Labels are left empty and filled by I18n.applyDOM(). The guide's href is a
-           {lang} template, rewritten at applyDOM() time on every language switch. -->
-      <nav class="lnk-rule">
-        <a href="https://github.com/Higashimado/FiveMillenniaEclipses" target="_blank" rel="noopener" data-i18n="ui.link.repo"></a>
-        <a data-i18n-href="https://github.com/Higashimado/FiveMillenniaEclipses/blob/main/{lang}/README.md" target="_blank" rel="noopener" data-i18n="ui.link.docs"></a>
-        <a href="https://higashimado.github.io/SubstellarAtlas/" target="_blank" rel="noopener" data-i18n="ui.link.sister"></a>
-      </nav>
       <div style="flex:1"></div>
       <div class="searchbox">
         <svg class="search-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -88,10 +79,19 @@
         <svg class="caret" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         <select id="lang-select" data-i18n-aria="ui.lang" aria-label="Language"></select>
       </label>
+
+      <!-- Off-site links close the title band after the controls, leaving the wordmark alone at
+           the head of the leaf. Labels are filled by I18n.applyDOM(); the guide's href is a
+           {lang} template, rewritten on every language switch. -->
+      <nav class="lnk-rule">
+        <a href="https://github.com/Higashimado/FiveMillenniaEclipses" target="_blank" rel="noopener" data-i18n="ui.link.repo"></a>
+        <a data-i18n-href="https://github.com/Higashimado/FiveMillenniaEclipses/blob/main/{lang}/README.md" target="_blank" rel="noopener" data-i18n="ui.link.docs"></a>
+        <a href="https://higashimado.github.io/SubstellarAtlas/" target="_blank" rel="noopener" data-i18n="ui.link.sister"></a>
+      </nav>
     </div>
 
     <!-- bankuang (page frame, double rule on all sides): outer thick + inner thin rule
-         (border + ::before{inset:3px}). Its grid holds huamian (map) · banxin (seam) ·
+         (border + ::before). Its grid holds huamian (map) · banxin (seam) ·
          banye (rail) · dijiao (lizhou), all inside the black frame. -->
     <div id="frame">
 

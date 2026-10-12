@@ -4,6 +4,7 @@
     "start": "node serve.mjs",
     "lint:comments": "node tools/lint-comments.mjs",
     "lint:doc-links": "node tools/lint-doc-links.mjs",
+    "cloud:export": "node tools/cloud-context.mjs --export",
     "check:brackets": "node tools/check-title-brackets.mjs",
     "format": "prettier --write \"js/**/*.js\"",
     "format:check": "prettier --check \"js/**/*.js\""

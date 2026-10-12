@@ -20,9 +20,16 @@ body { height: 100vh; overflow: hidden; font-feature-settings: 'tnum' 1, 'lnum' 
    not by eye. --ear-inset is the shu'er's (ear tab) left offset plus its trailing gutter.
    --huamian-min floors the huamian column, which #frame's min-width must then include. */
 :root {
-  --ear-w: 530px; --ear-inset: 40px;
+  --ear-w: 532px; --ear-inset: 40px;
   --huamian-min: calc(var(--ear-w) + var(--ear-inset));
-  --rail-w: 344px; --frame-rule: 1.7px;
+  --rail-w: 344px;
+
+  /* The inner rule has the weight of the jiehang rules that meet it; the outer is one step
+     heavier. 2px, not 1.7: Chrome draws any border under 2px as one device pixel at DPR 1,
+     where 1.7 and 0.7 came out alike. */
+  --frame-rule: 2px; --frame-gap: 3px; --frame-inner: 0.7px;
+  --frame-pad: 4px;   /* gap + the inner rule's 1px slot: whole-pixel content */
+  --frame-edge: calc(var(--frame-rule) + var(--frame-pad));
 }
 
 /* ---- Bankuang (Page-Frame) Container Model ---- */
@@ -35,6 +42,7 @@ body { height: 100vh; overflow: hidden; font-feature-settings: 'tnum' 1, 'lnum' 
 }
 #frame {
   position: relative; margin: 0 14px 14px; border: var(--frame-rule) solid var(--frame, #443F33);
+  padding: var(--frame-pad);   /* the paper between the two rules, and the inner rule */
   display: grid; grid-template-rows: 1fr 117px;
 
   /* Floor the huamian column at the ear's budget rather than letting `1fr` collapse: the
@@ -43,13 +51,17 @@ body { height: 100vh; overflow: hidden; font-feature-settings: 'tnum' 1, 'lnum' 
   grid-template-columns: minmax(var(--huamian-min), 1fr) var(--rail-w);
 
   /* Overflow:hidden below zeroes a grid item's automatic minimum size, so min-width MUST
-     state the leaf's minimum explicitly, from the same column budgets plus the rule. */
-  min-width: calc(var(--huamian-min) + var(--rail-w) + 2 * var(--frame-rule));
+     state the leaf's minimum explicitly, from the same column budgets plus the frame edge. */
+  min-width: calc(var(--huamian-min) + var(--rail-w) + 2 * var(--frame-edge));
   min-height: 0; overflow: hidden;   /* huamian · banxin · banye / content · dijiao */
   overflow: clip;   /* clip: unlike hidden, can't be scrolled into view by focus */
 }
-#frame::before {   /* inner rule of the double bankuang frame */
-  content: ""; position: absolute; inset: 3px; border: 0.7px solid var(--frame, #443F33);
+
+/* Inner rule of the double frame, laid in the padding so the content starts inside it
+   and the gap between the two rules stays paper. */
+#frame::before {
+  content: ""; position: absolute; inset: var(--frame-gap);
+  border: var(--frame-inner) solid var(--frame, #443F33);
   pointer-events: none; z-index: 5;
 }
 
@@ -60,7 +72,7 @@ body:has(#timeline.hidden) #frame { grid-template-rows: 1fr 0; }
    so a narrow window stops scrolling sideways once the rail is put away. */
 body:has(#library.hidden) #frame {
   grid-template-columns: minmax(var(--huamian-min), 1fr) 0;
-  min-width: calc(var(--huamian-min) + 2 * var(--frame-rule));
+  min-width: calc(var(--huamian-min) + 2 * var(--frame-edge));
 }
 #library.hidden { visibility: hidden; }
 /* Folding slides: the grid tracks ease to 0 and the rail, held at its own width, is pushed
@@ -209,29 +221,26 @@ body[data-lang="es"] .slip, body[data-lang="it"] .slip {
 .wordmark small { display: block; font-family: var(--font-text); font-size: var(--fs-micro); letter-spacing: 3px; color: var(--accent, #4F8D74); font-weight: 400; margin-top: 6px; }
 .vr { width: 0.5px; height: 28px; background: var(--hair, #D3CFC5); }
 
-/* Off-site links as jiehang (ruled columns), divided by the same hairline the .vr uses.
-   They sit at rest in ink; only a zhilü rule under the label moves on hover, so a
-   background wash never outweighs the controls beside them. */
-.lnk-rule { display: flex; align-items: center; flex: none; }
+/* Off-site links close the title band after the controls, in the note ink the leaf uses
+   for its marginalia: they leave the atlas, so they stay quieter than anything that
+   works inside it. Space alone divides them; a rule between three words is noise. */
+.lnk-rule { display: flex; align-items: center; gap: 18px; flex: none; margin-left: 10px; }
 
-/* Right padding is short by one tracking unit on purpose: letter-spacing adds space
-   after the LAST character too, so equal padding would leave the text sitting visibly
-   left of centre. */
+/* letter-spacing also trails the last character, so the right margin gives back one
+   tracking unit and the underline ends under the last glyph. */
 .lnk-rule a {
-  font-size: var(--fs-body); letter-spacing: .22em; color: var(--ink-2, #5A564C);
-  text-decoration: none; padding: 4px calc(14px - .22em) 4px 14px; line-height: 1.4; white-space: nowrap;
+  font-size: var(--fs-body); letter-spacing: .12em; margin-right: -.12em; color: var(--ink-note, #6F6A5C);
+  text-decoration: none; padding: 4px 0; line-height: 1.4; white-space: nowrap;
   border-bottom: 1px solid transparent; transition: color .14s, border-color .14s;
 }
-.lnk-rule a + a { border-left: 0.5px solid var(--hair, #D3CFC5); }
-.lnk-rule a:hover { color: var(--accent-deep, #3C6E5A); border-bottom-color: var(--accent, #4F8D74); }
+.lnk-rule a:hover { color: var(--accent-ink, #3C6E5A); border-bottom-color: var(--accent, #4F8D74); }
 .lnk-rule a:focus-visible { outline: 1.5px solid var(--accent, #4F8D74); outline-offset: 2px; }
 
-/* Latin labels are words, not two-glyph compounds: .22em tracking that reads as
-   composed spacing on 藏版 (repository) reads as a gap between letters on Repository,
-   and the wider run crowds the search field. */
+/* Latin labels are words, not two-glyph compounds: tracking that reads as composed
+   spacing on 藏版 (repository) reads as a gap between letters on Repository. */
 body[data-lang="en"] .lnk-rule a, body[data-lang="fr"] .lnk-rule a,
 body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
-  letter-spacing: .06em; padding: 4px calc(12px - .06em) 4px 12px;
+  letter-spacing: .02em; margin-right: -.02em;
 }
 
 /* Search: a square-cornered field (fang-jiao) with the magnifier tucked inside. */
@@ -292,12 +301,12 @@ body[data-lang="es"] .lnk-rule a, body[data-lang="it"] .lnk-rule a {
   color: var(--ink, #2A2E33); font-size: var(--fs-body); padding: 7px 11px;
   box-shadow: 0 2px 14px rgba(30,30,30,.10); display: flex; align-items: center; gap: 7px;
 }
-.tltab { bottom: 12px; left: 12px; }
+.tltab { bottom: calc(var(--frame-pad) + 8px); left: calc(var(--frame-pad) + 8px); }   /* padding box: clear the inner rule by 8px */
 
 /* Rail reopen chip: the lizhou chip's twin, set vertically in the top-right corner clear of
    both rules. Han stands upright, Latin turns with the column; the arrow is drawn here, not in
    the label, so it stays upright and points at the rail in every script. */
-.libtab { grid-column: 1 / -1; grid-row: 1 / -1; top: 12px; right: 12px; font-family: inherit;   /* absolute grid child needs an explicit grid area */
+.libtab { grid-column: 1 / -1; grid-row: 1 / -1; top: 8px; right: 8px; font-family: inherit;   /* absolute grid child needs an explicit grid area */
   writing-mode: vertical-rl; text-orientation: upright; padding: 11px 8.9px 11px 5.1px; gap: 0; letter-spacing: .1em; }   /* asymmetric pad recentres vertical Han's 1.9px drift */
 body:not([data-lang^="zh"]):not([data-lang="ja"]) .libtab { text-orientation: mixed; letter-spacing: normal; padding: 11px 7px; }
 body:not([data-lang^="zh"]):not([data-lang="ja"]) .libtab::after { left: 0; }
@@ -309,7 +318,7 @@ body:not([data-lang^="zh"]):not([data-lang="ja"]) .libtab::after { left: 0; }
    hover through :has(). Its ::after bridges the gap so the pointer stays on it while
    crossing to the rail. Two classes so the size outranks .iconbtn, declared further down. */
 .iconbtn.lib-close {
-  position: absolute; top: 10px; right: calc(var(--rail-w) + 10px); z-index: 1200;
+  position: absolute; top: calc(var(--frame-pad) + 6px); right: calc(var(--rail-w) + var(--frame-pad) + 10px); z-index: 1200;
   width: 22px; height: 22px; font-size: var(--fs-body);
   opacity: 0; pointer-events: none; transition: opacity .15s;
 }
@@ -326,7 +335,7 @@ body:has(#library.hidden) .lib-close { display: none; }
   display: flex; flex-direction: column;
   background: var(--card, #F7F3EA); overflow: hidden;
   border-left: 0.7px solid var(--frame, #443F33);   /* jiehang rule: huamian ↔ banye */
-  padding-right: 4px;   /* seats the list thumb inboard of #frame::before's inset */
+  padding-right: 4px;   /* keeps the list thumb off the inner rule */
 }
 .lib-head { display: flex; align-items: center; gap: 8px; padding: 11px 13px; border-bottom: 0.5px solid var(--hair, #D3CFC5); }
 .lib-head .t { font-size: var(--fs-lead); font-weight: 700; letter-spacing: 1px; }
@@ -453,7 +462,9 @@ html:is([lang^="zh"], [lang^="ja"]) :is(.rc-year, .rp-year).era-quewei {
 .rec-tabwrap { overflow-x: auto; margin: .6em 0; }
 .rec-tab { border-collapse: collapse; width: auto; font-size: var(--fs-note); line-height: 1.5; }
 .rec-tab th, .rec-tab td { padding: 2px 10px 2px 0; text-align: left; white-space: nowrap; vertical-align: baseline; }
-.rec-tab th { font-weight: 700; border-bottom: 0.5px solid var(--hair, #D3CFC5); padding-bottom: 3px; }
+
+/* Heads are words and wrap; a nowrap head as long as Kepler's sets the whole table's width. */
+.rec-tab th { white-space: normal; min-width: 3em; font-weight: 700; border-bottom: 0.5px solid var(--hair, #D3CFC5); padding-bottom: 3px; }
 .rec-tab tbody tr:first-child td { padding-top: 4px; }
 
 /* Readings line up on their last digit only when they share a tabular figure width. */
@@ -461,7 +472,7 @@ html:is([lang^="zh"], [lang^="ja"]) :is(.rc-year, .rp-year).era-quewei {
 /* A log-of-events cell holds a whole clause; nowrap there would widen the table past the
    card into horizontal scroll, so the prose column alone wraps. The readings keep
    nowrap: their columns are the point of a table. */
-.rec-tab td.rec-tab-prose { white-space: normal; max-width: 28em; }
+.rec-tab .rec-tab-prose { white-space: normal; max-width: 28em; }
 
 /* Citation: small-type jiazhu, flush with the translation, and carrying no mark of its
    own — its label already names it, and a rule here would claim it as quoted matter. */
@@ -487,7 +498,8 @@ sup.nref { font-size: var(--fs-micro); line-height: 0; vertical-align: super; fo
 sup.nref a, a.nback { color: var(--spark, #B23A2E); text-decoration: none; }
 sup.nref a:hover, a.nback:hover, a.fnlink:hover { text-decoration: underline; }
 
-/* The list numbers match the bracketed marks in the text; they hang in the left margin as real text. */
+/* The list numbers match the bracketed marks in the text; they hang in the left margin
+   as real text. */
 .nnum { position: absolute; right: 100%; padding-right: .4em; white-space: nowrap; font-style: normal; }
 a.nback { font-style: normal; }
 
@@ -552,7 +564,7 @@ a.wlink:hover { text-decoration-color: currentColor; }
    line carries no such pairing, so the vermilion stands down on it until the card expands. */
 .reccard:not(.sel) .rc-orig.solo mark.hl,
 .reccard:not(.sel) .rc-trans mark.hl {
-  color: inherit; font-weight: inherit; border-bottom: 0;
+  color: inherit; border-bottom: 0;
 }
 
 /* ---- All-Events Log: Chevrons And Cards ---- */
@@ -619,7 +631,6 @@ a.wlink:hover { text-decoration-color: currentColor; }
 .ec-peak .mid { color: var(--ink-3, #B7B1A3); font-style: normal; margin: 0 .35em; }
 .ec-peak .unc { color: var(--ink-3, #8B8F8C); font-style: italic; }  /* ± longitude uncertainty */
 .ec-row2 { font-size: var(--fs-body); color: var(--ink-2, #5A564C); margin-top: 2px; }
-.ec-kind { color: var(--ink, #2B2A26); }
 
 /* Ink-coloured dotted underline everywhere. The `.leaflet-container` prefix MUST stay,
    or Leaflet's own same-specificity rule renders this link blue inside a popup. Use
@@ -694,7 +705,7 @@ a.wlink:hover { text-decoration-color: currentColor; }
 /* site-stack count badge (top-right corner of the seal) */
 .mk-count {
   position: absolute; top: -7px; right: -8px; min-width: 15px; height: 15px; padding: 0 3px;
-  border-radius: 2px; background: var(--card, #F1EFE8); border: 0.5px solid var(--hair, #D3CFC5);
+  background: var(--card, #F1EFE8); border: 0.5px solid var(--hair, #D3CFC5);
   color: var(--ink-2, #565A5E); font-size: var(--fs-micro); line-height: 14px; text-align: center; pointer-events: none;
 }
 
@@ -722,8 +733,10 @@ a.wlink:hover { text-decoration-color: currentColor; }
 .rp-head { display: flex; align-items: center; gap: 7px; min-width: 0; }
 .rp-place { font-size: var(--fs-lead); font-weight: 700; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rp-year { flex: 0 0 auto; margin-left: auto; font-family: var(--font-text); font-size: var(--fs-body); color: var(--ink-2, #5A564C); white-space: nowrap; }  /* era tag never wraps */
-/* eclipse phrase = zhupi spark underline, uniform across scripts. */
-mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 600; border-bottom: 1px solid var(--spark, #B23A2E); padding: 0; }
+/* eclipse phrase = zhupi spark underline, uniform across scripts. Colour and rule are
+   the whole mark, at the text's own weight: the Han face ships only 400 and 700, so a
+   600 jumps to full bold and the phrase would shout in three ways at once. */
+mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: inherit; border-bottom: 1px solid var(--spark, #B23A2E); padding: 0; }
 
 /* ---- Shu'er (Ear Tab, #ev-strip) ---- */
 /* Ink tab hanging from the bankuang top rule: "Today View" (jinguan) + eclipse-disk mark
@@ -756,21 +769,25 @@ mark.hl { background: transparent; color: var(--spark, #B23A2E); font-weight: 60
 .ev-strip-tab.is-latin { text-orientation: mixed; font-size: var(--fs-micro); letter-spacing: .02em;
   line-height: 1.1; overflow: hidden; padding-right: 0; }
 
-/* body centers the glyph against the two-line register block (centered against both rows).
-   Right padding is trimmed against the left on purpose: the left side carries the
-   tab/glyph's own breathing room, the right side only the text-to-nav gap. */
-.ev-strip-body { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 11px; padding: 10.5px 8px 7.5px 12px; }
+/* 11px of space from the ink to the edge on three sides. .ev-strip-lines trims its line
+   boxes to the ink, so the padding is that space above and below; the right is 1px short
+   because the saros cell's last Han glyph and letter-spacing end 1px inside its advance. */
+.ev-strip-body { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 11px; padding: 11px 10px 11px 11px; }
 .ev-strip-glyph { flex: 0 0 auto; line-height: 0; }
 
-/* Text here is selectable/copyable, not part of the drag surface — paired with
-   disableClickPropagation (js/atlas.js), which stops the mousedown reaching Leaflet's
-   own drag handler. */
+/* Latin ink sits 1px inside the Han face above and below, so the western locales measure
+   12px there; their saros digits end flush with the advance, so the right takes 12px. */
+.ev-strip-tab.is-latin + .ev-strip-body { padding-right: 12px; }
+
+/* Negative margins trim the line boxes to the Han ink at 13px (2.9px over row one, 5px of
+   Spectral's descent under row two; remeasure at another size). The text is selectable: the
+   mousedown stops at disableClickPropagation (js/atlas.js) before Leaflet's drag handler. */
 .ev-strip-lines { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 1px;
-  cursor: text; user-select: text; -webkit-user-select: text; }
+  margin: -2.9px 0 -5px; cursor: text; user-select: text; -webkit-user-select: text; }
 
 /* Line-heights are explicit: tight enough that the register gap reads smaller than the
-   text-to-edge margins, generous enough for Spectral's own ascent+descent box. l1/l2
-   share ONE family and size; the science/chronicle contrast is weight and colour only. */
+   text-to-edge margins, generous enough for Spectral's ascent+descent box. l1/l2 share
+   --fs-body with the rail's event rows; the science/chronicle contrast is weight and colour. */
 .ev-strip-l1 { min-width: 0; font-family: var(--font-text); font-size: var(--fs-body);
   line-height: 1.55; color: var(--ink, #2B2A26); font-variant-numeric: tabular-nums;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -872,7 +889,7 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 .ec-recs-div { display: flex; align-items: baseline; gap: 9px; font-size: var(--fs-note); color: var(--ink-note, #696353); letter-spacing: .05em; margin-bottom: 3px; font-family: var(--font-text); }
 .ec-recs-div::after { content: ""; flex: 1 1 auto; align-self: center; border-top: 0.7px solid var(--hair, #D3CFC5); }
 .ec-recs-icons { display: flex; flex-wrap: wrap; gap: 8px; }
-.ec-recs-icons .ep-rec-icon { display: inline-flex; align-items: center; gap: 5px; padding: 2px 6px 2px 2px; border-radius: 2px; cursor: pointer; }
+.ec-recs-icons .ep-rec-icon { display: inline-flex; align-items: center; gap: 5px; padding: 2px 6px 2px 2px; cursor: pointer; }
 .ec-recs-icons .ep-rec-icon:hover { box-shadow: 0 0 0 1px var(--accent, #4F8D74) inset; }
 .ec-recs-icons .ep-rec-place { flex: none; font-size: var(--fs-note); color: var(--ink, #2B2A26); white-space: nowrap; }
 .seal { display: block; flex: none; }
@@ -1083,7 +1100,7 @@ body[data-lang="ja"] .ec-ct .k { width: 4.5em; }
 
 /* An era name in a record's text: a dotted underline says it can be looked up, and the
    wash on hover marks exactly which words the card explains. */
-.ngloss { border-bottom: 1px dotted var(--ink-3, #8B8F8C); border-radius: 2px; transition: background-color 0.12s; }
+.ngloss { border-bottom: 1px dotted var(--ink-3, #8B8F8C); transition: background-color 0.12s; }
 .ngloss:hover { background: color-mix(in srgb, var(--accent, #4F8D74) 24%, transparent); border-bottom-color: var(--accent-ink, #3C6E5A); }
 .glossary-tip {
   position: fixed; z-index: 10001; pointer-events: none;

@@ -88,6 +88,7 @@ const Notes = (() => {
     witness: 'work',
     adopted_from: 'work',
     series: 'work',
+    others: 'others',
     observer: 'person',
     author: 'person',
     predictor: 'person',
@@ -600,10 +601,27 @@ const Notes = (() => {
     if (!title) return esc(key);
 
     // The consulted edition's url links the title, so the cited work can be found again.
-    const ed = (src.editions || []).find((e) => e.consulted);
-    const marked = markTitle(title, form, lang);
-    if (!ed || !ed.url) return marked;
-    return '<a class="wlink" href="' + esc(ed.url) + '" target="_blank" rel="noopener">' + marked + '</a>';
+    return linkToWork(src, markTitle(title, form, lang));
+  }
+
+  function linkToWork(src, html) {
+    const ed = ((src && src.editions) || []).find((e) => e.consulted);
+    if (!ed || !ed.url) return html;
+    return '<a class="wlink" href="' + esc(ed.url) + '" target="_blank" rel="noopener">' + html + '</a>';
+  }
+
+  // The datings an authority note does not follow: a seven-locale phrase, the same phrase
+  // linked to a work ({text, work}), or a list of {value, work} pairs whose work is linked
+  // like any cited title.
+  function othersValue(v, lang, tr) {
+    if (v && typeof v === 'object' && !Array.isArray(v) && v.work) {
+      return linkToWork(D.sources[v.work], esc(pick(v.text, lang)));
+    }
+    if (!Array.isArray(v)) return esc(named(v, lang));
+    const item = tr('note.date_basis.authority.other_item');
+    return v
+      .map((x) => fill(item, { value: esc(named(x.value, lang)), work: workValue(x.work, lang) }))
+      .join(isCjk(lang) ? '、' : '; ');
   }
 
   // sources.json writes a Han title with its own 《》 and a chapter title in Chicago form,
@@ -649,6 +667,8 @@ const Notes = (() => {
         return esc(D.terms[v] ? pick(D.terms[v].gloss, lang) : v);
       case 'work':
         return workValue(v, lang);
+      case 'others':
+        return othersValue(v, lang, tr);
       case 'person':
         return personValue(v, lang);
       case 'place':
@@ -1139,6 +1159,33 @@ const Notes = (() => {
     return ((count === 'night' ? 18 : 6) + n) % 24;
   }
 
+  // The same hour reckoned from the Sun's own rising and setting at the record's place on its
+  // day, in local mean time: a midsummer third hour at Poznan is about seven, not nine.
+  // Null where the place, the date or the ephemeris is missing, or the Sun does not set.
+  function skyHour(count, n, sky) {
+    if (!sky || sky.lat == null || sky.lon == null || typeof Astronomy === 'undefined') return null;
+    const m = /^(-?\d+)-(\d\d)-(\d\d)/.exec(sky.date || '');
+    if (!m) return null;
+    const noon = new Date(0);
+    noon.setUTCFullYear(+m[1], +m[2] - 1, +m[3]);
+    const shift = (sky.lon / 15) * 3600000;
+    const t0 = noon.getTime() + 12 * 3600000 - shift;
+    try {
+      const obs = new Astronomy.Observer(sky.lat, sky.lon, 0);
+      const day = count !== 'night';
+      const from = Astronomy.MakeTime(new Date(day ? t0 - 12 * 3600000 : t0));
+      const start = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, day ? +1 : -1, from, 1);
+      if (!start) return null;
+      const end = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, day ? -1 : +1, start, 1);
+      if (!end) return null;
+      const a = start.date.getTime();
+      const mid = a + ((n - 0.5) * (end.date.getTime() - a)) / 12 + shift;
+      return ((Math.round((mid - noon.getTime()) / 3600000) % 24) + 24) % 24;
+    } catch (_) {
+      return null;
+    }
+  }
+
   // "about nine in the morning" in the reader's locale, from note.clock.* keys.
   function clockText(h, lang, tr) {
     const key = h === 0 ? 'midnight' : h === 12 ? 'noon' : h < 6 ? 'small' : h < 12 ? 'am' : h < 19 ? 'pm' : 'night';
@@ -1153,9 +1200,10 @@ const Notes = (() => {
    * @param {{epoch?:string[], hour?:string[]}} date the record's date block
    * @param {Object<string,string>} texts the translations by locale
    * @param {string} [orig] text_orig
+   * @param {{lat:number, lon:number, date:string}} [sky] the record's place and day, for the hour
    * @returns {Object[]} units shaped like `notes` hover units
    */
-  function dateUnits(date, texts, orig) {
+  function dateUnits(date, texts, orig, sky) {
     const out = [];
     const all = Object.assign({}, texts, { orig: orig || '' });
     const add = (base, find) => {
@@ -1190,8 +1238,9 @@ const Notes = (() => {
     for (const h of (date && date.hour) || []) {
       const m = MARK.exec(h);
       if (m)
-        add({ type: 'time_reckoning', sub: m[1] + '_hour', hour: clockHour(m[1], +m[2]) }, (t, lang) =>
-          lang === 'orig' ? [] : hourRanges(t, +m[2], lang)
+        add(
+          { type: 'time_reckoning', sub: m[1] + '_hour', hour: skyHour(m[1], +m[2], sky) ?? clockHour(m[1], +m[2]) },
+          (t, lang) => (lang === 'orig' ? [] : hourRanges(t, +m[2], lang))
         );
     }
     return out;

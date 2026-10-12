@@ -6,7 +6,7 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 
 ## 史册
 
-史册含本纪、天文志、五行志、实录、会要、编年，共六种类型，按书目整体判定。因每本史册几乎都含多个条目，本节将其逐一列出，并标明其所属小类。**本纪**以帝王为主线，通常仅记日食及其日期。**天文志**由史官根据钦天监等朝廷天文机构的观测档案汇编，天象类型丰富，且有时刻、食分、宿度等详细信息。**五行志**由史官根据灾异学说汇编，天象之后多附人事应验。**实录**为藏于宫内的朝政记录，多有对天象的事前预报和应对措施。**会要**记录朝代典章制度。**编年**则是以时间为线索的史书总称。史册来源现以中国为主，朝鲜、日本为辅，其余亚欧文明各有零散记录；年代自《春秋》前 720 年起，至《清史稿·本纪》1911 年止，条目总计 11 949 条，占全库的 90.8%．
+史册含本纪、天文志、五行志、实录、会要、编年，共六种类型，按书目整体判定。因每本史册几乎都含多个条目，本节将其逐一列出，并标明其所属小类。**本纪**以帝王为主线，通常仅记日食及其日期。**天文志**由史官根据钦天监等朝廷天文机构的观测档案汇编，天象类型丰富，且有时刻、食分、宿度等详细信息。**五行志**由史官根据灾异学说汇编，天象之后多附人事应验。**实录**为藏于宫内的朝政记录，多有对天象的事前预报和应对措施。**会要**记录朝代典章制度。**编年**则是以时间为线索的史书总称。史册来源现以中国为主，朝鲜、日本为辅，其余亚欧文明各有零散记录；年代自《春秋》前 720 年起，至《清史稿·本纪》1911 年止，条目总计 11 948 条，占全库的 90.5%．
 
 ### 中华
 
@@ -48,7 +48,7 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 ---|---|---|--:|--:|--:|--:|--:|--:|--:
 [《三国史记》](https://zh.wikisource.org/wiki/%E4%B8%89%E5%9C%8B%E5%8F%B2%E8%A8%98/%E5%8D%B701) | 编年 | 前 54 – 911 | 42 |  |  |  | 3 | 9 | 54
 [《高丽史·天文志》](https://zh.wikisource.org/wiki/%E9%AB%98%E9%BA%97%E5%8F%B2/%E5%8D%B7%E5%9B%9B%E5%8D%81%E5%85%AB) | 天文志 | 989 – 1392 | 118 | 98 | 1 966 | 4 | 3 | 53 | 2 242
-[《朝鲜王朝实录》](https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84/%E5%93%B2%E5%AE%97%E5%AF%A6%E9%8C%84/%E5%8D%81%E4%BA%8C%E5%B9%B4) | 实录 | 1400 – 1863 | 84 | 32 |  |  | 84 | 297 | 497
+[《朝鲜王朝实录》](https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84/%E5%93%B2%E5%AE%97%E5%AF%A6%E9%8C%84/%E5%8D%81%E4%BA%8C%E5%B9%B4) | 实录 | 1400 – 1863 | 84 | 31 |  |  | 84 | 297 | 496
 
 ### 日本
 
@@ -126,7 +126,7 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 
 ## 报刊
 
-报刊的小类按条目逐一判定，同一场天象常有不同体裁的报道。**电讯**以电头起首，常带通讯社名，篇幅较短，不用第一人称单数。**杂闻**数量最多，平铺直叙，兼有天象过程中的奇闻趣事。**亲历**为第一人称的目击报告，多带观测者的亲身感受。**特写**的篇幅最长，多为群像。**社论**是以报社名义发表的议论，不时借天象针砭时弊。**通告**刊于天象发生之前，多有时刻与地点的预测。报刊记录多取自 [Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/) 及 [Chronicling America](https://chroniclingamerica.loc.gov/) 的公有领域材料，因此语言以荷兰语、法语、英语为主，另有《申报》等中国近代报刊；年代自 1834 年始，至 1941 年止，条目总计 1 003 条，但汉译字数占全库的 50.2%．
+报刊的小类按条目逐一判定，同一场天象常有不同体裁的报道。**电讯**以电头起首，常带通讯社名，篇幅较短，不用第一人称单数。**杂闻**数量最多，平铺直叙，兼有天象过程中的奇闻趣事。**亲历**为第一人称的目击报告，多带观测者的亲身感受。**特写**的篇幅最长，多为群像。**社论**是以报社名义发表的议论，不时借天象针砭时弊。**通告**刊于天象发生之前，多有时刻与地点的预测。报刊记录多取自 [Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/) 及 [Chronicling America](https://chroniclingamerica.loc.gov/) 的公有领域材料，因此语言以荷兰语、法语、英语为主，另有《申报》等中国近代报刊；年代自 1834 年始，至 1941 年止，条目总计 1 033 条，但汉译字数占全库的 50.3%．
 
 来源 | 年代 | 电讯 | 杂闻 | 亲历 | 特写 | 社论 | 通告 | 合计
 ---|---|--:|--:|--:|--:|--:|--:|--:
@@ -144,33 +144,33 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 [*Provinciale Overijsselsche en Zwolsche courant*](https://www.delpher.nl/nl/kranten) | 1847 – 1927 | 1 | 7 |  | 2 |  |  | 10
 [*Dagblad van Zuidholland en 's Gravenhage*](https://www.delpher.nl/nl/kranten) | 1851 – 1922 |  | 10 | 1 |  |  |  | 11
 [*De Tijd*](https://www.delpher.nl/nl/kranten) | 1851 – 1927 | 1 | 4 | 2 |  |  |  | 7
-[《新鹿特丹报》](https://www.delpher.nl/nl/kranten) | 1851 – 1929 | 1 | 24 |  | 1 |  |  | 26
+[《新鹿特丹报》](https://www.delpher.nl/nl/kranten) | 1851 – 1929 | 1 | 22 |  | 1 |  |  | 24
 [*Opregte Haarlemsche Courant*](https://www.delpher.nl/nl/kranten) | 1851 – 1900 | 1 | 6 |  |  |  |  | 7
 [*La Presse*](https://gallica.bnf.fr/) | 1860 – 1912 | 1 | 17 |  |  |  |  | 18
 [*Provinciale Drentsche en Asser courant*](https://www.delpher.nl/nl/kranten) | 1860 – 1912 |  | 3 |  |  |  |  | 3
+[《北华捷报》](https://archive.org/details/northchinaherald) | 1868 – 1941 | 3 | 22 |  |  | 1 | 3 | 29
+[《德臣西报》](https://archive.org/details/china-mail) | 1868 – 1936 | 3 | 15 | 1 | 1 |  | 12 | 32
 [*Le Constitutionnel*](https://gallica.bnf.fr/) | 1870 – 1900 | 2 | 5 |  |  |  |  | 7
 [*Le Temps*](https://gallica.bnf.fr/) | 1870 – 1912 | 3 | 37 | 1 | 7 |  |  | 48
 [*Bataviaasch handelsblad*](https://www.delpher.nl/nl/kranten) | 1871 |  | 3 |  |  |  |  | 3
 [*Het vaderland*](https://www.delpher.nl/nl/kranten) | 1871 – 1929 | 1 | 13 |  | 3 |  |  | 17
 [《爪哇邮报》](https://www.delpher.nl/nl/kranten) | 1871 – 1872 |  | 1 |  |  |  | 1 | 2
-[《孖剌西报》](https://archive.org/details/china-mail) | 1872 – 1941 | 1 | 6 |  | 1 |  | 4 | 12
-[《北华捷报》](https://archive.org/details/northchinaherald) | 1872 – 1941 | 3 | 13 |  |  | 1 | 3 | 20
+[《孖剌西报》](https://archive.org/details/china-mail) | 1872 – 1941 | 1 | 7 |  | 1 |  | 8 | 17
 [*Daily Kennebec Journal*](https://www.loc.gov/chroniclingamerica/) | 1875 | 1 | 3 |  |  |  |  | 4
 [*Evening Star*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1919 |  | 2 |  |  |  |  | 2
 [*National Republican*](https://www.loc.gov/chroniclingamerica/) | 1875 | 2 | 1 |  |  |  |  | 3
 [《论坛报》](https://www.loc.gov/chroniclingamerica/) | 1875 – 1885 | 6 | 3 |  |  | 1 |  | 10
 [*Public Ledger*](https://www.loc.gov/chroniclingamerica/) | 1875 |  | 2 |  |  |  |  | 2
+[《申报》](https://archive.org/details/shenbao-archive) | 1875 – 1941 | 9 | 1 |  | 1 | 1 | 14 | 33
 [《先驱报》](https://www.loc.gov/chroniclingamerica/) | 1875 |  | 8 |  | 1 | 1 |  | 10
 [*De Volksvriend*](https://www.delpher.nl/nl/kranten) | 1878 – 1925 |  | 9 |  |  |  |  | 9
 [*Morning Appeal*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 |  | 2 |  |  |  |  | 2
 [*Sacramento Daily Record-union*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 |  | 19 |  |  |  |  | 19
 [*The Salt Lake Herald*](https://www.loc.gov/chroniclingamerica/) | 1880 | 1 |  | 1 |  |  |  | 2
 [*The Sun*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 | 1 | 3 |  |  |  |  | 4
-[《士蔑西报》](https://archive.org/details/china-mail) | 1882 – 1941 | 5 | 7 |  |  |  | 2 | 14
+[《士蔑西报》](https://archive.org/details/china-mail) | 1882 – 1941 | 5 | 10 |  |  |  | 2 | 17
 [*Nieuwe Haarlemsche courant*](https://www.delpher.nl/nl/kranten) | 1882 – 1927 |  | 8 |  | 2 |  |  | 10
 [*Het nieuws van den dag (kleine courant)*](https://www.delpher.nl/nl/kranten) | 1882 – 1905 |  | 3 | 1 |  |  |  | 4
-[《申报》](https://archive.org/details/shenbao-archive) | 1882 – 1941 | 9 | 1 |  | 1 | 1 | 9 | 21
-[《德臣西报》](https://archive.org/details/china-mail) | 1882 – 1936 | 1 | 10 | 1 | 1 |  | 6 | 19
 [*Helena Weekly Herald*](https://www.loc.gov/chroniclingamerica/) | 1885 |  |  |  | 2 |  |  | 2
 [*Morris Tribune*](https://www.loc.gov/chroniclingamerica/) | 1885 |  | 2 |  |  |  |  | 2
 [*The Corvallis Gazette*](https://www.loc.gov/chroniclingamerica/) | 1885 |  | 2 |  |  |  |  | 2
@@ -189,24 +189,25 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 [*Rotterdamsch nieuwsblad*](https://www.delpher.nl/nl/kranten) | 1898 – 1927 |  | 14 | 1 | 1 |  |  | 16
 [*Utrechtsch provinciaal en stedelijk dagblad*](https://www.delpher.nl/nl/kranten) | 1898 – 1927 | 4 | 7 | 1 | 2 |  |  | 14
 [*Apeldoornsche courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1914 |  | 5 |  |  |  |  | 5
-[*Arnhemsche courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1927 |  | 7 | 1 | 1 |  |  | 9
+[*Arnhemsche courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1927 |  | 6 | 1 | 1 |  |  | 8
 [*De Gooi- en Eemlander*](https://www.delpher.nl/nl/kranten) | 1900 – 1925 |  | 5 |  |  |  |  | 5
 [*De Graafschap-bode*](https://www.delpher.nl/nl/kranten) | 1900 – 1912 |  | 1 |  | 1 |  |  | 2
-[《费加罗报》](https://gallica.bnf.fr/) | 1900 – 1912 | 6 | 23 | 1 | 3 |  |  | 33
+[《费加罗报》](https://gallica.bnf.fr/) | 1900 – 1912 | 6 | 22 | 1 | 3 |  |  | 32
 [《高卢人报》](https://gallica.bnf.fr/) | 1900 – 1912 | 1 | 13 | 1 | 3 |  |  | 18
 [*Le Journal*](https://gallica.bnf.fr/) | 1900 – 1912 | 1 | 4 | 1 | 3 |  |  | 9
-[*Le Matin*](https://gallica.bnf.fr/) | 1900 – 1912 | 6 | 15 |  | 3 |  |  | 24
-[《小日报》](https://gallica.bnf.fr/) | 1900 – 1912 | 18 | 19 |  | 2 |  |  | 39
+[*Le Matin*](https://gallica.bnf.fr/) | 1900 – 1912 | 6 | 14 |  | 3 |  |  | 23
+[《小日报》](https://gallica.bnf.fr/) | 1900 – 1912 | 18 | 18 |  | 2 |  |  | 38
 [*Le Petit Parisien*](https://gallica.bnf.fr/) | 1900 – 1912 | 1 | 16 |  | 5 |  |  | 22
 [*Nieuwe Groninger courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1914 |  | 5 |  |  |  |  | 5
 [*Nieuwe provinciale Groninger courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1925 | 1 | 4 |  |  |  |  | 5
 [*Nieuwsblad van het Noorden*](https://www.delpher.nl/nl/kranten) | 1900 – 1927 |  | 2 | 1 |  |  |  | 3
 [*Zutphensche courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1925 | 2 | 6 |  |  |  |  | 8
-[《巴达维亚新闻报》](https://www.delpher.nl/nl/kranten) | 1901 – 1926 | 1 | 7 |  |  |  |  | 8
+[《巴达维亚新闻报》](https://www.delpher.nl/nl/kranten) | 1901 – 1926 |  | 7 |  |  |  |  | 7
 [*De grondwet*](https://www.delpher.nl/nl/kranten) | 1901 – 1925 |  | 3 |  | 1 |  |  | 4
 [*De locomotief*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 5 |  | 1 |  |  | 6
 [*De Sumatra post*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 10 |  |  |  |  | 10
-[*Het nieuws van den dag voor Nederlandsch-Indië*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 11 |  | 1 |  |  | 12
+[*Het nieuws van den dag voor Nederlandsch-Indië*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 10 |  | 1 |  |  | 11
+[《香港华字日报》](https://archive.org/details/china-mail) | 1901 – 1926 |  | 1 |  |  |  | 3 | 7
 [*De Preanger-bode*](https://www.delpher.nl/nl/kranten) | 1904 – 1915 |  | 3 |  |  |  |  | 3
 [*Sumatra-bode*](https://www.delpher.nl/nl/kranten) | 1904 – 1926 | 4 | 5 |  |  |  |  | 9
 [*De nieuwe courant*](https://www.delpher.nl/nl/kranten) | 1905 – 1921 |  | 4 | 4 | 2 |  |  | 10
@@ -250,13 +251,13 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
   <summary><b>单一条目来源</b></summary>
   <br>
 
-美利坚 [*Daily Richmond Whig & Public Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Rhode-Island Republican*](https://www.loc.gov/chroniclingamerica/)、[*Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/)、[*Maumee City Express*](https://www.loc.gov/chroniclingamerica/)、[*Republican Herald*](https://www.loc.gov/chroniclingamerica/)、[*Staunton Spectator, and General Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Herald*](https://www.loc.gov/chroniclingamerica/)、[*The New Hampshire Gazette*](https://www.loc.gov/chroniclingamerica/)、[*True American*](https://www.loc.gov/chroniclingamerica/)、[*Western Enquirer*](https://www.loc.gov/chroniclingamerica/)、[*Bradford Opinion*](https://www.loc.gov/chroniclingamerica/)、[*Oxford Democrat*](https://www.loc.gov/chroniclingamerica/)、[*The Arizona Sentinel*](https://www.loc.gov/chroniclingamerica/)、[*The Cincinnati Daily Star*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Gazette*](https://www.loc.gov/chroniclingamerica/)、[*Eureka Daily Sentinel*](https://www.loc.gov/chroniclingamerica/)、[*The Silver State*](https://www.loc.gov/chroniclingamerica/)、[*Devils Lake Inter-ocean*](https://www.loc.gov/chroniclingamerica/)、[*Iron County Register*](https://www.loc.gov/chroniclingamerica/)、[*Mexico Weekly Ledger*](https://www.loc.gov/chroniclingamerica/)、[*Morning Journal and Courier*](https://www.loc.gov/chroniclingamerica/)、[*Omaha Daily Bee*](https://www.loc.gov/chroniclingamerica/)、[*Press and Daily Dakotaian*](https://www.loc.gov/chroniclingamerica/)、[*St. Johnsbury Caledonian*](https://www.loc.gov/chroniclingamerica/)、[*The Anderson Intelligencer*](https://www.loc.gov/chroniclingamerica/)、[*The Democratic Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Evening Critic*](https://www.loc.gov/chroniclingamerica/)、[*The Lincoln County Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Livingston Enterprise*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Oskaloosa Herald*](https://www.loc.gov/chroniclingamerica/)、[*Americus Times-Recorder*](https://www.loc.gov/chroniclingamerica/)、[*Audubon Republican*](https://www.loc.gov/chroniclingamerica/)、[*Batesville Daily Guard*](https://www.loc.gov/chroniclingamerica/)、[*Cheyenne Record*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Gate City and Constitution-democrat*](https://www.loc.gov/chroniclingamerica/)、[*Evening Times-republican*](https://www.loc.gov/chroniclingamerica/)、[*Grand Forks Herald*](https://www.loc.gov/chroniclingamerica/)、[*Richmond Times-Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*St. Croix Avis*](https://www.loc.gov/chroniclingamerica/)、[*The Bemidji Daily Pioneer*](https://www.loc.gov/chroniclingamerica/)、[*The Cordele Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*The Montgomery Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Richmond Virginian*](https://www.loc.gov/chroniclingamerica/)、[*The Washington Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Washington Times*](https://www.loc.gov/chroniclingamerica/)、[*Yorkville Enquirer*](https://www.loc.gov/chroniclingamerica/)；尼德兰 [*Utrechtsche provinciale en stads-courant*](https://www.delpher.nl/nl/kranten)、[*Hoornsche courant*](https://www.delpher.nl/nl/kranten)、[*Het volksdagblad*](https://www.delpher.nl/nl/kranten)、[*Deli courant*](https://www.delpher.nl/nl/kranten)、[*De Stichtsche courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Hengeloosche courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Veendammer courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Winterswijksche courant*](https://www.delpher.nl/nl/kranten)、[*Dragtster courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwsblad van het Zuiden*](https://www.delpher.nl/nl/kranten)、[*Ons Noorden*](https://www.delpher.nl/nl/kranten)、[*Opregte Steenwijker courant*](https://www.delpher.nl/nl/kranten)、[*Provinciale Noordbrabantsche en 's Hertogenbossche courant*](https://www.delpher.nl/nl/kranten)、[*De expres*](https://www.delpher.nl/nl/kranten)、[*De Graafschapper*](https://www.delpher.nl/nl/kranten)、[*De tribune*](https://www.delpher.nl/nl/kranten)、[*De Zaanlander*](https://www.delpher.nl/nl/kranten)、[*Onze courant*](https://www.delpher.nl/nl/kranten)、[*Overijsselsch dagblad*](https://www.delpher.nl/nl/kranten)；德意志 [*Rotterdamsche courant*](https://www.delpher.nl/nl/kranten)；不列颠 [*Nieuw Amsterdamsch handels- en effectenblad*](https://www.delpher.nl/nl/kranten)、[*Otago Daily Times*](https://paperspast.natlib.govt.nz/newspapers/otago-daily-times)、[*The Press (Christchurch)*](https://paperspast.natlib.govt.nz/newspapers/press)；法兰西 [*Venloosch weekblad*](https://www.delpher.nl/nl/kranten)；中华[《香港华字日报》](https://archive.org/details/china-mail)。
+美利坚 [*Daily Richmond Whig & Public Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Rhode-Island Republican*](https://www.loc.gov/chroniclingamerica/)、[*Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/)、[*Maumee City Express*](https://www.loc.gov/chroniclingamerica/)、[*Republican Herald*](https://www.loc.gov/chroniclingamerica/)、[*Staunton Spectator, and General Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Herald*](https://www.loc.gov/chroniclingamerica/)、[*The New Hampshire Gazette*](https://www.loc.gov/chroniclingamerica/)、[*True American*](https://www.loc.gov/chroniclingamerica/)、[*Western Enquirer*](https://www.loc.gov/chroniclingamerica/)、[*Bradford Opinion*](https://www.loc.gov/chroniclingamerica/)、[*Oxford Democrat*](https://www.loc.gov/chroniclingamerica/)、[*The Arizona Sentinel*](https://www.loc.gov/chroniclingamerica/)、[*The Cincinnati Daily Star*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Gazette*](https://www.loc.gov/chroniclingamerica/)、[*Eureka Daily Sentinel*](https://www.loc.gov/chroniclingamerica/)、[*The Silver State*](https://www.loc.gov/chroniclingamerica/)、[*Devils Lake Inter-ocean*](https://www.loc.gov/chroniclingamerica/)、[*Iron County Register*](https://www.loc.gov/chroniclingamerica/)、[*Mexico Weekly Ledger*](https://www.loc.gov/chroniclingamerica/)、[*Morning Journal and Courier*](https://www.loc.gov/chroniclingamerica/)、[*Omaha Daily Bee*](https://www.loc.gov/chroniclingamerica/)、[*Press and Daily Dakotaian*](https://www.loc.gov/chroniclingamerica/)、[*St. Johnsbury Caledonian*](https://www.loc.gov/chroniclingamerica/)、[*The Anderson Intelligencer*](https://www.loc.gov/chroniclingamerica/)、[*The Democratic Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Evening Critic*](https://www.loc.gov/chroniclingamerica/)、[*The Lincoln County Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Livingston Enterprise*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Oskaloosa Herald*](https://www.loc.gov/chroniclingamerica/)、[*Americus Times-Recorder*](https://www.loc.gov/chroniclingamerica/)、[*Audubon Republican*](https://www.loc.gov/chroniclingamerica/)、[*Batesville Daily Guard*](https://www.loc.gov/chroniclingamerica/)、[*Cheyenne Record*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Gate City and Constitution-democrat*](https://www.loc.gov/chroniclingamerica/)、[*Evening Times-republican*](https://www.loc.gov/chroniclingamerica/)、[*Grand Forks Herald*](https://www.loc.gov/chroniclingamerica/)、[*Richmond Times-Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*St. Croix Avis*](https://www.loc.gov/chroniclingamerica/)、[*The Bemidji Daily Pioneer*](https://www.loc.gov/chroniclingamerica/)、[*The Cordele Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*The Montgomery Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Richmond Virginian*](https://www.loc.gov/chroniclingamerica/)、[*The Washington Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Washington Times*](https://www.loc.gov/chroniclingamerica/)、[*Yorkville Enquirer*](https://www.loc.gov/chroniclingamerica/)；尼德兰 [*Utrechtsche provinciale en stads-courant*](https://www.delpher.nl/nl/kranten)、[*Hoornsche courant*](https://www.delpher.nl/nl/kranten)、[*Het volksdagblad*](https://www.delpher.nl/nl/kranten)、[*Deli courant*](https://www.delpher.nl/nl/kranten)、[*De Stichtsche courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Hengeloosche courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Veendammer courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Winterswijksche courant*](https://www.delpher.nl/nl/kranten)、[*Dragtster courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwsblad van het Zuiden*](https://www.delpher.nl/nl/kranten)、[*Ons Noorden*](https://www.delpher.nl/nl/kranten)、[*Opregte Steenwijker courant*](https://www.delpher.nl/nl/kranten)、[*Provinciale Noordbrabantsche en 's Hertogenbossche courant*](https://www.delpher.nl/nl/kranten)、[*De expres*](https://www.delpher.nl/nl/kranten)、[*De Graafschapper*](https://www.delpher.nl/nl/kranten)、[*De tribune*](https://www.delpher.nl/nl/kranten)、[*De Zaanlander*](https://www.delpher.nl/nl/kranten)、[*Onze courant*](https://www.delpher.nl/nl/kranten)、[*Overijsselsch dagblad*](https://www.delpher.nl/nl/kranten)；德意志 [*Rotterdamsche courant*](https://www.delpher.nl/nl/kranten)；不列颠 [*Nieuw Amsterdamsch handels- en effectenblad*](https://www.delpher.nl/nl/kranten)、[*Otago Daily Times*](https://paperspast.natlib.govt.nz/newspapers/otago-daily-times)、[*The Press (Christchurch)*](https://paperspast.natlib.govt.nz/newspapers/press)；法兰西 [*Venloosch weekblad*](https://www.delpher.nl/nl/kranten)．
 
 </details>
 
 ## 学志
 
-学志下分三小类。**报告**详述仪器、天气、时刻，常附相应表格，文末署有地点、日期与姓名，多为一手记录。**通讯**是刊于学会会刊或天文期刊的投稿，多由报告整理而得，更注重与科学理论的联系。**学报**是学者对报社的投稿，题头有报社的引言，行文更加平实。学志年代自 1715 年始，至 1923 年止，条目总计 57 条，汉译字数占全库的 4.5%．
+学志下分三小类。**报告**详述仪器、天气、时刻，常附相应表格，文末署有地点、日期与姓名，多为一手记录。**通讯**是刊于学会会刊或天文期刊的投稿，多由报告整理而得，更注重与科学理论的联系。**学报**是学者对报社的投稿，题头有报社的引言，行文更加平实。学志年代自 1715 年始，至 1923 年止，条目总计 57 条，汉译字数占全库的 4.9%．
 
 署名或来源 | 年代 | 报告 | 通讯 | 学报 | 合计
 ---|---|--:|--:|--:|--:
@@ -336,7 +337,7 @@ Joaquín Gallo | 1923 |  | 1 |  | 1
 斯拉夫 | 1185 | [《伊戈尔远征记》](https://archive.org/details/slovo-o-polku-igoreve-pervoe-izdanie-1800-g-1) | 1
 意大利 | 1239 – 1453 | [Ristoro d'Arezzo, *La composizione del mondo colle sue cascioni*](https://archive.org/details/lacomposizionedelmondo)、[《君士坦丁堡围城日记》](https://archive.org/details/giornale-dell-assedio-di-costantinopoli-1453-1856) | 2
 亚美尼亚 | 1337 | [*Continuation of Samuel of Ani's Tables chronologiques*](https://archive.org/details/collectiondhist00arhagoog) | 1
-阿兹特克 | 1496 | 《特列里亚诺-雷门西斯古抄本》 | 1
+阿兹特克 | 1496 | [《特列里亚诺-雷门西斯抄本》](https://archive.org/details/codextellerianor00unse) | 1
 尼德兰 | 1544 | [Gemma Frisius](https://archive.org/details/bub_gb_Ftk5AAAAcAAJ) | 1
 北欧 | 1560 – 1581 | [Pierre Gassendi](https://archive.org/details/den-kbd-pil-130018157889-001)、[Tycho Brahe, *Astronomiae Instauratae Progymnasmata, 1602*](https://archive.org/details/operaomniaedidit02brahuoft) | 3
 伊比利亚 | 1560 – 1567 | [Christophorus Clavius](https://archive.org/details/christophoriclav00clav) | 2
@@ -348,46 +349,46 @@ Joaquín Gallo | 1923 |  | 1 |  | 1
 
 文明 | 年代 | 日 | 月 | 掩 | 合 | 客 | 彗 | 合计
 ---|---|--:|--:|--:|--:|--:|--:|--:
-中华 | 前 2137 – 1941 | 784 | 248 | 7 305 | 70 | 60 | 340 | 8 807
+中华 | 前 2137 – 1941 | 794 | 248 | 7 305 | 70 | 60 | 340 | 8 817
 赫梯 | 前 1312 | 1 |  |  |  |  |  | 1
 巴比伦 | 前 1223 – 前 183 | 1 | 9 |  |  |  |  | 10
 亚述 | 前 763 | 1 |  |  |  |  |  | 1
 希腊 | 前 648 – 71 | 6 | 2 |  |  |  |  | 8
 罗马 | 前 190 – 前 168 | 1 | 1 |  |  |  |  | 2
-朝鲜 | 前 54 – 1863 | 244 | 130 | 1 966 | 4 | 90 | 359 | 2 793
+朝鲜 | 前 54 – 1863 | 244 | 129 | 1 966 | 4 | 90 | 359 | 2 792
 拜占庭 | 346 – 1453 | 21 | 9 |  |  | 1 | 17 | 48
 伊比利亚 | 402 – 1912 | 34 | 3 |  |  |  | 2 | 39
 叙利亚 | 500 – 1191 | 9 | 2 |  |  |  | 1 | 12
-日本 | 628 – 1941 | 126 | 4 |  |  | 4 | 11 | 145
-不列颠 | 664 – 1941 | 143 | 7 |  |  |  |  | 150
+日本 | 628 – 1941 | 130 | 4 |  |  | 4 | 11 | 149
+不列颠 | 664 – 1941 | 170 | 7 |  |  |  |  | 177
 玛雅 | 755 – 859 | 2 |  |  |  |  |  | 2
 神圣罗马 | 806 – 1746 | 10 | 10 |  |  |  |  | 20
 阿拉伯 | 819 – 1905 | 29 | 52 | 19 | 31 |  |  | 131
 越南 | 993 – 1774 | 47 | 32 |  |  |  |  | 79
-法兰西 | 1033 – 1936 | 271 | 2 |  |  |  |  | 273
+法兰西 | 1033 – 1936 | 270 | 2 |  |  |  |  | 272
 西夏 | 1038 – 1223 | 9 |  |  |  |  |  | 9
 亚美尼亚 | 1099 – 1736 | 4 | 3 |  |  |  |  | 7
-意大利 | 1178 – 1927 | 12 | 4 |  |  |  |  | 16
+意大利 | 1178 – 1927 | 14 | 4 |  |  |  |  | 18
 斯拉夫 | 1185 – 1941 | 10 |  |  |  |  |  | 10
-北欧 | 1263 – 1927 | 6 | 3 |  |  |  |  | 9
+北欧 | 1263 – 1927 | 5 | 3 |  |  |  |  | 8
 波兰 | 1406 – 1905 | 4 |  |  |  |  |  | 4
 阿兹特克 | 1496 | 1 |  |  |  |  |  | 1
 尼德兰 | 1544 – 1929 | 326 |  |  |  |  |  | 326
 美利坚 | 1806 – 1929 | 198 |  |  |  |  |  | 198
-德意志 | 1836 – 1936 | 30 | 5 |  |  |  |  | 35
+德意志 | 1836 – 1936 | 29 | 5 |  |  |  |  | 34
 奥地利 | 1836 – 1905 | 3 |  |  |  |  |  | 3
 瑞士 | 1852 – 1905 | 1 | 1 |  |  |  |  | 2
 匈牙利 | 1867 | 1 |  |  |  |  |  | 1
 加拿大 | 1875 – 1913 | 2 | 1 |  |  |  |  | 3
 拉丁美洲 | 1912 – 1923 | 8 |  |  |  |  |  | 8
 印度 | 1922 – 1941 | 3 |  |  |  |  |  | 3
-**合计** | | **2 348** | **528** | **9 290** | **105** | **155** | **730** | **13 156**
+**合计** | | **2 388** | **527** | **9 290** | **105** | **155** | **730** | **13 195**
 
 ---
 
 ## Histories
 
-The Histories comprise six types, each assigned to a work as a whole: basic annals, astronomical treatises, Five Phases treatises, veritable records, huiyao and chronicles. Almost every history holds many records, so each is listed on its own row with its subgenre. **Basic annals** follow the reigns of the emperors and usually record only a solar eclipse and its date. **Astronomical treatises** were compiled by court historians from the observation archives of the Astronomical Bureau and similar offices; they cover many kinds of phenomena and give details such as the time, the magnitude and the lunar mansion. **Five Phases treatises** were compiled from the doctrine of portents, and a phenomenon is often followed by the human affair it was taken to foretell. **Veritable records** are court records kept within the palace, and often note the advance prediction of a phenomenon and the measures taken against it. **Huiyao** record the institutions of a dynasty. **Chronicles** are, broadly, any histories arranged by year. The Histories come mainly from China, with Korea and Japan next and scattered records from other civilizations of Asia and Europe. They run from *Spring and Autumn Annals* in 720 BCE to *Draft History of Qing*, Basic Annals in 1911, with 11,949 records in all, 90.8% of the corpus.
+The Histories comprise six types, each assigned to a work as a whole: basic annals, astronomical treatises, Five Phases treatises, veritable records, huiyao and chronicles. Almost every history holds many records, so each is listed on its own row with its subgenre. **Basic annals** follow the reigns of the emperors and usually record only a solar eclipse and its date. **Astronomical treatises** were compiled by court historians from the observation archives of the Astronomical Bureau and similar offices; they cover many kinds of phenomena and give details such as the time, the magnitude and the lunar mansion. **Five Phases treatises** were compiled from the doctrine of portents, and a phenomenon is often followed by the human affair it was taken to foretell. **Veritable records** are court records kept within the palace, and often note the advance prediction of a phenomenon and the measures taken against it. **Huiyao** record the institutions of a dynasty. **Chronicles** are, broadly, any histories arranged by year. The Histories come mainly from China, with Korea and Japan next and scattered records from other civilizations of Asia and Europe. They run from *Spring and Autumn Annals* in 720 BCE to *Draft History of Qing*, Basic Annals in 1911, with 11,948 records in all, 90.5% of the corpus.
 
 ### China
 
@@ -429,7 +430,7 @@ Source | Subgenre | Period | Solar | Lunar | Occult. | Conj. | Guest | Comet | T
 ---|---|---|--:|--:|--:|--:|--:|--:|--:
 [*Samguk sagi*](https://zh.wikisource.org/wiki/%E4%B8%89%E5%9C%8B%E5%8F%B2%E8%A8%98/%E5%8D%B701) | Chronicle | 54 BCE – 911 | 42 |  |  |  | 3 | 9 | 54
 [*Goryeosa*, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E9%AB%98%E9%BA%97%E5%8F%B2/%E5%8D%B7%E5%9B%9B%E5%8D%81%E5%85%AB) | Astronomical treatise | 989 – 1392 | 118 | 98 | 1,966 | 4 | 3 | 53 | 2,242
-[*Veritable Records of the Joseon Dynasty*](https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84/%E5%93%B2%E5%AE%97%E5%AF%A6%E9%8C%84/%E5%8D%81%E4%BA%8C%E5%B9%B4) | Veritable records | 1400 – 1863 | 84 | 32 |  |  | 84 | 297 | 497
+[*Veritable Records of the Joseon Dynasty*](https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84/%E5%93%B2%E5%AE%97%E5%AF%A6%E9%8C%84/%E5%8D%81%E4%BA%8C%E5%B9%B4) | Veritable records | 1400 – 1863 | 84 | 31 |  |  | 84 | 297 | 496
 
 ### Japan
 
@@ -507,7 +508,7 @@ Byzantium: [*Chronicon Paschale*](https://archive.org/details/bub_gb_8CQAAAAAYAA
 
 ## Newspapers
 
-Newspaper subgenres are assigned record by record, and one eclipse was often reported in several genres. **Dispatches** open with a dateline, often name a news agency, are short and never use the first person singular. **Reports** are the most numerous; they tell the news plainly and include curious incidents during the eclipse. **Eyewitness** accounts are first-person reports, often with the observer's own impressions. **Features** are the longest and mostly portray the crowds. **Editorials** argue in the paper's own name and at times use the eclipse to criticise the state of affairs. **Notices** appear before the event and usually predict its times and places. Newspaper records come mostly from public-domain material in [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/) and [Chronicling America](https://chroniclingamerica.loc.gov/), so most are in Dutch, French or English, alongside modern Chinese papers such as *Shun Pao*. They run from 1834 to 1941, with 1,003 records in all, yet 50.2% of the Chinese translation by character count.
+Newspaper subgenres are assigned record by record, and one eclipse was often reported in several genres. **Dispatches** open with a dateline, often name a news agency, are short and never use the first person singular. **Reports** are the most numerous; they tell the news plainly and include curious incidents during the eclipse. **Eyewitness** accounts are first-person reports, often with the observer's own impressions. **Features** are the longest and mostly portray the crowds. **Editorials** argue in the paper's own name and at times use the eclipse to criticise the state of affairs. **Notices** appear before the event and usually predict its times and places. Newspaper records come mostly from public-domain material in [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/) and [Chronicling America](https://chroniclingamerica.loc.gov/), so most are in Dutch, French or English, alongside modern Chinese papers such as *Shun Pao*. They run from 1834 to 1941, with 1,033 records in all, yet 50.3% of the Chinese translation by character count.
 
 Source | Period | Dispatch | Report | Eyewitness | Feature | Editorial | Notice | Total
 ---|---|--:|--:|--:|--:|--:|--:|--:
@@ -525,33 +526,33 @@ Source | Period | Dispatch | Report | Eyewitness | Feature | Editorial | Notice 
 [*Provinciale Overijsselsche en Zwolsche courant*](https://www.delpher.nl/nl/kranten) | 1847 – 1927 | 1 | 7 |  | 2 |  |  | 10
 [*Dagblad van Zuidholland en 's Gravenhage*](https://www.delpher.nl/nl/kranten) | 1851 – 1922 |  | 10 | 1 |  |  |  | 11
 [*De Tijd*](https://www.delpher.nl/nl/kranten) | 1851 – 1927 | 1 | 4 | 2 |  |  |  | 7
-[*Nieuwe Rotterdamsche Courant*](https://www.delpher.nl/nl/kranten) | 1851 – 1929 | 1 | 24 |  | 1 |  |  | 26
+[*Nieuwe Rotterdamsche Courant*](https://www.delpher.nl/nl/kranten) | 1851 – 1929 | 1 | 22 |  | 1 |  |  | 24
 [*Opregte Haarlemsche Courant*](https://www.delpher.nl/nl/kranten) | 1851 – 1900 | 1 | 6 |  |  |  |  | 7
 [*La Presse*](https://gallica.bnf.fr/) | 1860 – 1912 | 1 | 17 |  |  |  |  | 18
 [*Provinciale Drentsche en Asser courant*](https://www.delpher.nl/nl/kranten) | 1860 – 1912 |  | 3 |  |  |  |  | 3
+[*The North-China Herald*](https://archive.org/details/northchinaherald) | 1868 – 1941 | 3 | 22 |  |  | 1 | 3 | 29
+[*The China Mail*](https://archive.org/details/china-mail) | 1868 – 1936 | 3 | 15 | 1 | 1 |  | 12 | 32
 [*Le Constitutionnel*](https://gallica.bnf.fr/) | 1870 – 1900 | 2 | 5 |  |  |  |  | 7
 [*Le Temps*](https://gallica.bnf.fr/) | 1870 – 1912 | 3 | 37 | 1 | 7 |  |  | 48
 [*Bataviaasch handelsblad*](https://www.delpher.nl/nl/kranten) | 1871 |  | 3 |  |  |  |  | 3
 [*Het vaderland*](https://www.delpher.nl/nl/kranten) | 1871 – 1929 | 1 | 13 |  | 3 |  |  | 17
 [*Java-bode*](https://www.delpher.nl/nl/kranten) | 1871 – 1872 |  | 1 |  |  |  | 1 | 2
-[*The Hongkong Daily Press*](https://archive.org/details/china-mail) | 1872 – 1941 | 1 | 6 |  | 1 |  | 4 | 12
-[*The North-China Herald*](https://archive.org/details/northchinaherald) | 1872 – 1941 | 3 | 13 |  |  | 1 | 3 | 20
+[*The Hongkong Daily Press*](https://archive.org/details/china-mail) | 1872 – 1941 | 1 | 7 |  | 1 |  | 8 | 17
 [*Daily Kennebec Journal*](https://www.loc.gov/chroniclingamerica/) | 1875 | 1 | 3 |  |  |  |  | 4
 [*Evening Star*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1919 |  | 2 |  |  |  |  | 2
 [*National Republican*](https://www.loc.gov/chroniclingamerica/) | 1875 | 2 | 1 |  |  |  |  | 3
 [*New-York Tribune*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1885 | 6 | 3 |  |  | 1 |  | 10
 [*Public Ledger*](https://www.loc.gov/chroniclingamerica/) | 1875 |  | 2 |  |  |  |  | 2
+[*Shun Pao*](https://archive.org/details/shenbao-archive) | 1875 – 1941 | 9 | 1 |  | 1 | 1 | 14 | 33
 [*The New York Herald*](https://www.loc.gov/chroniclingamerica/) | 1875 |  | 8 |  | 1 | 1 |  | 10
 [*De Volksvriend*](https://www.delpher.nl/nl/kranten) | 1878 – 1925 |  | 9 |  |  |  |  | 9
 [*Morning Appeal*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 |  | 2 |  |  |  |  | 2
 [*Sacramento Daily Record-union*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 |  | 19 |  |  |  |  | 19
 [*The Salt Lake Herald*](https://www.loc.gov/chroniclingamerica/) | 1880 | 1 |  | 1 |  |  |  | 2
 [*The Sun*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 | 1 | 3 |  |  |  |  | 4
-[*The Hongkong Telegraph*](https://archive.org/details/china-mail) | 1882 – 1941 | 5 | 7 |  |  |  | 2 | 14
+[*The Hongkong Telegraph*](https://archive.org/details/china-mail) | 1882 – 1941 | 5 | 10 |  |  |  | 2 | 17
 [*Nieuwe Haarlemsche courant*](https://www.delpher.nl/nl/kranten) | 1882 – 1927 |  | 8 |  | 2 |  |  | 10
 [*Het nieuws van den dag (kleine courant)*](https://www.delpher.nl/nl/kranten) | 1882 – 1905 |  | 3 | 1 |  |  |  | 4
-[*Shun Pao*](https://archive.org/details/shenbao-archive) | 1882 – 1941 | 9 | 1 |  | 1 | 1 | 9 | 21
-[*The China Mail*](https://archive.org/details/china-mail) | 1882 – 1936 | 1 | 10 | 1 | 1 |  | 6 | 19
 [*Helena Weekly Herald*](https://www.loc.gov/chroniclingamerica/) | 1885 |  |  |  | 2 |  |  | 2
 [*Morris Tribune*](https://www.loc.gov/chroniclingamerica/) | 1885 |  | 2 |  |  |  |  | 2
 [*The Corvallis Gazette*](https://www.loc.gov/chroniclingamerica/) | 1885 |  | 2 |  |  |  |  | 2
@@ -570,24 +571,25 @@ Source | Period | Dispatch | Report | Eyewitness | Feature | Editorial | Notice 
 [*Rotterdamsch nieuwsblad*](https://www.delpher.nl/nl/kranten) | 1898 – 1927 |  | 14 | 1 | 1 |  |  | 16
 [*Utrechtsch provinciaal en stedelijk dagblad*](https://www.delpher.nl/nl/kranten) | 1898 – 1927 | 4 | 7 | 1 | 2 |  |  | 14
 [*Apeldoornsche courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1914 |  | 5 |  |  |  |  | 5
-[*Arnhemsche courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1927 |  | 7 | 1 | 1 |  |  | 9
+[*Arnhemsche courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1927 |  | 6 | 1 | 1 |  |  | 8
 [*De Gooi- en Eemlander*](https://www.delpher.nl/nl/kranten) | 1900 – 1925 |  | 5 |  |  |  |  | 5
 [*De Graafschap-bode*](https://www.delpher.nl/nl/kranten) | 1900 – 1912 |  | 1 |  | 1 |  |  | 2
-[*Le Figaro*](https://gallica.bnf.fr/) | 1900 – 1912 | 6 | 23 | 1 | 3 |  |  | 33
+[*Le Figaro*](https://gallica.bnf.fr/) | 1900 – 1912 | 6 | 22 | 1 | 3 |  |  | 32
 [*Le Gaulois*](https://gallica.bnf.fr/) | 1900 – 1912 | 1 | 13 | 1 | 3 |  |  | 18
 [*Le Journal*](https://gallica.bnf.fr/) | 1900 – 1912 | 1 | 4 | 1 | 3 |  |  | 9
-[*Le Matin*](https://gallica.bnf.fr/) | 1900 – 1912 | 6 | 15 |  | 3 |  |  | 24
-[*Le Petit Journal*](https://gallica.bnf.fr/) | 1900 – 1912 | 18 | 19 |  | 2 |  |  | 39
+[*Le Matin*](https://gallica.bnf.fr/) | 1900 – 1912 | 6 | 14 |  | 3 |  |  | 23
+[*Le Petit Journal*](https://gallica.bnf.fr/) | 1900 – 1912 | 18 | 18 |  | 2 |  |  | 38
 [*Le Petit Parisien*](https://gallica.bnf.fr/) | 1900 – 1912 | 1 | 16 |  | 5 |  |  | 22
 [*Nieuwe Groninger courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1914 |  | 5 |  |  |  |  | 5
 [*Nieuwe provinciale Groninger courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1925 | 1 | 4 |  |  |  |  | 5
 [*Nieuwsblad van het Noorden*](https://www.delpher.nl/nl/kranten) | 1900 – 1927 |  | 2 | 1 |  |  |  | 3
 [*Zutphensche courant*](https://www.delpher.nl/nl/kranten) | 1900 – 1925 | 2 | 6 |  |  |  |  | 8
-[*Bataviaasch nieuwsblad*](https://www.delpher.nl/nl/kranten) | 1901 – 1926 | 1 | 7 |  |  |  |  | 8
+[*Bataviaasch nieuwsblad*](https://www.delpher.nl/nl/kranten) | 1901 – 1926 |  | 7 |  |  |  |  | 7
 [*De grondwet*](https://www.delpher.nl/nl/kranten) | 1901 – 1925 |  | 3 |  | 1 |  |  | 4
 [*De locomotief*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 5 |  | 1 |  |  | 6
 [*De Sumatra post*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 10 |  |  |  |  | 10
-[*Het nieuws van den dag voor Nederlandsch-Indië*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 11 |  | 1 |  |  | 12
+[*Het nieuws van den dag voor Nederlandsch-Indië*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 10 |  | 1 |  |  | 11
+[*Xianggang Huazi ribao*](https://archive.org/details/china-mail) | 1901 – 1926 |  | 1 |  |  |  | 3 | 7
 [*De Preanger-bode*](https://www.delpher.nl/nl/kranten) | 1904 – 1915 |  | 3 |  |  |  |  | 3
 [*Sumatra-bode*](https://www.delpher.nl/nl/kranten) | 1904 – 1926 | 4 | 5 |  |  |  |  | 9
 [*De nieuwe courant*](https://www.delpher.nl/nl/kranten) | 1905 – 1921 |  | 4 | 4 | 2 |  |  | 10
@@ -631,13 +633,13 @@ Source | Period | Dispatch | Report | Eyewitness | Feature | Editorial | Notice 
   <summary><b>Single-record sources</b></summary>
   <br>
 
-America: [*Daily Richmond Whig & Public Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Rhode-Island Republican*](https://www.loc.gov/chroniclingamerica/); [*Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/); [*Maumee City Express*](https://www.loc.gov/chroniclingamerica/); [*Republican Herald*](https://www.loc.gov/chroniclingamerica/); [*Staunton Spectator, and General Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Daily Herald*](https://www.loc.gov/chroniclingamerica/); [*The New Hampshire Gazette*](https://www.loc.gov/chroniclingamerica/); [*True American*](https://www.loc.gov/chroniclingamerica/); [*Western Enquirer*](https://www.loc.gov/chroniclingamerica/); [*Bradford Opinion*](https://www.loc.gov/chroniclingamerica/); [*Oxford Democrat*](https://www.loc.gov/chroniclingamerica/); [*The Arizona Sentinel*](https://www.loc.gov/chroniclingamerica/); [*The Cincinnati Daily Star*](https://www.loc.gov/chroniclingamerica/); [*The Daily Gazette*](https://www.loc.gov/chroniclingamerica/); [*Eureka Daily Sentinel*](https://www.loc.gov/chroniclingamerica/); [*The Silver State*](https://www.loc.gov/chroniclingamerica/); [*Devils Lake Inter-ocean*](https://www.loc.gov/chroniclingamerica/); [*Iron County Register*](https://www.loc.gov/chroniclingamerica/); [*Mexico Weekly Ledger*](https://www.loc.gov/chroniclingamerica/); [*Morning Journal and Courier*](https://www.loc.gov/chroniclingamerica/); [*Omaha Daily Bee*](https://www.loc.gov/chroniclingamerica/); [*Press and Daily Dakotaian*](https://www.loc.gov/chroniclingamerica/); [*St. Johnsbury Caledonian*](https://www.loc.gov/chroniclingamerica/); [*The Anderson Intelligencer*](https://www.loc.gov/chroniclingamerica/); [*The Democratic Leader*](https://www.loc.gov/chroniclingamerica/); [*The Evening Critic*](https://www.loc.gov/chroniclingamerica/); [*The Lincoln County Leader*](https://www.loc.gov/chroniclingamerica/); [*The Livingston Enterprise*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Oskaloosa Herald*](https://www.loc.gov/chroniclingamerica/); [*Americus Times-Recorder*](https://www.loc.gov/chroniclingamerica/); [*Audubon Republican*](https://www.loc.gov/chroniclingamerica/); [*Batesville Daily Guard*](https://www.loc.gov/chroniclingamerica/); [*Cheyenne Record*](https://www.loc.gov/chroniclingamerica/); [*The Daily Gate City and Constitution-democrat*](https://www.loc.gov/chroniclingamerica/); [*Evening Times-republican*](https://www.loc.gov/chroniclingamerica/); [*Grand Forks Herald*](https://www.loc.gov/chroniclingamerica/); [*Richmond Times-Dispatch*](https://www.loc.gov/chroniclingamerica/); [*St. Croix Avis*](https://www.loc.gov/chroniclingamerica/); [*The Bemidji Daily Pioneer*](https://www.loc.gov/chroniclingamerica/); [*The Cordele Dispatch*](https://www.loc.gov/chroniclingamerica/); [*The Montgomery Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Richmond Virginian*](https://www.loc.gov/chroniclingamerica/); [*The Washington Herald*](https://www.loc.gov/chroniclingamerica/); [*The Washington Times*](https://www.loc.gov/chroniclingamerica/); [*Yorkville Enquirer*](https://www.loc.gov/chroniclingamerica/). Low Countries: [*Utrechtsche provinciale en stads-courant*](https://www.delpher.nl/nl/kranten); [*Hoornsche courant*](https://www.delpher.nl/nl/kranten); [*Het volksdagblad*](https://www.delpher.nl/nl/kranten); [*Deli courant*](https://www.delpher.nl/nl/kranten); [*De Stichtsche courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Hengeloosche courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Veendammer courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Winterswijksche courant*](https://www.delpher.nl/nl/kranten); [*Dragtster courant*](https://www.delpher.nl/nl/kranten); [*Nieuwsblad van het Zuiden*](https://www.delpher.nl/nl/kranten); [*Ons Noorden*](https://www.delpher.nl/nl/kranten); [*Opregte Steenwijker courant*](https://www.delpher.nl/nl/kranten); [*Provinciale Noordbrabantsche en 's Hertogenbossche courant*](https://www.delpher.nl/nl/kranten); [*De expres*](https://www.delpher.nl/nl/kranten); [*De Graafschapper*](https://www.delpher.nl/nl/kranten); [*De tribune*](https://www.delpher.nl/nl/kranten); [*De Zaanlander*](https://www.delpher.nl/nl/kranten); [*Onze courant*](https://www.delpher.nl/nl/kranten); [*Overijsselsch dagblad*](https://www.delpher.nl/nl/kranten). Germany: [*Rotterdamsche courant*](https://www.delpher.nl/nl/kranten). Britain: [*Nieuw Amsterdamsch handels- en effectenblad*](https://www.delpher.nl/nl/kranten); [*Otago Daily Times*](https://paperspast.natlib.govt.nz/newspapers/otago-daily-times); [*The Press (Christchurch)*](https://paperspast.natlib.govt.nz/newspapers/press). France: [*Venloosch weekblad*](https://www.delpher.nl/nl/kranten). China: [*The Chinese Mail*](https://archive.org/details/china-mail).
+America: [*Daily Richmond Whig & Public Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Rhode-Island Republican*](https://www.loc.gov/chroniclingamerica/); [*Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/); [*Maumee City Express*](https://www.loc.gov/chroniclingamerica/); [*Republican Herald*](https://www.loc.gov/chroniclingamerica/); [*Staunton Spectator, and General Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Daily Herald*](https://www.loc.gov/chroniclingamerica/); [*The New Hampshire Gazette*](https://www.loc.gov/chroniclingamerica/); [*True American*](https://www.loc.gov/chroniclingamerica/); [*Western Enquirer*](https://www.loc.gov/chroniclingamerica/); [*Bradford Opinion*](https://www.loc.gov/chroniclingamerica/); [*Oxford Democrat*](https://www.loc.gov/chroniclingamerica/); [*The Arizona Sentinel*](https://www.loc.gov/chroniclingamerica/); [*The Cincinnati Daily Star*](https://www.loc.gov/chroniclingamerica/); [*The Daily Gazette*](https://www.loc.gov/chroniclingamerica/); [*Eureka Daily Sentinel*](https://www.loc.gov/chroniclingamerica/); [*The Silver State*](https://www.loc.gov/chroniclingamerica/); [*Devils Lake Inter-ocean*](https://www.loc.gov/chroniclingamerica/); [*Iron County Register*](https://www.loc.gov/chroniclingamerica/); [*Mexico Weekly Ledger*](https://www.loc.gov/chroniclingamerica/); [*Morning Journal and Courier*](https://www.loc.gov/chroniclingamerica/); [*Omaha Daily Bee*](https://www.loc.gov/chroniclingamerica/); [*Press and Daily Dakotaian*](https://www.loc.gov/chroniclingamerica/); [*St. Johnsbury Caledonian*](https://www.loc.gov/chroniclingamerica/); [*The Anderson Intelligencer*](https://www.loc.gov/chroniclingamerica/); [*The Democratic Leader*](https://www.loc.gov/chroniclingamerica/); [*The Evening Critic*](https://www.loc.gov/chroniclingamerica/); [*The Lincoln County Leader*](https://www.loc.gov/chroniclingamerica/); [*The Livingston Enterprise*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Oskaloosa Herald*](https://www.loc.gov/chroniclingamerica/); [*Americus Times-Recorder*](https://www.loc.gov/chroniclingamerica/); [*Audubon Republican*](https://www.loc.gov/chroniclingamerica/); [*Batesville Daily Guard*](https://www.loc.gov/chroniclingamerica/); [*Cheyenne Record*](https://www.loc.gov/chroniclingamerica/); [*The Daily Gate City and Constitution-democrat*](https://www.loc.gov/chroniclingamerica/); [*Evening Times-republican*](https://www.loc.gov/chroniclingamerica/); [*Grand Forks Herald*](https://www.loc.gov/chroniclingamerica/); [*Richmond Times-Dispatch*](https://www.loc.gov/chroniclingamerica/); [*St. Croix Avis*](https://www.loc.gov/chroniclingamerica/); [*The Bemidji Daily Pioneer*](https://www.loc.gov/chroniclingamerica/); [*The Cordele Dispatch*](https://www.loc.gov/chroniclingamerica/); [*The Montgomery Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Richmond Virginian*](https://www.loc.gov/chroniclingamerica/); [*The Washington Herald*](https://www.loc.gov/chroniclingamerica/); [*The Washington Times*](https://www.loc.gov/chroniclingamerica/); [*Yorkville Enquirer*](https://www.loc.gov/chroniclingamerica/). Low Countries: [*Utrechtsche provinciale en stads-courant*](https://www.delpher.nl/nl/kranten); [*Hoornsche courant*](https://www.delpher.nl/nl/kranten); [*Het volksdagblad*](https://www.delpher.nl/nl/kranten); [*Deli courant*](https://www.delpher.nl/nl/kranten); [*De Stichtsche courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Hengeloosche courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Veendammer courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Winterswijksche courant*](https://www.delpher.nl/nl/kranten); [*Dragtster courant*](https://www.delpher.nl/nl/kranten); [*Nieuwsblad van het Zuiden*](https://www.delpher.nl/nl/kranten); [*Ons Noorden*](https://www.delpher.nl/nl/kranten); [*Opregte Steenwijker courant*](https://www.delpher.nl/nl/kranten); [*Provinciale Noordbrabantsche en 's Hertogenbossche courant*](https://www.delpher.nl/nl/kranten); [*De expres*](https://www.delpher.nl/nl/kranten); [*De Graafschapper*](https://www.delpher.nl/nl/kranten); [*De tribune*](https://www.delpher.nl/nl/kranten); [*De Zaanlander*](https://www.delpher.nl/nl/kranten); [*Onze courant*](https://www.delpher.nl/nl/kranten); [*Overijsselsch dagblad*](https://www.delpher.nl/nl/kranten). Germany: [*Rotterdamsche courant*](https://www.delpher.nl/nl/kranten). Britain: [*Nieuw Amsterdamsch handels- en effectenblad*](https://www.delpher.nl/nl/kranten); [*Otago Daily Times*](https://paperspast.natlib.govt.nz/newspapers/otago-daily-times); [*The Press (Christchurch)*](https://paperspast.natlib.govt.nz/newspapers/press). France: [*Venloosch weekblad*](https://www.delpher.nl/nl/kranten).
 
 </details>
 
 ## Learned writings
 
-Learned writings fall into three subgenres. **Reports** detail instruments, weather and times, often with tables, end with place, date and name, and are mostly first-hand records. **Communications** were submitted to the proceedings of a learned society or an astronomical journal; they are often worked up from a report and pay more attention to scientific theory. **Letters** are scholars' contributions to newspapers, headed by the paper's own introduction and written more plainly. They run from 1715 to 1923, with 57 records in all, 4.5% of the Chinese translation by character count.
+Learned writings fall into three subgenres. **Reports** detail instruments, weather and times, often with tables, end with place, date and name, and are mostly first-hand records. **Communications** were submitted to the proceedings of a learned society or an astronomical journal; they are often worked up from a report and pay more attention to scientific theory. **Letters** are scholars' contributions to newspapers, headed by the paper's own introduction and written more plainly. They run from 1715 to 1923, with 57 records in all, 4.9% of the Chinese translation by character count.
 
 Author or source | Period | Report | Communication | Letter | Total
 ---|---|--:|--:|--:|--:
@@ -717,7 +719,7 @@ Japan | 1006 – 1054 | [*Meigetsuki*](https://dl.ndl.go.jp/pid/991255/1/129) | 
 Slavic | 1185 | [*Slovo o polku Igoreve*](https://archive.org/details/slovo-o-polku-igoreve-pervoe-izdanie-1800-g-1) | 1
 Italy | 1239 – 1453 | [Ristoro d'Arezzo, *La composizione del mondo colle sue cascioni*](https://archive.org/details/lacomposizionedelmondo); [Nicolò Barbaro, *Giornale dell'assedio di Costantinopoli*](https://archive.org/details/giornale-dell-assedio-di-costantinopoli-1453-1856) | 2
 Armenia | 1337 | [*Continuation of Samuel of Ani's Tables chronologiques*](https://archive.org/details/collectiondhist00arhagoog) | 1
-Aztec | 1496 | *Codex Telleriano-Remensis* | 1
+Aztec | 1496 | [*Codex Telleriano-Remensis*](https://archive.org/details/codextellerianor00unse) | 1
 Low Countries | 1544 | [Gemma Frisius](https://archive.org/details/bub_gb_Ftk5AAAAcAAJ) | 1
 Nordic | 1560 – 1581 | [Pierre Gassendi](https://archive.org/details/den-kbd-pil-130018157889-001); [Tycho Brahe, *Astronomiae Instauratae Progymnasmata, 1602*](https://archive.org/details/operaomniaedidit02brahuoft) | 3
 Iberia | 1560 – 1567 | [Christophorus Clavius](https://archive.org/details/christophoriclav00clav) | 2
@@ -729,37 +731,37 @@ France | 1842 | Unnamed correspondent at Montpellier (sender's name garbled in t
 
 Civilization | Period | Solar | Lunar | Occult. | Conj. | Guest | Comet | Total
 ---|---|--:|--:|--:|--:|--:|--:|--:
-China | 2137 BCE – 1941 | 784 | 248 | 7,305 | 70 | 60 | 340 | 8,807
+China | 2137 BCE – 1941 | 794 | 248 | 7,305 | 70 | 60 | 340 | 8,817
 Hittite | 1312 BCE | 1 |  |  |  |  |  | 1
 Babylon | 1223 BCE – 183 BCE | 1 | 9 |  |  |  |  | 10
 Assyria | 763 BCE | 1 |  |  |  |  |  | 1
 Greek | 648 BCE – 71 | 6 | 2 |  |  |  |  | 8
 Rome | 190 BCE – 168 BCE | 1 | 1 |  |  |  |  | 2
-Korea | 54 BCE – 1863 | 244 | 130 | 1,966 | 4 | 90 | 359 | 2,793
+Korea | 54 BCE – 1863 | 244 | 129 | 1,966 | 4 | 90 | 359 | 2,792
 Byzantium | 346 – 1453 | 21 | 9 |  |  | 1 | 17 | 48
 Iberia | 402 – 1912 | 34 | 3 |  |  |  | 2 | 39
 Syriac | 500 – 1191 | 9 | 2 |  |  |  | 1 | 12
-Japan | 628 – 1941 | 126 | 4 |  |  | 4 | 11 | 145
-Britain | 664 – 1941 | 143 | 7 |  |  |  |  | 150
+Japan | 628 – 1941 | 130 | 4 |  |  | 4 | 11 | 149
+Britain | 664 – 1941 | 170 | 7 |  |  |  |  | 177
 Maya | 755 – 859 | 2 |  |  |  |  |  | 2
 HRE | 806 – 1746 | 10 | 10 |  |  |  |  | 20
 Islamic | 819 – 1905 | 29 | 52 | 19 | 31 |  |  | 131
 Vietnam | 993 – 1774 | 47 | 32 |  |  |  |  | 79
-France | 1033 – 1936 | 271 | 2 |  |  |  |  | 273
+France | 1033 – 1936 | 270 | 2 |  |  |  |  | 272
 Tangut | 1038 – 1223 | 9 |  |  |  |  |  | 9
 Armenia | 1099 – 1736 | 4 | 3 |  |  |  |  | 7
-Italy | 1178 – 1927 | 12 | 4 |  |  |  |  | 16
+Italy | 1178 – 1927 | 14 | 4 |  |  |  |  | 18
 Slavic | 1185 – 1941 | 10 |  |  |  |  |  | 10
-Nordic | 1263 – 1927 | 6 | 3 |  |  |  |  | 9
+Nordic | 1263 – 1927 | 5 | 3 |  |  |  |  | 8
 Poland | 1406 – 1905 | 4 |  |  |  |  |  | 4
 Aztec | 1496 | 1 |  |  |  |  |  | 1
 Low Countries | 1544 – 1929 | 326 |  |  |  |  |  | 326
 America | 1806 – 1929 | 198 |  |  |  |  |  | 198
-Germany | 1836 – 1936 | 30 | 5 |  |  |  |  | 35
+Germany | 1836 – 1936 | 29 | 5 |  |  |  |  | 34
 Austria | 1836 – 1905 | 3 |  |  |  |  |  | 3
 Switzerland | 1852 – 1905 | 1 | 1 |  |  |  |  | 2
 Hungary | 1867 | 1 |  |  |  |  |  | 1
 Canada | 1875 – 1913 | 2 | 1 |  |  |  |  | 3
 Latin America | 1912 – 1923 | 8 |  |  |  |  |  | 8
 India | 1922 – 1941 | 3 |  |  |  |  |  | 3
-**Total** | | **2,348** | **528** | **9,290** | **105** | **155** | **730** | **13,156**
+**Total** | | **2,388** | **527** | **9,290** | **105** | **155** | **730** | **13,195**

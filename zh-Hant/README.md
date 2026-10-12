@@ -31,7 +31,7 @@
 
 ## 史料
 
-本庫目前存有天象記錄共 13 156 條，漢譯文本約 56 萬字。記錄引自 387 種來源，涉漢文、荷蘭語、法語、英語、拉丁語、阿拉伯語、希臘語等 23 種語言，取自 [維基文庫](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[網際網路檔案館](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[臺灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[德意志歷史文獻集成 dMGH](https://www.dmgh.de/) 與 [NASA ADS](https://ui.adsabs.harvard.edu/) 等 20 餘個數位圖書館，所引文本版權均為公有。
+本庫目前存有天象記錄共 13 195 條，漢譯文本約 57 萬字。記錄引自 387 種來源，涉漢文、荷蘭語、法語、英語、拉丁語、阿拉伯語、希臘語等 23 種語言，取自 [維基文庫](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[網際網路檔案館](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[臺灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[德意志歷史文獻集成 dMGH](https://www.dmgh.de/) 與 [NASA ADS](https://ui.adsabs.harvard.edu/) 等 20 餘個數位圖書館，所引文本版權均為公有。
 
 ### 體裁
 
@@ -39,11 +39,11 @@
 
 | 類別 | 小類 | 來源 | 條數 | 條數佔比 | 漢譯字數 | 字數佔比 | 年代 |
 |---|---:|---:|---:|---:|---:|---:|---|
-| 史冊 | 6 | 103 | 11 949 | 90.8% | 238 665 | 42.5% | 前 720 – 1911 |
-| 報刊 | 6 | 186 | 1 003 | 7.6% | 281 545 | 50.2% | 1834 – 1941 |
-| 學志 | 3 | 57 | 57 | 0.4% | 25 157 | 4.5% | 1715 – 1923 |
-| 雜錄 | 7 | 45 | 147 | 1.1% | 16 029 | 2.9% | 前 2137 – 1842 |
-| **合計** | **22** | **387** | **13 156** | | **561 396** | | **前 2137 – 1941** |
+| 史冊 | 6 | 103 | 11 948 | 90.5% | 239 653 | 41.7% | 前 720 – 1911 |
+| 報刊 | 6 | 186 | 1 043 | 7.9% | 289 438 | 50.4% | 1834 – 1941 |
+| 學志 | 3 | 57 | 57 | 0.4% | 28 231 | 4.9% | 1715 – 1923 |
+| 雜錄 | 7 | 45 | 147 | 1.1% | 16 781 | 2.9% | 前 2137 – 1842 |
+| **合計** | **22** | **387** | **13 195** | | **574 103** | | **前 2137 – 1941** |
 
 **史冊**以中、日、朝、越官修史書為主體，兼收西亞、歐洲編年史，載錄連續、分類齊全、格式規整，典例有如[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)。**報刊**是近代產物，來源豐富、視角多樣，既有富生活氣息的市民群像，又有以天象喻事之社論雜文。**學志**為專業人士撰寫，記錄翔實、影響深遠，最重要的莫如 1919 年驗證廣義相對論之日食觀測 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895)．**雜錄**則含經書、史著、詩歌、日記、書信與泥板等，如《詩經》之「日有食之，亦孔之醜」，上古記錄盡出於此，然其所繫年月、地點多有爭議。
 
@@ -92,13 +92,13 @@
 | 檔案 | 內容 | 呼叫 | 條目 |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | 格式說明 | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地點 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 565 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地點 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 573 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | 區域 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | 文明 | [`js/atlas.js`](../js/atlas.js)、[`js/seal.js`](../js/seal.js) | 33 |
-| [`data/concordance/persons.json`](../data/concordance/persons.json) | 人物名稱 | [`js/atlas.js`](../js/atlas.js) | 41 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | 人物名稱 | [`js/atlas.js`](../js/atlas.js) | 76 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | 機構名稱 | — | 52 |
-| [`data/concordance/terms.json`](../data/concordance/terms.json) | 術語 | [`js/atlas.js`](../js/atlas.js) | 71 |
-| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | 曆法 | [`js/atlas.js`](../js/atlas.js) | 14 |
+| [`data/concordance/terms.json`](../data/concordance/terms.json) | 術語 | [`js/atlas.js`](../js/atlas.js) | 86 |
+| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | 曆法 | [`js/atlas.js`](../js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](../data/concordance/eras.json) | 年號 | [`js/atlas.js`](../js/atlas.js)、[`js/supplied.js`](../js/supplied.js) | 830 |
 | [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | 中國星名 | [`js/atlas.js`](../js/atlas.js) | 407 |
 | [`data/concordance/bodies.json`](../data/concordance/bodies.json) | 天體名稱 | [`js/atlas.js`](../js/atlas.js)、[`js/supplied.js`](../js/supplied.js) | 8 |

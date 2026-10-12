@@ -11,11 +11,10 @@ const EvScrub = (() => {
   const NS = 'http://www.w3.org/2000/svg';
   const YUWEI = 'M-5 0 L0 2.5 L5 0 L0 8 Z'; // banxinyuwei (shared with js/atlas.js)
 
-  // Slat viewBox; VBY = bleed above y=0. VBW MUST track the slat's CSS width
-  // (#ev-scrub is min(433px, …)) so the --fs-* tokens on the <text> below mean
-  // what they say on screen.
-  const VBW = 434,
-    VBH = 54,
+  // Slat viewBox; VBY = bleed above y=0. position() sets the width to the slat's CSS
+  // width, one user unit per pixel, so the --fs-* tokens on the <text> below are the
+  // size on screen.
+  const VBH = 54,
     AXIS_Y = 28,
     VBY = 3;
   const TAB_W = 26,
@@ -31,7 +30,8 @@ const EvScrub = (() => {
     _from = 0,
     _to = 0,
     _band = null,
-    _padL = TAB_W + 18;
+    _padL = TAB_W + 18,
+    _vbw = 434;
   let _timer = 0,
     _last = 0,
     _playing = false;
@@ -77,11 +77,11 @@ const EvScrub = (() => {
     return p.major ? 1 : 0;
   }
 
-  // Advance-width estimate at --fs-body, not getComputedTextLength: that needs a
+  // Advance-width estimate at --fs-note, not getComputedTextLength: that needs a
   // laid-out node, which is two reflows per frame during playback.
   function labelWidth(text) {
     let w = 0;
-    for (const ch of String(text)) w += CJK_RE.test(ch) ? 13.5 : 7.4;
+    for (const ch of String(text)) w += CJK_RE.test(ch) ? 12.5 : 6.8;
     return w;
   }
 
@@ -103,7 +103,7 @@ const EvScrub = (() => {
   // ---- Axis ↔ time mapping (single source of truth = TimeState.current) ----
 
   const tOfMs = (ms) => clamp01((ms - _from) / (_to - _from || 1));
-  const xOfT = (t) => _padL + t * (VBW - _padL - PADR);
+  const xOfT = (t) => _padL + t * (_vbw - _padL - PADR);
   const msOfT = (t) => _from + clamp01(t) * (_to - _from);
   const nowMs = () => (typeof TimeState !== 'undefined' ? TimeState.current.getTime() : _from);
 
@@ -163,7 +163,7 @@ const EvScrub = (() => {
     _play.style.width = TAB_W + 'px';
     _play.addEventListener('click', toggle);
     _svg = document.createElementNS(NS, 'svg');
-    _svg.setAttribute('viewBox', '0 -' + VBY + ' ' + VBW + ' ' + (VBH + VBY));
+    _svg.setAttribute('viewBox', '0 -' + VBY + ' ' + _vbw + ' ' + (VBH + VBY));
     _svg.style.overflow = 'visible'; // labels near axis endpoints bleed past viewBox
     _el.appendChild(_play);
     _el.appendChild(_svg);
@@ -184,8 +184,8 @@ const EvScrub = (() => {
     const hit = (ev) => {
       const r = _svg.getBoundingClientRect();
       if (!r.width) return null; // 0-width viewport → no drag
-      const vx = ((ev.clientX - r.left) / r.width) * VBW;
-      return clamp01((vx - _padL) / (VBW - _padL - PADR));
+      const vx = ((ev.clientX - r.left) / r.width) * _vbw;
+      return clamp01((vx - _padL) / (_vbw - _padL - PADR));
     };
 
     const onMove = (ev) => {
@@ -217,7 +217,8 @@ const EvScrub = (() => {
   }
 
   // ---- Glue the slat's top to the ear's bottom + track the tab width so the ⏵
-  //      and the axis inset stay under the tab across locales. ----
+  //      and the axis inset stay under the tab across locales; the viewBox follows
+  //      the slat's own width, which the ear's ResizeObserver also reports. ----
   function position() {
     if (!_el) return;
     const strip = document.getElementById('ev-strip');
@@ -232,6 +233,11 @@ const EvScrub = (() => {
       _play.style.width = w + 'px';
       _padL = w + 18;
     }
+    const slat = _el.getBoundingClientRect().width;
+    if (slat && slat !== _vbw) {
+      _vbw = slat;
+      _svg.setAttribute('viewBox', '0 -' + VBY + ' ' + _vbw + ' ' + (VBH + VBY));
+    }
   }
 
   function render() {
@@ -242,7 +248,7 @@ const EvScrub = (() => {
     // The slat has no ground of its own, so every rule sits on a paper underlay. All
     // underlays go down before any ink: a tick's underlay laid after the axis ink would
     // cut the axis on both sides of the tick, and one laid after the band would erase it.
-    const axis = '<line x1="' + _padL + '" y1="' + AXIS_Y + '" x2="' + (VBW - PADR) + '" y2="' + AXIS_Y + '" ';
+    const axis = '<line x1="' + _padL + '" y1="' + AXIS_Y + '" x2="' + (_vbw - PADR) + '" y2="' + AXIS_Y + '" ';
     const tickOf = (p) => {
       const cx = xOfT(tOfMs(p.ms)).toFixed(1),
         h = p.major ? 7 : 4;
@@ -293,7 +299,7 @@ const EvScrub = (() => {
           cx.toFixed(1) +
           '" y="' +
           (AXIS_Y + 23) +
-          '" text-anchor="middle" font-family="var(--font-text)" font-size="var(--fs-body)" ' +
+          '" text-anchor="middle" font-family="var(--font-text)" font-size="var(--fs-note)" ' +
           'fill="var(--ink-note,#696353)"' +
           glossAttr(CONTACT_GLOSS[p.key]) +
           '>' +
@@ -312,7 +318,7 @@ const EvScrub = (() => {
       '</text>';
     s +=
       '<text x="' +
-      (VBW - PADR) +
+      (_vbw - PADR) +
       '" y="13" text-anchor="middle" font-family="var(--font-text)" ' +
       'font-size="var(--fs-note)" fill="var(--ink-note,#696353)">' +
       fmtUTC(_to) +
@@ -338,7 +344,7 @@ const EvScrub = (() => {
       (AXIS_Y + 7) +
       '" stroke="var(--spark,#B23A2E)" stroke-width="1.4"/>';
     const cw = 44,
-      cx0 = Math.max(0, Math.min(VBW - cw, px - cw / 2));
+      cx0 = Math.max(0, Math.min(_vbw - cw, px - cw / 2));
     s +=
       '<rect x="' +
       cx0.toFixed(1) +
@@ -354,7 +360,7 @@ const EvScrub = (() => {
       '" y="' +
       (-VBY + 13) +
       '" text-anchor="middle" ' +
-      'font-family="var(--font-text)" font-size="var(--fs-body)" font-weight="600" fill="var(--spark,#B23A2E)">' +
+      'font-family="var(--font-text)" font-size="var(--fs-note)" font-weight="600" fill="var(--spark,#B23A2E)">' +
       fmtUTC(curMs) +
       '</text>';
     _svg.innerHTML = s;

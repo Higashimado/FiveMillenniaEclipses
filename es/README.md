@@ -31,7 +31,7 @@ Al pulsar un sello del mapa o una entrada de la lista se abre el **detalle del e
 
 ## Registros
 
-El corpus reúne hoy 13 156 registros de fenómenos celestes, y su traducción al español suma casi 580 000 palabras. Proceden de 387 fuentes en 23 lenguas, entre ellas el chino clásico, el neerlandés, el francés, el inglés, el latín, el árabe y el griego. Los textos se han tomado de más de 20 bibliotecas digitales, como [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), la [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), los [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) y [NASA ADS](https://ui.adsabs.harvard.edu/). Todos los textos citados son de dominio público.
+El corpus reúne hoy 13 195 registros de fenómenos celestes, y su traducción al español suma casi 590 000 palabras. Proceden de 387 fuentes en 23 lenguas, entre ellas el chino clásico, el neerlandés, el francés, el inglés, el latín, el árabe y el griego. Los textos se han tomado de más de 20 bibliotecas digitales, como [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), la [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), los [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) y [NASA ADS](https://ui.adsabs.harvard.edu/). Todos los textos citados son de dominio público.
 
 ### Géneros
 
@@ -39,11 +39,11 @@ Según su propósito y su forma, los registros se agrupan en cuatro grandes clas
 
 | Clase | Subgéneros | Fuentes | Registros | % de registros | Palabras en español | % de palabras | Periodo |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Anales | 6 | 103 | 11 949 | 90,8 % | 323 936 | 56,1 % | 720 a. C. – 1911 |
-| Prensa | 6 | 186 | 1003 | 7,6 % | 222 703 | 38,6 % | 1834 – 1941 |
-| Escritos científicos | 3 | 57 | 57 | 0,4 % | 19 202 | 3,3 % | 1715 – 1923 |
-| Misceláneas | 7 | 45 | 147 | 1,1 % | 11 787 | 2,0 % | 2137 a. C. – 1842 |
-| **Total** | **22** | **387** | **13 156** | | **577 628** | | **2137 a. C. – 1941** |
+| Anales | 6 | 103 | 11 948 | 90,5 % | 324 566 | 55,1 % | 720 a. C. – 1911 |
+| Prensa | 6 | 186 | 1043 | 7,9 % | 230 353 | 39,1 % | 1834 – 1941 |
+| Escritos científicos | 3 | 57 | 57 | 0,4 % | 21 600 | 3,7 % | 1715 – 1923 |
+| Misceláneas | 7 | 45 | 147 | 1,1 % | 12 346 | 2,1 % | 2137 a. C. – 1842 |
+| **Total** | **22** | **387** | **13 195** | | **588 865** | | **2137 a. C. – 1941** |
 
 Los **Anales** son sobre todo las historias oficiales de China, Japón, Corea y Vietnam, a las que se suman crónicas de Asia occidental y de Europa. Sus asientos forman series ininterrumpidas, están clasificados de manera sistemática y siguen un formato fijo; un ejemplo típico es el [Tratado de Astronomía de la *Historia de Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053). La **Prensa** pertenece a la época moderna y procede de muchas manos y de puntos de vista muy diversos, desde escenas callejeras llenas de vida hasta editoriales y artículos de opinión que leen el cielo como comentario de la actualidad. Los **Escritos científicos** son obra de astrónomos y otros eruditos y entran en gran detalle; el más trascendental es el de las observaciones del eclipse de 1919 que confirmaron la relatividad general, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). Las **Misceláneas** abarcan clásicos, obras históricas, poemas, diarios, cartas y tablillas de arcilla, como el verso del *Clásico de la poesía* «El sol fue eclipsado, presagio de gran desdicha». Todos los testimonios más antiguos pertenecen a esta clase, aunque las fechas y los lugares que se les asignan son a menudo discutidos.
 
@@ -92,13 +92,13 @@ Las tablas de concordancia unifican los metadatos de los objetos que las fuentes
 | Archivo | Contenido | Usado por | Entradas |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | Descripción del formato | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Lugares | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 565 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Lugares | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 573 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | Regiones | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | Civilizaciones | [`js/atlas.js`](../js/atlas.js), [`js/seal.js`](../js/seal.js) | 33 |
-| [`data/concordance/persons.json`](../data/concordance/persons.json) | Nombres de personas | [`js/atlas.js`](../js/atlas.js) | 41 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | Nombres de personas | [`js/atlas.js`](../js/atlas.js) | 76 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | Nombres de instituciones | — | 52 |
-| [`data/concordance/terms.json`](../data/concordance/terms.json) | Términos | [`js/atlas.js`](../js/atlas.js) | 71 |
-| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendarios | [`js/atlas.js`](../js/atlas.js) | 14 |
+| [`data/concordance/terms.json`](../data/concordance/terms.json) | Términos | [`js/atlas.js`](../js/atlas.js) | 86 |
+| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendarios | [`js/atlas.js`](../js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](../data/concordance/eras.json) | Eras | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 830 |
 | [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Nombres chinos de estrellas | [`js/atlas.js`](../js/atlas.js) | 407 |
 | [`data/concordance/bodies.json`](../data/concordance/bodies.json) | Nombres de astros | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 8 |

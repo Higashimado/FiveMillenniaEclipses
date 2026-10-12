@@ -14,15 +14,14 @@
       "why": "(untested) reason no verdict was computed"
     },
     "provenance": "Derived by tools/build-visibility.mjs from the Besselian elements in data/eclipses/ and the coordinates in data/concordance/gazetteer.json; thresholds in tools/lib/local-visibility.mjs. Independent of the record field source_claim.",
-    "count": 479,
+    "count": 483,
     "license": "CC-BY-SA-4.0",
-    "corpus_digest": "sha256:f50c717056bdf3dde47b07a4b1cb90cdee670844d187df55109a5f00d0c9e8e3"
+    "corpus_digest": "sha256:752bc88102a7cca8f8e0e1f0d564be39ea632efa8b4b2d49c41ae00be82e9b2b"
   },
   "records": {
     "alexandria-gazette-18750929-10": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.8426,"geom_mag":0.84271,"alt_at_peak":-0.1,"sun_alt":0},
     "algemeen-handelsblad-19011113-07": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.46944,"geom_mag":0.59478,"alt_at_peak":-3.5,"sun_alt":0},
     "amajur-baghdad-928": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.24974,"geom_mag":0.24974,"alt_at_peak":2.4,"sun_alt":2.4},
-    "bataviaasch-nieuwsblad-19260115-25": {"phenomenon":"solar","bucket":"no-reach","local_mag":0,"geom_mag":0,"alt_at_peak":22,"sun_alt":21.9},
     "cheyenne-record-19191127-78": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.73791,"geom_mag":0.77775,"alt_at_peak":-1.7,"sun_alt":0},
     "chunqiu-10": {"phenomenon":"solar","bucket":"no-reach","local_mag":0,"geom_mag":0,"alt_at_peak":8.3,"sun_alt":8},
     "chunqiu-14": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.54057,"geom_mag":0.68532,"alt_at_peak":-4.6,"sun_alt":0},
@@ -201,6 +200,8 @@
     "new-york-tribune-18750930-16a": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.94682,"geom_mag":0.94682,"alt_at_peak":0.4,"sun_alt":0.4},
     "nieuwe-provinciale-groninger-courant-19250126-09": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.7929,"geom_mag":0.80474,"alt_at_peak":-0.6,"sun_alt":0},
     "nihonshoki-temmu-1": {"phenomenon":"solar","bucket":"untested","why":"no event file for this date"},
+    "north-china-herald-18831107-06": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.59678,"geom_mag":0.63284,"alt_at_peak":-2.4,"sun_alt":0},
+    "north-china-herald-19011113-26": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.61145,"geom_mag":0.61499,"alt_at_peak":-0.8,"sun_alt":0},
     "post887-04": {"phenomenon":"solar","bucket":"no-reach","local_mag":0,"geom_mag":0,"alt_at_peak":-53.3,"sun_alt":null},
     "post887-09": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.27492,"geom_mag":0.39547,"alt_at_peak":-5,"sun_alt":0},
     "post887-10": {"phenomenon":"solar","bucket":"no-reach","local_mag":0,"geom_mag":0,"alt_at_peak":-8.4,"sun_alt":0},
@@ -318,6 +319,8 @@
     "samguksagi-sgs-62": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.71723,"geom_mag":0.74739,"alt_at_peak":-1.5,"sun_alt":0},
     "samguksagi-sgs-63": {"phenomenon":"solar","bucket":"no-reach","local_mag":0,"geom_mag":0,"alt_at_peak":11,"sun_alt":11},
     "samguksagi-sgs-65": {"phenomenon":"solar","bucket":"no-reach","local_mag":0,"geom_mag":0,"alt_at_peak":-45.3,"sun_alt":null},
+    "shenbao-19011110-02": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.61145,"geom_mag":0.61499,"alt_at_peak":-0.8,"sun_alt":0},
+    "shenbao-19180610-01": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.17935,"geom_mag":0.75174,"alt_at_peak":-7.5,"sun_alt":0},
     "soerabaijasch-handelsblad-18940411-02": {"phenomenon":"solar","bucket":"no-reach","local_mag":0,"geom_mag":0,"alt_at_peak":58,"sun_alt":58},
     "songhuiyao-ruiyi-solar-04": {"phenomenon":"solar","bucket":"night","local_mag":0,"geom_mag":0.24282,"alt_at_peak":-73.3,"sun_alt":null},
     "songhuiyao-ruiyi-solar-06": {"phenomenon":"solar","bucket":"no-reach","local_mag":0,"geom_mag":0,"alt_at_peak":50.4,"sun_alt":50.4},
@@ -421,6 +424,7 @@
     "suriname-koloniaal-19050901-21": {"phenomenon":"solar","bucket":"no-reach","local_mag":0,"geom_mag":0,"alt_at_peak":29.9,"sun_alt":29.8},
     "tabari-baghdad-882-solar": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.14358,"geom_mag":0.31731,"alt_at_peak":-6.3,"sun_alt":0},
     "the-bemidji-daily-pioneer-19191122-17": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.52577,"geom_mag":0.52577,"alt_at_peak":1.1,"sun_alt":1.1},
+    "the-china-mail-18831030-01": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.19429,"geom_mag":0.33857,"alt_at_peak":-7.1,"sun_alt":0},
     "the-cincinnati-daily-star-18751002-27": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.84534,"geom_mag":0.84542,"alt_at_peak":-0.1,"sun_alt":0},
     "the-daily-gazette-18750929-02": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.87301,"geom_mag":0.87301,"alt_at_peak":1.1,"sun_alt":1.1},
     "the-new-york-herald-18750930-17": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.90455,"geom_mag":0.90455,"alt_at_peak":2.3,"sun_alt":2.3},

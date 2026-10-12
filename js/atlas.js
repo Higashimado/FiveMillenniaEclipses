@@ -493,30 +493,42 @@ const Atlas = (() => {
   // Chinese register's numeral-only first row as a heading.
   const _DIGITS = /[0-9\uff10-\uff19〇一二三四五六七八九十百千两]/;
 
+  // Han numerals also stand as words in a heading (Kepler's 'two centres', 'one direction'),
+  // so a table whose readings use Arabic figures takes its first row as heads whenever that
+  // row has none.
+  const _ARABIC = /[0-9\uff10-\uff19]/;
+  const _isHead = (rows) =>
+    rows.length > 1 && _ARABIC.test(rows.slice(1).flat().join(''))
+      ? !_ARABIC.test(rows[0].join(''))
+      : !_DIGITS.test(rows[0].join(''));
+
   // Wrapping is a property of the column, not the cell, decided from the column's longest
   // cell: a per-cell numeral or punctuation test cannot tell a reading from a running clause,
   // but the two kinds separate cleanly down a whole column.
   const _PROSE_COLUMN = 40;
+
+  // A short cell still reads as a clause once it parts at a comma or runs past three words
+  // (ultra 2 aestimando non mensurando).
+  const _CLAUSE = /[，；]|[,;] \S|\S+ \S+ \S+ \S+/u;
   const _proseColumns = (rows) => {
     const width = Math.max(...rows.map((r) => r.length));
     return Array.from(
       { length: width },
-      (_, i) => Math.max(0, ...rows.map((r) => (r[i] || '').length)) > _PROSE_COLUMN
+      (_, i) =>
+        Math.max(0, ...rows.map((r) => (r[i] || '').length)) > _PROSE_COLUMN ||
+        rows.some((r) => _CLAUSE.test(r[i] || ''))
     );
   };
 
   // Renders a run of pipe rows as a real table. The run's first row is column heads when it
   // carries no numeral at all: heads are words, readings are numbers.
   const tableHtml = (rows, render) => {
-    const head = _DIGITS.test(rows[0].join('')) ? null : rows.shift();
-    const prose = _proseColumns(rows);
+    const head = _isHead(rows) ? rows.shift() : null;
+    const prose = _proseColumns(head ? [head, ...rows] : rows);
     const tr = (cs, tag) =>
       '<tr>' +
       cs
-        .map(
-          (c, i) =>
-            '<' + tag + (tag === 'td' && prose[i] ? ' class="rec-tab-prose"' : '') + '>' + render(c) + '</' + tag + '>'
-        )
+        .map((c, i) => '<' + tag + (prose[i] ? ' class="rec-tab-prose"' : '') + '>' + render(c) + '</' + tag + '>')
         .join('') +
       '</tr>';
     return (
@@ -1664,7 +1676,7 @@ const Atlas = (() => {
   // A serial's headline precedes the paper that carried it (the CMOS newspaper order); a
   // classical work's division name is not a headline and stays after the juan, hence the two
   // pieces returned. `cite`/`tt` follow the source; `absorbed` is the key already set elsewhere.
-  function locusLabel(rec, cite, tt, absorbed) {
+  function locusLabel(rec, cite, tt, absorbed, link) {
     const lo = rec.locus;
     if (!lo) return { head: '', tail: '' };
     const han = _cjkLang(cite);
@@ -1715,6 +1727,8 @@ const Atlas = (() => {
       else if (LOCUS_NUMBERED[k] && !_selfLabelled(v))
         s = tt('atlas.locus.' + k, { v: _locusPad(_esc(v), cite) }).trim();
       else s = _esc(v);
+      if (link && link.k === k)
+        s = '<a class="src-link" href="' + _esc(link.url) + '" target="_blank" rel="noopener">' + s + '</a>';
       out.push({ k, s });
     }
     let s = '';
@@ -1763,16 +1777,23 @@ const Atlas = (() => {
     // marks here (Chinese book-title marks, Japanese quotation marks, or italics).
     const serial = s && s.genre === 'newspaper' && txt === sourceTitle(s, lang);
     const shown = serial ? _workTitle(name, cite, tt) : _esc(name);
-    const body = rec.srcUrl
-      ? '<a class="src-link" href="' + _esc(rec.srcUrl) + '" target="_blank" rel="noopener">' + shown + '</a>'
-      : shown;
+
+    // A source cited by its author is a paper in a journal: the link opens that paper, so it
+    // hangs on the paper's title, else on the journal's, as journal sites set it.
+    const lo = rec.locus || {};
+    const byAuthor = s && !sourceTitle(s, lang);
+    const linkKey = rec.srcUrl && byAuthor ? (lo.section && !lo.issue ? 'section' : lo.work ? 'work' : '') : '';
+    const body =
+      rec.srcUrl && !linkKey
+        ? '<a class="src-link" href="' + _esc(rec.srcUrl) + '" target="_blank" rel="noopener">' + shown + '</a>'
+        : shown;
 
     // Show transmission kind so readers know when they are reading a translation or
     // a passage preserved only via another work (CMOS 18e §14.260 visibility principle).
     const editions = (s && s.editions) || [];
     const cons = editions.find((e) => e && e.consulted === true) || editions[0] || {};
     const kind = cons.kind;
-    const loc = locusLabel(rec, cite, tt, inTitle ? 'reign' : '');
+    const loc = locusLabel(rec, cite, tt, inTitle ? 'reign' : '', linkKey && { k: linkKey, url: rec.srcUrl });
     let suffix = '';
     if (kind === 'trans' && cons.by)
       suffix = '<span class="src-via">' + T('atlas.src_via_trans', { by: cons.by }) + '</span>';
@@ -1817,7 +1838,11 @@ const Atlas = (() => {
       const transLang = shown && rec.textMap ? Object.keys(rec.textMap).find((k) => rec.textMap[k] === shown) : '';
       rec._notes[lang] = Notes.render(
         {
-          notes: (rec.notes || []).concat(rec.marks ? Notes.dateUnits(rec.marks, rec.textMap, rec.orig) : []),
+          notes: (rec.notes || []).concat(
+            rec.marks
+              ? Notes.dateUnits(rec.marks, rec.textMap, rec.orig, { lat: rec.lat, lon: rec.lon, date: rec.date })
+              : []
+          ),
           text_orig: rec.orig,
           text_zh: rec.textMap ? rec.textMap['zh-Hans'] || '' : '',
           trans: transLang ? shown : '',

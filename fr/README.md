@@ -31,7 +31,7 @@ Un clic sur un sceau de la carte ou sur une entrée de la liste ouvre le **déta
 
 ## Documents
 
-Le corpus compte aujourd'hui 13 156 documents sur des phénomènes célestes, dont la traduction française totalise environ 590 000 mots. Ils proviennent de 387 sources en 23 langues, parmi lesquelles le chinois classique, le néerlandais, le français, l'anglais, le latin, l'arabe et le grec. Les textes ont été relevés dans plus de 20 bibliothèques numériques, dont [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), la [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), les [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) et [NASA ADS](https://ui.adsabs.harvard.edu/). Tous les textes cités appartiennent au domaine public.
+Le corpus compte aujourd'hui 13 195 documents sur des phénomènes célestes, dont la traduction française totalise environ 600 000 mots. Ils proviennent de 387 sources en 23 langues, parmi lesquelles le chinois classique, le néerlandais, le français, l'anglais, le latin, l'arabe et le grec. Les textes ont été relevés dans plus de 20 bibliothèques numériques, dont [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), la [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), les [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) et [NASA ADS](https://ui.adsabs.harvard.edu/). Tous les textes cités appartiennent au domaine public.
 
 ### Genres
 
@@ -39,11 +39,11 @@ Selon leur but et leur forme, les documents se répartissent en quatre grandes c
 
 | Classe | Sous-genres | Sources | Documents | Part des documents | Mots en français | Part des mots | Période |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Annales | 6 | 103 | 11 949 | 90,8 % | 325 086 | 54,8 % | 720 av. J.-C. – 1911 |
-| Presse | 6 | 186 | 1 003 | 7,6 % | 235 327 | 39,7 % | 1834 – 1941 |
-| Écrits savants | 3 | 57 | 57 | 0,4 % | 20 205 | 3,4 % | 1715 – 1923 |
-| Mélanges | 7 | 45 | 147 | 1,1 % | 12 317 | 2,1 % | 2137 av. J.-C. – 1842 |
-| **Total** | **22** | **387** | **13 156** | | **592 935** | | **2137 av. J.-C. – 1941** |
+| Annales | 6 | 103 | 11 948 | 90,5 % | 325 771 | 53,9 % | 720 av. J.-C. – 1911 |
+| Presse | 6 | 186 | 1 043 | 7,9 % | 243 398 | 40,2 % | 1834 – 1941 |
+| Écrits savants | 3 | 57 | 57 | 0,4 % | 22 747 | 3,8 % | 1715 – 1923 |
+| Mélanges | 7 | 45 | 147 | 1,1 % | 12 918 | 2,1 % | 2137 av. J.-C. – 1842 |
+| **Total** | **22** | **387** | **13 195** | | **604 834** | | **2137 av. J.-C. – 1941** |
 
 Les **Annales** sont avant tout les histoires officielles de la Chine, du Japon, de la Corée et du Viêt Nam, complétées par des chroniques d'Asie occidentale et d'Europe. Leurs relevés forment des séries ininterrompues, classées avec méthode et de forme régulière, à l'exemple du [Traité d'astronomie de l'*Histoire des Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053). La **Presse** appartient à l'époque moderne ; elle émane de multiples plumes et de points de vue très divers, des scènes de rue pleines de vie aux éditoriaux et aux chroniques qui font du ciel un commentaire sur l'actualité. Les **Écrits savants** sont l'œuvre d'astronomes et d'autres savants et entrent dans un grand détail ; le plus marquant est le recueil des observations de l'éclipse de 1919 qui ont confirmé la relativité générale, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). Les **Mélanges** rassemblent classiques, ouvrages d'histoire, poèmes, journaux intimes, lettres et tablettes d'argile, comme ce vers du *Classique des vers* : « Le soleil s'est éclipsé, présage des plus funestes ». Tous les témoignages les plus anciens relèvent de cette classe, mais les dates et les lieux qu'on leur attribue sont souvent discutés.
 
@@ -92,13 +92,13 @@ Les tables de concordance unifient les métadonnées des objets que les sources 
 | Fichier | Contenu | Utilisé par | Entrées |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | Description du format | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Lieux | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 565 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Lieux | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 573 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | Régions | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | Civilisations | [`js/atlas.js`](../js/atlas.js), [`js/seal.js`](../js/seal.js) | 33 |
-| [`data/concordance/persons.json`](../data/concordance/persons.json) | Noms de personnes | [`js/atlas.js`](../js/atlas.js) | 41 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | Noms de personnes | [`js/atlas.js`](../js/atlas.js) | 76 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | Noms d'institutions | — | 52 |
-| [`data/concordance/terms.json`](../data/concordance/terms.json) | Termes | [`js/atlas.js`](../js/atlas.js) | 71 |
-| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendriers | [`js/atlas.js`](../js/atlas.js) | 14 |
+| [`data/concordance/terms.json`](../data/concordance/terms.json) | Termes | [`js/atlas.js`](../js/atlas.js) | 86 |
+| [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendriers | [`js/atlas.js`](../js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](../data/concordance/eras.json) | Ères | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 830 |
 | [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Noms d'étoiles chinois | [`js/atlas.js`](../js/atlas.js) | 407 |
 | [`data/concordance/bodies.json`](../data/concordance/bodies.json) | Noms d'astres | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 8 |
