@@ -41,11 +41,11 @@
 
 | 类别 | 小类 | 来源 | 条数 | 条数占比 | 汉译字数 | 字数占比 | 年代 |
 |---|---:|---:|---:|---:|---:|---:|---|
-| 史册 | 6 | 103 | 11 948 | 90.5% | 239 653 | 41.7% | 前 720 – 1911 |
-| 报刊 | 6 | 186 | 1 043 | 7.9% | 289 438 | 50.4% | 1834 – 1941 |
-| 学志 | 3 | 57 | 57 | 0.4% | 28 231 | 4.9% | 1715 – 1923 |
-| 杂录 | 7 | 45 | 147 | 1.1% | 16 781 | 2.9% | 前 2137 – 1842 |
-| **合计** | **22** | **387** | **13 195** | | **574 103** | | **前 2137 – 1941** |
+| 史册 | 6 | 103 | 11 948 | 90.5% | 239 987 | 41.7% | 前 720 – 1911 |
+| 报刊 | 6 | 186 | 1 043 | 7.9% | 289 754 | 50.4% | 1834 – 1941 |
+| 学志 | 3 | 57 | 57 | 0.4% | 28 364 | 4.9% | 1715 – 1923 |
+| 杂录 | 7 | 45 | 147 | 1.1% | 16 808 | 2.9% | 前 2137 – 1842 |
+| **合计** | **22** | **387** | **13 195** | | **574 913** | | **前 2137 – 1941** |
 
 **史册**以中、日、朝、越官修史书为主体，兼收西亚、欧洲编年史，载录连续、分类齐全、格式规整，典例有如[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)。**报刊**是近代产物，来源丰富、视角多样，既有富生活气息的市民群像，又有以天象喻事之社论杂文。**学志**为专业人士撰写，记录翔实、影响深远，最重要的莫如 1919 年验证广义相对论之日食观测 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895)．**杂录**则含经书、史著、诗歌、日记、书信与泥板等，如《诗经》之“日有食之，亦孔之醜”，上古记录尽出于此，然其所系年月、地点多有争议。
 
@@ -102,7 +102,7 @@
 | [`data/concordance/terms.json`](data/concordance/terms.json) | 术语 | [`js/atlas.js`](js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](data/concordance/calendars.json) | 历法 | [`js/atlas.js`](js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](data/concordance/eras.json) | 年号 | [`js/atlas.js`](js/atlas.js)、[`js/supplied.js`](js/supplied.js) | 830 |
-| [`data/concordance/xingguan.json`](data/concordance/xingguan.json) | 中国星名 | [`js/atlas.js`](js/atlas.js) | 407 |
+| [`data/concordance/xingguan.json`](data/concordance/xingguan.json) | 中国星名 | [`js/atlas.js`](js/atlas.js) | 412 |
 | [`data/concordance/bodies.json`](data/concordance/bodies.json) | 天体名称 | [`js/atlas.js`](js/atlas.js)、[`js/supplied.js`](js/supplied.js) | 8 |
 
 在 [`js/atlas.js`](js/atlas.js) 调用的对照表会用于页面渲染，即印章、地名、悬浮窗及脚注等。
@@ -185,11 +185,11 @@ By purpose and form, the records fall into four broad classes, Histories, Newspa
 
 | Class | Subgenres | Sources | Records | Share of records | English words | Share of words | Period |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Histories | 6 | 103 | 11,948 | 90.5% | 311,813 | 54.3% | 720 BCE – 1911 |
-| Newspapers | 6 | 186 | 1,043 | 7.9% | 228,533 | 39.8% | 1834 – 1941 |
-| Learned writings | 3 | 57 | 57 | 0.4% | 21,323 | 3.7% | 1715 – 1923 |
-| Miscellanea | 7 | 45 | 147 | 1.1% | 12,734 | 2.2% | 2137 BCE – 1842 |
-| **Total** | **22** | **387** | **13,195** | | **574,403** | | **2137 BCE – 1941** |
+| Histories | 6 | 103 | 11,948 | 90.5% | 312,374 | 54.3% | 720 BCE – 1911 |
+| Newspapers | 6 | 186 | 1,043 | 7.9% | 228,462 | 39.7% | 1834 – 1941 |
+| Learned writings | 3 | 57 | 57 | 0.4% | 21,327 | 3.7% | 1715 – 1923 |
+| Miscellanea | 7 | 45 | 147 | 1.1% | 12,739 | 2.2% | 2137 BCE – 1842 |
+| **Total** | **22** | **387** | **13,195** | | **574,902** | | **2137 BCE – 1941** |
 
 **Histories** are chiefly the official histories of China, Japan, Korea and Vietnam, joined by chronicles from Western Asia and Europe. Their entries run in unbroken series, are systematically classified and follow a set format; the [Treatise on Astronomy in the *History of Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) is a typical example. **Newspapers** belong to the modern era and come from many hands and points of view, ranging from lively scenes of townspeople in the street to editorials and essays that read the sky as a comment on public affairs. **Learned writings** are the work of astronomers and other scholars and go into great detail; the most consequential of them are the 1919 eclipse observations that confirmed general relativity, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). **Miscellanea** take in classics, historical works, poems, diaries, letters and clay tablets, such as the line of the *Classic of Poetry* rendered by Legge as "The sun was eclipsed; a thing of very evil omen." All of the earliest records belong to this class, though the dates and places assigned to many of them are disputed.
 
@@ -246,7 +246,7 @@ The concordance tables unify the metadata of objects that different sources know
 | [`data/concordance/terms.json`](data/concordance/terms.json) | Terms | [`js/atlas.js`](js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](data/concordance/calendars.json) | Calendars | [`js/atlas.js`](js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](data/concordance/eras.json) | Era names | [`js/atlas.js`](js/atlas.js), [`js/supplied.js`](js/supplied.js) | 830 |
-| [`data/concordance/xingguan.json`](data/concordance/xingguan.json) | Chinese star names | [`js/atlas.js`](js/atlas.js) | 407 |
+| [`data/concordance/xingguan.json`](data/concordance/xingguan.json) | Chinese star names | [`js/atlas.js`](js/atlas.js) | 412 |
 | [`data/concordance/bodies.json`](data/concordance/bodies.json) | Celestial body names | [`js/atlas.js`](js/atlas.js), [`js/supplied.js`](js/supplied.js) | 8 |
 
 The tables read by [`js/atlas.js`](js/atlas.js) feed the rendering of the page: seals, place names, tooltips, footnotes and so on.

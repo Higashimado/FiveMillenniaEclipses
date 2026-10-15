@@ -39,11 +39,11 @@ By purpose and form, the records fall into four broad classes, Histories, Newspa
 
 | Class | Subgenres | Sources | Records | Share of records | English words | Share of words | Period |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Histories | 6 | 103 | 11,948 | 90.5% | 311,813 | 54.3% | 720 BCE – 1911 |
-| Newspapers | 6 | 186 | 1,043 | 7.9% | 228,533 | 39.8% | 1834 – 1941 |
-| Learned writings | 3 | 57 | 57 | 0.4% | 21,323 | 3.7% | 1715 – 1923 |
-| Miscellanea | 7 | 45 | 147 | 1.1% | 12,734 | 2.2% | 2137 BCE – 1842 |
-| **Total** | **22** | **387** | **13,195** | | **574,403** | | **2137 BCE – 1941** |
+| Histories | 6 | 103 | 11,948 | 90.5% | 312,374 | 54.3% | 720 BCE – 1911 |
+| Newspapers | 6 | 186 | 1,043 | 7.9% | 228,462 | 39.7% | 1834 – 1941 |
+| Learned writings | 3 | 57 | 57 | 0.4% | 21,327 | 3.7% | 1715 – 1923 |
+| Miscellanea | 7 | 45 | 147 | 1.1% | 12,739 | 2.2% | 2137 BCE – 1842 |
+| **Total** | **22** | **387** | **13,195** | | **574,902** | | **2137 BCE – 1941** |
 
 **Histories** are chiefly the official histories of China, Japan, Korea and Vietnam, joined by chronicles from Western Asia and Europe. Their entries run in unbroken series, are systematically classified and follow a set format; the [Treatise on Astronomy in the *History of Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) is a typical example. **Newspapers** belong to the modern era and come from many hands and points of view, ranging from lively scenes of townspeople in the street to editorials and essays that read the sky as a comment on public affairs. **Learned writings** are the work of astronomers and other scholars and go into great detail; the most consequential of them are the 1919 eclipse observations that confirmed general relativity, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). **Miscellanea** take in classics, historical works, poems, diaries, letters and clay tablets, such as the line of the *Classic of Poetry* rendered by Legge as "The sun was eclipsed; a thing of very evil omen." All of the earliest records belong to this class, though the dates and places assigned to many of them are disputed.
 
@@ -100,7 +100,7 @@ The concordance tables unify the metadata of objects that different sources know
 | [`data/concordance/terms.json`](../data/concordance/terms.json) | Terms | [`js/atlas.js`](../js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendars | [`js/atlas.js`](../js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](../data/concordance/eras.json) | Era names | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 830 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Chinese star names | [`js/atlas.js`](../js/atlas.js) | 407 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Chinese star names | [`js/atlas.js`](../js/atlas.js) | 412 |
 | [`data/concordance/bodies.json`](../data/concordance/bodies.json) | Celestial body names | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 8 |
 
 The tables read by [`js/atlas.js`](../js/atlas.js) feed the rendering of the page: seals, place names, tooltips, footnotes and so on.

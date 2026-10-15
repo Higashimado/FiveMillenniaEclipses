@@ -39,11 +39,11 @@ Per scopo e forma, i documenti si dividono in quattro grandi classi, «Annali»,
 
 | Classe | Sottogeneri | Fonti | Documenti | Quota di documenti | Parole in italiano | Quota di parole | Periodo |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Annali | 6 | 103 | 11.948 | 90,5% | 300.841 | 54,3% | 720 a.C. – 1911 |
-| Stampa | 6 | 186 | 1043 | 7,9% | 220.707 | 39,9% | 1834 – 1941 |
-| Scritti scientifici | 3 | 57 | 57 | 0,4% | 20.487 | 3,7% | 1715 – 1923 |
-| Miscellanea | 7 | 45 | 147 | 1,1% | 11.713 | 2,1% | 2137 a.C. – 1842 |
-| **Totale** | **22** | **387** | **13.195** | | **553.748** | | **2137 a.C. – 1941** |
+| Annali | 6 | 103 | 11.948 | 90,5% | 301.099 | 54,3% | 720 a.C. – 1911 |
+| Stampa | 6 | 186 | 1043 | 7,9% | 220.830 | 39,9% | 1834 – 1941 |
+| Scritti scientifici | 3 | 57 | 57 | 0,4% | 20.497 | 3,7% | 1715 – 1923 |
+| Miscellanea | 7 | 45 | 147 | 1,1% | 11.716 | 2,1% | 2137 a.C. – 1842 |
+| **Totale** | **22** | **387** | **13.195** | | **554.142** | | **2137 a.C. – 1941** |
 
 Gli **Annali** sono soprattutto le storie ufficiali di Cina, Giappone, Corea e Vietnam, affiancate da cronache dell'Asia occidentale e d'Europa. Le loro registrazioni formano serie ininterrotte, sono classificate in modo sistematico e seguono una forma costante; ne è un esempio tipico il [Trattato di astronomia della *Storia dei Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053). La **Stampa** appartiene all'età moderna e nasce da molte mani e da punti di vista assai diversi, da vivaci scene di vita cittadina a editoriali e articoli di commento che leggono il cielo come allegoria dell'attualità. Gli **Scritti scientifici** sono opera di astronomi e altri studiosi e scendono in grande dettaglio; il più importante è quello delle osservazioni dell'eclissi del 1919 che confermarono la relatività generale, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). La **Miscellanea** comprende classici, opere storiche, poesie, diari, lettere e tavolette d'argilla, come il verso del *Classico delle poesie* «Il sole si è oscurato, presagio di grande sventura». Tutte le testimonianze più antiche appartengono a questa classe, benché le date e i luoghi loro attribuiti siano spesso controversi.
 
@@ -100,7 +100,7 @@ Le tavole di concordanza unificano i metadati degli oggetti che le fonti chiaman
 | [`data/concordance/terms.json`](../data/concordance/terms.json) | Termini | [`js/atlas.js`](../js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendari | [`js/atlas.js`](../js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](../data/concordance/eras.json) | Ere | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 830 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Nomi cinesi delle stelle | [`js/atlas.js`](../js/atlas.js) | 407 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Nomi cinesi delle stelle | [`js/atlas.js`](../js/atlas.js) | 412 |
 | [`data/concordance/bodies.json`](../data/concordance/bodies.json) | Nomi degli astri | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 8 |
 
 Le tavole lette da [`js/atlas.js`](../js/atlas.js) servono a disegnare la pagina: sigilli, toponimi, finestre a comparsa, note e così via.

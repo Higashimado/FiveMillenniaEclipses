@@ -4,7 +4,7 @@
 
 | File | Content | Payload | Entries | Read by |
 |---|---|---|---:|---|
-| [`xingguan.json`](xingguan.json) | Chinese asterisms, lunar mansions, enclosures, named stars and the twelve stations | `xingguan`: object keyed by name | 407 | [`js/atlas.js`](../../js/atlas.js), [`js/notes.js`](../../js/notes.js) |
+| [`xingguan.json`](xingguan.json) | Chinese asterisms, lunar mansions, enclosures, named stars and the twelve stations | `xingguan`: object keyed by name | 412 | [`js/atlas.js`](../../js/atlas.js), [`js/notes.js`](../../js/notes.js) |
 | [`eras.json`](eras.json) | Era and reign names in seven lines: Chinese (−139 to 1911, single orthodox line), Japanese (645 to present, Northern Court line), Vietnamese (989 to 1787, the court line of the Đại Việt sử ký toàn thư), Western Xia (1038 to 1224, as the Xixia Shushi counts them), and the Korean reigns, Japanese emperors and other Chinese names the records print | `lines`: object keyed by line, each with `eras`: array | 830 | [`js/atlas.js`](../../js/atlas.js), [`js/supplied.js`](../../js/supplied.js) |
 | [`gazetteer.json`](gazetteer.json) | Places referenced by records: coordinates, historical and modern names | `places`: object keyed by `place.key` | 573 | [`js/atlas.js`](../../js/atlas.js), [`js/place-name.js`](../../js/place-name.js) |
 | [`civilizations.json`](civilizations.json) | Display names of the `civilization` values | `civs`: object keyed by `civilization` | 33 | [`js/atlas.js`](../../js/atlas.js), [`js/seal.js`](../../js/seal.js) |

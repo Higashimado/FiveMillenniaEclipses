@@ -57,8 +57,8 @@ const Supplied = (() => {
 
   /**
    * The span of a year or month token in each locale, or null outside year 1–99 and month 1–12.
-   * 元年 (first year), 正月 (first month); fr 1ʳᵉ année but 1ᵉʳ mois; es 1.er and 3.er before a
-   * masculine noun.
+   * 元年 (first year), 正月 (first month); fr 1ʳᵉ année but 1ᵉʳ mois; es .er after a final 1 or 3
+   * before a masculine noun (1.er, 13.er, 21.er año), 11.º keeps the full ending.
    * @param {'year'|'month'} kind
    * @param {string} value N, or iN for an intercalary month
    */
@@ -70,7 +70,7 @@ const Supplied = (() => {
     const year = kind === 'year';
     const hanForm = (n === 1 ? (year ? '元' : '正') : han(n)) + (year ? '年' : '月');
     const fr = n === 1 ? (year ? '1ʳᵉ' : '1ᵉʳ') : n + 'ᵉ';
-    const es = n === 1 || n === 3 ? n + '.er' : n + '.º';
+    const es = (n % 10 === 1 || n % 10 === 3) && n !== 11 ? n + '.er' : n + '.º';
     const w = NOUN[kind];
     const forms = {
       'zh-Hans': hanForm,

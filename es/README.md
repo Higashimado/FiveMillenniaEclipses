@@ -39,11 +39,11 @@ Según su propósito y su forma, los registros se agrupan en cuatro grandes clas
 
 | Clase | Subgéneros | Fuentes | Registros | % de registros | Palabras en español | % de palabras | Periodo |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Anales | 6 | 103 | 11 948 | 90,5 % | 324 566 | 55,1 % | 720 a. C. – 1911 |
-| Prensa | 6 | 186 | 1043 | 7,9 % | 230 353 | 39,1 % | 1834 – 1941 |
-| Escritos científicos | 3 | 57 | 57 | 0,4 % | 21 600 | 3,7 % | 1715 – 1923 |
-| Misceláneas | 7 | 45 | 147 | 1,1 % | 12 346 | 2,1 % | 2137 a. C. – 1842 |
-| **Total** | **22** | **387** | **13 195** | | **588 865** | | **2137 a. C. – 1941** |
+| Anales | 6 | 103 | 11 948 | 90,5 % | 324 893 | 55,1 % | 720 a. C. – 1911 |
+| Prensa | 6 | 186 | 1043 | 7,9 % | 230 439 | 39,1 % | 1834 – 1941 |
+| Escritos científicos | 3 | 57 | 57 | 0,4 % | 21 611 | 3,7 % | 1715 – 1923 |
+| Misceláneas | 7 | 45 | 147 | 1,1 % | 12 347 | 2,1 % | 2137 a. C. – 1842 |
+| **Total** | **22** | **387** | **13 195** | | **589 290** | | **2137 a. C. – 1941** |
 
 Los **Anales** son sobre todo las historias oficiales de China, Japón, Corea y Vietnam, a las que se suman crónicas de Asia occidental y de Europa. Sus asientos forman series ininterrumpidas, están clasificados de manera sistemática y siguen un formato fijo; un ejemplo típico es el [Tratado de Astronomía de la *Historia de Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053). La **Prensa** pertenece a la época moderna y procede de muchas manos y de puntos de vista muy diversos, desde escenas callejeras llenas de vida hasta editoriales y artículos de opinión que leen el cielo como comentario de la actualidad. Los **Escritos científicos** son obra de astrónomos y otros eruditos y entran en gran detalle; el más trascendental es el de las observaciones del eclipse de 1919 que confirmaron la relatividad general, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). Las **Misceláneas** abarcan clásicos, obras históricas, poemas, diarios, cartas y tablillas de arcilla, como el verso del *Clásico de la poesía* «El sol fue eclipsado, presagio de gran desdicha». Todos los testimonios más antiguos pertenecen a esta clase, aunque las fechas y los lugares que se les asignan son a menudo discutidos.
 
@@ -100,7 +100,7 @@ Las tablas de concordancia unifican los metadatos de los objetos que las fuentes
 | [`data/concordance/terms.json`](../data/concordance/terms.json) | Términos | [`js/atlas.js`](../js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendarios | [`js/atlas.js`](../js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](../data/concordance/eras.json) | Eras | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 830 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Nombres chinos de estrellas | [`js/atlas.js`](../js/atlas.js) | 407 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | Nombres chinos de estrellas | [`js/atlas.js`](../js/atlas.js) | 412 |
 | [`data/concordance/bodies.json`](../data/concordance/bodies.json) | Nombres de astros | [`js/atlas.js`](../js/atlas.js), [`js/supplied.js`](../js/supplied.js) | 8 |
 
 Las tablas que lee [`js/atlas.js`](../js/atlas.js) sirven para dibujar la página: sellos, topónimos, ventanas emergentes, notas, etc.

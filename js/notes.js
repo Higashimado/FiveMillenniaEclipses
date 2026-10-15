@@ -329,15 +329,15 @@ const Notes = (() => {
     return ES_TENS[t] + (u ? ' y ' + ES_CARD[u] : '');
   }
 
-  // Masculine forms drop the final -o before the noun (primer año, tercer mes), the only
-  // position the note sentences use.
-  function esOrdinal(n, fem) {
+  // Masculine forms drop the final -o before the noun (primer año, tercer mes); an ordinal
+  // standing alone (es el primero de los dos) keeps it, which `alone` asks for.
+  function esOrdinal(n, fem, alone) {
     const t = Math.floor(n / 10);
     const u = n % 10;
     let unit = u ? ES_ORD[u] : '';
     if (n === 11) return fem ? 'undécima' : 'undécimo';
     if (n === 12) return fem ? 'duodécima' : 'duodécimo';
-    if (!fem && (u === 1 || u === 3)) unit = unit.slice(0, -1);
+    if (!fem && !alone && (u === 1 || u === 3)) unit = unit.slice(0, -1);
     if (fem) unit = unit.replace(/o$/, 'a');
     if (!t) return unit;
     let tens = ES_ORD_TENS[t];
@@ -634,7 +634,14 @@ const Notes = (() => {
     if (isCjk(lang) && !han) return '<i>' + esc(title) + '</i>';
     const part = !han && title.match(/^(.+?), "(.+)"$/);
     if (part) return '<i>' + esc(part[1]) + '</i>, ' + quote(part[2], lang);
-    if (han && isCjk(lang)) return (lang === 'ja' ? '『' : '《') + esc(title) + (lang === 'ja' ? '』' : '》');
+
+    // Japanese sets the book alone in 『』 and runs the treatise after it: 『隋書』天文志 (the
+    // Astronomical Treatise of the Book of Sui).
+    if (han && lang === 'ja') {
+      const dot = title.indexOf('·');
+      return dot > 0 ? '『' + esc(title.slice(0, dot)) + '』' + esc(title.slice(dot + 1)) : '『' + esc(title) + '』';
+    }
+    if (han && isCjk(lang)) return '《' + esc(title) + '》';
     return '<i>' + esc(title) + '</i>';
   }
 
@@ -980,7 +987,9 @@ const Notes = (() => {
       const j = julianOf(unit);
       vals.julian_month = j ? esc(monthName(j, lang)) : '';
     }
-    if (unit.index != null) vals.index = ordinal(unit.index, lang);
+
+    // The series index stands without a noun: es el primero de los dos eclipses.
+    if (unit.index != null) vals.index = lang === 'es' ? esOrdinal(unit.index, false, true) : ordinal(unit.index, lang);
     if (unit.index != null) vals.index_f = ordinal(unit.index, lang, true);
     if (unit.total != null) vals.total = cardinal(unit.total, lang);
 
@@ -1007,7 +1016,12 @@ const Notes = (() => {
     pat = pat.replace(/\{opt_(\w+)\}/g, (m, slot) =>
       vals[slot] ? fill(tr(key + '.opt_' + slot) || tr('note.' + unit.type + '.' + sub + '.opt_' + slot), vals) : ''
     );
-    let out = contract(fill(pat, vals), lang);
+
+    // A slot that ends in an abbreviation (av. J.-C.) lends its period to the sentence.
+    let out = contract(fill(pat, vals), lang).replace(/([^.\s]\.)((?:<\/[^>]+>)*)\.$/, '$1$2');
+
+    // A Spanish slot that opens with el after a or de in the pattern fuses with it (al adivino).
+    if (lang === 'es') out = out.replace(/(?<!\p{L})([aA]|[dD]e) el (?=\p{L})/gu, (m, p) => p + 'l ');
     if (isZh(lang)) out = spaceHanLatin(out).replace(/([A-Za-z0-9])((?:<\/[^>]+>)*)。/g, '$1$2．');
     else if (!isCjk(lang)) out = capitalize(out);
     return out;

@@ -20,7 +20,7 @@
   "arcadius": {"role": "ruler", "latin": "Arcadius", "variants": [], "zh-Hans": "阿卡狄乌斯", "zh-Hant": "阿卡狄烏斯", "en": "Arcadius", "fr": "Arcadius", "es": "Arcadio", "it": "Arcadio", "ja": "アルカディウス"},
   "ariadne": {"role": "mythological", "latin": "Ariadnē", "variants": [], "zh-Hans": "阿里阿德涅", "zh-Hant": "阿里阿德涅", "en": "Ariadne", "fr": "Ariane", "es": "Ariadna", "it": "Arianna", "ja": "アリアドネ"},
   "aristander": {"role": "figure", "latin": "Aristandros", "variants": [], "zh-Hans": "阿里斯坦德罗斯", "zh-Hant": "阿里斯坦德羅斯", "en": "Aristander", "fr": "Aristandre", "es": "Aristandro", "it": "Aristandro", "ja": "アリスタンドロス"},
-  "baily": {"role": "observer", "latin": "Francis Baily", "variants": [], "zh-Hans": "弗朗西斯·培利", "zh-Hant": "弗朗西斯·培利", "en": "Francis Baily", "fr": "Francis Baily", "es": "Francis Baily", "it": "Francis Baily", "ja": "フランシス・ベイリー"},
+  "baily": {"role": "observer", "latin": "Francis Baily", "variants": [], "zh-Hans": "弗朗西斯·贝利", "zh-Hant": "弗朗西斯·貝利", "en": "Francis Baily", "fr": "Francis Baily", "es": "Francis Baily", "it": "Francis Baily", "ja": "フランシス・ベイリー"},
   "bernard-shaw": {"role": "author", "latin": "George Bernard Shaw", "variants": ["肖伯纳"], "zh-Hans": "萧伯纳", "zh-Hant": "蕭伯納", "en": "George Bernard Shaw", "fr": "George Bernard Shaw", "es": "George Bernard Shaw", "it": "George Bernard Shaw", "ja": "バーナード・ショー"},
   "bessel": {"role": "observer", "latin": "Bessel", "variants": ["Bessel", "白塞尔"], "zh-Hans": "贝塞尔", "zh-Hant": "貝塞爾", "en": "Bessel", "fr": "Bessel", "es": "Bessel", "it": "Bessel", "ja": "ベッセル"},
   "blomstrand": {"role": "observer", "latin": "Blomstrand", "variants": [], "zh-Hans": "Blomstrand", "zh-Hant": "Blomstrand", "en": "Blomstrand", "fr": "Blomstrand", "es": "Blomstrand", "it": "Blomstrand", "ja": "ブロムストランド"},

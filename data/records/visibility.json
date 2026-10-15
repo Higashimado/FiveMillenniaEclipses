@@ -16,7 +16,7 @@
     "provenance": "Derived by tools/build-visibility.mjs from the Besselian elements in data/eclipses/ and the coordinates in data/concordance/gazetteer.json; thresholds in tools/lib/local-visibility.mjs. Independent of the record field source_claim.",
     "count": 483,
     "license": "CC-BY-SA-4.0",
-    "corpus_digest": "sha256:752bc88102a7cca8f8e0e1f0d564be39ea632efa8b4b2d49c41ae00be82e9b2b"
+    "corpus_digest": "sha256:a2abc8f71dd3104017e1b6f807b831b1039f28f090df3162a64bd415a08bdc90"
   },
   "records": {
     "alexandria-gazette-18750929-10": {"phenomenon":"solar","bucket":"low-sun","local_mag":0.8426,"geom_mag":0.84271,"alt_at_peak":-0.1,"sun_alt":0},

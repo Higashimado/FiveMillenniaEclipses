@@ -39,11 +39,11 @@
 
 | 类别 | 小类 | 来源 | 条数 | 条数占比 | 汉译字数 | 字数占比 | 年代 |
 |---|---:|---:|---:|---:|---:|---:|---|
-| 史册 | 6 | 103 | 11 948 | 90.5% | 239 653 | 41.7% | 前 720 – 1911 |
-| 报刊 | 6 | 186 | 1 043 | 7.9% | 289 438 | 50.4% | 1834 – 1941 |
-| 学志 | 3 | 57 | 57 | 0.4% | 28 231 | 4.9% | 1715 – 1923 |
-| 杂录 | 7 | 45 | 147 | 1.1% | 16 781 | 2.9% | 前 2137 – 1842 |
-| **合计** | **22** | **387** | **13 195** | | **574 103** | | **前 2137 – 1941** |
+| 史册 | 6 | 103 | 11 948 | 90.5% | 239 987 | 41.7% | 前 720 – 1911 |
+| 报刊 | 6 | 186 | 1 043 | 7.9% | 289 754 | 50.4% | 1834 – 1941 |
+| 学志 | 3 | 57 | 57 | 0.4% | 28 364 | 4.9% | 1715 – 1923 |
+| 杂录 | 7 | 45 | 147 | 1.1% | 16 808 | 2.9% | 前 2137 – 1842 |
+| **合计** | **22** | **387** | **13 195** | | **574 913** | | **前 2137 – 1941** |
 
 **史册**以中、日、朝、越官修史书为主体，兼收西亚、欧洲编年史，载录连续、分类齐全、格式规整，典例有如[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)。**报刊**是近代产物，来源丰富、视角多样，既有富生活气息的市民群像，又有以天象喻事之社论杂文。**学志**为专业人士撰写，记录翔实、影响深远，最重要的莫如 1919 年验证广义相对论之日食观测 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895)．**杂录**则含经书、史著、诗歌、日记、书信与泥板等，如《诗经》之“日有食之，亦孔之醜”，上古记录尽出于此，然其所系年月、地点多有争议。
 
@@ -100,7 +100,7 @@
 | [`data/concordance/terms.json`](../data/concordance/terms.json) | 术语 | [`js/atlas.js`](../js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](../data/concordance/calendars.json) | 历法 | [`js/atlas.js`](../js/atlas.js) | 15 |
 | [`data/concordance/eras.json`](../data/concordance/eras.json) | 年号 | [`js/atlas.js`](../js/atlas.js)、[`js/supplied.js`](../js/supplied.js) | 830 |
-| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | 中国星名 | [`js/atlas.js`](../js/atlas.js) | 407 |
+| [`data/concordance/xingguan.json`](../data/concordance/xingguan.json) | 中国星名 | [`js/atlas.js`](../js/atlas.js) | 412 |
 | [`data/concordance/bodies.json`](../data/concordance/bodies.json) | 天体名称 | [`js/atlas.js`](../js/atlas.js)、[`js/supplied.js`](../js/supplied.js) | 8 |
 
 在 [`js/atlas.js`](../js/atlas.js) 调用的对照表会用于页面渲染，即印章、地名、悬浮窗及脚注等。
