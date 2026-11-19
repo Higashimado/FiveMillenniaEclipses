@@ -31,7 +31,7 @@
 
 ## 史料
 
-本データベースには現在、天象記録 13,195 件が収められ、日本語訳は約 87 万字に及びます。記録の出典は 387 種、漢文・オランダ語・フランス語・英語・ラテン語・アラビア語・ギリシア語など 23 の言語にわたります。テキストは [ウィキソース](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[インターネットアーカイブ](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[臺灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[モヌメンタ・ゲルマニアエ・ヒストリカ（dMGH）](https://www.dmgh.de/)、[NASA ADS](https://ui.adsabs.harvard.edu/) など 20 以上のデジタル図書館から採録しており、引用したテキストはいずれもパブリックドメインです。
+本データベースには現在、天象記録 14,477 件が収められ、日本語訳は約 136 万字に及びます。記録の出典は 797 種、漢文・英語・オランダ語・フランス語・日本語・アラビア語・ラテン語・ギリシア語など 24 の言語にわたります。テキストは [ウィキソース](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[インターネットアーカイブ](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[日本天文学会](https://www.asj.or.jp/)、[臺灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[モヌメンタ・ゲルマニアエ・ヒストリカ（dMGH）](https://www.dmgh.de/)、[NASA ADS](https://ui.adsabs.harvard.edu/) など 20 以上のデジタル図書館から採録しており、引用したテキストはいずれもパブリックドメインです。
 
 ### 分類
 
@@ -39,11 +39,11 @@
 
 | 分類 | 小分類 | 出典 | 件数 | 件数比 | 和訳字数 | 字数比 | 年代 |
 |---|---:|---:|---:|---:|---:|---:|---|
-| 史書 | 6 | 103 | 11,948 | 90.5% | 338,171 | 38.9% | 前720 – 1911 |
-| 新聞 | 6 | 186 | 1,043 | 7.9% | 463,977 | 53.4% | 1834 – 1941 |
-| 学術 | 3 | 57 | 57 | 0.4% | 43,491 | 5.0% | 1715 – 1923 |
-| 雑録 | 7 | 45 | 147 | 1.1% | 23,363 | 2.7% | 前2137 – 1842 |
-| **合計** | **22** | **387** | **13,195** | | **869,002** | | **前2137 – 1941** |
+| 史書 | 6 | 103 | 11,945 | 82.5% | 330,121 | 24.2% | 前720 – 1911 |
+| 新聞 | 6 | 594 | 2,031 | 14.0% | 874,117 | 64.2% | 1834 – 1941 |
+| 学術 | 3 | 61 | 353 | 2.4% | 134,613 | 9.9% | 前1218 – 1943 |
+| 雑録 | 7 | 45 | 148 | 1.0% | 23,414 | 1.7% | 前2137 – 1842 |
+| **合計** | **22** | **797** | **14,477** |  | **1,362,265** |  | **前2137 – 1943** |
 
 **史書**は中国・日本・朝鮮・ベトナムの官撰史書を中心に、西アジアやヨーロッパの年代記も収めます。記載は途切れることなく連なり、体系的に分類され、書式も定まっています。典型例は[『宋史』天文志](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)です。**新聞**は近代に生まれたもので、書き手も視点もさまざまです。生活感あふれる市井の人々の姿を描いた記事もあれば、天象に託して時事を論じる社説や評論もあります。**学術**は天文学者ら専門家の手になる記録で、きわめて詳細です。とりわけ影響が大きいのは、一般相対性理論を検証した 1919 年の日食観測 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895) です。**雑録**は経書・史書・詩歌・日記・書簡・粘土板などを含みます。たとえば『詩経』の「日之を食する有り、亦孔だ之れ醜し」がそれで、最古の記録はすべてこの分類に属しますが、その年月や地点には異論の多いものも少なくありません。
 
@@ -92,10 +92,10 @@
 | ファイル | 内容 | 読み込み元 | 件数 |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | 形式の説明 | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 573 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 1,100 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | 地域 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | 文明 | [`js/atlas.js`](../js/atlas.js)、[`js/seal.js`](../js/seal.js) | 33 |
-| [`data/concordance/persons.json`](../data/concordance/persons.json) | 人名 | [`js/atlas.js`](../js/atlas.js) | 76 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | 人名 | [`js/atlas.js`](../js/atlas.js) | 77 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | 機関名 | — | 52 |
 | [`data/concordance/terms.json`](../data/concordance/terms.json) | 術語 | [`js/atlas.js`](../js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](../data/concordance/calendars.json) | 暦法 | [`js/atlas.js`](../js/atlas.js) | 15 |

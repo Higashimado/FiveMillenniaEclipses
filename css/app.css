@@ -463,16 +463,18 @@ html:is([lang^="zh"], [lang^="ja"]) :is(.rc-year, .rp-year).era-quewei {
 .rec-tab { border-collapse: collapse; width: auto; font-size: var(--fs-note); line-height: 1.5; }
 .rec-tab th, .rec-tab td { padding: 2px 10px 2px 0; text-align: left; white-space: nowrap; vertical-align: baseline; }
 
-/* Heads are words and wrap; a nowrap head as long as Kepler's sets the whole table's width. */
+/* A long head wraps, since a nowrap head as long as Kepler's sets the whole table's width;
+   a short one (marked in js/atlas.js) keeps to one line. */
 .rec-tab th { white-space: normal; min-width: 3em; font-weight: 700; border-bottom: 0.5px solid var(--hair, #D3CFC5); padding-bottom: 3px; }
+.rec-tab th.rec-tab-short { white-space: nowrap; }
 .rec-tab tbody tr:first-child td { padding-top: 4px; }
 
 /* Readings line up on their last digit only when they share a tabular figure width. */
 .rec-tab td { font-variant-numeric: tabular-nums; }                       /* original = de-emphasised */
-/* A log-of-events cell holds a whole clause; nowrap there would widen the table past the
-   card into horizontal scroll, so the prose column alone wraps. The readings keep
-   nowrap: their columns are the point of a table. */
-.rec-tab .rec-tab-prose { white-space: normal; max-width: 28em; }
+/* A clause column alone wraps, else it widens the table past the card; readings keep nowrap,
+   their columns being the point of a table. The ten-em floor stops the nowrap columns from
+   squeezing the clause to one character a line. */
+.rec-tab .rec-tab-prose { white-space: normal; min-width: 10em; max-width: 28em; }
 
 /* Citation: small-type jiazhu, flush with the translation, and carrying no mark of its
    own — its label already names it, and a rule here would claim it as quoted matter. */

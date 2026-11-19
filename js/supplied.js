@@ -1,16 +1,17 @@
 /** supplied.js — The spans of a translation that a record's `supplied` array marks as added.
 
    Pure, and shared with the build's checks. A unit is a token (era=hongwu, year=23, month=3,
-   month=i4, subject=moon) or a written-out unit {kind, text: {locale: span | {s, n}}}. A token
-   expands through the eras of data/concordance/eras.json, the ordinal that ordinal() writes and
-   the bodies of data/concordance/bodies.json that carry a token; the build holds a twin of this
+   month=i4, day=wu-chen, subject=moon) or a written-out unit {kind, text: {locale: span | {s, n}}}.
+   A token expands through the eras of data/concordance/eras.json, the ordinal that ordinal()
+   writes, the day of the sixty-day cycle that day() writes and the bodies of
+   data/concordance/bodies.json that carry a token; the build holds a twin of this
    code and a check that both find the same spans.
 */
 const Supplied = (() => {
   'use strict';
 
   const LOCALES = ['zh-Hans', 'zh-Hant', 'en', 'fr', 'es', 'it', 'ja'];
-  const TOKEN = /^(era|year|month|subject)=([a-z0-9-]+)$/;
+  const TOKEN = /^(era|year|month|day|subject)=([a-z0-9-]+)$/;
 
   // A subject written in Han is not read where a numeral, 正 (the first month's other name) or 閏
   // (intercalary) stands before it: the ja form of the Moon, 月 (moon), would be found inside
@@ -93,6 +94,34 @@ const Supplied = (() => {
     };
   }
 
+  const STEMS = '甲乙丙丁戊己庚辛壬癸';
+  const BRANCHES = '子丑寅卯辰巳午未申酉戌亥';
+  const STEMS_PY = ['jia', 'yi', 'bing', 'ding', 'wu', 'ji', 'geng', 'xin', 'ren', 'gui'];
+  const BRANCHES_PY = ['zi', 'chou', 'yin', 'mao', 'chen', 'si', 'wu', 'wei', 'shen', 'you', 'xu', 'hai'];
+
+  /**
+   * The span of a day token in each locale, or null when the value is no day of the sixty-day
+   * cycle: wu-chen is 戊辰 (day wu-chen) in Han script, fr jour wu-chen. A stem and a branch of
+   * different parity name no day.
+   * @param {string} value the toneless pinyin of stem and branch, hyphenated
+   */
+  function day(value) {
+    const [a, b, rest] = value.split('-');
+    const s = STEMS_PY.indexOf(a);
+    const r = BRANCHES_PY.indexOf(b);
+    if (rest !== undefined || s < 0 || r < 0 || s % 2 !== r % 2) return null;
+    const hanForm = STEMS[s] + BRANCHES[r];
+    return {
+      'zh-Hans': hanForm,
+      'zh-Hant': hanForm,
+      en: 'day ' + value,
+      fr: 'jour ' + value,
+      es: 'día ' + value,
+      it: 'giorno ' + value,
+      ja: hanForm,
+    };
+  }
+
   /** A romanised name without accents, lowercased and hyphenated (Hưng Thống is hung-thong). */
   function slug(rom) {
     return rom
@@ -146,6 +175,7 @@ const Supplied = (() => {
     if (!m) return null;
     if (m[1] === 'era') return ERAS[m[2]] || null;
     if (m[1] === 'subject') return SUBJECTS[m[2]] || null;
+    if (m[1] === 'day') return day(m[2]);
     return ordinal(m[1], m[2]);
   }
 
@@ -197,7 +227,7 @@ const Supplied = (() => {
     return out;
   }
 
-  return { LOCALES, slug, ordinal, setData, expand, ranges };
+  return { LOCALES, slug, ordinal, day, setData, expand, ranges };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = Supplied;

@@ -31,7 +31,7 @@
 
 ## 史料
 
-本库目前存有天象记录共 13 195 条，汉译文本约 57 万字。记录引自 387 种来源，涉汉文、荷兰语、法语、英语、拉丁语、阿拉伯语、希腊语等 23 种语言，取自 [维基文库](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[台灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[德意志历史文献集成 dMGH](https://www.dmgh.de/) 与 [NASA ADS](https://ui.adsabs.harvard.edu/) 等 20 余个数字图书馆，所引文本版权均为公有。
+本库目前存有天象记录共 14 477 条，汉译文本约 87 万字。记录引自 797 种来源，涉汉文、英语、荷兰语、法语、日文、阿拉伯语、拉丁语、希腊语等 24 种语言，取自 [维基文库](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[日本天文学会](https://www.asj.or.jp/)、[台灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[德意志历史文献集成 dMGH](https://www.dmgh.de/) 与 [NASA ADS](https://ui.adsabs.harvard.edu/) 等 20 余个数字图书馆，所引文本版权均为公有。
 
 ### 体裁
 
@@ -39,11 +39,11 @@
 
 | 类别 | 小类 | 来源 | 条数 | 条数占比 | 汉译字数 | 字数占比 | 年代 |
 |---|---:|---:|---:|---:|---:|---:|---|
-| 史册 | 6 | 103 | 11 948 | 90.5% | 239 987 | 41.7% | 前 720 – 1911 |
-| 报刊 | 6 | 186 | 1 043 | 7.9% | 289 754 | 50.4% | 1834 – 1941 |
-| 学志 | 3 | 57 | 57 | 0.4% | 28 364 | 4.9% | 1715 – 1923 |
-| 杂录 | 7 | 45 | 147 | 1.1% | 16 808 | 2.9% | 前 2137 – 1842 |
-| **合计** | **22** | **387** | **13 195** | | **574 913** | | **前 2137 – 1941** |
+| 史册 | 6 | 103 | 11 945 | 82.5% | 237 315 | 27.2% | 前 720 – 1911 |
+| 报刊 | 6 | 594 | 2 031 | 14.0% | 520 590 | 59.7% | 1834 – 1941 |
+| 学志 | 3 | 61 | 353 | 2.4% | 97 805 | 11.2% | 前 1218 – 1943 |
+| 杂录 | 7 | 45 | 148 | 1.0% | 16 849 | 1.9% | 前 2137 – 1842 |
+| **合计** | **22** | **797** | **14 477** |  | **872 559** |  | **前 2137 – 1943** |
 
 **史册**以中、日、朝、越官修史书为主体，兼收西亚、欧洲编年史，载录连续、分类齐全、格式规整，典例有如[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)。**报刊**是近代产物，来源丰富、视角多样，既有富生活气息的市民群像，又有以天象喻事之社论杂文。**学志**为专业人士撰写，记录翔实、影响深远，最重要的莫如 1919 年验证广义相对论之日食观测 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895)．**杂录**则含经书、史著、诗歌、日记、书信与泥板等，如《诗经》之“日有食之，亦孔之醜”，上古记录尽出于此，然其所系年月、地点多有争议。
 
@@ -92,10 +92,10 @@
 | 文件 | 内容 | 调用 | 条目 |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | 格式说明 | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 573 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 1 100 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | 区域 | [`js/atlas.js`](../js/atlas.js)、[`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | 文明 | [`js/atlas.js`](../js/atlas.js)、[`js/seal.js`](../js/seal.js) | 33 |
-| [`data/concordance/persons.json`](../data/concordance/persons.json) | 人物名称 | [`js/atlas.js`](../js/atlas.js) | 76 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | 人物名称 | [`js/atlas.js`](../js/atlas.js) | 77 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | 机构名称 | — | 52 |
 | [`data/concordance/terms.json`](../data/concordance/terms.json) | 术语 | [`js/atlas.js`](../js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](../data/concordance/calendars.json) | 历法 | [`js/atlas.js`](../js/atlas.js) | 15 |

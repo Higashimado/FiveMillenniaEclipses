@@ -18,6 +18,8 @@ const Notes = (() => {
       month: ['calendar', 'month', 'span?', 'refer?'],
       used: ['calendar', 'region?', 'until?'],
       dual: ['author', 'calendar'],
+      // year is the historical BCE year that an astronomical one (counting a year 0) stands for.
+      astronomical_year: ['year'],
     },
     emendation: {
       replace: ['wrong', 'right', 'ref?', 'hedge?', 'cause?'],
@@ -621,13 +623,16 @@ const Notes = (() => {
     const item = tr('note.date_basis.authority.other_item');
     return v
       .map((x) => fill(item, { value: esc(named(x.value, lang)), work: workValue(x.work, lang) }))
-      .join(isCjk(lang) ? '、' : '; ');
+      .join(isCjk(lang) ? '、' : lang === 'fr' ? ' ; ' : '; ');
   }
 
   // sources.json writes a Han title with its own 《》 and a chapter title in Chicago form,
   // Suishu, "Tianwen zhi": the marks are this function's to add.
   function markTitle(title, form, lang) {
     title = title.replace(/^《(.*)》$/, '$1');
+
+    // French sets an unbreakable space before ; : ! ? in a cited title too (… Centuries : New ΔT).
+    if (lang === 'fr') title = title.replace(/ ?([;:!?])(?=\s|$)/g, ' $1');
     if (form === 'edition' || form === 'cite') return esc(title);
     const han = HAN.test(title) || /[\p{sc=Hira}\p{sc=Kana}]/u.test(title);
     if (form === 'article') return quote(title, lang);
@@ -1030,8 +1035,8 @@ const Notes = (() => {
   // ---- Date Marks ----
 
   // date.epoch ("hijri:244") marks a foreign era's year, date.hour ("day:6") an unequal hour,
-  // a twelfth of daylight from sunrise or of night from sunset. Each place a translation prints
-  // one gets a hover unit, except a year beside its era's name, which calendarNames covers.
+  // a twelfth of daylight from sunrise or of night from sunset. The first place a translation
+  // prints one gets a hover unit, except a year beside its era's name, which calendarNames covers.
 
   const MARK = /^(\w[\w-]*):(\d+)$/;
   const HAN_NUM_CHAR = '〇零一二三四五六七八九十百千';
@@ -1209,8 +1214,9 @@ const Notes = (() => {
   }
 
   /**
-   * The hover units a record's date marks stand for, each anchored to one place a translation
-   * prints the year or hour, and a year also to where the source prints it in digits.
+   * The hover units a record's date marks stand for, each anchored to the first place a
+   * translation prints the year or hour, and a year also to where the source prints it in digits.
+   * A mark printed again later in the text is not glossed a second time.
    * @param {{epoch?:string[], hour?:string[]}} date the record's date block
    * @param {Object<string,string>} texts the translations by locale
    * @param {string} [orig] text_orig
@@ -1221,29 +1227,17 @@ const Notes = (() => {
     const out = [];
     const all = Object.assign({}, texts, { orig: orig || '' });
     const add = (base, find) => {
-      const per = {};
-      let most = 0;
+      const tr = {};
       for (const lang of LOCALES.concat('orig')) {
         const t = all[lang] || '';
         const named = calendarPattern(lang).re;
         const taken = named ? reAll(t, named) : [];
-        per[lang] = find(t, lang).filter(([a, b]) => !taken.some(([c, d]) => a < d && c < b));
-        most = Math.max(most, per[lang].length);
+        const r = find(t, lang).find(([a, b]) => !taken.some(([c, d]) => a < d && c < b));
+        if (r) tr[lang] = { s: t.slice(r[0], r[1]), n: occurrence(t, t.slice(r[0], r[1]), r[0]) };
       }
-      for (let k = 0; k < most; k++) {
-        const tr = {};
-        for (const lang of LOCALES) {
-          const r = per[lang][k];
-          if (!r) continue;
-          const t = all[lang];
-          const s = t.slice(r[0], r[1]);
-          tr[lang] = { s, n: occurrence(t, s, r[0]) };
-        }
-        const o = tr.orig;
-        delete tr.orig;
-        if (!Object.keys(tr).length) continue;
-        out.push(Object.assign({}, base, { at: o ? { orig: o.s, n: o.n, tr } : { tr } }));
-      }
+      const o = tr.orig;
+      delete tr.orig;
+      if (Object.keys(tr).length) out.push(Object.assign({}, base, { at: o ? { orig: o.s, n: o.n, tr } : { tr } }));
     };
     for (const e of (date && date.epoch) || []) {
       const m = MARK.exec(e);

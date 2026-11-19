@@ -31,7 +31,7 @@ Un clic su un sigillo della mappa o su una voce dell'elenco apre il **dettaglio 
 
 ## Documenti
 
-Il corpus conta oggi 13.195 documenti su fenomeni celesti, e la loro traduzione italiana raggiunge circa 550.000 parole. Provengono da 387 fonti in 23 lingue, tra cui il cinese classico, il neerlandese, il francese, l'inglese, il latino, l'arabo e il greco. I testi sono stati tratti da oltre 20 biblioteche digitali, tra cui [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), la [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), i [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) e [NASA ADS](https://ui.adsabs.harvard.edu/). Tutti i testi citati sono di pubblico dominio.
+Il corpus conta oggi 14.477 documenti su fenomeni celesti, e la loro traduzione italiana raggiunge circa 810.000 parole. Provengono da 797 fonti in 24 lingue, tra cui il cinese classico, l'inglese, il neerlandese, il francese, il giapponese, l'arabo, il latino e il greco. I testi sono stati tratti da oltre 20 biblioteche digitali, tra cui [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), la [Società Astronomica del Giappone](https://www.asj.or.jp/), la [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), i [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) e [NASA ADS](https://ui.adsabs.harvard.edu/). Tutti i testi citati sono di pubblico dominio.
 
 ### Generi
 
@@ -39,11 +39,11 @@ Per scopo e forma, i documenti si dividono in quattro grandi classi, «Annali»,
 
 | Classe | Sottogeneri | Fonti | Documenti | Quota di documenti | Parole in italiano | Quota di parole | Periodo |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Annali | 6 | 103 | 11.948 | 90,5% | 301.099 | 54,3% | 720 a.C. – 1911 |
-| Stampa | 6 | 186 | 1043 | 7,9% | 220.830 | 39,9% | 1834 – 1941 |
-| Scritti scientifici | 3 | 57 | 57 | 0,4% | 20.497 | 3,7% | 1715 – 1923 |
-| Miscellanea | 7 | 45 | 147 | 1,1% | 11.716 | 2,1% | 2137 a.C. – 1842 |
-| **Totale** | **22** | **387** | **13.195** | | **554.142** | | **2137 a.C. – 1941** |
+| Annali | 6 | 103 | 11.945 | 82,5% | 297.590 | 36,7% | 720 a.C. – 1911 |
+| Stampa | 6 | 594 | 2031 | 14,0% | 424.098 | 52,3% | 1834 – 1941 |
+| Scritti scientifici | 3 | 61 | 353 | 2,4% | 77.060 | 9,5% | 1218 a.C. – 1943 |
+| Miscellanea | 7 | 45 | 148 | 1,0% | 11.733 | 1,4% | 2137 a.C. – 1842 |
+| **Totale** | **22** | **797** | **14.477** |  | **810.481** |  | **2137 a.C. – 1943** |
 
 Gli **Annali** sono soprattutto le storie ufficiali di Cina, Giappone, Corea e Vietnam, affiancate da cronache dell'Asia occidentale e d'Europa. Le loro registrazioni formano serie ininterrotte, sono classificate in modo sistematico e seguono una forma costante; ne è un esempio tipico il [Trattato di astronomia della *Storia dei Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053). La **Stampa** appartiene all'età moderna e nasce da molte mani e da punti di vista assai diversi, da vivaci scene di vita cittadina a editoriali e articoli di commento che leggono il cielo come allegoria dell'attualità. Gli **Scritti scientifici** sono opera di astronomi e altri studiosi e scendono in grande dettaglio; il più importante è quello delle osservazioni dell'eclissi del 1919 che confermarono la relatività generale, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). La **Miscellanea** comprende classici, opere storiche, poesie, diari, lettere e tavolette d'argilla, come il verso del *Classico delle poesie* «Il sole si è oscurato, presagio di grande sventura». Tutte le testimonianze più antiche appartengono a questa classe, benché le date e i luoghi loro attribuiti siano spesso controversi.
 
@@ -92,10 +92,10 @@ Le tavole di concordanza unificano i metadati degli oggetti che le fonti chiaman
 | File | Contenuto | Usato da | Voci |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | Descrizione del formato | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Luoghi | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 573 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Luoghi | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 1100 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | Regioni | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | Civiltà | [`js/atlas.js`](../js/atlas.js), [`js/seal.js`](../js/seal.js) | 33 |
-| [`data/concordance/persons.json`](../data/concordance/persons.json) | Nomi di persone | [`js/atlas.js`](../js/atlas.js) | 76 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | Nomi di persone | [`js/atlas.js`](../js/atlas.js) | 77 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | Nomi di istituzioni | — | 52 |
 | [`data/concordance/terms.json`](../data/concordance/terms.json) | Termini | [`js/atlas.js`](../js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendari | [`js/atlas.js`](../js/atlas.js) | 15 |

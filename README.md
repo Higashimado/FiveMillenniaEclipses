@@ -33,7 +33,7 @@
 
 ## 史料
 
-本库目前存有天象记录共 13 195 条，汉译文本约 57 万字。记录引自 387 种来源，涉汉文、荷兰语、法语、英语、拉丁语、阿拉伯语、希腊语等 23 种语言，取自 [维基文库](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[台灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[德意志历史文献集成 dMGH](https://www.dmgh.de/) 与 [NASA ADS](https://ui.adsabs.harvard.edu/) 等 20 余个数字图书馆，所引文本版权均为公有。
+本库目前存有天象记录共 14 477 条，汉译文本约 87 万字。记录引自 797 种来源，涉汉文、英语、荷兰语、法语、日文、阿拉伯语、拉丁语、希腊语等 24 种语言，取自 [维基文库](https://wikisource.org/)、[Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/)、[Chronicling America](https://chroniclingamerica.loc.gov/)、[日本天文学会](https://www.asj.or.jp/)、[台灣歷史數位圖書館](http://thdl.ntu.edu.tw/)、[德意志历史文献集成 dMGH](https://www.dmgh.de/) 与 [NASA ADS](https://ui.adsabs.harvard.edu/) 等 20 余个数字图书馆，所引文本版权均为公有。
 
 ### 体裁
 
@@ -41,11 +41,11 @@
 
 | 类别 | 小类 | 来源 | 条数 | 条数占比 | 汉译字数 | 字数占比 | 年代 |
 |---|---:|---:|---:|---:|---:|---:|---|
-| 史册 | 6 | 103 | 11 948 | 90.5% | 239 987 | 41.7% | 前 720 – 1911 |
-| 报刊 | 6 | 186 | 1 043 | 7.9% | 289 754 | 50.4% | 1834 – 1941 |
-| 学志 | 3 | 57 | 57 | 0.4% | 28 364 | 4.9% | 1715 – 1923 |
-| 杂录 | 7 | 45 | 147 | 1.1% | 16 808 | 2.9% | 前 2137 – 1842 |
-| **合计** | **22** | **387** | **13 195** | | **574 913** | | **前 2137 – 1941** |
+| 史册 | 6 | 103 | 11 945 | 82.5% | 237 315 | 27.2% | 前 720 – 1911 |
+| 报刊 | 6 | 594 | 2 031 | 14.0% | 520 590 | 59.7% | 1834 – 1941 |
+| 学志 | 3 | 61 | 353 | 2.4% | 97 805 | 11.2% | 前 1218 – 1943 |
+| 杂录 | 7 | 45 | 148 | 1.0% | 16 849 | 1.9% | 前 2137 – 1842 |
+| **合计** | **22** | **797** | **14 477** |  | **872 559** |  | **前 2137 – 1943** |
 
 **史册**以中、日、朝、越官修史书为主体，兼收西亚、欧洲编年史，载录连续、分类齐全、格式规整，典例有如[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053)。**报刊**是近代产物，来源丰富、视角多样，既有富生活气息的市民群像，又有以天象喻事之社论杂文。**学志**为专业人士撰写，记录翔实、影响深远，最重要的莫如 1919 年验证广义相对论之日食观测 [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895)．**杂录**则含经书、史著、诗歌、日记、书信与泥板等，如《诗经》之“日有食之，亦孔之醜”，上古记录尽出于此，然其所系年月、地点多有争议。
 
@@ -94,10 +94,10 @@
 | 文件 | 内容 | 调用 | 条目 |
 |---|---|---|---:|
 | [`data/concordance/README.md`](data/concordance/README.md) | 格式说明 | — | |
-| [`data/concordance/gazetteer.json`](data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](js/atlas.js)、[`js/place-name.js`](js/place-name.js) | 573 |
+| [`data/concordance/gazetteer.json`](data/concordance/gazetteer.json) | 地点 | [`js/atlas.js`](js/atlas.js)、[`js/place-name.js`](js/place-name.js) | 1 100 |
 | [`data/concordance/regions.json`](data/concordance/regions.json) | 区域 | [`js/atlas.js`](js/atlas.js)、[`js/place-name.js`](js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](data/concordance/civilizations.json) | 文明 | [`js/atlas.js`](js/atlas.js)、[`js/seal.js`](js/seal.js) | 33 |
-| [`data/concordance/persons.json`](data/concordance/persons.json) | 人物名称 | [`js/atlas.js`](js/atlas.js) | 76 |
+| [`data/concordance/persons.json`](data/concordance/persons.json) | 人物名称 | [`js/atlas.js`](js/atlas.js) | 77 |
 | [`data/concordance/organizations.json`](data/concordance/organizations.json) | 机构名称 | — | 52 |
 | [`data/concordance/terms.json`](data/concordance/terms.json) | 术语 | [`js/atlas.js`](js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](data/concordance/calendars.json) | 历法 | [`js/atlas.js`](js/atlas.js) | 15 |
@@ -177,7 +177,7 @@ Clicking a seal on the map or an entry in the list opens **event details**. In t
 
 ## Records
 
-The corpus currently holds 13,195 records of celestial phenomena, and their English translations total about 570,000 words. The records come from 387 sources in 23 languages, among them Classical Chinese, Dutch, French, English, Latin, Arabic and Greek. They were taken from more than 20 digital libraries, including [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), the [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), the [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) and [NASA ADS](https://ui.adsabs.harvard.edu/). Every text quoted is in the public domain.
+The corpus currently holds 14,477 records of celestial phenomena, and their English translations total about 830,000 words. The records come from 797 sources in 24 languages, among them Classical Chinese, English, Dutch, French, Japanese, Arabic, Latin and Greek. They were taken from more than 20 digital libraries, including [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), the [Astronomical Society of Japan](https://www.asj.or.jp/), the [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), the [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) and [NASA ADS](https://ui.adsabs.harvard.edu/). Every text quoted is in the public domain.
 
 ### Genres
 
@@ -185,11 +185,11 @@ By purpose and form, the records fall into four broad classes, Histories, Newspa
 
 | Class | Subgenres | Sources | Records | Share of records | English words | Share of words | Period |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Histories | 6 | 103 | 11,948 | 90.5% | 312,374 | 54.3% | 720 BCE – 1911 |
-| Newspapers | 6 | 186 | 1,043 | 7.9% | 228,462 | 39.7% | 1834 – 1941 |
-| Learned writings | 3 | 57 | 57 | 0.4% | 21,327 | 3.7% | 1715 – 1923 |
-| Miscellanea | 7 | 45 | 147 | 1.1% | 12,739 | 2.2% | 2137 BCE – 1842 |
-| **Total** | **22** | **387** | **13,195** | | **574,902** | | **2137 BCE – 1941** |
+| Histories | 6 | 103 | 11,945 | 82.5% | 307,641 | 36.9% | 720 BCE – 1911 |
+| Newspapers | 6 | 594 | 2,031 | 14.0% | 434,821 | 52.2% | 1834 – 1941 |
+| Learned writings | 3 | 61 | 353 | 2.4% | 78,138 | 9.4% | 1218 BCE – 1943 |
+| Miscellanea | 7 | 45 | 148 | 1.0% | 12,782 | 1.5% | 2137 BCE – 1842 |
+| **Total** | **22** | **797** | **14,477** |  | **833,382** |  | **2137 BCE – 1943** |
 
 **Histories** are chiefly the official histories of China, Japan, Korea and Vietnam, joined by chronicles from Western Asia and Europe. Their entries run in unbroken series, are systematically classified and follow a set format; the [Treatise on Astronomy in the *History of Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) is a typical example. **Newspapers** belong to the modern era and come from many hands and points of view, ranging from lively scenes of townspeople in the street to editorials and essays that read the sky as a comment on public affairs. **Learned writings** are the work of astronomers and other scholars and go into great detail; the most consequential of them are the 1919 eclipse observations that confirmed general relativity, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). **Miscellanea** take in classics, historical works, poems, diaries, letters and clay tablets, such as the line of the *Classic of Poetry* rendered by Legge as "The sun was eclipsed; a thing of very evil omen." All of the earliest records belong to this class, though the dates and places assigned to many of them are disputed.
 
@@ -238,10 +238,10 @@ The concordance tables unify the metadata of objects that different sources know
 | File | Contents | Used by | Entries |
 |---|---|---|---:|
 | [`data/concordance/README.md`](data/concordance/README.md) | Format notes | — | |
-| [`data/concordance/gazetteer.json`](data/concordance/gazetteer.json) | Places | [`js/atlas.js`](js/atlas.js), [`js/place-name.js`](js/place-name.js) | 573 |
+| [`data/concordance/gazetteer.json`](data/concordance/gazetteer.json) | Places | [`js/atlas.js`](js/atlas.js), [`js/place-name.js`](js/place-name.js) | 1,100 |
 | [`data/concordance/regions.json`](data/concordance/regions.json) | Regions | [`js/atlas.js`](js/atlas.js), [`js/place-name.js`](js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](data/concordance/civilizations.json) | Civilizations | [`js/atlas.js`](js/atlas.js), [`js/seal.js`](js/seal.js) | 33 |
-| [`data/concordance/persons.json`](data/concordance/persons.json) | Person names | [`js/atlas.js`](js/atlas.js) | 76 |
+| [`data/concordance/persons.json`](data/concordance/persons.json) | Person names | [`js/atlas.js`](js/atlas.js) | 77 |
 | [`data/concordance/organizations.json`](data/concordance/organizations.json) | Institution names | — | 52 |
 | [`data/concordance/terms.json`](data/concordance/terms.json) | Terms | [`js/atlas.js`](js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](data/concordance/calendars.json) | Calendars | [`js/atlas.js`](js/atlas.js) | 15 |

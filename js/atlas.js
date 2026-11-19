@@ -502,23 +502,22 @@ const Atlas = (() => {
       ? !_ARABIC.test(rows[0].join(''))
       : !_DIGITS.test(rows[0].join(''));
 
-  // Wrapping is a property of the column, not the cell, decided from the column's longest
-  // cell: a per-cell numeral or punctuation test cannot tell a reading from a running clause,
-  // but the two kinds separate cleanly down a whole column.
-  const _PROSE_COLUMN = 40;
+  // A Han, kana or hangul character or a full-width mark is one em, any other character
+  // about half.
+  const _EM_WIDE = /[\u3000-\u303f\u3040-\u30ff\u3400-\u9fff\uac00-\ud7a3\uff00-\uffef]/;
+  const _ems = (s) => [...String(s || '')].reduce((w, ch) => w + (_EM_WIDE.test(ch) ? 1 : 0.5), 0);
 
-  // A short cell still reads as a clause once it parts at a comma or runs past three words
-  // (ultra 2 aestimando non mensurando).
-  const _CLAUSE = /[，；]|[,;] \S|\S+ \S+ \S+ \S+/u;
+  // A column wraps only when its longest cell runs past sixteen ems. Punctuation is no test:
+  // a short remark parted by a semicolon, or a time reading with spaces, fits on one line.
+  const _WRAP_EMS = 16;
   const _proseColumns = (rows) => {
     const width = Math.max(...rows.map((r) => r.length));
-    return Array.from(
-      { length: width },
-      (_, i) =>
-        Math.max(0, ...rows.map((r) => (r[i] || '').length)) > _PROSE_COLUMN ||
-        rows.some((r) => _CLAUSE.test(r[i] || ''))
-    );
+    return Array.from({ length: width }, (_, i) => Math.max(0, ...rows.map((r) => _ems(r[i]))) > _WRAP_EMS);
   };
+
+  // A head up to ten ems sits on one line; only a long head (Kepler's) wraps.
+  const _HEAD_ONE_LINE = 10;
+  const _shortHead = (s) => _ems(s) <= _HEAD_ONE_LINE;
 
   // Renders a run of pipe rows as a real table. The run's first row is column heads when it
   // carries no numeral at all: heads are words, readings are numbers.
@@ -528,7 +527,10 @@ const Atlas = (() => {
     const tr = (cs, tag) =>
       '<tr>' +
       cs
-        .map((c, i) => '<' + tag + (prose[i] ? ' class="rec-tab-prose"' : '') + '>' + render(c) + '</' + tag + '>')
+        .map((c, i) => {
+          const cls = prose[i] ? 'rec-tab-prose' : tag === 'th' && _shortHead(c) ? 'rec-tab-short' : '';
+          return '<' + tag + (cls ? ' class="' + cls + '"' : '') + '>' + render(c) + '</' + tag + '>';
+        })
         .join('') +
       '</tr>';
     return (
@@ -543,16 +545,16 @@ const Atlas = (() => {
 
   // ---- Mid-Article Headings ----
 
-  // Nothing in the text marks a heading, so shape decides: short, closing on no sentence
-  // punctuation (a trailing quote is fine), no internal comma/colon/pipe, and followed by a
-  // line at least twice its length or itself a head — else a couplet's first line reads as one.
+  // Shape decides a heading: short, closing on no sentence punctuation (a trailing quote is
+  // fine), holding no comma, colon, pipe or ideographic space (which parts a date from a
+  // signature), and followed by a line twice its length or a head, else a couplet's line is one.
 
   // The source line at the same index must pass the same tests too; when the two do not part
   // into the same number of lines, nothing corroborates and no heading is marked, since a
   // wrongly marked head is a lie about the source.
   const _MID_CLOSE = /[.!?:;,。！？：；，、…)）\]】"'—]$/;
   const _MID_QUOTE_TAIL = /[»”」』]$/;
-  const _MID_INNER = /[,，:：…｜|]|\[…\]/;
+  const _MID_INNER = /[,，:：…｜|\u3000]|\[…\]/;
   const _MID_WORD = /[A-Za-zÀ-ÿͰ-῿㐀-鿿]/;
   const _MID_CJK = /[㐀-鿿぀-ヿ]/;
 
@@ -569,12 +571,13 @@ const Atlas = (() => {
     return _midShape(seq[i + 1]) || seq[i + 1].length >= 2 * seq[i].length;
   };
 
-  // A crosshead set in capitals is a head whatever it closes on ("ASTRONOMERS IN ALBANY.",
-  // "IN HUDSON AND SYRACUSE,"): the capitals mark it on the page. Two words of two letters
-  // keep out a column header ("H. M. SEC.") and an initialled signature ("A. A. NIJLAND.").
+  // A crosshead set in capitals is a head whatever it closes on ("IN HUDSON AND SYRACUSE,"); a
+  // Han line has no case and never counts. Two words of two letters keep out a column header
+  // ("H. M. SEC.") and an initialled signature ("A. A. NIJLAND.").
   const _capsHead = (seq, i) => {
     const s = seq[i];
-    if (i + 1 >= seq.length || s.length > 45 || s.includes('|') || /\p{Ll}/u.test(s)) return false;
+    if (i + 1 >= seq.length || s.length > 45 || s.includes('|') || /\p{Ll}/u.test(s) || !/\p{Lu}/u.test(s))
+      return false;
     return (s.match(/\p{L}{2,}/gu) || []).length >= 2 && seq[i + 1].length >= 2 * s.length;
   };
   const _shortLine = (s) => s.length <= (_MID_CJK.test(s) ? 20 : 45) && !s.includes('|');
@@ -598,7 +601,11 @@ const Atlas = (() => {
   // Splits the source's own paragraph breaks into separate blocks (left in one text node the
   // browser folds a break into a space) before rendering, never after: the phrase highlighter
   // emits markup, and splitting markup on a newline can cut a tag in half.
-  function paraHtml(text, renderLine, orig) {
+
+  // A record's `subheads` lists the source lines the page prints as heads, read off the scan;
+  // where it is present it alone decides, and every locale marks the line at the same index.
+  // The shape tests above stand in only for records not yet read for heads.
+  function paraHtml(text, renderLine, orig, subheads) {
     // Runs the line-start guard here, once, rather than at each of the three call sites below,
     // and before the renderer: the renderer emits markup, which the guard would misread.
     const render = (s) => fnLinks(renderLine(hardenBreaks(s)));
@@ -609,12 +616,16 @@ const Atlas = (() => {
         .filter(Boolean);
     const lines = markFootnotes(split(text));
     const src = split(orig);
+    const listed = Array.isArray(subheads) ? new Set(subheads.map((s) => s.trim())) : null;
     const heads =
-      src.length === lines.length
-        ? lines.map(
-            (_, i) => (_isMidHeading(lines, i) && _isMidHeading(src, i)) || (_capsHead(src, i) && _shortLine(lines[i]))
-          )
-        : lines.map(() => false);
+      src.length !== lines.length
+        ? lines.map(() => false)
+        : listed
+          ? src.map((s) => listed.has(s))
+          : lines.map(
+              (_, i) =>
+                (_isMidHeading(lines, i) && _isMidHeading(src, i)) || (_capsHead(src, i) && _shortLine(lines[i]))
+            );
     const out = [];
     let run = [];
 
@@ -1364,7 +1375,8 @@ const Atlas = (() => {
     const html = paraHtml(
       marked,
       (s) => eraNames(highlightTrans(s, rec.type), shownLang || lang, lang, skip),
-      rec.orig
+      rec.orig,
+      rec.subheads
     );
     return (
       '<div class="' +
@@ -1548,6 +1560,7 @@ const Atlas = (() => {
     'number',
     'chapter',
     'section',
+    'entry',
     'part',
     'annal',
     'reign',
@@ -1563,7 +1576,7 @@ const Atlas = (() => {
   // everything else prints bare. A value written in Han that already names its own division
   // (its own script's citation segment) takes neither.
   const LOCUS_TITLE = { work: 1, section: 1 };
-  const LOCUS_NUMBERED = { volume: 1, number: 1, chapter: 1, folio: 1, fragment: 1, page: 1, annal: 1 };
+  const LOCUS_NUMBERED = { volume: 1, number: 1, chapter: 1, entry: 1, folio: 1, fragment: 1, page: 1, annal: 1 };
 
   // The epochs an annal may be counted from other than the Common Era, keyed by the
   // locus `era` value, each mapped to its own citation pattern.
@@ -1871,7 +1884,7 @@ const Atlas = (() => {
   function origHtml(rec, lang) {
     const ns = cardNotes(rec, lang);
     const text = ns.length ? Notes.markOrig(rec.orig, ns) : rec.orig;
-    const html = paraHtml(text, (s) => eraNames(highlightPhrase(s, rec.type), 'orig', lang), rec.orig);
+    const html = paraHtml(text, (s) => eraNames(highlightPhrase(s, rec.type), 'orig', lang), rec.orig, rec.subheads);
     return ns.length ? Notes.supMarks(html, ns) : html;
   }
 
@@ -2182,6 +2195,7 @@ const Atlas = (() => {
       lat: g.lat,
       lon: g.lon,
       orig: r.text_orig || '',
+      subheads: r.subheads || null,
       cjk: _hasCJK(r.text_orig),
       translit,
       textMap,

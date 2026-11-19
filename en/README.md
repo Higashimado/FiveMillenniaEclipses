@@ -31,7 +31,7 @@ Clicking a seal on the map or an entry in the list opens **event details**. In t
 
 ## Records
 
-The corpus currently holds 13,195 records of celestial phenomena, and their English translations total about 570,000 words. The records come from 387 sources in 23 languages, among them Classical Chinese, Dutch, French, English, Latin, Arabic and Greek. They were taken from more than 20 digital libraries, including [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), the [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), the [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) and [NASA ADS](https://ui.adsabs.harvard.edu/). Every text quoted is in the public domain.
+The corpus currently holds 14,477 records of celestial phenomena, and their English translations total about 830,000 words. The records come from 797 sources in 24 languages, among them Classical Chinese, English, Dutch, French, Japanese, Arabic, Latin and Greek. They were taken from more than 20 digital libraries, including [Wikisource](https://wikisource.org/), [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/), [Chronicling America](https://chroniclingamerica.loc.gov/), the [Astronomical Society of Japan](https://www.asj.or.jp/), the [Taiwan History Digital Library](http://thdl.ntu.edu.tw/), the [Monumenta Germaniae Historica (dMGH)](https://www.dmgh.de/) and [NASA ADS](https://ui.adsabs.harvard.edu/). Every text quoted is in the public domain.
 
 ### Genres
 
@@ -39,11 +39,11 @@ By purpose and form, the records fall into four broad classes, Histories, Newspa
 
 | Class | Subgenres | Sources | Records | Share of records | English words | Share of words | Period |
 |---|---:|---:|---:|---:|---:|---:|---|
-| Histories | 6 | 103 | 11,948 | 90.5% | 312,374 | 54.3% | 720 BCE – 1911 |
-| Newspapers | 6 | 186 | 1,043 | 7.9% | 228,462 | 39.7% | 1834 – 1941 |
-| Learned writings | 3 | 57 | 57 | 0.4% | 21,327 | 3.7% | 1715 – 1923 |
-| Miscellanea | 7 | 45 | 147 | 1.1% | 12,739 | 2.2% | 2137 BCE – 1842 |
-| **Total** | **22** | **387** | **13,195** | | **574,902** | | **2137 BCE – 1941** |
+| Histories | 6 | 103 | 11,945 | 82.5% | 307,641 | 36.9% | 720 BCE – 1911 |
+| Newspapers | 6 | 594 | 2,031 | 14.0% | 434,821 | 52.2% | 1834 – 1941 |
+| Learned writings | 3 | 61 | 353 | 2.4% | 78,138 | 9.4% | 1218 BCE – 1943 |
+| Miscellanea | 7 | 45 | 148 | 1.0% | 12,782 | 1.5% | 2137 BCE – 1842 |
+| **Total** | **22** | **797** | **14,477** |  | **833,382** |  | **2137 BCE – 1943** |
 
 **Histories** are chiefly the official histories of China, Japan, Korea and Vietnam, joined by chronicles from Western Asia and Europe. Their entries run in unbroken series, are systematically classified and follow a set format; the [Treatise on Astronomy in the *History of Song*](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) is a typical example. **Newspapers** belong to the modern era and come from many hands and points of view, ranging from lively scenes of townspeople in the street to editorials and essays that read the sky as a comment on public affairs. **Learned writings** are the work of astronomers and other scholars and go into great detail; the most consequential of them are the 1919 eclipse observations that confirmed general relativity, [*The Expedition to Sobral*](https://archive.org/details/philtrans06337895). **Miscellanea** take in classics, historical works, poems, diaries, letters and clay tablets, such as the line of the *Classic of Poetry* rendered by Legge as "The sun was eclipsed; a thing of very evil omen." All of the earliest records belong to this class, though the dates and places assigned to many of them are disputed.
 
@@ -92,10 +92,10 @@ The concordance tables unify the metadata of objects that different sources know
 | File | Contents | Used by | Entries |
 |---|---|---|---:|
 | [`data/concordance/README.md`](../data/concordance/README.md) | Format notes | — | |
-| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Places | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 573 |
+| [`data/concordance/gazetteer.json`](../data/concordance/gazetteer.json) | Places | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 1,100 |
 | [`data/concordance/regions.json`](../data/concordance/regions.json) | Regions | [`js/atlas.js`](../js/atlas.js), [`js/place-name.js`](../js/place-name.js) | 124 |
 | [`data/concordance/civilizations.json`](../data/concordance/civilizations.json) | Civilizations | [`js/atlas.js`](../js/atlas.js), [`js/seal.js`](../js/seal.js) | 33 |
-| [`data/concordance/persons.json`](../data/concordance/persons.json) | Person names | [`js/atlas.js`](../js/atlas.js) | 76 |
+| [`data/concordance/persons.json`](../data/concordance/persons.json) | Person names | [`js/atlas.js`](../js/atlas.js) | 77 |
 | [`data/concordance/organizations.json`](../data/concordance/organizations.json) | Institution names | — | 52 |
 | [`data/concordance/terms.json`](../data/concordance/terms.json) | Terms | [`js/atlas.js`](../js/atlas.js) | 86 |
 | [`data/concordance/calendars.json`](../data/concordance/calendars.json) | Calendars | [`js/atlas.js`](../js/atlas.js) | 15 |

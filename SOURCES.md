@@ -1,12 +1,12 @@
 # 来源 · Sources
 
-本库共有来源 387 项，按体裁大致分为史册、报刊、学志、杂录四类。本文档先依四类逐条列出来源、年代与条目数。史册部分的条目数按日食、月食、掩犯、合聚、客星、彗孛六类给出；报刊、学志的条目数按其下小类给出；杂录的来源复杂，不单列条目数，按文明聚类给出。本文档的统计数据出自 [`data/records/sources.json`](data/records/sources.json)，有出入时以 JSON 文件为准。
+本库共有来源 797 项，按体裁大致分为史册、报刊、学志、杂录四类。本文档先依四类逐条列出来源、年代与条目数。史册部分的条目数按日食、月食、掩犯、合聚、客星、彗孛六类给出；报刊、学志的条目数按其下小类给出；杂录的来源复杂，不单列条目数，按文明聚类给出。本文档的统计数据出自 [`data/records/sources.json`](data/records/sources.json)，有出入时以 JSON 文件为准。
 
-The corpus draws on 387 sources, which fall broadly into four classes by genre: Histories, Newspapers, Learned writings and Miscellanea. This document first lists the sources class by class, with the period and record counts of each. For the Histories the records are counted under six phenomena: solar eclipses, lunar eclipses, appulses, conjunctions, guest stars and comets. For Newspapers and Learned writings they are counted by subgenre. The Miscellanea are too varied to count source by source and are grouped by civilization instead. The figures in this document are generated from [`data/records/sources.json`](data/records/sources.json), which is the authoritative version.
+The corpus draws on 797 sources, which fall broadly into four classes by genre: Histories, Newspapers, Learned writings and Miscellanea. This document first lists the sources class by class, with the period and record counts of each. For the Histories the records are counted under six phenomena: solar eclipses, lunar eclipses, appulses, conjunctions, guest stars and comets. For Newspapers and Learned writings they are counted by subgenre. The Miscellanea are too varied to count source by source and are grouped by civilization instead. The figures in this document are generated from [`data/records/sources.json`](data/records/sources.json), which is the authoritative version.
 
 ## 史册
 
-史册含本纪、天文志、五行志、实录、会要、编年，共六种类型，按书目整体判定。因每本史册几乎都含多个条目，本节将其逐一列出，并标明其所属小类。**本纪**以帝王为主线，通常仅记日食及其日期。**天文志**由史官根据钦天监等朝廷天文机构的观测档案汇编，天象类型丰富，且有时刻、食分、宿度等详细信息。**五行志**由史官根据灾异学说汇编，天象之后多附人事应验。**实录**为藏于宫内的朝政记录，多有对天象的事前预报和应对措施。**会要**记录朝代典章制度。**编年**则是以时间为线索的史书总称。史册来源现以中国为主，朝鲜、日本为辅，其余亚欧文明各有零散记录；年代自《春秋》前 720 年起，至《清史稿·本纪》1911 年止，条目总计 11 948 条，占全库的 90.5%．
+史册含本纪、天文志、五行志、实录、会要、编年，共六种类型，按书目整体判定。因每本史册几乎都含多个条目，本节将其逐一列出，并标明其所属小类。**本纪**以帝王为主线，通常仅记日食及其日期。**天文志**由史官根据钦天监等朝廷天文机构的观测档案汇编，天象类型丰富，且有时刻、食分、宿度等详细信息。**五行志**由史官根据灾异学说汇编，天象之后多附人事应验。**实录**为藏于宫内的朝政记录，多有对天象的事前预报和应对措施。**会要**记录朝代典章制度。**编年**则是以时间为线索的史书总称。史册来源现以中国为主，朝鲜、日本为辅，其余亚欧文明各有零散记录；年代自《春秋》前 720 年起，至《清史稿·本纪》1911 年止，条目总计 11 945 条，占全库的 82.5%．
 
 ### 中华
 
@@ -32,7 +32,7 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 [《辽史·本纪》](https://zh.wikisource.org/wiki/%E9%81%BC%E5%8F%B2/%E5%8D%B722) | 本纪 | 921 – 1075 | 9 |  |  |  |  |  | 9
 [《辽史》](https://zh.wikisource.org/wiki/%E9%81%BC%E5%8F%B2/%E5%8D%B722) | 编年 | 941 – 1097 |  |  |  |  | 1 | 5 | 6
 [《宋会要辑稿》瑞异](http://thdl.ntu.edu.tw/L303_SongHuiYao/RetrieveDocs.php) | 会要 | 960 – 1230 | 43 | 1 |  |  | 2 | 23 | 69
-[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) | 天文志 | 960 – 1275 | 121 | 149 | 4 629 |  | 17 | 21 | 4 937
+[《宋史·天文志》](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) | 天文志 | 960 – 1275 | 121 | 149 | 4 626 |  | 17 | 21 | 4 934
 [《宋会要辑稿》运历](http://thdl.ntu.edu.tw/L303_SongHuiYao/RetrieveDocs.php) | 会要 | 1052 – 1186 |  | 3 |  |  |  |  | 3
 [《金史·天文志》](https://zh.wikisource.org/wiki/%E9%87%91%E5%8F%B2/%E5%8D%B720) | 天文志 | 1120 – 1233 | 8 | 25 | 200 | 4 | 2 | 6 | 245
 [《元史·天文志》](https://zh.wikisource.org/wiki/%E5%85%83%E5%8F%B2/%E5%8D%B7049) | 天文志 | 1264 – 1367 | 35 |  | 562 | 8 | 1 | 19 | 625
@@ -48,7 +48,7 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 ---|---|---|--:|--:|--:|--:|--:|--:|--:
 [《三国史记》](https://zh.wikisource.org/wiki/%E4%B8%89%E5%9C%8B%E5%8F%B2%E8%A8%98/%E5%8D%B701) | 编年 | 前 54 – 911 | 42 |  |  |  | 3 | 9 | 54
 [《高丽史·天文志》](https://zh.wikisource.org/wiki/%E9%AB%98%E9%BA%97%E5%8F%B2/%E5%8D%B7%E5%9B%9B%E5%8D%81%E5%85%AB) | 天文志 | 989 – 1392 | 118 | 98 | 1 966 | 4 | 3 | 53 | 2 242
-[《朝鲜王朝实录》](https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84/%E5%93%B2%E5%AE%97%E5%AF%A6%E9%8C%84/%E5%8D%81%E4%BA%8C%E5%B9%B4) | 实录 | 1400 – 1863 | 84 | 31 |  |  | 84 | 297 | 496
+[《朝鲜王朝实录》](https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84) | 实录 | 1400 – 1863 | 84 | 31 |  |  | 84 | 297 | 496
 
 ### 日本
 
@@ -126,11 +126,11 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 
 ## 报刊
 
-报刊的小类按条目逐一判定，同一场天象常有不同体裁的报道。**电讯**以电头起首，常带通讯社名，篇幅较短，不用第一人称单数。**杂闻**数量最多，平铺直叙，兼有天象过程中的奇闻趣事。**亲历**为第一人称的目击报告，多带观测者的亲身感受。**特写**的篇幅最长，多为群像。**社论**是以报社名义发表的议论，不时借天象针砭时弊。**通告**刊于天象发生之前，多有时刻与地点的预测。报刊记录多取自 [Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/) 及 [Chronicling America](https://chroniclingamerica.loc.gov/) 的公有领域材料，因此语言以荷兰语、法语、英语为主，另有《申报》等中国近代报刊；年代自 1834 年始，至 1941 年止，条目总计 1 033 条，但汉译字数占全库的 50.3%．
+报刊的小类按条目逐一判定，同一场天象常有不同体裁的报道。**电讯**以电头起首，常带通讯社名，篇幅较短，不用第一人称单数。**杂闻**数量最多，平铺直叙，兼有天象过程中的奇闻趣事。**亲历**为第一人称的目击报告，多带观测者的亲身感受。**特写**的篇幅最长，多为群像。**社论**是以报社名义发表的议论，不时借天象针砭时弊。**通告**刊于天象发生之前，多有时刻与地点的预测。报刊记录多取自 [Delpher](https://www.delpher.nl/)、[Gallica](https://gallica.bnf.fr/)、[互联网档案馆](https://archive.org/) 及 [Chronicling America](https://chroniclingamerica.loc.gov/) 的公有领域材料，因此语言以荷兰语、法语、英语为主，另有《申报》等中国近代报刊；年代自 1834 年始，至 1941 年止，条目总计 2 031 条，但汉译字数占全库的 59.7%．
 
 来源 | 年代 | 电讯 | 杂闻 | 亲历 | 特写 | 社论 | 通告 | 合计
 ---|---|--:|--:|--:|--:|--:|--:|--:
-[*Alexandria Gazette*](https://www.loc.gov/chroniclingamerica/) | 1834 – 1875 |  | 3 | 1 | 1 |  |  | 5
+[*Alexandria Gazette*](https://www.loc.gov/chroniclingamerica/) | 1834 – 1918 |  | 6 | 1 | 1 |  | 1 | 9
 [*Daily National Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1834 |  | 3 |  | 1 |  |  | 4
 [*Herald of the Times*](https://www.loc.gov/chroniclingamerica/) | 1834 – 1838 |  | 4 |  |  |  |  | 4
 [*The Northern Star, and Constitutionalist*](https://www.loc.gov/chroniclingamerica/) | 1834 |  | 3 |  | 1 |  |  | 4
@@ -148,35 +148,141 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 [*Opregte Haarlemsche Courant*](https://www.delpher.nl/nl/kranten) | 1851 – 1900 | 1 | 6 |  |  |  |  | 7
 [*La Presse*](https://gallica.bnf.fr/) | 1860 – 1912 | 1 | 17 |  |  |  |  | 18
 [*Provinciale Drentsche en Asser courant*](https://www.delpher.nl/nl/kranten) | 1860 – 1912 |  | 3 |  |  |  |  | 3
-[《北华捷报》](https://archive.org/details/northchinaherald) | 1868 – 1941 | 3 | 22 |  |  | 1 | 3 | 29
-[《德臣西报》](https://archive.org/details/china-mail) | 1868 – 1936 | 3 | 15 | 1 | 1 |  | 12 | 32
+[《北华捷报》](https://archive.org/details/northchinaherald) | 1868 – 1941 | 5 | 24 |  |  | 1 | 5 | 35
+[《德臣西报》](https://archive.org/details/china-mail) | 1868 – 1936 | 9 | 18 | 1 | 1 |  | 15 | 44
+[*Ashtabula Weekly Telegraph*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*Bedford Inquirer*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Bristol News*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 1 |  | 1 |  |  | 2
+[*Cedar Falls Gazette*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  | 1 |  |  | 2
+[*Chicago Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 | 11 | 12 | 1 | 5 |  | 2 | 31
+[*Clarke Courier*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 | 1 |  |  |  | 3
+[*Clarksville Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*Clearfield Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Delaware Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 3 | 1 |  |  |  | 4
+[*Dodgeville Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  | 1 |  | 1 | 4
+[*Elizabeth Daily Monitor*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Evening Star*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1919 | 1 | 12 |  |  |  | 2 | 15
+[*Fayette County Herald*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 4 |  |  |  |  | 4
+[*Gold Hill Daily News*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*Green-Mountain Freeman*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Iowa Voter*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Memphis Daily Appeal*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 | 10 | 5 |  | 1 |  | 1 | 17
+[*Mineral Point Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 |  | 3 |  |  |  |  | 3
+[*Mower County Transcript*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  | 1 | 3
+[*Nashville Union and American*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*National Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 | 2 | 5 |  |  |  | 1 | 8
+[*Nebraska Advertiser*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 5 |  |  |  |  | 5
+[*New York Dispatch*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 1 | 1 |  |  |  | 2
+[《论坛报》](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 | 6 | 13 |  |  | 1 | 4 | 24
+[*North Iowa Times*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Oxford Democrat*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 |  | 6 |  |  |  |  | 6
+[*Pawtucket Gazette and Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Shepherdstown Register*](https://www.loc.gov/chroniclingamerica/) | 1869 |  |  |  | 1 |  | 2 | 3
+[*South Branch Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 | 1 | 2 |  |  |  |  | 3
+[*Springfield Weekly Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 |  | 3 |  |  |  | 4 | 7
+[*Staunton Spectator*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Staunton Vindicator*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 | 1 |  |  |  | 3
+[*Sugar Planter*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The Anderson Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 |  | 2 |  | 1 |  |  | 3
+[*The Athens Post*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Baltimore County Union*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Cambria Freeman*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 | 1 |  |  |  | 3
+[*The Carson Daily Appeal*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The Cecil Whig*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 3 |  |  |  | 1 | 4
+[*The Charleston Daily News*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  | 1 |  | 2 | 4
+[*The Cheyenne Leader*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  | 1 | 3
+[*The Daily Dispatch*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 6 |  |  |  | 3 | 9
+[*The Daily Phoenix*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The Democratic Advocate*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Democratic Press*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Du Quoin Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Emporia News*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Evansville Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 | 1 | 3 |  |  |  | 4 | 8
+[*The Evening Argus*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 4 |  |  |  | 1 | 5
+[*The Evening Telegraph*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 3 | 1 | 1 |  | 5 | 10
+[*The Highland Weekly News*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 1 |  | 1 |  |  | 2
+[*The Jackson Standard*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Lancaster Gazette*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Louisiana Democrat*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Manitowoc Pilot*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 |  | 3 |  |  |  |  | 3
+[*The Manitowoc Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The National Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The New North-West*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  | 1 |  |  | 3
+[《先驱报》](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 34 | 2 | 2 | 1 | 3 | 42
+[*The Newberry Herald*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 3 |  |  |  |  | 3
+[*The Opelousas Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The Ottawa Free Trader*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 |  | 7 |  | 1 |  | 1 | 9
+[*The People*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1875 |  | 2 | 1 |  |  |  | 3
+[*The Portland Daily Press*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 | 8 | 1 |  | 1 |  | 5 | 15
+[*The Republican Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Sun*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 | 2 | 10 |  | 1 |  | 3 | 16
+[*The Tiffin Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 5 |  |  |  |  | 5
+[*The Weekly North-Carolina Standard*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  | 1 |  |  | 2
+[*The Wheeling Daily Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 | 9 | 9 | 1 |  |  | 5 | 24
+[*The Wheeling Daily Register*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  | 1 |  | 1 | 4
+[*Virginia Free Press*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 3 |  |  |  |  | 3
+[*Washington Standard*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 | 1 | 3 |  |  |  | 1 | 5
+[*Watertown Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Weekly Trinity Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*West-Jersey Pioneer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Wilmington Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*Worcester Daily Spy*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 4 |  |  |  | 1 | 5
+[*Yorkville Enquirer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1919 |  | 9 |  |  |  |  | 9
 [*Le Constitutionnel*](https://gallica.bnf.fr/) | 1870 – 1900 | 2 | 5 |  |  |  |  | 7
 [*Le Temps*](https://gallica.bnf.fr/) | 1870 – 1912 | 3 | 37 | 1 | 7 |  |  | 48
 [*Bataviaasch handelsblad*](https://www.delpher.nl/nl/kranten) | 1871 |  | 3 |  |  |  |  | 3
 [*Het vaderland*](https://www.delpher.nl/nl/kranten) | 1871 – 1929 | 1 | 13 |  | 3 |  |  | 17
 [《爪哇邮报》](https://www.delpher.nl/nl/kranten) | 1871 – 1872 |  | 1 |  |  |  | 1 | 2
-[《孖剌西报》](https://archive.org/details/china-mail) | 1872 – 1941 | 1 | 7 |  | 1 |  | 8 | 17
-[*Daily Kennebec Journal*](https://www.loc.gov/chroniclingamerica/) | 1875 | 1 | 3 |  |  |  |  | 4
-[*Evening Star*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1919 |  | 2 |  |  |  |  | 2
-[*National Republican*](https://www.loc.gov/chroniclingamerica/) | 1875 | 2 | 1 |  |  |  |  | 3
-[《论坛报》](https://www.loc.gov/chroniclingamerica/) | 1875 – 1885 | 6 | 3 |  |  | 1 |  | 10
-[*Public Ledger*](https://www.loc.gov/chroniclingamerica/) | 1875 |  | 2 |  |  |  |  | 2
-[《申报》](https://archive.org/details/shenbao-archive) | 1875 – 1941 | 9 | 1 |  | 1 | 1 | 14 | 33
-[《先驱报》](https://www.loc.gov/chroniclingamerica/) | 1875 |  | 8 |  | 1 | 1 |  | 10
+[《孖剌西报》](https://archive.org/details/china-mail) | 1872 – 1941 | 4 | 8 |  | 1 |  | 12 | 25
+[*Daily Kennebec Journal*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1919 | 1 | 6 |  |  |  | 2 | 9
+[*Providence Morning Star*](https://www.loc.gov/chroniclingamerica/) | 1875 | 2 | 2 |  |  |  |  | 4
+[*Public Ledger*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1878 |  | 3 |  |  |  | 2 | 5
+[《申报》](https://archive.org/details/shenbao-archive) | 1875 – 1941 | 35 | 6 |  | 1 | 2 | 26 | 70
+[*The Cincinnati Daily Star*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1878 | 1 | 2 |  |  |  | 3 | 6
+[*The Daily Gazette*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1878 |  | 1 |  |  |  | 1 | 2
+[*Belmont Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 4 |  |  |  |  | 4
+[*Bismarck Weekly Tribune*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 |  | 1 |  |  | 2
+[*Bozeman Avant Courier*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  | 1 | 3
+[*Brenham Weekly Banner*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  | 1 | 3
+[*Burt's Among the Clouds*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 |  |  |  | 1 | 2
+[*Chicago Daily Tribune*](https://www.loc.gov/chroniclingamerica/) | 1878 |  |  |  | 1 |  | 1 | 2
+[*Clarksville Weekly Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1878 | 2 | 1 |  |  |  |  | 3
+[*Connecticut Western News*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 | 1 |  |  |  | 2
+[*Daily Globe*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*Daily los Angeles Herald*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*Daily Press and Dakotaian*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
 [*De Volksvriend*](https://www.delpher.nl/nl/kranten) | 1878 – 1925 |  | 9 |  |  |  |  | 9
-[*Morning Appeal*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 |  | 2 |  |  |  |  | 2
+[*Eureka Daily Sentinel*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1880 |  | 1 |  | 1 |  |  | 2
+[*Helena Weekly Herald*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 |  | 2 |  | 2 |  |  | 4
+[*Lexington Weekly Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  |  | 3
+[*Litchfield Enquirer*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 4 |  |  |  |  | 4
+[*Mexico Weekly Ledger*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1918 |  | 3 |  |  |  |  | 3
+[*Morning Appeal*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 |  | 3 | 1 |  |  |  | 4
+[*New Ulm Weekly Review*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 |  |  |  | 1 | 2
+[*St. Johnsbury Caledonian*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 |  | 3 |  |  |  |  | 3
+[*The Breckenridge News*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Cheyenne Daily Leader*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  | 1 | 4
+[*The Daily Cairo Bulletin*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Daily Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 |  |  |  | 1 | 2
+[*The Eaton Democrat*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Kenosha Telegraph*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 | 6 | 3 |  |  |  |  | 9
+[*The New Orleans Daily Democrat*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  | 1 | 4
+[*The Pascagoula Democrat-Star*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  |  | 3
+[*The Rock Island Argus*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 | 1 | 3 | 1 |  |  |  | 5
+[*The Saline County Journal*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Silver State*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1918 |  | 3 |  |  |  | 1 | 4
+[*The Union*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Weekly Democratic Statesman*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  | 1 | 4
+[*The Weekly Kansas Chief*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Weekly Visitor*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
 [*Sacramento Daily Record-union*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 |  | 19 |  |  |  |  | 19
-[*The Salt Lake Herald*](https://www.loc.gov/chroniclingamerica/) | 1880 | 1 |  | 1 |  |  |  | 2
-[*The Sun*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 | 1 | 3 |  |  |  |  | 4
-[《士蔑西报》](https://archive.org/details/china-mail) | 1882 – 1941 | 5 | 10 |  |  |  | 2 | 17
+[*The Salt Lake Herald*](https://www.loc.gov/chroniclingamerica/) | 1880 | 1 | 1 | 1 |  |  |  | 3
+[《士蔑西报》](https://archive.org/details/china-mail) | 1882 – 1941 | 8 | 15 |  |  |  | 7 | 30
 [*Nieuwe Haarlemsche courant*](https://www.delpher.nl/nl/kranten) | 1882 – 1927 |  | 8 |  | 2 |  |  | 10
 [*Het nieuws van den dag (kleine courant)*](https://www.delpher.nl/nl/kranten) | 1882 – 1905 |  | 3 | 1 |  |  |  | 4
-[*Helena Weekly Herald*](https://www.loc.gov/chroniclingamerica/) | 1885 |  |  |  | 2 |  |  | 2
 [*Morris Tribune*](https://www.loc.gov/chroniclingamerica/) | 1885 |  | 2 |  |  |  |  | 2
+[*Omaha Daily Bee*](https://www.loc.gov/chroniclingamerica/) | 1885 – 1918 |  | 2 |  | 1 |  | 1 | 4
 [*The Corvallis Gazette*](https://www.loc.gov/chroniclingamerica/) | 1885 |  | 2 |  |  |  |  | 2
-[*The Kenosha Telegraph*](https://www.loc.gov/chroniclingamerica/) | 1885 | 6 | 1 |  |  |  |  | 7
-[*The Portland Daily Press*](https://www.loc.gov/chroniclingamerica/) | 1885 | 8 |  |  |  |  |  | 8
-[*The Rock Island Argus*](https://www.loc.gov/chroniclingamerica/) | 1885 | 1 | 1 |  |  |  |  | 2
 [*De West-Indiër*](https://www.delpher.nl/nl/kranten) | 1886 – 1897 |  | 2 |  |  |  |  | 2
 [*De nieuwe vorstenlanden*](https://www.delpher.nl/nl/kranten) | 1894 – 1926 |  | 3 | 1 |  |  |  | 4
 [*Soerabaijasch handelsblad*](https://www.delpher.nl/nl/kranten) | 1894 – 1901 |  | 1 |  | 1 |  |  | 2
@@ -207,7 +313,7 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 [*De locomotief*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 5 |  | 1 |  |  | 6
 [*De Sumatra post*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 10 |  |  |  |  | 10
 [*Het nieuws van den dag voor Nederlandsch-Indië*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 10 |  | 1 |  |  | 11
-[《香港华字日报》](https://archive.org/details/china-mail) | 1901 – 1926 |  | 1 |  |  |  | 3 | 7
+[《香港华字日报》](https://archive.org/details/china-mail) | 1901 – 1936 | 8 | 2 |  |  |  | 11 | 21
 [*De Preanger-bode*](https://www.delpher.nl/nl/kranten) | 1904 – 1915 |  | 3 |  |  |  |  | 3
 [*Sumatra-bode*](https://www.delpher.nl/nl/kranten) | 1904 – 1926 | 4 | 5 |  |  |  |  | 9
 [*De nieuwe courant*](https://www.delpher.nl/nl/kranten) | 1905 – 1921 |  | 4 | 4 | 2 |  |  | 10
@@ -229,12 +335,75 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 [*Nieuwe Tilburgsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1914 |  | 3 |  |  |  |  | 3
 [*Nieuwe Venlosche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1921 |  | 3 |  |  |  |  | 3
 [*Nieuwe Vlaardingsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1927 |  | 2 |  |  |  |  | 2
-[*Provinciale Geldersche en Nijmeegsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1927 |  | 5 |  |  |  |  | 5
+[*Provinciale Geldersche en Nijmeegsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1927 |  | 4 |  | 1 |  |  | 5
 [*RK dagblad het huisgezin*](https://www.delpher.nl/nl/kranten) | 1912 |  | 2 |  |  |  |  | 2
 [*Westlandsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1921 |  | 1 |  | 1 |  |  | 2
 [*Aaltensche courant*](https://www.delpher.nl/nl/kranten) | 1914 – 1921 |  | 2 |  |  |  |  | 2
 [*Emmer courant*](https://www.delpher.nl/nl/kranten) | 1914 – 1921 |  | 2 |  |  |  |  | 2
 [*Twentsch dagblad Tubantia*](https://www.delpher.nl/nl/kranten) | 1914 – 1921 |  | 2 |  |  |  |  | 2
+[*Albuquerque Morning Journal*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 3 | 4
+[*American Falls Press*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Americus Times-Recorder*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  |  | 2
+[*Cheyenne Record*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  | 1 | 3
+[*Cottonwood Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Custer Weekly Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*Daily Capital Journal*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  | 1 | 3
+[*Daily Kentuckian*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  |  | 2
+[*Denver Labor Bulletin*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  | 1 | 3
+[*East Oregonian*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 5 |  |  |  | 2 | 7
+[*Evening Times-republican*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  |  | 2
+[*Gilpin Observer*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Grand Forks Herald*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  |  |  | 2 | 3
+[*Imperial Valley Press*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  |  | 2
+[*Jamestown Weekly Alert*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*La Prensa*](https://www.loc.gov/chroniclingamerica/) | 1918 |  |  |  |  |  | 2 | 2
+[*La Prensa*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  |  |  | 2 | 3
+[*Laredo Weekly Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*Mountain Home Republican*](https://www.loc.gov/chroniclingamerica/) | 1918 |  |  |  |  |  | 2 | 2
+[*Norwich Bulletin*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 5 |  |  |  |  | 5
+[*Payette Enterprise*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Perth Amboy Evening News*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  | 1 | 3
+[*Pine Bluff Daily Graphic*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 3 | 4
+[*Randolph Enterprise*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Rock Springs Miner*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Rogue River Courier*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Abbeville Press and Banner*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Barre Daily Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 2 | 3
+[*The Beaver Herald*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Canon City Record*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Chattanooga News*](https://www.loc.gov/chroniclingamerica/) | 1918 |  |  |  |  |  | 2 | 2
+[*The Cordele Dispatch*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  |  |  | 1 | 2
+[*The Eureka Sentinel*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Fargo Forum and Daily Republican*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Gazette-Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 | 1 |  |  |  | 2
+[*The Glenwood Post*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Greeneville Daily Sun*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 2 | 3
+[*The Holt County Sentinel*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Hood River Glacier*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 5 |  |  |  |  | 5
+[*The Kendrick Gazette*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Kennewick Courier-Reporter*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Laramie Republican*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  | 1 |  | 2 | 4
+[*The Liberal Democrat*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Meeker Herald*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Mellette County Pioneer*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Montgomery Advertiser*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  | 2 | 4
+[*The Oklahoma City Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Ordway New Era*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Pensacola Journal*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  |  | 2
+[*The Richmond Virginian*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  |  |  | 3 | 4
+[*The Saratoga Sun*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Seattle Star*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Sentinel-Record*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 3 | 4
+[*The Sun*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  | 1 | 3
+[*The Tacoma Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 3 |  |  |  | 2 | 5
+[*The Topeka State Journal*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 | 1 |  |  | 1 | 4
+[*The Vashon Island Record*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Washington Herald*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  | 1 |  |  | 2
+[*The Washington Times*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  | 1 | 3
+[*The Weekly Alaska Citizen*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  |  | 2
+[*The Wheeling Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  |  |  |  |  | 2 | 2
+[*Tulsa Daily World*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*Western Kansas World*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
 [*De Maasbode*](https://www.delpher.nl/nl/kranten) | 1919 – 1927 |  | 4 |  | 1 |  |  | 5
 [*El Imparcial*](https://www.loc.gov/chroniclingamerica/) | 1919 |  | 2 |  |  |  |  | 2
 [*El Mundo*](https://www.loc.gov/chroniclingamerica/) | 1919 |  | 5 |  |  |  |  | 5
@@ -251,16 +420,17 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
   <summary><b>单一条目来源</b></summary>
   <br>
 
-美利坚 [*Daily Richmond Whig & Public Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Rhode-Island Republican*](https://www.loc.gov/chroniclingamerica/)、[*Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/)、[*Maumee City Express*](https://www.loc.gov/chroniclingamerica/)、[*Republican Herald*](https://www.loc.gov/chroniclingamerica/)、[*Staunton Spectator, and General Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Herald*](https://www.loc.gov/chroniclingamerica/)、[*The New Hampshire Gazette*](https://www.loc.gov/chroniclingamerica/)、[*True American*](https://www.loc.gov/chroniclingamerica/)、[*Western Enquirer*](https://www.loc.gov/chroniclingamerica/)、[*Bradford Opinion*](https://www.loc.gov/chroniclingamerica/)、[*Oxford Democrat*](https://www.loc.gov/chroniclingamerica/)、[*The Arizona Sentinel*](https://www.loc.gov/chroniclingamerica/)、[*The Cincinnati Daily Star*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Gazette*](https://www.loc.gov/chroniclingamerica/)、[*Eureka Daily Sentinel*](https://www.loc.gov/chroniclingamerica/)、[*The Silver State*](https://www.loc.gov/chroniclingamerica/)、[*Devils Lake Inter-ocean*](https://www.loc.gov/chroniclingamerica/)、[*Iron County Register*](https://www.loc.gov/chroniclingamerica/)、[*Mexico Weekly Ledger*](https://www.loc.gov/chroniclingamerica/)、[*Morning Journal and Courier*](https://www.loc.gov/chroniclingamerica/)、[*Omaha Daily Bee*](https://www.loc.gov/chroniclingamerica/)、[*Press and Daily Dakotaian*](https://www.loc.gov/chroniclingamerica/)、[*St. Johnsbury Caledonian*](https://www.loc.gov/chroniclingamerica/)、[*The Anderson Intelligencer*](https://www.loc.gov/chroniclingamerica/)、[*The Democratic Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Evening Critic*](https://www.loc.gov/chroniclingamerica/)、[*The Lincoln County Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Livingston Enterprise*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Oskaloosa Herald*](https://www.loc.gov/chroniclingamerica/)、[*Americus Times-Recorder*](https://www.loc.gov/chroniclingamerica/)、[*Audubon Republican*](https://www.loc.gov/chroniclingamerica/)、[*Batesville Daily Guard*](https://www.loc.gov/chroniclingamerica/)、[*Cheyenne Record*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Gate City and Constitution-democrat*](https://www.loc.gov/chroniclingamerica/)、[*Evening Times-republican*](https://www.loc.gov/chroniclingamerica/)、[*Grand Forks Herald*](https://www.loc.gov/chroniclingamerica/)、[*Richmond Times-Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*St. Croix Avis*](https://www.loc.gov/chroniclingamerica/)、[*The Bemidji Daily Pioneer*](https://www.loc.gov/chroniclingamerica/)、[*The Cordele Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*The Montgomery Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Richmond Virginian*](https://www.loc.gov/chroniclingamerica/)、[*The Washington Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Washington Times*](https://www.loc.gov/chroniclingamerica/)、[*Yorkville Enquirer*](https://www.loc.gov/chroniclingamerica/)；尼德兰 [*Utrechtsche provinciale en stads-courant*](https://www.delpher.nl/nl/kranten)、[*Hoornsche courant*](https://www.delpher.nl/nl/kranten)、[*Het volksdagblad*](https://www.delpher.nl/nl/kranten)、[*Deli courant*](https://www.delpher.nl/nl/kranten)、[*De Stichtsche courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Hengeloosche courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Veendammer courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Winterswijksche courant*](https://www.delpher.nl/nl/kranten)、[*Dragtster courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwsblad van het Zuiden*](https://www.delpher.nl/nl/kranten)、[*Ons Noorden*](https://www.delpher.nl/nl/kranten)、[*Opregte Steenwijker courant*](https://www.delpher.nl/nl/kranten)、[*Provinciale Noordbrabantsche en 's Hertogenbossche courant*](https://www.delpher.nl/nl/kranten)、[*De expres*](https://www.delpher.nl/nl/kranten)、[*De Graafschapper*](https://www.delpher.nl/nl/kranten)、[*De tribune*](https://www.delpher.nl/nl/kranten)、[*De Zaanlander*](https://www.delpher.nl/nl/kranten)、[*Onze courant*](https://www.delpher.nl/nl/kranten)、[*Overijsselsch dagblad*](https://www.delpher.nl/nl/kranten)；德意志 [*Rotterdamsche courant*](https://www.delpher.nl/nl/kranten)；不列颠 [*Nieuw Amsterdamsch handels- en effectenblad*](https://www.delpher.nl/nl/kranten)、[*Otago Daily Times*](https://paperspast.natlib.govt.nz/newspapers/otago-daily-times)、[*The Press (Christchurch)*](https://paperspast.natlib.govt.nz/newspapers/press)；法兰西 [*Venloosch weekblad*](https://www.delpher.nl/nl/kranten)．
+美利坚 [*Daily Richmond Whig & Public Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Rhode-Island Republican*](https://www.loc.gov/chroniclingamerica/)、[*Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/)、[*Maumee City Express*](https://www.loc.gov/chroniclingamerica/)、[*Republican Herald*](https://www.loc.gov/chroniclingamerica/)、[*Staunton Spectator, and General Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Herald*](https://www.loc.gov/chroniclingamerica/)、[*The New Hampshire Gazette*](https://www.loc.gov/chroniclingamerica/)、[*True American*](https://www.loc.gov/chroniclingamerica/)、[*Western Enquirer*](https://www.loc.gov/chroniclingamerica/)、[*Bellows Falls Times*](https://www.loc.gov/chroniclingamerica/)、[*Dallas Herald*](https://www.loc.gov/chroniclingamerica/)、[*Danbury Times*](https://www.loc.gov/chroniclingamerica/)、[*Delaware Gazette*](https://www.loc.gov/chroniclingamerica/)、[*Delaware State Journal and Statesman*](https://www.loc.gov/chroniclingamerica/)、[*Gallipolis Journal*](https://www.loc.gov/chroniclingamerica/)、[*Lamoille Newsdealer*](https://www.loc.gov/chroniclingamerica/)、[*Marshall County Republican*](https://www.loc.gov/chroniclingamerica/)、[*Middletown Transcript*](https://www.loc.gov/chroniclingamerica/)、[*Owyhee Semi-Weekly Tidal Wave*](https://www.loc.gov/chroniclingamerica/)、[*Raftsman's Journal*](https://www.loc.gov/chroniclingamerica/)、[*Rutland Weekly Herald*](https://www.loc.gov/chroniclingamerica/)、[*Shenandoah Herald*](https://www.loc.gov/chroniclingamerica/)、[*Tama County Republican*](https://www.loc.gov/chroniclingamerica/)、[*The Albany Register*](https://www.loc.gov/chroniclingamerica/)、[*The Cairo Evening Bulletin*](https://www.loc.gov/chroniclingamerica/)、[*The Camden Journal*](https://www.loc.gov/chroniclingamerica/)、[*The Elko Independent*](https://www.loc.gov/chroniclingamerica/)、[*The Fremont Weekly Journal*](https://www.loc.gov/chroniclingamerica/)、[*The Hancock Jeffersonian*](https://www.loc.gov/chroniclingamerica/)、[*The Idaho World*](https://www.loc.gov/chroniclingamerica/)、[*The Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/)、[*The Marietta Journal*](https://www.loc.gov/chroniclingamerica/)、[*The Opelousas Courier*](https://www.loc.gov/chroniclingamerica/)、[*The Orangeburg News*](https://www.loc.gov/chroniclingamerica/)、[*The Petroleum Centre Daily Record*](https://www.loc.gov/chroniclingamerica/)、[*The Plymouth Weekly Democrat*](https://www.loc.gov/chroniclingamerica/)、[*The Shasta Courier*](https://www.loc.gov/chroniclingamerica/)、[*The Spirit of Democracy*](https://www.loc.gov/chroniclingamerica/)、[*The St. Cloud Journal*](https://www.loc.gov/chroniclingamerica/)、[*The State Rights Democrat*](https://www.loc.gov/chroniclingamerica/)、[*The States and Union*](https://www.loc.gov/chroniclingamerica/)、[*The Tarboro' Southerner*](https://www.loc.gov/chroniclingamerica/)、[*The Tipton Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*The Union and Journal*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Ottumwa Courier*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Panola Star*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Register*](https://www.loc.gov/chroniclingamerica/)、[*Urbana Union*](https://www.loc.gov/chroniclingamerica/)、[*White Cloud Kansas Chief*](https://www.loc.gov/chroniclingamerica/)、[*Bradford Opinion*](https://www.loc.gov/chroniclingamerica/)、[*The Arizona Sentinel*](https://www.loc.gov/chroniclingamerica/)、[*American Citizen*](https://www.loc.gov/chroniclingamerica/)、[*Ashtabula Telegraph*](https://www.loc.gov/chroniclingamerica/)、[*Batesville Guard*](https://www.loc.gov/chroniclingamerica/)、[*Buchanan County Bulletin*](https://www.loc.gov/chroniclingamerica/)、[*Canton Register*](https://www.loc.gov/chroniclingamerica/)、[*Chariton Courier*](https://www.loc.gov/chroniclingamerica/)、[*Dodge City Times*](https://www.loc.gov/chroniclingamerica/)、[*Ellsworth American*](https://www.loc.gov/chroniclingamerica/)、[*Essex County Herald*](https://www.loc.gov/chroniclingamerica/)、[*Fayetteville Observer*](https://www.loc.gov/chroniclingamerica/)、[*Feliciana Sentinel*](https://www.loc.gov/chroniclingamerica/)、[*Frostburg Mining Journal*](https://www.loc.gov/chroniclingamerica/)、[*Fulton Journal*](https://www.loc.gov/chroniclingamerica/)、[*Grant County Herald*](https://www.loc.gov/chroniclingamerica/)、[*Idaho Semi-Weekly World*](https://www.loc.gov/chroniclingamerica/)、[*Independent Statesman*](https://www.loc.gov/chroniclingamerica/)、[*Knoxville Daily Chronicle*](https://www.loc.gov/chroniclingamerica/)、[*Las Dos Repúblicas*](https://www.loc.gov/chroniclingamerica/)、[*Lyon County Times*](https://www.loc.gov/chroniclingamerica/)、[*Narragansett Herald*](https://www.loc.gov/chroniclingamerica/)、[*Northern Ohio Journal*](https://www.loc.gov/chroniclingamerica/)、[*Northern Tribune*](https://www.loc.gov/chroniclingamerica/)、[*Orleans County Monitor*](https://www.loc.gov/chroniclingamerica/)、[*Ottumwa Weekly Courier*](https://www.loc.gov/chroniclingamerica/)、[*Puget Sound Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*Richland Beacon*](https://www.loc.gov/chroniclingamerica/)、[*River Falls Journal*](https://www.loc.gov/chroniclingamerica/)、[*Rocky Mountain Husbandman*](https://www.loc.gov/chroniclingamerica/)、[*Saint Mary's Beacon*](https://www.loc.gov/chroniclingamerica/)、[*Salt River Herald*](https://www.loc.gov/chroniclingamerica/)、[*San Marcos Free Press*](https://www.loc.gov/chroniclingamerica/)、[*Stevens County Tribune*](https://www.loc.gov/chroniclingamerica/)、[*The Benton Record*](https://www.loc.gov/chroniclingamerica/)、[*The Canton Advocate*](https://www.loc.gov/chroniclingamerica/)、[*The Columbian*](https://www.loc.gov/chroniclingamerica/)、[*The Donaldsonville Chief*](https://www.loc.gov/chroniclingamerica/)、[*The Elk County Advocate*](https://www.loc.gov/chroniclingamerica/)、[*The Hartford Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Herald and Mail*](https://www.loc.gov/chroniclingamerica/)、[*The Hillsdale Standard*](https://www.loc.gov/chroniclingamerica/)、[*The Jasper Weekly Courier*](https://www.loc.gov/chroniclingamerica/)、[*The Jewish Advance*](https://www.loc.gov/chroniclingamerica/)、[*The Lake Charles Echo*](https://www.loc.gov/chroniclingamerica/)、[*The Meridional*](https://www.loc.gov/chroniclingamerica/)、[*The Mesilla Valley Independent*](https://www.loc.gov/chroniclingamerica/)、[*The Milan Exchange*](https://www.loc.gov/chroniclingamerica/)、[*The Morning Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Morning Star and Catholic Messenger*](https://www.loc.gov/chroniclingamerica/)、[*The New Northwest*](https://www.loc.gov/chroniclingamerica/)、[*The Ouachita Telegraph*](https://www.loc.gov/chroniclingamerica/)、[*The Pioche Weekly Record*](https://www.loc.gov/chroniclingamerica/)、[*The Republican*](https://www.loc.gov/chroniclingamerica/)、[*The Russellville Democrat*](https://www.loc.gov/chroniclingamerica/)、[*The Sedalia Weekly Bazoo*](https://www.loc.gov/chroniclingamerica/)、[*The Stark County Democrat*](https://www.loc.gov/chroniclingamerica/)、[*The State Journal*](https://www.loc.gov/chroniclingamerica/)、[*The Superior Times*](https://www.loc.gov/chroniclingamerica/)、[*The Troy Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Valley Virginian*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Arizona Miner*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Union Times*](https://www.loc.gov/chroniclingamerica/)、[*The Wichita City Eagle*](https://www.loc.gov/chroniclingamerica/)、[*The Willimantic Journal*](https://www.loc.gov/chroniclingamerica/)、[*The Worthington Advance*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Thibodaux Sentinel and Journal of the 8th Senatorial District*](https://www.loc.gov/chroniclingamerica/)、[*Vermont Phœnix*](https://www.loc.gov/chroniclingamerica/)、[*Wood County Reporter*](https://www.loc.gov/chroniclingamerica/)、[*Wood River Advertiser*](https://www.loc.gov/chroniclingamerica/)、[*Devils Lake Inter-ocean*](https://www.loc.gov/chroniclingamerica/)、[*Iron County Register*](https://www.loc.gov/chroniclingamerica/)、[*Morning Journal and Courier*](https://www.loc.gov/chroniclingamerica/)、[*Press and Daily Dakotaian*](https://www.loc.gov/chroniclingamerica/)、[*The Democratic Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Evening Critic*](https://www.loc.gov/chroniclingamerica/)、[*The Lincoln County Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Livingston Enterprise*](https://www.loc.gov/chroniclingamerica/)、[*The Weekly Oskaloosa Herald*](https://www.loc.gov/chroniclingamerica/)、[*Ajo Copper News*](https://www.loc.gov/chroniclingamerica/)、[*Arizona Republican*](https://www.loc.gov/chroniclingamerica/)、[*Ashland Tidings*](https://www.loc.gov/chroniclingamerica/)、[*Baraboo Weekly News*](https://www.loc.gov/chroniclingamerica/)、[*Burlington Weekly Free Press*](https://www.loc.gov/chroniclingamerica/)、[*The Butler Weekly Times and the Bates County Record*](https://www.loc.gov/chroniclingamerica/)、[*Carson City Daily Appeal*](https://www.loc.gov/chroniclingamerica/)、[*Catoctin Clarion*](https://www.loc.gov/chroniclingamerica/)、[*Crossville Chronicle*](https://www.loc.gov/chroniclingamerica/)、[*Decorah Public Opinion*](https://www.loc.gov/chroniclingamerica/)、[*El Nuevo Mexicano*](https://www.loc.gov/chroniclingamerica/)、[*El Paso Herald*](https://www.loc.gov/chroniclingamerica/)、[*El Tucsonense*](https://www.loc.gov/chroniclingamerica/)、[*Elko Independent*](https://www.loc.gov/chroniclingamerica/)、[*Evening Capital and Maryland Gazette*](https://www.loc.gov/chroniclingamerica/)、[*Evening Public Ledger*](https://www.loc.gov/chroniclingamerica/)、[*Every Evening, Wilmington Daily Commercial*](https://www.loc.gov/chroniclingamerica/)、[*Every Evening, Wilmington Daily Commercial*](https://www.loc.gov/chroniclingamerica/)、[*Fair Play*](https://www.loc.gov/chroniclingamerica/)、[*Free Trader-journal*](https://www.loc.gov/chroniclingamerica/)、[*Fulton County Tribune*](https://www.loc.gov/chroniclingamerica/)、[*Grand Rapids Herald-Review*](https://www.loc.gov/chroniclingamerica/)、[*Greene County Herald*](https://www.loc.gov/chroniclingamerica/)、[*Gunnison News-Champion*](https://www.loc.gov/chroniclingamerica/)、[*Harrisburg Telegraph*](https://www.loc.gov/chroniclingamerica/)、[*Idaho County Free Press*](https://www.loc.gov/chroniclingamerica/)、[*Iditarod Pioneer*](https://www.loc.gov/chroniclingamerica/)、[*Iowa County Democrat*](https://www.loc.gov/chroniclingamerica/)、[*Iron County News*](https://www.loc.gov/chroniclingamerica/)、[*Little Falls Herald*](https://www.loc.gov/chroniclingamerica/)、[*Manchester Democrat*](https://www.loc.gov/chroniclingamerica/)、[*Mansfield Mirror*](https://www.loc.gov/chroniclingamerica/)、[*Meade County News*](https://www.loc.gov/chroniclingamerica/)、[*Mohave County Miner*](https://www.loc.gov/chroniclingamerica/)、[*Montpelier Examiner*](https://www.loc.gov/chroniclingamerica/)、[*New Iberia Enterprise and Independent Observer*](https://www.loc.gov/chroniclingamerica/)、[*Newport Daily Independent*](https://www.loc.gov/chroniclingamerica/)、[*Nogales Daily Herald*](https://www.loc.gov/chroniclingamerica/)、[*Pinedale Roundup*](https://www.loc.gov/chroniclingamerica/)、[*Potosi Journal*](https://www.loc.gov/chroniclingamerica/)、[*Pullman Herald*](https://www.loc.gov/chroniclingamerica/)、[*Putnam County Herald*](https://www.loc.gov/chroniclingamerica/)、[*Rawlins Republican*](https://www.loc.gov/chroniclingamerica/)、[*Rock Island Argus*](https://www.loc.gov/chroniclingamerica/)、[*Rockingham Post-Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*Sharp County Record*](https://www.loc.gov/chroniclingamerica/)、[*Sioux County Pioneer*](https://www.loc.gov/chroniclingamerica/)、[*Smyrna Times*](https://www.loc.gov/chroniclingamerica/)、[*Spirit of Jefferson*](https://www.loc.gov/chroniclingamerica/)、[*Stone County Enterprise*](https://www.loc.gov/chroniclingamerica/)、[*The Alaska Daily Empire*](https://www.loc.gov/chroniclingamerica/)、[*The Alliance Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Arizona Copper Camp*](https://www.loc.gov/chroniclingamerica/)、[*The Athena Press*](https://www.loc.gov/chroniclingamerica/)、[*The Bamberg Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Beatrice Daily Express*](https://www.loc.gov/chroniclingamerica/)、[*The Birmingham Age-Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Bolivar County Democrat*](https://www.loc.gov/chroniclingamerica/)、[*The Bossier Banner*](https://www.loc.gov/chroniclingamerica/)、[*The Bourbon News*](https://www.loc.gov/chroniclingamerica/)、[*The Bowbells Tribune*](https://www.loc.gov/chroniclingamerica/)、[*The Camden Chronicle*](https://www.loc.gov/chroniclingamerica/)、[*The Chickasha Daily Express*](https://www.loc.gov/chroniclingamerica/)、[*The Citizen-Republican*](https://www.loc.gov/chroniclingamerica/)、[*The Coconino Sun*](https://www.loc.gov/chroniclingamerica/)、[*The Colfax Chronicle*](https://www.loc.gov/chroniclingamerica/)、[*The Columbus Commercial*](https://www.loc.gov/chroniclingamerica/)、[*The Colville Examiner*](https://www.loc.gov/chroniclingamerica/)、[*The Covington Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Crook County Monitor*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Alaskan*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Progressive-Miner*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Star-Mirror*](https://www.loc.gov/chroniclingamerica/)、[*The Dawson News*](https://www.loc.gov/chroniclingamerica/)、[*The Delta Independent*](https://www.loc.gov/chroniclingamerica/)、[*The Denison Review*](https://www.loc.gov/chroniclingamerica/)、[*The Elbert County Tribune*](https://www.loc.gov/chroniclingamerica/)、[*The Elk Mountain Pilot*](https://www.loc.gov/chroniclingamerica/)、[*The Emmett Index*](https://www.loc.gov/chroniclingamerica/)、[*The Evening Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Evening Missourian*](https://www.loc.gov/chroniclingamerica/)、[*The Evening World*](https://www.loc.gov/chroniclingamerica/)、[*The Glasgow Courier*](https://www.loc.gov/chroniclingamerica/)、[*The Goldfield News and Weekly Tribune*](https://www.loc.gov/chroniclingamerica/)、[*The Grangeville Globe*](https://www.loc.gov/chroniclingamerica/)、[*The Greenville Journal*](https://www.loc.gov/chroniclingamerica/)、[*The Guernsey Gazette*](https://www.loc.gov/chroniclingamerica/)、[*The Guthrie Daily Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Hartford Republican*](https://www.loc.gov/chroniclingamerica/)、[*The Hays Free Press*](https://www.loc.gov/chroniclingamerica/)、[*The Hayti Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Herald and News*](https://www.loc.gov/chroniclingamerica/)、[*The Holly Chieftain*](https://www.loc.gov/chroniclingamerica/)、[*The Hope Pioneer*](https://www.loc.gov/chroniclingamerica/)、[*The Idaho Recorder*](https://www.loc.gov/chroniclingamerica/)、[*The Idaho Springs Siftings-News*](https://www.loc.gov/chroniclingamerica/)、[*The Independent-Reporter*](https://www.loc.gov/chroniclingamerica/)、[*The Julesburg Grit-Advocate*](https://www.loc.gov/chroniclingamerica/)、[*The Kemmerer Republican*](https://www.loc.gov/chroniclingamerica/)、[*The Lakeland Evening Telegram*](https://www.loc.gov/chroniclingamerica/)、[*The Leon Reporter*](https://www.loc.gov/chroniclingamerica/)、[*The Madison Daily Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Mahoning Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*The Manchester Journal*](https://www.loc.gov/chroniclingamerica/)、[*The Mccarthy Weekly News*](https://www.loc.gov/chroniclingamerica/)、[*The Miller Press*](https://www.loc.gov/chroniclingamerica/)、[*The Milwaukee Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Monett Times*](https://www.loc.gov/chroniclingamerica/)、[*The Monticellonian*](https://www.loc.gov/chroniclingamerica/)、[*The Moorefield Examiner*](https://www.loc.gov/chroniclingamerica/)、[*The Morgan City Daily Review*](https://www.loc.gov/chroniclingamerica/)、[*The Nenana Daily News*](https://www.loc.gov/chroniclingamerica/)、[*The Nezperce Herald*](https://www.loc.gov/chroniclingamerica/)、[*The North Platte Semi-Weekly Tribune*](https://www.loc.gov/chroniclingamerica/)、[*The Ocala Evening Star*](https://www.loc.gov/chroniclingamerica/)、[*The Ogden Standard*](https://www.loc.gov/chroniclingamerica/)、[*The Ontario Argus*](https://www.loc.gov/chroniclingamerica/)、[*The Oroville Weekly Gazette*](https://www.loc.gov/chroniclingamerica/)、[*The Pickens Sentinel*](https://www.loc.gov/chroniclingamerica/)、[*The Port Gibson Reveille*](https://www.loc.gov/chroniclingamerica/)、[*The Princeton Union*](https://www.loc.gov/chroniclingamerica/)、[*The Public Ledger*](https://www.loc.gov/chroniclingamerica/)、[*The Punta Gorda Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Rathdrum Tribune*](https://www.loc.gov/chroniclingamerica/)、[*The Record*](https://www.loc.gov/chroniclingamerica/)、[*The Red Cloud Chief*](https://www.loc.gov/chroniclingamerica/)、[*The Richmond Palladium and Sun-Telegram*](https://www.loc.gov/chroniclingamerica/)、[*The Ronan Pioneer*](https://www.loc.gov/chroniclingamerica/)、[*The Seward Gateway Daily Edition, and the Alaska Weekly Post*](https://www.loc.gov/chroniclingamerica/)、[*The Snowflake Herald*](https://www.loc.gov/chroniclingamerica/)、[*The Spanish American*](https://www.loc.gov/chroniclingamerica/)、[*The St. Joseph Observer*](https://www.loc.gov/chroniclingamerica/)、[*The Telegraph-Courier*](https://www.loc.gov/chroniclingamerica/)、[*The True Democrat*](https://www.loc.gov/chroniclingamerica/)、[*The Wahpeton Times*](https://www.loc.gov/chroniclingamerica/)、[*The Watertown News*](https://www.loc.gov/chroniclingamerica/)、[*The Weston Leader*](https://www.loc.gov/chroniclingamerica/)、[*The Wilson Times*](https://www.loc.gov/chroniclingamerica/)、[*The Yale Expositor*](https://www.loc.gov/chroniclingamerica/)、[*Tonopah Daily Bonanza*](https://www.loc.gov/chroniclingamerica/)、[*Trench and Camp*](https://www.loc.gov/chroniclingamerica/)、[*Vernon County Censor*](https://www.loc.gov/chroniclingamerica/)、[*Vilas County News*](https://www.loc.gov/chroniclingamerica/)、[*Walker Lake Bulletin*](https://www.loc.gov/chroniclingamerica/)、[*Wausau Pilot*](https://www.loc.gov/chroniclingamerica/)、[*Webster City Freeman*](https://www.loc.gov/chroniclingamerica/)、[*Weekly Journal-Miner*](https://www.loc.gov/chroniclingamerica/)、[*Western Liberal*](https://www.loc.gov/chroniclingamerica/)、[*Windham County Observer*](https://www.loc.gov/chroniclingamerica/)、[*Audubon Republican*](https://www.loc.gov/chroniclingamerica/)、[*Batesville Daily Guard*](https://www.loc.gov/chroniclingamerica/)、[*The Daily Gate City and Constitution-democrat*](https://www.loc.gov/chroniclingamerica/)、[*Richmond Times-Dispatch*](https://www.loc.gov/chroniclingamerica/)、[*St. Croix Avis*](https://www.loc.gov/chroniclingamerica/)、[*The Bemidji Daily Pioneer*](https://www.loc.gov/chroniclingamerica/)；尼德兰 [*Utrechtsche provinciale en stads-courant*](https://www.delpher.nl/nl/kranten)、[*Hoornsche courant*](https://www.delpher.nl/nl/kranten)、[*Het volksdagblad*](https://www.delpher.nl/nl/kranten)、[*Deli courant*](https://www.delpher.nl/nl/kranten)、[*De Stichtsche courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Hengeloosche courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Veendammer courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwe Winterswijksche courant*](https://www.delpher.nl/nl/kranten)、[*Dragtster courant*](https://www.delpher.nl/nl/kranten)、[*Nieuwsblad van het Zuiden*](https://www.delpher.nl/nl/kranten)、[*Ons Noorden*](https://www.delpher.nl/nl/kranten)、[*Opregte Steenwijker courant*](https://www.delpher.nl/nl/kranten)、[*Provinciale Noordbrabantsche en 's Hertogenbossche courant*](https://www.delpher.nl/nl/kranten)、[*De expres*](https://www.delpher.nl/nl/kranten)、[*De Graafschapper*](https://www.delpher.nl/nl/kranten)、[*De tribune*](https://www.delpher.nl/nl/kranten)、[*De Zaanlander*](https://www.delpher.nl/nl/kranten)、[*Onze courant*](https://www.delpher.nl/nl/kranten)、[*Overijsselsch dagblad*](https://www.delpher.nl/nl/kranten)；德意志 [*Rotterdamsche courant*](https://www.delpher.nl/nl/kranten)；不列颠 [*Nieuw Amsterdamsch handels- en effectenblad*](https://www.delpher.nl/nl/kranten)、[*Otago Daily Times*](https://paperspast.natlib.govt.nz/newspapers/otago-daily-times)、[*The Press (Christchurch)*](https://paperspast.natlib.govt.nz/newspapers/press)；法兰西 [*Venloosch weekblad*](https://www.delpher.nl/nl/kranten)．
 
 </details>
 
 ## 学志
 
-学志下分三小类。**报告**详述仪器、天气、时刻，常附相应表格，文末署有地点、日期与姓名，多为一手记录。**通讯**是刊于学会会刊或天文期刊的投稿，多由报告整理而得，更注重与科学理论的联系。**学报**是学者对报社的投稿，题头有报社的引言，行文更加平实。学志年代自 1715 年始，至 1923 年止，条目总计 57 条，汉译字数占全库的 4.9%．
+学志下分三小类。**报告**详述仪器、天气、时刻，常附相应表格，文末署有地点、日期与姓名，多为一手记录。**通讯**是刊于学会会刊或天文期刊的投稿，多由报告整理而得，更注重与科学理论的联系。**学报**是学者对报社的投稿，题头有报社的引言，行文更加平实。学志年代自前 1218 年始，至 1943 年止，条目总计 353 条，汉译字数占全库的 11.2%．
 
 署名或来源 | 年代 | 报告 | 通讯 | 学报 | 合计
 ---|---|--:|--:|--:|--:
+[《天文月报》](https://www.asj.or.jp/geppou/archive_open/) | 前 1218 – 1943 |  | 269 |  | 269
 [Edmond Halley](https://archive.org/details/bim_eighteenth-century_a-description-of-the-pas_halley-edmund_1715_0) | 1715 | 1 |  |  | 1
 [Giacomo Filippo Maraldi](https://archive.org/details/bub_gb_kBhPQ4eDO9gC) | 1715 | 1 |  |  | 1
 [Jacques Cassini](https://gallica.bnf.fr/ark:/12148/bpt6k3525w) | 1724 | 1 |  |  | 1
@@ -268,6 +438,7 @@ The corpus draws on 387 sources, which fall broadly into four classes by genre: 
 [Joseph Adam Braun](https://archive.org/details/novicommentarii01sssrgoog) | 1748 | 1 |  |  | 1
 [James Ferguson](https://archive.org/details/philtrans09200653) | 1764 |  | 1 |  | 1
 [Samuel Dunn](https://archive.org/details/philtrans00704630) | 1764 |  | 1 |  | 1
+[《天界》](https://repository.kulib.kyoto-u.ac.jp/) | 1778 – 1943 |  | 25 |  | 25
 [Pyotr Inochodzov](https://archive.org/details/novaactaacademia07impe) | 1791 | 1 |  |  | 1
 [Stephan Rumovsky](https://archive.org/details/novaactaacademia07impe) | 1791 | 1 |  |  | 1
 [José Joaquín de Ferrer](https://archive.org/details/transactionsofam61809amer) | 1806 |  | 1 |  | 1
@@ -307,6 +478,7 @@ Sir William Christie | 1905 |  | 1 |  | 1
 [《吕伐登报》](https://www.delpher.nl/nl/kranten) | 1912 |  |  | 1 | 1
 [Hibbert Perceval Newton](https://archive.org/details/sim_popular-astronomy_june-and-july-1913_21_6) | 1913 | 1 |  |  | 1
 Daniel Walter Morehouse | 1918 | 1 |  |  | 1
+[*Fulton County Tribune*](https://www.loc.gov/chroniclingamerica/) | 1918 |  |  | 1 | 1
 Herbert C. Wilson | 1918 |  | 1 |  | 1
 [J. C. Hammond](https://archive.org/details/sim_popular-astronomy_august-and-september-1918_26_7) | 1918 | 1 |  |  | 1
 J. H. Darling | 1918 |  | 1 |  | 1
@@ -318,14 +490,15 @@ Walter Sydney Adams | 1918 |  | 1 |  | 1
 [F. W. Dyson](https://archive.org/details/philtrans06337895) | 1919 |  | 1 |  | 1
 [《新鹿特丹报》](https://www.delpher.nl/nl/kranten) | 1919 |  |  | 1 | 1
 Joaquín Gallo | 1923 |  | 1 |  | 1
+[《德臣西报》](https://archive.org/details/china-mail) | 1926 |  |  | 1 | 1
 
 ## 杂录
 
-杂录含典籍、泥板、诗歌、日记四小类，所收多为零散的单条记载。本节按文明聚类，来源按时间先后排列。杂录年代自前 2137 年始，为全库最早，至 1842 年止，条目总计 147 条，汉译字数占全库的 2.9%．
+杂录含典籍、泥板、诗歌、日记四小类，所收多为零散的单条记载。本节按文明聚类，来源按时间先后排列。杂录年代自前 2137 年始，为全库最早，至 1842 年止，条目总计 148 条，汉译字数占全库的 1.9%．
 
 文明 | 年代 | 来源 | 数量
 ---|---|---|--:
-中华 | 前 2137 – 1277 | [《尚书·胤征》](https://zh.wikisource.org/wiki/尚書/胤征)、[殷墟甲骨文](https://adsabs.harvard.edu/full/1995QJRAS..36..397Z)、[《诗经·小雅·十月之交》](https://zh.wikisource.org/wiki/詩經/十月之交)[《月蚀诗效玉川子作》](https://zh.wikisource.org/wiki/全唐詩/卷340)[《月蚀诗》](https://zh.wikisource.org/wiki/全唐詩/卷388)[《长春真人西游记》](https://zh.wikisource.org/wiki/%E9%95%B7%E6%98%A5%E7%9C%9F%E4%BA%BA%E8%A5%BF%E9%81%8A%E8%A8%98/%E5%8D%B7%E4%B8%8A)《日食》 | 14
+中华 | 前 2137 – 1277 | [《尚书·胤征》](https://zh.wikisource.org/wiki/尚書/胤征)、[殷墟甲骨文](https://adsabs.harvard.edu/full/1995QJRAS..36..397Z)、[《诗经·小雅·十月之交》](https://zh.wikisource.org/wiki/詩經/十月之交)[《月蚀诗效玉川子作》](https://zh.wikisource.org/wiki/全唐詩/卷340)[《月蚀诗》](https://zh.wikisource.org/wiki/全唐詩/卷388)[《长春真人西游记》](https://zh.wikisource.org/wiki/%E9%95%B7%E6%98%A5%E7%9C%9F%E4%BA%BA%E8%A5%BF%E9%81%8A%E8%A8%98/%E5%8D%B7%E4%B8%8A)《日食》 | 15
 赫梯 | 前 1312 | Mursili II | 1
 巴比伦 | 前 1223 – 前 183 | [乌加里特楔文泥板](https://cdli.earth/search?q=RS+12.061)、[Babylonian scribes](https://archive.org/details/bub_gb_a9nvvbG-OOIC)、[《至大论》](https://archive.org/details/india.history.resource.111794)、[Claudius Ptolemy, *Almagest*](https://archive.org/details/bub_gb_a9nvvbG-OOIC)、[*Babylonian Astronomical Diaries*](http://oracc.museum.upenn.edu/adsd/) | 10
 亚述 | 前 763 | [Assyrian scribes](https://oracc.museum.upenn.edu/saao/saas2/) | 1
@@ -349,46 +522,46 @@ Joaquín Gallo | 1923 |  | 1 |  | 1
 
 文明 | 年代 | 日 | 月 | 掩 | 合 | 客 | 彗 | 合计
 ---|---|--:|--:|--:|--:|--:|--:|--:
-中华 | 前 2137 – 1941 | 794 | 248 | 7 305 | 70 | 60 | 340 | 8 817
+中华 | 前 2137 – 1941 | 820 | 249 | 7 302 | 70 | 60 | 341 | 8 842
 赫梯 | 前 1312 | 1 |  |  |  |  |  | 1
-巴比伦 | 前 1223 – 前 183 | 1 | 9 |  |  |  |  | 10
+巴比伦 | 前 1223 – 前 183 | 2 | 10 |  |  |  |  | 12
 亚述 | 前 763 | 1 |  |  |  |  |  | 1
-希腊 | 前 648 – 71 | 6 | 2 |  |  |  |  | 8
-罗马 | 前 190 – 前 168 | 1 | 1 |  |  |  |  | 2
-朝鲜 | 前 54 – 1863 | 244 | 129 | 1 966 | 4 | 90 | 359 | 2 792
+希腊 | 前 648 – 1914 | 7 | 2 |  |  |  |  | 9
+罗马 | 前 190 – 5 | 2 | 1 |  |  |  |  | 3
+朝鲜 | 前 54 – 1863 | 244 | 129 | 1 967 | 4 | 90 | 359 | 2 793
 拜占庭 | 346 – 1453 | 21 | 9 |  |  | 1 | 17 | 48
-伊比利亚 | 402 – 1912 | 34 | 3 |  |  |  | 2 | 39
+伊比利亚 | 402 – 1926 | 40 | 4 |  |  |  | 2 | 46
 叙利亚 | 500 – 1191 | 9 | 2 |  |  |  | 1 | 12
-日本 | 628 – 1941 | 130 | 4 |  |  | 4 | 11 | 149
-不列颠 | 664 – 1941 | 170 | 7 |  |  |  |  | 177
+日本 | 628 – 1943 | 237 | 75 | 7 |  | 7 | 21 | 347
+不列颠 | 664 – 1941 | 220 | 7 | 2 |  | 1 | 6 | 236
 玛雅 | 755 – 859 | 2 |  |  |  |  |  | 2
 神圣罗马 | 806 – 1746 | 10 | 10 |  |  |  |  | 20
 阿拉伯 | 819 – 1905 | 29 | 52 | 19 | 31 |  |  | 131
 越南 | 993 – 1774 | 47 | 32 |  |  |  |  | 79
-法兰西 | 1033 – 1936 | 270 | 2 |  |  |  |  | 272
+法兰西 | 1033 – 1936 | 278 | 4 |  |  |  | 6 | 288
 西夏 | 1038 – 1223 | 9 |  |  |  |  |  | 9
 亚美尼亚 | 1099 – 1736 | 4 | 3 |  |  |  |  | 7
-意大利 | 1178 – 1927 | 14 | 4 |  |  |  |  | 18
-斯拉夫 | 1185 – 1941 | 10 |  |  |  |  |  | 10
-北欧 | 1263 – 1927 | 5 | 3 |  |  |  |  | 8
+意大利 | 1178 – 1933 | 18 | 4 | 1 |  | 1 |  | 24
+斯拉夫 | 1185 – 1941 | 19 |  |  |  | 1 |  | 20
+北欧 | 1263 – 1927 | 6 | 3 |  |  |  | 2 | 11
 波兰 | 1406 – 1905 | 4 |  |  |  |  |  | 4
 阿兹特克 | 1496 | 1 |  |  |  |  |  | 1
 尼德兰 | 1544 – 1929 | 326 |  |  |  |  |  | 326
-美利坚 | 1806 – 1929 | 198 |  |  |  |  |  | 198
-德意志 | 1836 – 1936 | 29 | 5 |  |  |  |  | 34
+美利坚 | 1778 – 1940 | 1 120 |  |  |  | 1 | 11 | 1 132
+德意志 | 1836 – 1936 | 33 | 7 | 1 |  |  | 5 | 46
 奥地利 | 1836 – 1905 | 3 |  |  |  |  |  | 3
-瑞士 | 1852 – 1905 | 1 | 1 |  |  |  |  | 2
+瑞士 | 1852 – 1910 | 1 | 1 |  |  |  | 1 | 3
 匈牙利 | 1867 | 1 |  |  |  |  |  | 1
-加拿大 | 1875 – 1913 | 2 | 1 |  |  |  |  | 3
-拉丁美洲 | 1912 – 1923 | 8 |  |  |  |  |  | 8
+加拿大 | 1875 – 1913 | 5 | 1 |  |  |  |  | 6
+拉丁美洲 | 1912 – 1941 | 11 |  |  |  |  |  | 11
 印度 | 1922 – 1941 | 3 |  |  |  |  |  | 3
-**合计** | | **2 388** | **527** | **9 290** | **105** | **155** | **730** | **13 195**
+**合计** | | **3 534** | **605** | **9 299** | **105** | **162** | **772** | **14 477**
 
 ---
 
 ## Histories
 
-The Histories comprise six types, each assigned to a work as a whole: basic annals, astronomical treatises, Five Phases treatises, veritable records, huiyao and chronicles. Almost every history holds many records, so each is listed on its own row with its subgenre. **Basic annals** follow the reigns of the emperors and usually record only a solar eclipse and its date. **Astronomical treatises** were compiled by court historians from the observation archives of the Astronomical Bureau and similar offices; they cover many kinds of phenomena and give details such as the time, the magnitude and the lunar mansion. **Five Phases treatises** were compiled from the doctrine of portents, and a phenomenon is often followed by the human affair it was taken to foretell. **Veritable records** are court records kept within the palace, and often note the advance prediction of a phenomenon and the measures taken against it. **Huiyao** record the institutions of a dynasty. **Chronicles** are, broadly, any histories arranged by year. The Histories come mainly from China, with Korea and Japan next and scattered records from other civilizations of Asia and Europe. They run from *Spring and Autumn Annals* in 720 BCE to *Draft History of Qing*, Basic Annals in 1911, with 11,948 records in all, 90.5% of the corpus.
+The Histories comprise six types, each assigned to a work as a whole: basic annals, astronomical treatises, Five Phases treatises, veritable records, huiyao and chronicles. Almost every history holds many records, so each is listed on its own row with its subgenre. **Basic annals** follow the reigns of the emperors and usually record only a solar eclipse and its date. **Astronomical treatises** were compiled by court historians from the observation archives of the Astronomical Bureau and similar offices; they cover many kinds of phenomena and give details such as the time, the magnitude and the lunar mansion. **Five Phases treatises** were compiled from the doctrine of portents, and a phenomenon is often followed by the human affair it was taken to foretell. **Veritable records** are court records kept within the palace, and often note the advance prediction of a phenomenon and the measures taken against it. **Huiyao** record the institutions of a dynasty. **Chronicles** are, broadly, any histories arranged by year. The Histories come mainly from China, with Korea and Japan next and scattered records from other civilizations of Asia and Europe. They run from *Spring and Autumn Annals* in 720 BCE to *Draft History of Qing*, Basic Annals in 1911, with 11,945 records in all, 82.5% of the corpus.
 
 ### China
 
@@ -414,7 +587,7 @@ Source | Subgenre | Period | Solar | Lunar | Occult. | Conj. | Guest | Comet | T
 [*History of Liao*, Basic Annals](https://zh.wikisource.org/wiki/%E9%81%BC%E5%8F%B2/%E5%8D%B722) | Basic annals | 921 – 1075 | 9 |  |  |  |  |  | 9
 [*Liaoshi*](https://zh.wikisource.org/wiki/%E9%81%BC%E5%8F%B2/%E5%8D%B722) | Chronicle | 941 – 1097 |  |  |  |  | 1 | 5 | 6
 [*Draft of the Collected Statutes of Song*, "Auspicious and Anomalous Phenomena"](http://thdl.ntu.edu.tw/L303_SongHuiYao/RetrieveDocs.php) | Huiyao | 960 – 1230 | 43 | 1 |  |  | 2 | 23 | 69
-[*History of Song*, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) | Astronomical treatise | 960 – 1275 | 121 | 149 | 4,629 |  | 17 | 21 | 4,937
+[*History of Song*, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E5%AE%8B%E5%8F%B2/%E5%8D%B7053) | Astronomical treatise | 960 – 1275 | 121 | 149 | 4,626 |  | 17 | 21 | 4,934
 [*Draft of the Collected Statutes of Song*, "Calendrical Reckoning"](http://thdl.ntu.edu.tw/L303_SongHuiYao/RetrieveDocs.php) | Huiyao | 1052 – 1186 |  | 3 |  |  |  |  | 3
 [*History of Jin*, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E9%87%91%E5%8F%B2/%E5%8D%B720) | Astronomical treatise | 1120 – 1233 | 8 | 25 | 200 | 4 | 2 | 6 | 245
 [*History of Yuan*, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E5%85%83%E5%8F%B2/%E5%8D%B7049) | Astronomical treatise | 1264 – 1367 | 35 |  | 562 | 8 | 1 | 19 | 625
@@ -430,7 +603,7 @@ Source | Subgenre | Period | Solar | Lunar | Occult. | Conj. | Guest | Comet | T
 ---|---|---|--:|--:|--:|--:|--:|--:|--:
 [*Samguk sagi*](https://zh.wikisource.org/wiki/%E4%B8%89%E5%9C%8B%E5%8F%B2%E8%A8%98/%E5%8D%B701) | Chronicle | 54 BCE – 911 | 42 |  |  |  | 3 | 9 | 54
 [*Goryeosa*, Treatise on Astronomy](https://zh.wikisource.org/wiki/%E9%AB%98%E9%BA%97%E5%8F%B2/%E5%8D%B7%E5%9B%9B%E5%8D%81%E5%85%AB) | Astronomical treatise | 989 – 1392 | 118 | 98 | 1,966 | 4 | 3 | 53 | 2,242
-[*Veritable Records of the Joseon Dynasty*](https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84/%E5%93%B2%E5%AE%97%E5%AF%A6%E9%8C%84/%E5%8D%81%E4%BA%8C%E5%B9%B4) | Veritable records | 1400 – 1863 | 84 | 31 |  |  | 84 | 297 | 496
+[*Veritable Records of the Joseon Dynasty*](https://zh.wikisource.org/wiki/%E6%9C%9D%E9%AE%AE%E7%8E%8B%E6%9C%9D%E5%AF%A6%E9%8C%84) | Veritable records | 1400 – 1863 | 84 | 31 |  |  | 84 | 297 | 496
 
 ### Japan
 
@@ -508,11 +681,11 @@ Byzantium: [*Chronicon Paschale*](https://archive.org/details/bub_gb_8CQAAAAAYAA
 
 ## Newspapers
 
-Newspaper subgenres are assigned record by record, and one eclipse was often reported in several genres. **Dispatches** open with a dateline, often name a news agency, are short and never use the first person singular. **Reports** are the most numerous; they tell the news plainly and include curious incidents during the eclipse. **Eyewitness** accounts are first-person reports, often with the observer's own impressions. **Features** are the longest and mostly portray the crowds. **Editorials** argue in the paper's own name and at times use the eclipse to criticise the state of affairs. **Notices** appear before the event and usually predict its times and places. Newspaper records come mostly from public-domain material in [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/) and [Chronicling America](https://chroniclingamerica.loc.gov/), so most are in Dutch, French or English, alongside modern Chinese papers such as *Shun Pao*. They run from 1834 to 1941, with 1,033 records in all, yet 50.3% of the Chinese translation by character count.
+Newspaper subgenres are assigned record by record, and one eclipse was often reported in several genres. **Dispatches** open with a dateline, often name a news agency, are short and never use the first person singular. **Reports** are the most numerous; they tell the news plainly and include curious incidents during the eclipse. **Eyewitness** accounts are first-person reports, often with the observer's own impressions. **Features** are the longest and mostly portray the crowds. **Editorials** argue in the paper's own name and at times use the eclipse to criticise the state of affairs. **Notices** appear before the event and usually predict its times and places. Newspaper records come mostly from public-domain material in [Delpher](https://www.delpher.nl/), [Gallica](https://gallica.bnf.fr/), the [Internet Archive](https://archive.org/) and [Chronicling America](https://chroniclingamerica.loc.gov/), so most are in Dutch, French or English, alongside modern Chinese papers such as *Shun Pao*. They run from 1834 to 1941, with 2,031 records in all, yet 59.7% of the Chinese translation by character count.
 
 Source | Period | Dispatch | Report | Eyewitness | Feature | Editorial | Notice | Total
 ---|---|--:|--:|--:|--:|--:|--:|--:
-[*Alexandria Gazette*](https://www.loc.gov/chroniclingamerica/) | 1834 – 1875 |  | 3 | 1 | 1 |  |  | 5
+[*Alexandria Gazette*](https://www.loc.gov/chroniclingamerica/) | 1834 – 1918 |  | 6 | 1 | 1 |  | 1 | 9
 [*Daily National Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1834 |  | 3 |  | 1 |  |  | 4
 [*Herald of the Times*](https://www.loc.gov/chroniclingamerica/) | 1834 – 1838 |  | 4 |  |  |  |  | 4
 [*The Northern Star, and Constitutionalist*](https://www.loc.gov/chroniclingamerica/) | 1834 |  | 3 |  | 1 |  |  | 4
@@ -530,35 +703,141 @@ Source | Period | Dispatch | Report | Eyewitness | Feature | Editorial | Notice 
 [*Opregte Haarlemsche Courant*](https://www.delpher.nl/nl/kranten) | 1851 – 1900 | 1 | 6 |  |  |  |  | 7
 [*La Presse*](https://gallica.bnf.fr/) | 1860 – 1912 | 1 | 17 |  |  |  |  | 18
 [*Provinciale Drentsche en Asser courant*](https://www.delpher.nl/nl/kranten) | 1860 – 1912 |  | 3 |  |  |  |  | 3
-[*The North-China Herald*](https://archive.org/details/northchinaherald) | 1868 – 1941 | 3 | 22 |  |  | 1 | 3 | 29
-[*The China Mail*](https://archive.org/details/china-mail) | 1868 – 1936 | 3 | 15 | 1 | 1 |  | 12 | 32
+[*The North-China Herald*](https://archive.org/details/northchinaherald) | 1868 – 1941 | 5 | 24 |  |  | 1 | 5 | 35
+[*The China Mail*](https://archive.org/details/china-mail) | 1868 – 1936 | 9 | 18 | 1 | 1 |  | 15 | 44
+[*Ashtabula Weekly Telegraph*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*Bedford Inquirer*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Bristol News*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 1 |  | 1 |  |  | 2
+[*Cedar Falls Gazette*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  | 1 |  |  | 2
+[*Chicago Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 | 11 | 12 | 1 | 5 |  | 2 | 31
+[*Clarke Courier*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 | 1 |  |  |  | 3
+[*Clarksville Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*Clearfield Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Delaware Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 3 | 1 |  |  |  | 4
+[*Dodgeville Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  | 1 |  | 1 | 4
+[*Elizabeth Daily Monitor*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Evening Star*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1919 | 1 | 12 |  |  |  | 2 | 15
+[*Fayette County Herald*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 4 |  |  |  |  | 4
+[*Gold Hill Daily News*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*Green-Mountain Freeman*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Iowa Voter*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Memphis Daily Appeal*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 | 10 | 5 |  | 1 |  | 1 | 17
+[*Mineral Point Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 |  | 3 |  |  |  |  | 3
+[*Mower County Transcript*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  | 1 | 3
+[*Nashville Union and American*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*National Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 | 2 | 5 |  |  |  | 1 | 8
+[*Nebraska Advertiser*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 5 |  |  |  |  | 5
+[*New York Dispatch*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 1 | 1 |  |  |  | 2
+[*New-York Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 | 6 | 13 |  |  | 1 | 4 | 24
+[*North Iowa Times*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Oxford Democrat*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 |  | 6 |  |  |  |  | 6
+[*Pawtucket Gazette and Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*Shepherdstown Register*](https://www.loc.gov/chroniclingamerica/) | 1869 |  |  |  | 1 |  | 2 | 3
+[*South Branch Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 | 1 | 2 |  |  |  |  | 3
+[*Springfield Weekly Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 |  | 3 |  |  |  | 4 | 7
+[*Staunton Spectator*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Staunton Vindicator*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 | 1 |  |  |  | 3
+[*Sugar Planter*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The Anderson Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 |  | 2 |  | 1 |  |  | 3
+[*The Athens Post*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Baltimore County Union*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Cambria Freeman*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 | 1 |  |  |  | 3
+[*The Carson Daily Appeal*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The Cecil Whig*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 3 |  |  |  | 1 | 4
+[*The Charleston Daily News*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  | 1 |  | 2 | 4
+[*The Cheyenne Leader*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  | 1 | 3
+[*The Daily Dispatch*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 6 |  |  |  | 3 | 9
+[*The Daily Phoenix*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The Democratic Advocate*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Democratic Press*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Du Quoin Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Emporia News*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Evansville Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 | 1 | 3 |  |  |  | 4 | 8
+[*The Evening Argus*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 4 |  |  |  | 1 | 5
+[*The Evening Telegraph*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 3 | 1 | 1 |  | 5 | 10
+[*The Highland Weekly News*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 1 |  | 1 |  |  | 2
+[*The Jackson Standard*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Lancaster Gazette*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Louisiana Democrat*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*The Manitowoc Pilot*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1918 |  | 3 |  |  |  |  | 3
+[*The Manitowoc Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The National Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The New North-West*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  | 1 |  |  | 3
+[*The New York Herald*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 34 | 2 | 2 | 1 | 3 | 42
+[*The Newberry Herald*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 3 |  |  |  |  | 3
+[*The Opelousas Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*The Ottawa Free Trader*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 |  | 7 |  | 1 |  | 1 | 9
+[*The People*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1875 |  | 2 | 1 |  |  |  | 3
+[*The Portland Daily Press*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 | 8 | 1 |  | 1 |  | 5 | 15
+[*The Republican Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  |  |  |  | 2
+[*The Sun*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 | 2 | 10 |  | 1 |  | 3 | 16
+[*The Tiffin Tribune*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 5 |  |  |  |  | 5
+[*The Weekly North-Carolina Standard*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  | 1 |  |  | 2
+[*The Wheeling Daily Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 | 9 | 9 | 1 |  |  | 5 | 24
+[*The Wheeling Daily Register*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 2 |  | 1 |  | 1 | 4
+[*Virginia Free Press*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 3 |  |  |  |  | 3
+[*Washington Standard*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1885 | 1 | 3 |  |  |  | 1 | 5
+[*Watertown Republican*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Weekly Trinity Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*West-Jersey Pioneer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1878 |  | 2 |  |  |  |  | 2
+[*Wilmington Journal*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 1 |  |  |  | 1 | 2
+[*Worcester Daily Spy*](https://www.loc.gov/chroniclingamerica/) | 1869 |  | 4 |  |  |  | 1 | 5
+[*Yorkville Enquirer*](https://www.loc.gov/chroniclingamerica/) | 1869 – 1919 |  | 9 |  |  |  |  | 9
 [*Le Constitutionnel*](https://gallica.bnf.fr/) | 1870 – 1900 | 2 | 5 |  |  |  |  | 7
 [*Le Temps*](https://gallica.bnf.fr/) | 1870 – 1912 | 3 | 37 | 1 | 7 |  |  | 48
 [*Bataviaasch handelsblad*](https://www.delpher.nl/nl/kranten) | 1871 |  | 3 |  |  |  |  | 3
 [*Het vaderland*](https://www.delpher.nl/nl/kranten) | 1871 – 1929 | 1 | 13 |  | 3 |  |  | 17
 [*Java-bode*](https://www.delpher.nl/nl/kranten) | 1871 – 1872 |  | 1 |  |  |  | 1 | 2
-[*The Hongkong Daily Press*](https://archive.org/details/china-mail) | 1872 – 1941 | 1 | 7 |  | 1 |  | 8 | 17
-[*Daily Kennebec Journal*](https://www.loc.gov/chroniclingamerica/) | 1875 | 1 | 3 |  |  |  |  | 4
-[*Evening Star*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1919 |  | 2 |  |  |  |  | 2
-[*National Republican*](https://www.loc.gov/chroniclingamerica/) | 1875 | 2 | 1 |  |  |  |  | 3
-[*New-York Tribune*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1885 | 6 | 3 |  |  | 1 |  | 10
-[*Public Ledger*](https://www.loc.gov/chroniclingamerica/) | 1875 |  | 2 |  |  |  |  | 2
-[*Shun Pao*](https://archive.org/details/shenbao-archive) | 1875 – 1941 | 9 | 1 |  | 1 | 1 | 14 | 33
-[*The New York Herald*](https://www.loc.gov/chroniclingamerica/) | 1875 |  | 8 |  | 1 | 1 |  | 10
+[*The Hongkong Daily Press*](https://archive.org/details/china-mail) | 1872 – 1941 | 4 | 8 |  | 1 |  | 12 | 25
+[*Daily Kennebec Journal*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1919 | 1 | 6 |  |  |  | 2 | 9
+[*Providence Morning Star*](https://www.loc.gov/chroniclingamerica/) | 1875 | 2 | 2 |  |  |  |  | 4
+[*Public Ledger*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1878 |  | 3 |  |  |  | 2 | 5
+[*Shun Pao*](https://archive.org/details/shenbao-archive) | 1875 – 1941 | 35 | 6 |  | 1 | 2 | 26 | 70
+[*The Cincinnati Daily Star*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1878 | 1 | 2 |  |  |  | 3 | 6
+[*The Daily Gazette*](https://www.loc.gov/chroniclingamerica/) | 1875 – 1878 |  | 1 |  |  |  | 1 | 2
+[*Belmont Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 4 |  |  |  |  | 4
+[*Bismarck Weekly Tribune*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 |  | 1 |  |  | 2
+[*Bozeman Avant Courier*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  | 1 | 3
+[*Brenham Weekly Banner*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  | 1 | 3
+[*Burt's Among the Clouds*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 |  |  |  | 1 | 2
+[*Chicago Daily Tribune*](https://www.loc.gov/chroniclingamerica/) | 1878 |  |  |  | 1 |  | 1 | 2
+[*Clarksville Weekly Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1878 | 2 | 1 |  |  |  |  | 3
+[*Connecticut Western News*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 | 1 |  |  |  | 2
+[*Daily Globe*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*Daily los Angeles Herald*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*Daily Press and Dakotaian*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
 [*De Volksvriend*](https://www.delpher.nl/nl/kranten) | 1878 – 1925 |  | 9 |  |  |  |  | 9
-[*Morning Appeal*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 |  | 2 |  |  |  |  | 2
+[*Eureka Daily Sentinel*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1880 |  | 1 |  | 1 |  |  | 2
+[*Helena Weekly Herald*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 |  | 2 |  | 2 |  |  | 4
+[*Lexington Weekly Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  |  | 3
+[*Litchfield Enquirer*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 4 |  |  |  |  | 4
+[*Mexico Weekly Ledger*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1918 |  | 3 |  |  |  |  | 3
+[*Morning Appeal*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 |  | 3 | 1 |  |  |  | 4
+[*New Ulm Weekly Review*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 |  |  |  | 1 | 2
+[*St. Johnsbury Caledonian*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 |  | 3 |  |  |  |  | 3
+[*The Breckenridge News*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Cheyenne Daily Leader*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  | 1 | 4
+[*The Daily Cairo Bulletin*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Daily Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 1 |  |  |  | 1 | 2
+[*The Eaton Democrat*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Kenosha Telegraph*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 | 6 | 3 |  |  |  |  | 9
+[*The New Orleans Daily Democrat*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  | 1 | 4
+[*The Pascagoula Democrat-Star*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  |  | 3
+[*The Rock Island Argus*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1885 | 1 | 3 | 1 |  |  |  | 5
+[*The Saline County Journal*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Silver State*](https://www.loc.gov/chroniclingamerica/) | 1878 – 1918 |  | 3 |  |  |  | 1 | 4
+[*The Union*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Weekly Democratic Statesman*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 3 |  |  |  | 1 | 4
+[*The Weekly Kansas Chief*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
+[*The Weekly Visitor*](https://www.loc.gov/chroniclingamerica/) | 1878 |  | 2 |  |  |  |  | 2
 [*Sacramento Daily Record-union*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 |  | 19 |  |  |  |  | 19
-[*The Salt Lake Herald*](https://www.loc.gov/chroniclingamerica/) | 1880 | 1 |  | 1 |  |  |  | 2
-[*The Sun*](https://www.loc.gov/chroniclingamerica/) | 1880 – 1885 | 1 | 3 |  |  |  |  | 4
-[*The Hongkong Telegraph*](https://archive.org/details/china-mail) | 1882 – 1941 | 5 | 10 |  |  |  | 2 | 17
+[*The Salt Lake Herald*](https://www.loc.gov/chroniclingamerica/) | 1880 | 1 | 1 | 1 |  |  |  | 3
+[*The Hongkong Telegraph*](https://archive.org/details/china-mail) | 1882 – 1941 | 8 | 15 |  |  |  | 7 | 30
 [*Nieuwe Haarlemsche courant*](https://www.delpher.nl/nl/kranten) | 1882 – 1927 |  | 8 |  | 2 |  |  | 10
 [*Het nieuws van den dag (kleine courant)*](https://www.delpher.nl/nl/kranten) | 1882 – 1905 |  | 3 | 1 |  |  |  | 4
-[*Helena Weekly Herald*](https://www.loc.gov/chroniclingamerica/) | 1885 |  |  |  | 2 |  |  | 2
 [*Morris Tribune*](https://www.loc.gov/chroniclingamerica/) | 1885 |  | 2 |  |  |  |  | 2
+[*Omaha Daily Bee*](https://www.loc.gov/chroniclingamerica/) | 1885 – 1918 |  | 2 |  | 1 |  | 1 | 4
 [*The Corvallis Gazette*](https://www.loc.gov/chroniclingamerica/) | 1885 |  | 2 |  |  |  |  | 2
-[*The Kenosha Telegraph*](https://www.loc.gov/chroniclingamerica/) | 1885 | 6 | 1 |  |  |  |  | 7
-[*The Portland Daily Press*](https://www.loc.gov/chroniclingamerica/) | 1885 | 8 |  |  |  |  |  | 8
-[*The Rock Island Argus*](https://www.loc.gov/chroniclingamerica/) | 1885 | 1 | 1 |  |  |  |  | 2
 [*De West-Indiër*](https://www.delpher.nl/nl/kranten) | 1886 – 1897 |  | 2 |  |  |  |  | 2
 [*De nieuwe vorstenlanden*](https://www.delpher.nl/nl/kranten) | 1894 – 1926 |  | 3 | 1 |  |  |  | 4
 [*Soerabaijasch handelsblad*](https://www.delpher.nl/nl/kranten) | 1894 – 1901 |  | 1 |  | 1 |  |  | 2
@@ -589,7 +868,7 @@ Source | Period | Dispatch | Report | Eyewitness | Feature | Editorial | Notice 
 [*De locomotief*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 5 |  | 1 |  |  | 6
 [*De Sumatra post*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 10 |  |  |  |  | 10
 [*Het nieuws van den dag voor Nederlandsch-Indië*](https://www.delpher.nl/nl/kranten) | 1901 – 1929 |  | 10 |  | 1 |  |  | 11
-[*Xianggang Huazi ribao*](https://archive.org/details/china-mail) | 1901 – 1926 |  | 1 |  |  |  | 3 | 7
+[*The Chinese Mail*](https://archive.org/details/china-mail) | 1901 – 1936 | 8 | 2 |  |  |  | 11 | 21
 [*De Preanger-bode*](https://www.delpher.nl/nl/kranten) | 1904 – 1915 |  | 3 |  |  |  |  | 3
 [*Sumatra-bode*](https://www.delpher.nl/nl/kranten) | 1904 – 1926 | 4 | 5 |  |  |  |  | 9
 [*De nieuwe courant*](https://www.delpher.nl/nl/kranten) | 1905 – 1921 |  | 4 | 4 | 2 |  |  | 10
@@ -611,12 +890,75 @@ Source | Period | Dispatch | Report | Eyewitness | Feature | Editorial | Notice 
 [*Nieuwe Tilburgsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1914 |  | 3 |  |  |  |  | 3
 [*Nieuwe Venlosche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1921 |  | 3 |  |  |  |  | 3
 [*Nieuwe Vlaardingsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1927 |  | 2 |  |  |  |  | 2
-[*Provinciale Geldersche en Nijmeegsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1927 |  | 5 |  |  |  |  | 5
+[*Provinciale Geldersche en Nijmeegsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1927 |  | 4 |  | 1 |  |  | 5
 [*RK dagblad het huisgezin*](https://www.delpher.nl/nl/kranten) | 1912 |  | 2 |  |  |  |  | 2
 [*Westlandsche courant*](https://www.delpher.nl/nl/kranten) | 1912 – 1921 |  | 1 |  | 1 |  |  | 2
 [*Aaltensche courant*](https://www.delpher.nl/nl/kranten) | 1914 – 1921 |  | 2 |  |  |  |  | 2
 [*Emmer courant*](https://www.delpher.nl/nl/kranten) | 1914 – 1921 |  | 2 |  |  |  |  | 2
 [*Twentsch dagblad Tubantia*](https://www.delpher.nl/nl/kranten) | 1914 – 1921 |  | 2 |  |  |  |  | 2
+[*Albuquerque Morning Journal*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 3 | 4
+[*American Falls Press*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Americus Times-Recorder*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  |  | 2
+[*Cheyenne Record*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  | 1 | 3
+[*Cottonwood Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Custer Weekly Chronicle*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*Daily Capital Journal*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  | 1 | 3
+[*Daily Kentuckian*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  |  | 2
+[*Denver Labor Bulletin*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  | 1 | 3
+[*East Oregonian*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 5 |  |  |  | 2 | 7
+[*Evening Times-republican*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  |  | 2
+[*Gilpin Observer*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Grand Forks Herald*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  |  |  | 2 | 3
+[*Imperial Valley Press*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  |  | 2
+[*Jamestown Weekly Alert*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*La Prensa*](https://www.loc.gov/chroniclingamerica/) | 1918 |  |  |  |  |  | 2 | 2
+[*La Prensa*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  |  |  | 2 | 3
+[*Laredo Weekly Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*Mountain Home Republican*](https://www.loc.gov/chroniclingamerica/) | 1918 |  |  |  |  |  | 2 | 2
+[*Norwich Bulletin*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 5 |  |  |  |  | 5
+[*Payette Enterprise*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Perth Amboy Evening News*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  | 1 | 3
+[*Pine Bluff Daily Graphic*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 3 | 4
+[*Randolph Enterprise*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Rock Springs Miner*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*Rogue River Courier*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Abbeville Press and Banner*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Barre Daily Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 2 | 3
+[*The Beaver Herald*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Canon City Record*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Chattanooga News*](https://www.loc.gov/chroniclingamerica/) | 1918 |  |  |  |  |  | 2 | 2
+[*The Cordele Dispatch*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  |  |  | 1 | 2
+[*The Eureka Sentinel*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Fargo Forum and Daily Republican*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Gazette-Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 | 1 |  |  |  | 2
+[*The Glenwood Post*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Greeneville Daily Sun*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 2 | 3
+[*The Holt County Sentinel*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Hood River Glacier*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 5 |  |  |  |  | 5
+[*The Kendrick Gazette*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Kennewick Courier-Reporter*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Laramie Republican*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  | 1 |  | 2 | 4
+[*The Liberal Democrat*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Meeker Herald*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Mellette County Pioneer*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Montgomery Advertiser*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  | 2 | 4
+[*The Oklahoma City Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*The Ordway New Era*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Pensacola Journal*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  |  | 2
+[*The Richmond Virginian*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  |  |  | 3 | 4
+[*The Saratoga Sun*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Seattle Star*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Sentinel-Record*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 3 | 4
+[*The Sun*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  | 1 | 3
+[*The Tacoma Times*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 3 |  |  |  | 2 | 5
+[*The Topeka State Journal*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 | 1 |  |  | 1 | 4
+[*The Vashon Island Record*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
+[*The Washington Herald*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 1 |  | 1 |  |  | 2
+[*The Washington Times*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  | 2 |  |  |  | 1 | 3
+[*The Weekly Alaska Citizen*](https://www.loc.gov/chroniclingamerica/) | 1918 | 1 | 1 |  |  |  |  | 2
+[*The Wheeling Intelligencer*](https://www.loc.gov/chroniclingamerica/) | 1918 – 1919 |  |  |  |  |  | 2 | 2
+[*Tulsa Daily World*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 1 |  |  |  | 1 | 2
+[*Western Kansas World*](https://www.loc.gov/chroniclingamerica/) | 1918 |  | 2 |  |  |  |  | 2
 [*De Maasbode*](https://www.delpher.nl/nl/kranten) | 1919 – 1927 |  | 4 |  | 1 |  |  | 5
 [*El Imparcial*](https://www.loc.gov/chroniclingamerica/) | 1919 |  | 2 |  |  |  |  | 2
 [*El Mundo*](https://www.loc.gov/chroniclingamerica/) | 1919 |  | 5 |  |  |  |  | 5
@@ -633,16 +975,17 @@ Source | Period | Dispatch | Report | Eyewitness | Feature | Editorial | Notice 
   <summary><b>Single-record sources</b></summary>
   <br>
 
-America: [*Daily Richmond Whig & Public Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Rhode-Island Republican*](https://www.loc.gov/chroniclingamerica/); [*Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/); [*Maumee City Express*](https://www.loc.gov/chroniclingamerica/); [*Republican Herald*](https://www.loc.gov/chroniclingamerica/); [*Staunton Spectator, and General Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Daily Herald*](https://www.loc.gov/chroniclingamerica/); [*The New Hampshire Gazette*](https://www.loc.gov/chroniclingamerica/); [*True American*](https://www.loc.gov/chroniclingamerica/); [*Western Enquirer*](https://www.loc.gov/chroniclingamerica/); [*Bradford Opinion*](https://www.loc.gov/chroniclingamerica/); [*Oxford Democrat*](https://www.loc.gov/chroniclingamerica/); [*The Arizona Sentinel*](https://www.loc.gov/chroniclingamerica/); [*The Cincinnati Daily Star*](https://www.loc.gov/chroniclingamerica/); [*The Daily Gazette*](https://www.loc.gov/chroniclingamerica/); [*Eureka Daily Sentinel*](https://www.loc.gov/chroniclingamerica/); [*The Silver State*](https://www.loc.gov/chroniclingamerica/); [*Devils Lake Inter-ocean*](https://www.loc.gov/chroniclingamerica/); [*Iron County Register*](https://www.loc.gov/chroniclingamerica/); [*Mexico Weekly Ledger*](https://www.loc.gov/chroniclingamerica/); [*Morning Journal and Courier*](https://www.loc.gov/chroniclingamerica/); [*Omaha Daily Bee*](https://www.loc.gov/chroniclingamerica/); [*Press and Daily Dakotaian*](https://www.loc.gov/chroniclingamerica/); [*St. Johnsbury Caledonian*](https://www.loc.gov/chroniclingamerica/); [*The Anderson Intelligencer*](https://www.loc.gov/chroniclingamerica/); [*The Democratic Leader*](https://www.loc.gov/chroniclingamerica/); [*The Evening Critic*](https://www.loc.gov/chroniclingamerica/); [*The Lincoln County Leader*](https://www.loc.gov/chroniclingamerica/); [*The Livingston Enterprise*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Oskaloosa Herald*](https://www.loc.gov/chroniclingamerica/); [*Americus Times-Recorder*](https://www.loc.gov/chroniclingamerica/); [*Audubon Republican*](https://www.loc.gov/chroniclingamerica/); [*Batesville Daily Guard*](https://www.loc.gov/chroniclingamerica/); [*Cheyenne Record*](https://www.loc.gov/chroniclingamerica/); [*The Daily Gate City and Constitution-democrat*](https://www.loc.gov/chroniclingamerica/); [*Evening Times-republican*](https://www.loc.gov/chroniclingamerica/); [*Grand Forks Herald*](https://www.loc.gov/chroniclingamerica/); [*Richmond Times-Dispatch*](https://www.loc.gov/chroniclingamerica/); [*St. Croix Avis*](https://www.loc.gov/chroniclingamerica/); [*The Bemidji Daily Pioneer*](https://www.loc.gov/chroniclingamerica/); [*The Cordele Dispatch*](https://www.loc.gov/chroniclingamerica/); [*The Montgomery Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Richmond Virginian*](https://www.loc.gov/chroniclingamerica/); [*The Washington Herald*](https://www.loc.gov/chroniclingamerica/); [*The Washington Times*](https://www.loc.gov/chroniclingamerica/); [*Yorkville Enquirer*](https://www.loc.gov/chroniclingamerica/). Low Countries: [*Utrechtsche provinciale en stads-courant*](https://www.delpher.nl/nl/kranten); [*Hoornsche courant*](https://www.delpher.nl/nl/kranten); [*Het volksdagblad*](https://www.delpher.nl/nl/kranten); [*Deli courant*](https://www.delpher.nl/nl/kranten); [*De Stichtsche courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Hengeloosche courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Veendammer courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Winterswijksche courant*](https://www.delpher.nl/nl/kranten); [*Dragtster courant*](https://www.delpher.nl/nl/kranten); [*Nieuwsblad van het Zuiden*](https://www.delpher.nl/nl/kranten); [*Ons Noorden*](https://www.delpher.nl/nl/kranten); [*Opregte Steenwijker courant*](https://www.delpher.nl/nl/kranten); [*Provinciale Noordbrabantsche en 's Hertogenbossche courant*](https://www.delpher.nl/nl/kranten); [*De expres*](https://www.delpher.nl/nl/kranten); [*De Graafschapper*](https://www.delpher.nl/nl/kranten); [*De tribune*](https://www.delpher.nl/nl/kranten); [*De Zaanlander*](https://www.delpher.nl/nl/kranten); [*Onze courant*](https://www.delpher.nl/nl/kranten); [*Overijsselsch dagblad*](https://www.delpher.nl/nl/kranten). Germany: [*Rotterdamsche courant*](https://www.delpher.nl/nl/kranten). Britain: [*Nieuw Amsterdamsch handels- en effectenblad*](https://www.delpher.nl/nl/kranten); [*Otago Daily Times*](https://paperspast.natlib.govt.nz/newspapers/otago-daily-times); [*The Press (Christchurch)*](https://paperspast.natlib.govt.nz/newspapers/press). France: [*Venloosch weekblad*](https://www.delpher.nl/nl/kranten).
+America: [*Daily Richmond Whig & Public Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Rhode-Island Republican*](https://www.loc.gov/chroniclingamerica/); [*Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/); [*Maumee City Express*](https://www.loc.gov/chroniclingamerica/); [*Republican Herald*](https://www.loc.gov/chroniclingamerica/); [*Staunton Spectator, and General Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Daily Herald*](https://www.loc.gov/chroniclingamerica/); [*The New Hampshire Gazette*](https://www.loc.gov/chroniclingamerica/); [*True American*](https://www.loc.gov/chroniclingamerica/); [*Western Enquirer*](https://www.loc.gov/chroniclingamerica/); [*Bellows Falls Times*](https://www.loc.gov/chroniclingamerica/); [*Dallas Herald*](https://www.loc.gov/chroniclingamerica/); [*Danbury Times*](https://www.loc.gov/chroniclingamerica/); [*Delaware Gazette*](https://www.loc.gov/chroniclingamerica/); [*Delaware State Journal and Statesman*](https://www.loc.gov/chroniclingamerica/); [*Gallipolis Journal*](https://www.loc.gov/chroniclingamerica/); [*Lamoille Newsdealer*](https://www.loc.gov/chroniclingamerica/); [*Marshall County Republican*](https://www.loc.gov/chroniclingamerica/); [*Middletown Transcript*](https://www.loc.gov/chroniclingamerica/); [*Owyhee Semi-Weekly Tidal Wave*](https://www.loc.gov/chroniclingamerica/); [*Raftsman's Journal*](https://www.loc.gov/chroniclingamerica/); [*Rutland Weekly Herald*](https://www.loc.gov/chroniclingamerica/); [*Shenandoah Herald*](https://www.loc.gov/chroniclingamerica/); [*Tama County Republican*](https://www.loc.gov/chroniclingamerica/); [*The Albany Register*](https://www.loc.gov/chroniclingamerica/); [*The Cairo Evening Bulletin*](https://www.loc.gov/chroniclingamerica/); [*The Camden Journal*](https://www.loc.gov/chroniclingamerica/); [*The Elko Independent*](https://www.loc.gov/chroniclingamerica/); [*The Fremont Weekly Journal*](https://www.loc.gov/chroniclingamerica/); [*The Hancock Jeffersonian*](https://www.loc.gov/chroniclingamerica/); [*The Idaho World*](https://www.loc.gov/chroniclingamerica/); [*The Kentucky Gazette*](https://www.loc.gov/chroniclingamerica/); [*The Marietta Journal*](https://www.loc.gov/chroniclingamerica/); [*The Opelousas Courier*](https://www.loc.gov/chroniclingamerica/); [*The Orangeburg News*](https://www.loc.gov/chroniclingamerica/); [*The Petroleum Centre Daily Record*](https://www.loc.gov/chroniclingamerica/); [*The Plymouth Weekly Democrat*](https://www.loc.gov/chroniclingamerica/); [*The Shasta Courier*](https://www.loc.gov/chroniclingamerica/); [*The Spirit of Democracy*](https://www.loc.gov/chroniclingamerica/); [*The St. Cloud Journal*](https://www.loc.gov/chroniclingamerica/); [*The State Rights Democrat*](https://www.loc.gov/chroniclingamerica/); [*The States and Union*](https://www.loc.gov/chroniclingamerica/); [*The Tarboro' Southerner*](https://www.loc.gov/chroniclingamerica/); [*The Tipton Advertiser*](https://www.loc.gov/chroniclingamerica/); [*The Union and Journal*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Ottumwa Courier*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Panola Star*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Register*](https://www.loc.gov/chroniclingamerica/); [*Urbana Union*](https://www.loc.gov/chroniclingamerica/); [*White Cloud Kansas Chief*](https://www.loc.gov/chroniclingamerica/); [*Bradford Opinion*](https://www.loc.gov/chroniclingamerica/); [*The Arizona Sentinel*](https://www.loc.gov/chroniclingamerica/); [*American Citizen*](https://www.loc.gov/chroniclingamerica/); [*Ashtabula Telegraph*](https://www.loc.gov/chroniclingamerica/); [*Batesville Guard*](https://www.loc.gov/chroniclingamerica/); [*Buchanan County Bulletin*](https://www.loc.gov/chroniclingamerica/); [*Canton Register*](https://www.loc.gov/chroniclingamerica/); [*Chariton Courier*](https://www.loc.gov/chroniclingamerica/); [*Dodge City Times*](https://www.loc.gov/chroniclingamerica/); [*Ellsworth American*](https://www.loc.gov/chroniclingamerica/); [*Essex County Herald*](https://www.loc.gov/chroniclingamerica/); [*Fayetteville Observer*](https://www.loc.gov/chroniclingamerica/); [*Feliciana Sentinel*](https://www.loc.gov/chroniclingamerica/); [*Frostburg Mining Journal*](https://www.loc.gov/chroniclingamerica/); [*Fulton Journal*](https://www.loc.gov/chroniclingamerica/); [*Grant County Herald*](https://www.loc.gov/chroniclingamerica/); [*Idaho Semi-Weekly World*](https://www.loc.gov/chroniclingamerica/); [*Independent Statesman*](https://www.loc.gov/chroniclingamerica/); [*Knoxville Daily Chronicle*](https://www.loc.gov/chroniclingamerica/); [*Las Dos Repúblicas*](https://www.loc.gov/chroniclingamerica/); [*Lyon County Times*](https://www.loc.gov/chroniclingamerica/); [*Narragansett Herald*](https://www.loc.gov/chroniclingamerica/); [*Northern Ohio Journal*](https://www.loc.gov/chroniclingamerica/); [*Northern Tribune*](https://www.loc.gov/chroniclingamerica/); [*Orleans County Monitor*](https://www.loc.gov/chroniclingamerica/); [*Ottumwa Weekly Courier*](https://www.loc.gov/chroniclingamerica/); [*Puget Sound Dispatch*](https://www.loc.gov/chroniclingamerica/); [*Richland Beacon*](https://www.loc.gov/chroniclingamerica/); [*River Falls Journal*](https://www.loc.gov/chroniclingamerica/); [*Rocky Mountain Husbandman*](https://www.loc.gov/chroniclingamerica/); [*Saint Mary's Beacon*](https://www.loc.gov/chroniclingamerica/); [*Salt River Herald*](https://www.loc.gov/chroniclingamerica/); [*San Marcos Free Press*](https://www.loc.gov/chroniclingamerica/); [*Stevens County Tribune*](https://www.loc.gov/chroniclingamerica/); [*The Benton Record*](https://www.loc.gov/chroniclingamerica/); [*The Canton Advocate*](https://www.loc.gov/chroniclingamerica/); [*The Columbian*](https://www.loc.gov/chroniclingamerica/); [*The Donaldsonville Chief*](https://www.loc.gov/chroniclingamerica/); [*The Elk County Advocate*](https://www.loc.gov/chroniclingamerica/); [*The Hartford Herald*](https://www.loc.gov/chroniclingamerica/); [*The Herald and Mail*](https://www.loc.gov/chroniclingamerica/); [*The Hillsdale Standard*](https://www.loc.gov/chroniclingamerica/); [*The Jasper Weekly Courier*](https://www.loc.gov/chroniclingamerica/); [*The Jewish Advance*](https://www.loc.gov/chroniclingamerica/); [*The Lake Charles Echo*](https://www.loc.gov/chroniclingamerica/); [*The Meridional*](https://www.loc.gov/chroniclingamerica/); [*The Mesilla Valley Independent*](https://www.loc.gov/chroniclingamerica/); [*The Milan Exchange*](https://www.loc.gov/chroniclingamerica/); [*The Morning Herald*](https://www.loc.gov/chroniclingamerica/); [*The Morning Star and Catholic Messenger*](https://www.loc.gov/chroniclingamerica/); [*The New Northwest*](https://www.loc.gov/chroniclingamerica/); [*The Ouachita Telegraph*](https://www.loc.gov/chroniclingamerica/); [*The Pioche Weekly Record*](https://www.loc.gov/chroniclingamerica/); [*The Republican*](https://www.loc.gov/chroniclingamerica/); [*The Russellville Democrat*](https://www.loc.gov/chroniclingamerica/); [*The Sedalia Weekly Bazoo*](https://www.loc.gov/chroniclingamerica/); [*The Stark County Democrat*](https://www.loc.gov/chroniclingamerica/); [*The State Journal*](https://www.loc.gov/chroniclingamerica/); [*The Superior Times*](https://www.loc.gov/chroniclingamerica/); [*The Troy Herald*](https://www.loc.gov/chroniclingamerica/); [*The Valley Virginian*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Arizona Miner*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Herald*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Union Times*](https://www.loc.gov/chroniclingamerica/); [*The Wichita City Eagle*](https://www.loc.gov/chroniclingamerica/); [*The Willimantic Journal*](https://www.loc.gov/chroniclingamerica/); [*The Worthington Advance*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Thibodaux Sentinel and Journal of the 8th Senatorial District*](https://www.loc.gov/chroniclingamerica/); [*Vermont Phœnix*](https://www.loc.gov/chroniclingamerica/); [*Wood County Reporter*](https://www.loc.gov/chroniclingamerica/); [*Wood River Advertiser*](https://www.loc.gov/chroniclingamerica/); [*Devils Lake Inter-ocean*](https://www.loc.gov/chroniclingamerica/); [*Iron County Register*](https://www.loc.gov/chroniclingamerica/); [*Morning Journal and Courier*](https://www.loc.gov/chroniclingamerica/); [*Press and Daily Dakotaian*](https://www.loc.gov/chroniclingamerica/); [*The Democratic Leader*](https://www.loc.gov/chroniclingamerica/); [*The Evening Critic*](https://www.loc.gov/chroniclingamerica/); [*The Lincoln County Leader*](https://www.loc.gov/chroniclingamerica/); [*The Livingston Enterprise*](https://www.loc.gov/chroniclingamerica/); [*The Weekly Oskaloosa Herald*](https://www.loc.gov/chroniclingamerica/); [*Ajo Copper News*](https://www.loc.gov/chroniclingamerica/); [*Arizona Republican*](https://www.loc.gov/chroniclingamerica/); [*Ashland Tidings*](https://www.loc.gov/chroniclingamerica/); [*Baraboo Weekly News*](https://www.loc.gov/chroniclingamerica/); [*Burlington Weekly Free Press*](https://www.loc.gov/chroniclingamerica/); [*The Butler Weekly Times and the Bates County Record*](https://www.loc.gov/chroniclingamerica/); [*Carson City Daily Appeal*](https://www.loc.gov/chroniclingamerica/); [*Catoctin Clarion*](https://www.loc.gov/chroniclingamerica/); [*Crossville Chronicle*](https://www.loc.gov/chroniclingamerica/); [*Decorah Public Opinion*](https://www.loc.gov/chroniclingamerica/); [*El Nuevo Mexicano*](https://www.loc.gov/chroniclingamerica/); [*El Paso Herald*](https://www.loc.gov/chroniclingamerica/); [*El Tucsonense*](https://www.loc.gov/chroniclingamerica/); [*Elko Independent*](https://www.loc.gov/chroniclingamerica/); [*Evening Capital and Maryland Gazette*](https://www.loc.gov/chroniclingamerica/); [*Evening Public Ledger*](https://www.loc.gov/chroniclingamerica/); [*Every Evening, Wilmington Daily Commercial*](https://www.loc.gov/chroniclingamerica/); [*Every Evening, Wilmington Daily Commercial*](https://www.loc.gov/chroniclingamerica/); [*Fair Play*](https://www.loc.gov/chroniclingamerica/); [*Free Trader-journal*](https://www.loc.gov/chroniclingamerica/); [*Fulton County Tribune*](https://www.loc.gov/chroniclingamerica/); [*Grand Rapids Herald-Review*](https://www.loc.gov/chroniclingamerica/); [*Greene County Herald*](https://www.loc.gov/chroniclingamerica/); [*Gunnison News-Champion*](https://www.loc.gov/chroniclingamerica/); [*Harrisburg Telegraph*](https://www.loc.gov/chroniclingamerica/); [*Idaho County Free Press*](https://www.loc.gov/chroniclingamerica/); [*Iditarod Pioneer*](https://www.loc.gov/chroniclingamerica/); [*Iowa County Democrat*](https://www.loc.gov/chroniclingamerica/); [*Iron County News*](https://www.loc.gov/chroniclingamerica/); [*Little Falls Herald*](https://www.loc.gov/chroniclingamerica/); [*Manchester Democrat*](https://www.loc.gov/chroniclingamerica/); [*Mansfield Mirror*](https://www.loc.gov/chroniclingamerica/); [*Meade County News*](https://www.loc.gov/chroniclingamerica/); [*Mohave County Miner*](https://www.loc.gov/chroniclingamerica/); [*Montpelier Examiner*](https://www.loc.gov/chroniclingamerica/); [*New Iberia Enterprise and Independent Observer*](https://www.loc.gov/chroniclingamerica/); [*Newport Daily Independent*](https://www.loc.gov/chroniclingamerica/); [*Nogales Daily Herald*](https://www.loc.gov/chroniclingamerica/); [*Pinedale Roundup*](https://www.loc.gov/chroniclingamerica/); [*Potosi Journal*](https://www.loc.gov/chroniclingamerica/); [*Pullman Herald*](https://www.loc.gov/chroniclingamerica/); [*Putnam County Herald*](https://www.loc.gov/chroniclingamerica/); [*Rawlins Republican*](https://www.loc.gov/chroniclingamerica/); [*Rock Island Argus*](https://www.loc.gov/chroniclingamerica/); [*Rockingham Post-Dispatch*](https://www.loc.gov/chroniclingamerica/); [*Sharp County Record*](https://www.loc.gov/chroniclingamerica/); [*Sioux County Pioneer*](https://www.loc.gov/chroniclingamerica/); [*Smyrna Times*](https://www.loc.gov/chroniclingamerica/); [*Spirit of Jefferson*](https://www.loc.gov/chroniclingamerica/); [*Stone County Enterprise*](https://www.loc.gov/chroniclingamerica/); [*The Alaska Daily Empire*](https://www.loc.gov/chroniclingamerica/); [*The Alliance Herald*](https://www.loc.gov/chroniclingamerica/); [*The Arizona Copper Camp*](https://www.loc.gov/chroniclingamerica/); [*The Athena Press*](https://www.loc.gov/chroniclingamerica/); [*The Bamberg Herald*](https://www.loc.gov/chroniclingamerica/); [*The Beatrice Daily Express*](https://www.loc.gov/chroniclingamerica/); [*The Birmingham Age-Herald*](https://www.loc.gov/chroniclingamerica/); [*The Bolivar County Democrat*](https://www.loc.gov/chroniclingamerica/); [*The Bossier Banner*](https://www.loc.gov/chroniclingamerica/); [*The Bourbon News*](https://www.loc.gov/chroniclingamerica/); [*The Bowbells Tribune*](https://www.loc.gov/chroniclingamerica/); [*The Camden Chronicle*](https://www.loc.gov/chroniclingamerica/); [*The Chickasha Daily Express*](https://www.loc.gov/chroniclingamerica/); [*The Citizen-Republican*](https://www.loc.gov/chroniclingamerica/); [*The Coconino Sun*](https://www.loc.gov/chroniclingamerica/); [*The Colfax Chronicle*](https://www.loc.gov/chroniclingamerica/); [*The Columbus Commercial*](https://www.loc.gov/chroniclingamerica/); [*The Colville Examiner*](https://www.loc.gov/chroniclingamerica/); [*The Covington Leader*](https://www.loc.gov/chroniclingamerica/); [*The Crook County Monitor*](https://www.loc.gov/chroniclingamerica/); [*The Daily Alaskan*](https://www.loc.gov/chroniclingamerica/); [*The Daily Progressive-Miner*](https://www.loc.gov/chroniclingamerica/); [*The Daily Star-Mirror*](https://www.loc.gov/chroniclingamerica/); [*The Dawson News*](https://www.loc.gov/chroniclingamerica/); [*The Delta Independent*](https://www.loc.gov/chroniclingamerica/); [*The Denison Review*](https://www.loc.gov/chroniclingamerica/); [*The Elbert County Tribune*](https://www.loc.gov/chroniclingamerica/); [*The Elk Mountain Pilot*](https://www.loc.gov/chroniclingamerica/); [*The Emmett Index*](https://www.loc.gov/chroniclingamerica/); [*The Evening Herald*](https://www.loc.gov/chroniclingamerica/); [*The Evening Missourian*](https://www.loc.gov/chroniclingamerica/); [*The Evening World*](https://www.loc.gov/chroniclingamerica/); [*The Glasgow Courier*](https://www.loc.gov/chroniclingamerica/); [*The Goldfield News and Weekly Tribune*](https://www.loc.gov/chroniclingamerica/); [*The Grangeville Globe*](https://www.loc.gov/chroniclingamerica/); [*The Greenville Journal*](https://www.loc.gov/chroniclingamerica/); [*The Guernsey Gazette*](https://www.loc.gov/chroniclingamerica/); [*The Guthrie Daily Leader*](https://www.loc.gov/chroniclingamerica/); [*The Hartford Republican*](https://www.loc.gov/chroniclingamerica/); [*The Hays Free Press*](https://www.loc.gov/chroniclingamerica/); [*The Hayti Herald*](https://www.loc.gov/chroniclingamerica/); [*The Herald and News*](https://www.loc.gov/chroniclingamerica/); [*The Holly Chieftain*](https://www.loc.gov/chroniclingamerica/); [*The Hope Pioneer*](https://www.loc.gov/chroniclingamerica/); [*The Idaho Recorder*](https://www.loc.gov/chroniclingamerica/); [*The Idaho Springs Siftings-News*](https://www.loc.gov/chroniclingamerica/); [*The Independent-Reporter*](https://www.loc.gov/chroniclingamerica/); [*The Julesburg Grit-Advocate*](https://www.loc.gov/chroniclingamerica/); [*The Kemmerer Republican*](https://www.loc.gov/chroniclingamerica/); [*The Lakeland Evening Telegram*](https://www.loc.gov/chroniclingamerica/); [*The Leon Reporter*](https://www.loc.gov/chroniclingamerica/); [*The Madison Daily Leader*](https://www.loc.gov/chroniclingamerica/); [*The Mahoning Dispatch*](https://www.loc.gov/chroniclingamerica/); [*The Manchester Journal*](https://www.loc.gov/chroniclingamerica/); [*The Mccarthy Weekly News*](https://www.loc.gov/chroniclingamerica/); [*The Miller Press*](https://www.loc.gov/chroniclingamerica/); [*The Milwaukee Leader*](https://www.loc.gov/chroniclingamerica/); [*The Monett Times*](https://www.loc.gov/chroniclingamerica/); [*The Monticellonian*](https://www.loc.gov/chroniclingamerica/); [*The Moorefield Examiner*](https://www.loc.gov/chroniclingamerica/); [*The Morgan City Daily Review*](https://www.loc.gov/chroniclingamerica/); [*The Nenana Daily News*](https://www.loc.gov/chroniclingamerica/); [*The Nezperce Herald*](https://www.loc.gov/chroniclingamerica/); [*The North Platte Semi-Weekly Tribune*](https://www.loc.gov/chroniclingamerica/); [*The Ocala Evening Star*](https://www.loc.gov/chroniclingamerica/); [*The Ogden Standard*](https://www.loc.gov/chroniclingamerica/); [*The Ontario Argus*](https://www.loc.gov/chroniclingamerica/); [*The Oroville Weekly Gazette*](https://www.loc.gov/chroniclingamerica/); [*The Pickens Sentinel*](https://www.loc.gov/chroniclingamerica/); [*The Port Gibson Reveille*](https://www.loc.gov/chroniclingamerica/); [*The Princeton Union*](https://www.loc.gov/chroniclingamerica/); [*The Public Ledger*](https://www.loc.gov/chroniclingamerica/); [*The Punta Gorda Herald*](https://www.loc.gov/chroniclingamerica/); [*The Rathdrum Tribune*](https://www.loc.gov/chroniclingamerica/); [*The Record*](https://www.loc.gov/chroniclingamerica/); [*The Red Cloud Chief*](https://www.loc.gov/chroniclingamerica/); [*The Richmond Palladium and Sun-Telegram*](https://www.loc.gov/chroniclingamerica/); [*The Ronan Pioneer*](https://www.loc.gov/chroniclingamerica/); [*The Seward Gateway Daily Edition, and the Alaska Weekly Post*](https://www.loc.gov/chroniclingamerica/); [*The Snowflake Herald*](https://www.loc.gov/chroniclingamerica/); [*The Spanish American*](https://www.loc.gov/chroniclingamerica/); [*The St. Joseph Observer*](https://www.loc.gov/chroniclingamerica/); [*The Telegraph-Courier*](https://www.loc.gov/chroniclingamerica/); [*The True Democrat*](https://www.loc.gov/chroniclingamerica/); [*The Wahpeton Times*](https://www.loc.gov/chroniclingamerica/); [*The Watertown News*](https://www.loc.gov/chroniclingamerica/); [*The Weston Leader*](https://www.loc.gov/chroniclingamerica/); [*The Wilson Times*](https://www.loc.gov/chroniclingamerica/); [*The Yale Expositor*](https://www.loc.gov/chroniclingamerica/); [*Tonopah Daily Bonanza*](https://www.loc.gov/chroniclingamerica/); [*Trench and Camp*](https://www.loc.gov/chroniclingamerica/); [*Vernon County Censor*](https://www.loc.gov/chroniclingamerica/); [*Vilas County News*](https://www.loc.gov/chroniclingamerica/); [*Walker Lake Bulletin*](https://www.loc.gov/chroniclingamerica/); [*Wausau Pilot*](https://www.loc.gov/chroniclingamerica/); [*Webster City Freeman*](https://www.loc.gov/chroniclingamerica/); [*Weekly Journal-Miner*](https://www.loc.gov/chroniclingamerica/); [*Western Liberal*](https://www.loc.gov/chroniclingamerica/); [*Windham County Observer*](https://www.loc.gov/chroniclingamerica/); [*Audubon Republican*](https://www.loc.gov/chroniclingamerica/); [*Batesville Daily Guard*](https://www.loc.gov/chroniclingamerica/); [*The Daily Gate City and Constitution-democrat*](https://www.loc.gov/chroniclingamerica/); [*Richmond Times-Dispatch*](https://www.loc.gov/chroniclingamerica/); [*St. Croix Avis*](https://www.loc.gov/chroniclingamerica/); [*The Bemidji Daily Pioneer*](https://www.loc.gov/chroniclingamerica/). Low Countries: [*Utrechtsche provinciale en stads-courant*](https://www.delpher.nl/nl/kranten); [*Hoornsche courant*](https://www.delpher.nl/nl/kranten); [*Het volksdagblad*](https://www.delpher.nl/nl/kranten); [*Deli courant*](https://www.delpher.nl/nl/kranten); [*De Stichtsche courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Hengeloosche courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Veendammer courant*](https://www.delpher.nl/nl/kranten); [*Nieuwe Winterswijksche courant*](https://www.delpher.nl/nl/kranten); [*Dragtster courant*](https://www.delpher.nl/nl/kranten); [*Nieuwsblad van het Zuiden*](https://www.delpher.nl/nl/kranten); [*Ons Noorden*](https://www.delpher.nl/nl/kranten); [*Opregte Steenwijker courant*](https://www.delpher.nl/nl/kranten); [*Provinciale Noordbrabantsche en 's Hertogenbossche courant*](https://www.delpher.nl/nl/kranten); [*De expres*](https://www.delpher.nl/nl/kranten); [*De Graafschapper*](https://www.delpher.nl/nl/kranten); [*De tribune*](https://www.delpher.nl/nl/kranten); [*De Zaanlander*](https://www.delpher.nl/nl/kranten); [*Onze courant*](https://www.delpher.nl/nl/kranten); [*Overijsselsch dagblad*](https://www.delpher.nl/nl/kranten). Germany: [*Rotterdamsche courant*](https://www.delpher.nl/nl/kranten). Britain: [*Nieuw Amsterdamsch handels- en effectenblad*](https://www.delpher.nl/nl/kranten); [*Otago Daily Times*](https://paperspast.natlib.govt.nz/newspapers/otago-daily-times); [*The Press (Christchurch)*](https://paperspast.natlib.govt.nz/newspapers/press). France: [*Venloosch weekblad*](https://www.delpher.nl/nl/kranten).
 
 </details>
 
 ## Learned writings
 
-Learned writings fall into three subgenres. **Reports** detail instruments, weather and times, often with tables, end with place, date and name, and are mostly first-hand records. **Communications** were submitted to the proceedings of a learned society or an astronomical journal; they are often worked up from a report and pay more attention to scientific theory. **Letters** are scholars' contributions to newspapers, headed by the paper's own introduction and written more plainly. They run from 1715 to 1923, with 57 records in all, 4.9% of the Chinese translation by character count.
+Learned writings fall into three subgenres. **Reports** detail instruments, weather and times, often with tables, end with place, date and name, and are mostly first-hand records. **Communications** were submitted to the proceedings of a learned society or an astronomical journal; they are often worked up from a report and pay more attention to scientific theory. **Letters** are scholars' contributions to newspapers, headed by the paper's own introduction and written more plainly. They run from 1218 BCE to 1943, with 353 records in all, 11.2% of the Chinese translation by character count.
 
 Author or source | Period | Report | Communication | Letter | Total
 ---|---|--:|--:|--:|--:
+[*The Astronomical Herald*](https://www.asj.or.jp/geppou/archive_open/) | 1218 BCE – 1943 |  | 269 |  | 269
 [Edmond Halley](https://archive.org/details/bim_eighteenth-century_a-description-of-the-pas_halley-edmund_1715_0) | 1715 | 1 |  |  | 1
 [Giacomo Filippo Maraldi](https://archive.org/details/bub_gb_kBhPQ4eDO9gC) | 1715 | 1 |  |  | 1
 [Jacques Cassini](https://gallica.bnf.fr/ark:/12148/bpt6k3525w) | 1724 | 1 |  |  | 1
@@ -650,6 +993,7 @@ Author or source | Period | Report | Communication | Letter | Total
 [Joseph Adam Braun](https://archive.org/details/novicommentarii01sssrgoog) | 1748 | 1 |  |  | 1
 [James Ferguson](https://archive.org/details/philtrans09200653) | 1764 |  | 1 |  | 1
 [Samuel Dunn](https://archive.org/details/philtrans00704630) | 1764 |  | 1 |  | 1
+[*The Heavens*](https://repository.kulib.kyoto-u.ac.jp/) | 1778 – 1943 |  | 25 |  | 25
 [Pyotr Inochodzov](https://archive.org/details/novaactaacademia07impe) | 1791 | 1 |  |  | 1
 [Stephan Rumovsky](https://archive.org/details/novaactaacademia07impe) | 1791 | 1 |  |  | 1
 [José Joaquín de Ferrer](https://archive.org/details/transactionsofam61809amer) | 1806 |  | 1 |  | 1
@@ -689,6 +1033,7 @@ Sir William Christie | 1905 |  | 1 |  | 1
 [*Leeuwarder courant*](https://www.delpher.nl/nl/kranten) | 1912 |  |  | 1 | 1
 [Hibbert Perceval Newton](https://archive.org/details/sim_popular-astronomy_june-and-july-1913_21_6) | 1913 | 1 |  |  | 1
 Daniel Walter Morehouse | 1918 | 1 |  |  | 1
+[*Fulton County Tribune*](https://www.loc.gov/chroniclingamerica/) | 1918 |  |  | 1 | 1
 Herbert C. Wilson | 1918 |  | 1 |  | 1
 [J. C. Hammond](https://archive.org/details/sim_popular-astronomy_august-and-september-1918_26_7) | 1918 | 1 |  |  | 1
 J. H. Darling | 1918 |  | 1 |  | 1
@@ -700,14 +1045,15 @@ Walter Sydney Adams | 1918 |  | 1 |  | 1
 [F. W. Dyson](https://archive.org/details/philtrans06337895) | 1919 |  | 1 |  | 1
 [*Nieuwe Rotterdamsche Courant*](https://www.delpher.nl/nl/kranten) | 1919 |  |  | 1 | 1
 Joaquín Gallo | 1923 |  | 1 |  | 1
+[*The China Mail*](https://archive.org/details/china-mail) | 1926 |  |  | 1 | 1
 
 ## Miscellanea
 
-The Miscellanea comprise four subgenres, classics, tablets, poetry and diaries, and hold mostly scattered, isolated records. This section groups them by civilization, with the sources in date order. They run from 2137 BCE, the earliest in the corpus, to 1842, with 147 records in all, 2.9% of the Chinese translation by character count.
+The Miscellanea comprise four subgenres, classics, tablets, poetry and diaries, and hold mostly scattered, isolated records. This section groups them by civilization, with the sources in date order. They run from 2137 BCE, the earliest in the corpus, to 1842, with 148 records in all, 1.9% of the Chinese translation by character count.
 
 Civilization | Period | Sources | Records
 ---|---|---|--:
-China | 2137 BCE – 1277 | [*Book of Documents*, 'Punitive Expedition of Yin'](https://zh.wikisource.org/wiki/尚書/胤征); [Yinxu oracle-bone inscriptions](https://adsabs.harvard.edu/full/1995QJRAS..36..397Z); [*Shijing*, 'Minor Odes'](https://zh.wikisource.org/wiki/詩經/十月之交); [Hán Yù](https://zh.wikisource.org/wiki/全唐詩/卷340); [Lú Tóng](https://zh.wikisource.org/wiki/全唐詩/卷388); [*Travels of the Perfected Man Changchun to the West*](https://zh.wikisource.org/wiki/%E9%95%B7%E6%98%A5%E7%9C%9F%E4%BA%BA%E8%A5%BF%E9%81%8A%E8%A8%98/%E5%8D%B7%E4%B8%8A); Shū Yuèxiáng | 14
+China | 2137 BCE – 1277 | [*Book of Documents*, 'Punitive Expedition of Yin'](https://zh.wikisource.org/wiki/尚書/胤征); [Yinxu oracle-bone inscriptions](https://adsabs.harvard.edu/full/1995QJRAS..36..397Z); [*Shijing*, 'Minor Odes'](https://zh.wikisource.org/wiki/詩經/十月之交); [Hán Yù](https://zh.wikisource.org/wiki/全唐詩/卷340); [Lú Tóng](https://zh.wikisource.org/wiki/全唐詩/卷388); [*Travels of the Perfected Man Changchun to the West*](https://zh.wikisource.org/wiki/%E9%95%B7%E6%98%A5%E7%9C%9F%E4%BA%BA%E8%A5%BF%E9%81%8A%E8%A8%98/%E5%8D%B7%E4%B8%8A); Shū Yuèxiáng | 15
 Hittite | 1312 BCE | Mursili II | 1
 Babylon | 1223 BCE – 183 BCE | [Ugaritic tablet KTU 1.78 (RS 12.061)](https://cdli.earth/search?q=RS+12.061); [Babylonian scribes](https://archive.org/details/bub_gb_a9nvvbG-OOIC); [Ptolemy, *Almagest*](https://archive.org/details/india.history.resource.111794); [Claudius Ptolemy, *Almagest*](https://archive.org/details/bub_gb_a9nvvbG-OOIC); [*Babylonian Astronomical Diaries*](http://oracc.museum.upenn.edu/adsd/) | 10
 Assyria | 763 BCE | [Assyrian scribes](https://oracc.museum.upenn.edu/saao/saas2/) | 1
@@ -731,37 +1077,37 @@ France | 1842 | Unnamed correspondent at Montpellier (sender's name garbled in t
 
 Civilization | Period | Solar | Lunar | Occult. | Conj. | Guest | Comet | Total
 ---|---|--:|--:|--:|--:|--:|--:|--:
-China | 2137 BCE – 1941 | 794 | 248 | 7,305 | 70 | 60 | 340 | 8,817
+China | 2137 BCE – 1941 | 820 | 249 | 7,302 | 70 | 60 | 341 | 8,842
 Hittite | 1312 BCE | 1 |  |  |  |  |  | 1
-Babylon | 1223 BCE – 183 BCE | 1 | 9 |  |  |  |  | 10
+Babylon | 1223 BCE – 183 BCE | 2 | 10 |  |  |  |  | 12
 Assyria | 763 BCE | 1 |  |  |  |  |  | 1
-Greek | 648 BCE – 71 | 6 | 2 |  |  |  |  | 8
-Rome | 190 BCE – 168 BCE | 1 | 1 |  |  |  |  | 2
-Korea | 54 BCE – 1863 | 244 | 129 | 1,966 | 4 | 90 | 359 | 2,792
+Greek | 648 BCE – 1914 | 7 | 2 |  |  |  |  | 9
+Rome | 190 BCE – 5 | 2 | 1 |  |  |  |  | 3
+Korea | 54 BCE – 1863 | 244 | 129 | 1,967 | 4 | 90 | 359 | 2,793
 Byzantium | 346 – 1453 | 21 | 9 |  |  | 1 | 17 | 48
-Iberia | 402 – 1912 | 34 | 3 |  |  |  | 2 | 39
+Iberia | 402 – 1926 | 40 | 4 |  |  |  | 2 | 46
 Syriac | 500 – 1191 | 9 | 2 |  |  |  | 1 | 12
-Japan | 628 – 1941 | 130 | 4 |  |  | 4 | 11 | 149
-Britain | 664 – 1941 | 170 | 7 |  |  |  |  | 177
+Japan | 628 – 1943 | 237 | 75 | 7 |  | 7 | 21 | 347
+Britain | 664 – 1941 | 220 | 7 | 2 |  | 1 | 6 | 236
 Maya | 755 – 859 | 2 |  |  |  |  |  | 2
 HRE | 806 – 1746 | 10 | 10 |  |  |  |  | 20
 Islamic | 819 – 1905 | 29 | 52 | 19 | 31 |  |  | 131
 Vietnam | 993 – 1774 | 47 | 32 |  |  |  |  | 79
-France | 1033 – 1936 | 270 | 2 |  |  |  |  | 272
+France | 1033 – 1936 | 278 | 4 |  |  |  | 6 | 288
 Tangut | 1038 – 1223 | 9 |  |  |  |  |  | 9
 Armenia | 1099 – 1736 | 4 | 3 |  |  |  |  | 7
-Italy | 1178 – 1927 | 14 | 4 |  |  |  |  | 18
-Slavic | 1185 – 1941 | 10 |  |  |  |  |  | 10
-Nordic | 1263 – 1927 | 5 | 3 |  |  |  |  | 8
+Italy | 1178 – 1933 | 18 | 4 | 1 |  | 1 |  | 24
+Slavic | 1185 – 1941 | 19 |  |  |  | 1 |  | 20
+Nordic | 1263 – 1927 | 6 | 3 |  |  |  | 2 | 11
 Poland | 1406 – 1905 | 4 |  |  |  |  |  | 4
 Aztec | 1496 | 1 |  |  |  |  |  | 1
 Low Countries | 1544 – 1929 | 326 |  |  |  |  |  | 326
-America | 1806 – 1929 | 198 |  |  |  |  |  | 198
-Germany | 1836 – 1936 | 29 | 5 |  |  |  |  | 34
+America | 1778 – 1940 | 1,120 |  |  |  | 1 | 11 | 1,132
+Germany | 1836 – 1936 | 33 | 7 | 1 |  |  | 5 | 46
 Austria | 1836 – 1905 | 3 |  |  |  |  |  | 3
-Switzerland | 1852 – 1905 | 1 | 1 |  |  |  |  | 2
+Switzerland | 1852 – 1910 | 1 | 1 |  |  |  | 1 | 3
 Hungary | 1867 | 1 |  |  |  |  |  | 1
-Canada | 1875 – 1913 | 2 | 1 |  |  |  |  | 3
-Latin America | 1912 – 1923 | 8 |  |  |  |  |  | 8
+Canada | 1875 – 1913 | 5 | 1 |  |  |  |  | 6
+Latin America | 1912 – 1941 | 11 |  |  |  |  |  | 11
 India | 1922 – 1941 | 3 |  |  |  |  |  | 3
-**Total** | | **2,388** | **527** | **9,290** | **105** | **155** | **730** | **13,195**
+**Total** | | **3,534** | **605** | **9,299** | **105** | **162** | **772** | **14,477**

@@ -5,10 +5,10 @@
    "fields": "key = person identifier. role = observer | author | translator | ruler | maker | figure | mythological. latin = the name in scholarly transliteration. variants = spellings the Chinese text must not use: retired Chinese forms, and the Latin form of a name that has a Chinese one. zh-Hans / zh-Hant / en / fr / es / it / ja = display names, all seven required.",
    "provenance": "Chinese names follow the forms already current in Chinese scholarship where one exists; otherwise they are transliterated from the Arabic, Greek or Syriac.",
    "count": {
-     "persons": 76
+     "persons": 77
    },
    "license": "CC-BY-SA-4.0",
-   "updated": "2026-10-07"
+   "updated": "2026-11-18"
  },
  "persons": {
   "abu-l-hasan-ibn-amajur": {"role": "observer", "latin": "Abū al-Ḥasan ʿAlī ibn Amājūr", "variants": ["阿布尔哈桑", "阿布哈桑", "阿布·哈桑"], "zh-Hans": "阿布勒哈桑", "zh-Hant": "阿布勒哈桑", "en": "Abū al-Ḥasan", "fr": "Abou al-Hassan", "es": "Abu al-Hasan", "it": "Abu al-Hasan", "ja": "アブー・アル＝ハサン"},
@@ -43,6 +43,7 @@
   "ferguson-james": {"role": "author", "latin": "James Ferguson", "variants": [], "zh-Hans": "詹姆斯·弗格森", "zh-Hant": "詹姆斯·弗格森", "en": "James Ferguson", "fr": "James Ferguson", "es": "James Ferguson", "it": "James Ferguson", "ja": "ジェームズ・ファーガソン"},
   "flammarion": {"role": "author", "latin": "Camille Flammarion", "variants": [], "zh-Hans": "卡米耶·弗拉马里翁", "zh-Hant": "卡米耶·弗拉馬里翁", "en": "Camille Flammarion", "fr": "Camille Flammarion", "es": "Camille Flammarion", "it": "Camille Flammarion", "ja": "カミーユ・フラマリオン"},
   "fraunhofer": {"role": "maker", "latin": "Fraunhofer", "variants": ["Fraunhofer", "夫琅禾费", "弗劳恩霍夫"], "zh-Hans": "夫琅和费", "zh-Hant": "夫琅和費", "en": "Fraunhofer", "fr": "Fraunhofer", "es": "Fraunhofer", "it": "Fraunhofer", "ja": "フラウンホーファー"},
+  "freundlich": {"role": "observer", "latin": "Erwin Finlay-Freundlich", "variants": [], "zh-Hans": "弗罗因德利希", "zh-Hant": "弗羅因德利希", "en": "Freundlich", "fr": "Freundlich", "es": "Freundlich", "it": "Freundlich", "ja": "フロイントリヒ"},
   "habash-al-hasib": {"role": "observer", "latin": "Ḥabash al-Ḥāsib", "variants": ["Habash"], "zh-Hans": "哈巴什", "zh-Hant": "哈巴什", "en": "Ḥabash al-Ḥāsib", "fr": "Habash al-Hasib", "es": "Habash al-Hasib", "it": "Habash al-Hasib", "ja": "ハバシュ・アル＝ハースィブ"},
   "helike": {"role": "mythological", "latin": "Helikē", "variants": ["赫里克"], "zh-Hans": "赫利刻", "zh-Hant": "赫利刻", "en": "Helike", "fr": "Hélicé", "es": "Hélice", "it": "Elice", "ja": "ヘリケ"},
   "heracles": {"role": "mythological", "latin": "Hēraklēs", "variants": [], "zh-Hans": "赫拉克勒斯", "zh-Hant": "赫拉克勒斯", "en": "Hercules", "fr": "Hercule", "es": "Hércules", "it": "Ercole", "ja": "ヘラクレス"},
